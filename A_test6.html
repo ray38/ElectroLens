@@ -39,7 +39,7 @@
 		<script src="js/math/Lut.js"></script>
 		<script src="js/controls/OrbitControls.js"></script>
 		<script src="js/libs/dat.gui.min.js"></script>
-		<script src="data/CO2_B3LYP_0_0_0_n.js"></script>
+		
 		
 
 		
@@ -92,9 +92,13 @@
 		<script>
 
 		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-		$.getJSON("CO2_B3LYP_0_0_0_n.json", function(json) {
-		    var n_test = json; // this will show the info it in firebug console
+		var n_test;
+		//alert(n_test);
+		$.getJSON("data/CO2_B3LYP_0_0_0_n.json", function(json) {
+		    n_test = json; // this will show the info it in firebug console
+		    //alert(n_test);
 		});
+		alert(n_test);
 
 		var renderer, scene, camera, stats;
 
@@ -196,37 +200,37 @@
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
 				scene.add( particleSystem );
 			});
-			folder.add( options, 'x_low', 0, 50 ).step( 1 ).onChange( function( value ) {
+			folder.add( options, 'x_low', 0, 100 ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
 				scene.add( particleSystem );
 			});
-			folder.add( options, 'x_high', 50, 100 ).step( 1 ).onChange( function( value ) {
+			folder.add( options, 'x_high', 0, 100 ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
 				scene.add( particleSystem );
 			});
-			folder.add( options, 'y_low', 0, 50 ).step( 1 ).onChange( function( value ) {
+			folder.add( options, 'y_low', 0, 100  ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
 				scene.add( particleSystem );
 			});
-			folder.add( options, 'y_high', 50, 100 ).step( 1 ).onChange( function( value ) {
+			folder.add( options, 'y_high', 0, 100  ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
 				scene.add( particleSystem );
 			});
-			folder.add( options, 'z_low', 0, 50 ).step( 1 ).onChange( function( value ) {
+			folder.add( options, 'z_low', 0, 100  ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
 				scene.add( particleSystem );
 			});
-			folder.add( options, 'z_high', 50, 100 ).step( 1 ).onChange( function( value ) {
+			folder.add( options, 'z_high', 0, 100  ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
@@ -324,9 +328,16 @@
 						colors[ i3 + 1 ] = color.g;
 						colors[ i3 + 2 ] = color.b;
 						
-						if ((x_start >= options.x_low) && (y_start >= options.y_low) && (z_start >= options.z_low) && (x_end <= options.x_high) && (y_end <= options.y_high) && (z_end <= options.z_high)){sizes[ i ] = options.size;}
+						if (	(x_start >= options.x_low) 	&& (y_start >= options.y_low) 	&&
+							(z_start >= options.z_low) 	&& (x_end <= options.x_high)	&&
+							(y_end <= options.y_high) 	&& (z_end <= options.z_high)	)
+							{sizes[ i ] = options.size;}
 						else {sizes[ i ] = 0;}
-						if ((x_start >= options.x_low) && (y_start >= options.y_low) && (z_start >= options.z_low) && (x_end <= options.x_high) && (y_end <= options.y_high) && (z_end <= options.z_high)){alphas[ i ] = options.alpha;}
+						
+						if (	(x_start >= options.x_low) 	&& (y_start >= options.y_low) 	&&
+							(z_start >= options.z_low) 	&& (x_end <= options.x_high)	&&
+							(y_end <= options.y_high) 	&& (z_end <= options.z_high)	)
+							{alphas[ i ] = options.alpha;}
 						else {alphas[ i ] = 0;}
 						//sizes[ i ] = options.size;
 						//alphas[ i ] = options.alpha;
