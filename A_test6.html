@@ -96,9 +96,13 @@
 		//alert(n_test);
 		$.getJSON("data/CO2_B3LYP_0_0_0_n.json", function(json) {
 		    n_test = json; // this will show the info it in firebug console
-		    //alert(n_test);
+		    console.log('successful')
 		});
+		//$.getJSON("data/CO2_B3LYP_0_0_0_n.json", n_test);
+		//alert(n_test);
+		console.log(n_test);
 		alert(n_test);
+		console.log(n_test);
 
 		var renderer, scene, camera, stats;
 
