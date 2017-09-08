@@ -93,36 +93,28 @@
 
 		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 		
-		var n_test;
-		//alert(n_test);
-		$.getJSON("data/CO2_B3LYP_0_0_0_n.json", function(json) {
-		    //n_test = json; // this will show the info it in firebug console
-		    console.log('successful')
-		});
-		//$.getJSON("data/CO2_B3LYP_0_0_0_n.json", n_test);
-		//alert(n_test);
-		//alert(n_test);
-		//alert(json);
-
-		//var n_test = $.parseJSON('data/CO2_B3LYP_0_0_0_n.json');
-
 		var renderer, scene, camera, stats;
 
 		var particleSystem, uniforms, geometry;
-		
+	
 		var colorMap;
 		var numberOfColors;
 		var lut;
-		
+	
 		var options, gui;
 
 
 
 		var WIDTH = window.innerWidth;
 		var HEIGHT = window.innerHeight;
-		init();
-		animate();
 		
+		var n_test;
+		$.getJSON("data/H2O_B3LYP_0_0_0_n.json", function(json) {
+			n_test = json; // this will show the info it in firebug console
+			alert('successful');
+			init();
+			animate();
+		});
 		
 
 		function init() {
@@ -333,15 +325,15 @@
 						colors[ i3 + 1 ] = color.g;
 						colors[ i3 + 2 ] = color.b;
 						
-						if (	(x_start >= options.x_low) 	&& (y_start >= options.y_low) 	&&
-							(z_start >= options.z_low) 	&& (x_end <= options.x_high)	&&
-							(y_end <= options.y_high) 	&& (z_end <= options.z_high)	)
+						if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
+							(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
+							(z_start >= options.z_low) 	&& (z_end <= options.z_high)	)
 							{sizes[ i ] = options.size;}
 						else {sizes[ i ] = 0;}
 						
-						if (	(x_start >= options.x_low) 	&& (y_start >= options.y_low) 	&&
-							(z_start >= options.z_low) 	&& (x_end <= options.x_high)	&&
-							(y_end <= options.y_high) 	&& (z_end <= options.z_high)	)
+						if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
+							(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
+							(z_start >= options.z_low) 	&& (z_end <= options.z_high)	)
 							{alphas[ i ] = options.alpha;}
 						else {alphas[ i ] = 0;}
 						//sizes[ i ] = options.size;
