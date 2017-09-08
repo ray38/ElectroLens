@@ -103,15 +103,12 @@
 	
 		var options, gui;
 
-
-
 		var WIDTH = window.innerWidth;
 		var HEIGHT = window.innerHeight;
 		
 		var n_test;
 		$.getJSON("data/H2O_B3LYP_0_0_0_n.json", function(json) {
 			n_test = json; // this will show the info it in firebug console
-			alert('successful');
 			init();
 			animate();
 		});
@@ -154,6 +151,7 @@
 				this.y_high = 100;
 				this.z_low = 0;
 				this.z_high = 100;
+				this.molecule = 0;
 			};
 			
 
@@ -180,6 +178,52 @@
 			gui = new dat.GUI();
 
 			var folder = gui.addFolder( 'Morph Targets' );
+			
+			folder.add( options, 'molecule',{'CO2':0, 'H2O':1, 'CO':2, 'CH4':3}).onChange( function( value ) {
+				if (value == 0){
+					scene.remove(particleSystem);
+					$.getJSON("data/CO2_B3LYP_0_0_0_n.json", function(json) {
+						n_test = json; // this will show the info it in firebug console
+						var geometry = getParticleGeometry(options);
+						particleSystem = new THREE.Points( geometry, shaderMaterial );
+						scene.add( particleSystem );
+					});
+					
+				}
+				else if (value == 1){
+					scene.remove(particleSystem);
+					$.getJSON("data/H2O_B3LYP_0_0_0_n.json", function(json) {
+						n_test = json; // this will show the info it in firebug console
+						var geometry = getParticleGeometry(options);
+						particleSystem = new THREE.Points( geometry, shaderMaterial );
+						scene.add( particleSystem );
+					});
+					
+				}
+				else if (value == 2){
+					scene.remove(particleSystem);
+					$.getJSON("data/CO_B3LYP_0_0_0_n.json", function(json) {
+						n_test = json; // this will show the info it in firebug console
+						var geometry = getParticleGeometry(options);
+						particleSystem = new THREE.Points( geometry, shaderMaterial );
+						scene.add( particleSystem );
+					});
+					
+				}
+				else if (value == 3){
+					scene.remove(particleSystem);
+					$.getJSON("data/CH4_B3LYP_0_0_0_n.json", function(json) {
+						n_test = json; // this will show the info it in firebug console
+						var geometry = getParticleGeometry(options);
+						particleSystem = new THREE.Points( geometry, shaderMaterial );
+						scene.add( particleSystem );
+					});
+					
+				}
+			});
+			
+			
+			
 			folder.add( options, 'particles', 10, 5000 ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
