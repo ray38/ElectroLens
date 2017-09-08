@@ -51,7 +51,7 @@
 			attribute vec3 customColor;
 			attribute float alpha;
 
-		    	varying float vAlpha;
+		    varying float vAlpha;
 			varying vec3 vColor;
 
 			void main() {
@@ -92,17 +92,19 @@
 		<script>
 
 		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+		
 		var n_test;
 		//alert(n_test);
 		$.getJSON("data/CO2_B3LYP_0_0_0_n.json", function(json) {
-		    n_test = json; // this will show the info it in firebug console
+		    //n_test = json; // this will show the info it in firebug console
 		    console.log('successful')
 		});
 		//$.getJSON("data/CO2_B3LYP_0_0_0_n.json", n_test);
 		//alert(n_test);
-		console.log(n_test);
-		alert(n_test);
-		console.log(n_test);
+		//alert(n_test);
+		//alert(json);
+
+		//var n_test = $.parseJSON('data/CO2_B3LYP_0_0_0_n.json');
 
 		var renderer, scene, camera, stats;
 
