@@ -107,7 +107,7 @@
 		var HEIGHT = window.innerHeight;
 		
 		var n_test;
-		$.getJSON("data/H2O_B3LYP_0_0_0_n.json", function(json) {
+		$.getJSON("data/CO2_B3LYP_0_0_0_n.json", function(json) {
 			n_test = json; // this will show the info it in firebug console
 			init();
 			animate();
@@ -143,6 +143,7 @@
 			
 			options = new function(){
 				this.particles = 100;
+				this.colorSetting = 1.2;
 				this.alpha = 1;
 				this.size = 1;
 				this.x_low = 0;
@@ -242,6 +243,12 @@
 				particleSystem = new THREE.Points( geometry, shaderMaterial );
 				scene.add( particleSystem );
 			});
+			folder.add( options, 'colorSetting', 0.1, 10.0 ).step( 0.1 ).onChange( function( value ) {
+				scene.remove(particleSystem);
+				var geometry = getParticleGeometry(options);
+				particleSystem = new THREE.Points( geometry, shaderMaterial );
+				scene.add( particleSystem );
+			});
 			folder.add( options, 'x_low', 0, 100 ).step( 1 ).onChange( function( value ) {
 				scene.remove(particleSystem);
 				var geometry = getParticleGeometry(options);
@@ -314,7 +321,7 @@
 			var particles = options.particles;
 			var num_blocks = 1000000;
 			var points_in_block = new Float32Array(num_blocks);
-			var total = 18;
+			var total = 100;
 			var count = 0;
 		
 			for ( var k = 0; k < num_blocks; k ++) {
@@ -338,7 +345,7 @@
 			numberOfColors = 512;
 			
 			lut = new THREE.Lut( colorMap, numberOfColors );
-			lut.setMax( 1.2);
+			lut.setMax( options.colorSetting);
 			lut.setMin( 0 );
 			
 			var i = 0, i3 = 0;
@@ -364,6 +371,7 @@
 						positions[ i3 + 1 ] = (y - n_inc)*10;
 						positions[ i3 + 2 ] = (z - n_inc)*10;
 						var color = lut.getColor( n_test[k] );
+						//console.log(color);
 						
 						colors[ i3 + 0 ] = color.r;
 						colors[ i3 + 1 ] = color.g;
