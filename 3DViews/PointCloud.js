@@ -28,6 +28,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 	points_in_block[k] = num_points;
 	count += num_points;
 }
+console.log(count);
 
 var n = 100;
 var n2 = Math.pow(n,2);
