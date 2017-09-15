@@ -7,7 +7,7 @@
 }
 
 </style>
-<svg width="960" height="500"></svg>
+<svg width="1000" height="1000"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
 <script>
@@ -20,13 +20,13 @@ var svg = d3.select("svg"),
 
 var randomX = d3.randomNormal(width / 2, 80),
     randomY = d3.randomNormal(height / 2, 80),
-    points = d3.range(20000).map(function() { return [randomX(), randomY()]; });
+    points = d3.range(2000000).map(function() { return [randomX(), randomY()]; });
 
 var color = d3.scaleSequential(d3.interpolateLab("blue","red" ))
-    .domain([0, 20]);
+    .domain([0, 200]);
 
 var hexbin = d3.hexbin()
-    .radius(5)
+    .radius(4)
     .extent([[0, 0], [width, height]]);
 
 var x = d3.scaleLinear()
