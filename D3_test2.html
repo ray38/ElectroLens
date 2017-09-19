@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="js/three.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style type="text/css">
+    body {
+        margin: 0px;
+        padding: 0px;
+    }
+    #container {
+        width:960px;
+        height:500px;
+    }
+    </style>
+
+</head>
+
+<body>
+
+<!--div id="container"></div-->
+    <script src="js/three.js"></script>
+    <script src="js/jQuery.js"></script>
+
+    <script src="js/Detector.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <script src="js/math/Lut.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/libs/dat.gui.min.js"></script>
+    
+    <script src="3DViews/PointCloud.js"></script>
+    <script src="3DViews/PointMatrix.js"></script>
+    <script src="3DViews/Box.js"></script>
+    <script src="3DViews/BoundaryPlanes.js"></script>
+
+    <script type="x-shader/x-vertex" id="vertexshader">
+
+        attribute float size;
+        attribute vec3 customColor;
+        attribute float alpha;
+
+            varying float vAlpha;
+        varying vec3 vColor;
+
+        void main() {
+
+            vColor = customColor;
+            
+            vAlpha = alpha;
+
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+            gl_PointSize = size * ( 300.0 / -mvPosition.z );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }
+
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">
+
+        uniform vec3 color;
+        uniform sampler2D texture;
+
+        varying vec3 vColor;
+        varying float vAlpha;
+
+        void main() {
+
+            gl_FragColor = vec4( color * vColor, vAlpha );
+
+            gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+
+        }
+
+    </script>
+    <script>
+
+
+    // <!--
+
+    function createTextCanvas(text, color, font, size) {
+        size = size || 16;
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var fontStr = (size + 'px ') + (font || 'Arial');
+        ctx.font = fontStr;
+        var w = ctx.measureText(text).width;
+        var h = Math.ceil(size);
+        canvas.width = w;
+        canvas.height = h;
+        ctx.font = fontStr;
+        ctx.fillStyle = color || 'black';
+        ctx.fillText(text, 0, Math.ceil(size * 0.8));
+        return canvas;
+    }
+
+    function createText2D(text, color, font, size, segW, segH) {
+        var canvas = createTextCanvas(text, color, font, size);
+        var plane = new THREE.PlaneGeometry(canvas.width, canvas.height, segW, segH);
+        var tex = new THREE.Texture(canvas);
+        tex.needsUpdate = true;
+        var planeMat = new THREE.MeshBasicMaterial({
+            map: tex,
+            color: 0xffffff,
+            transparent: true
+        });
+        var mesh = new THREE.Mesh(plane, planeMat);
+        mesh.scale.set(0.5, 0.5, 0.5);
+        mesh.doubleSided = true;
+        return mesh;
+    }
+
+    // from http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+    function hexToRgb(hex) { //TODO rewrite with vector output
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    var renderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
+    var w = 960;
+    var h = 500;
+    renderer.setSize(w, h);
+    document.body.appendChild(renderer.domElement);
+
+    //renderer.setClearColorHex(0x000000, 1.0);
+    renderer.setClearColor(new THREE.Color(0x000000));
+
+    var camera = new THREE.PerspectiveCamera(45, w / h, 1, 10000);
+    camera.position.z = 200;
+    camera.position.x = -100;
+    camera.position.y = 100;
+
+    var scene = new THREE.Scene();
+
+    var scatterPlot = new THREE.Object3D();
+    scene.add(scatterPlot);
+
+    scatterPlot.rotation.y = 0;
+
+    function v(x, y, z) {
+        return new THREE.Vector3(x, y, z);
+    }
+
+    var unfiltered = [];
+
+    var format = d3.format("+.3f");
+
+    var data = d3.csv("defaultData.csv", function (d) {
+    //var data = d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) { 
+        d.forEach(function (d,i) {
+            unfiltered[i] = {
+                x: +d.x,
+                y: +d.y,
+                z: +d.z
+            }
+        })
+
+    var xExent = d3.extent(unfiltered, function (d) {return d.x; }),
+        yExent = d3.extent(unfiltered, function (d) {return d.y; }),
+        zExent = d3.extent(unfiltered, function (d) {return d.z; });
+
+    //console.log(unfiltered);
+
+    var vpts = {
+        xMax: xExent[1],
+        xCen: (xExent[1] + xExent[0]) / 2,
+        xMin: xExent[0],
+        yMax: yExent[1],
+        yCen: (yExent[1] + yExent[0]) / 2,
+        yMin: yExent[0],
+        zMax: zExent[1],
+        zCen: (zExent[1] + zExent[0]) / 2,
+        zMin: zExent[0]
+    }
+
+    var colour = d3.scale.category20c();
+
+    var xScale = d3.scale.linear()
+                  .domain(xExent)
+                  .range([-50,50]);
+    var yScale = d3.scale.linear()
+                  .domain(yExent)
+                  .range([-50,50]);                  
+    var zScale = d3.scale.linear()
+                  .domain(zExent)
+                  .range([-50,50]);
+
+
+    var mat = new THREE.ParticleBasicMaterial({
+        vertexColors: true,
+        size: 10
+    });
+
+    var pointCount = unfiltered.length;
+    console.log(pointCount);
+    /*var pointGeo = new THREE.Geometry();
+    for (var i = 0; i < pointCount; i ++) {
+        var x = xScale(unfiltered[i].x);
+        var y = yScale(unfiltered[i].y);
+        var z = zScale(unfiltered[i].z);
+
+        pointGeo.vertices.push(new THREE.Vector3(x, y, z));
+        //console.log(pointGeo.vertices);
+        //pointGeo.vertices[i].angle = Math.atan2(z, x);
+        //pointGeo.vertices[i].radius = Math.sqrt(x * x + z * z);
+        //pointGeo.vertices[i].speed = (z / 100) * (x / 100);
+        pointGeo.colors.push(new THREE.Color().setRGB(
+          hexToRgb(colour(i)).r / 255, hexToRgb(colour(i)).g / 255, hexToRgb(colour(i)).b / 255 
+        ));
+
+    }
+    var points = new THREE.Points(pointGeo, mat);
+    //scatterPlot.add(points);*/
+
+
+
+    var uniforms = {
+
+        color:     { value: new THREE.Color( 0xffffff ) },
+        texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
+
+    };
+
+    var shaderMaterial = new THREE.ShaderMaterial( {
+
+        uniforms:       uniforms,
+        vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+
+        blending:       THREE.AdditiveBlending,
+        depthTest:      false,
+        transparent:    true
+
+    });
+    var particles = 1000;
+
+    var geometry = new THREE.BufferGeometry();
+
+    var num_blocks = pointCount;
+    var points_in_block = new Float32Array(num_blocks);
+    var total = 100;
+    var count = pointCount;
+    /*
+    var count = 0;
+    for ( var k = 0; k < num_blocks; k ++) {
+        var num_points  = Math.floor((n_test[k] / total) * particles);
+        points_in_block[k] = num_points;
+        if (num_points>0){
+            count += 1;
+        }
+    }*/
+    var positions = new Float32Array(count*3);
+    var colors = new Float32Array(count *3);
+    var sizes = new Float32Array( count);
+    var alphas = new Float32Array( count);
+
+    //var n = 100;
+    //var n2 = Math.pow(n,2);
+    //var n_inc = n/2;
+
+    colorMap = 'rainbow';
+    numberOfColors = 512;
+
+    lut = new THREE.Lut( colorMap, numberOfColors );
+    lut.setMax( 1.2);
+    lut.setMin( 0 );
+
+    var i = 0;
+    var i3 = 0;
+    for ( var k = 0; k < num_blocks; k ++) {
+        //if (points_in_block[k] > 0){
+        //var x_start = k%n;
+        //var y_start = ((k-(k%n))/n)%n;
+        //var z_start = (k-(k%n2))/n2;
+        var x_start = unfiltered[k].x;
+        var y_start = unfiltered[k].y;
+        var z_start = unfiltered[k].z;
+        var x_end = x_start + 1;
+        var y_end = y_start + 1;
+        var z_end = z_start + 1;
+
+        //var color = lut.getColor( target_test[k] );
+
+        //positions[ i3 ]     = (x_start - n_inc)*10;
+        //positions[ i3 + 1 ] = (y_start - n_inc)*10;
+        //positions[ i3 + 2 ] = (z_start - n_inc)*10;
+
+        positions[ i3 ]     = x_start*10;
+        positions[ i3 + 1 ] = y_start*10;
+        positions[ i3 + 2 ] = z_start*10;
+        
+        colors[ i3 ]     = 255;
+        colors[ i3 + 1 ] = 255;
+        colors[ i3 + 2 ] = 255;
+        /*
+        if (    (x_start >= options.x_low)  && (x_end <= options.x_high)    &&
+            (y_start >= options.y_low)  && (y_end <= options.y_high)    &&
+            (z_start >= options.z_low)  && (z_end <= options.z_high)    )
+            {
+                alphas[ i ] = options.pointMatrixAlpha;
+                sizes[ i ] = Math.min(5,target_test[k] * options.pointMatrixSize);
+            }
+        else {
+            alphas[ i ] = 0;
+            sizes[ i ] = 0;
+        }*/
+        alphas[ i ] = 1;
+        sizes[ i ] = 10;
+        i++;
+        i3 += 3;            
+        //}           
+    }
+
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+    geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+    geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+    geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+    var System = new THREE.Points( geometry, shaderMaterial );
+
+    scene.add(System);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    renderer.render(scene, camera);
+    var paused = false;
+    var last = new Date().getTime();
+    var down = false;
+    var sx = 0,
+        sy = 0;
+        
+    window.onmousedown = function(ev) {
+        down = true;
+        sx = ev.clientX;
+        sy = ev.clientY;
+    };
+    window.onmouseup = function() {
+        down = false;
+    };
+    window.onmousemove = function(ev) {
+        if (down) {
+            var dx = ev.clientX - sx;
+            var dy = ev.clientY - sy;
+            scatterPlot.rotation.y += dx * 0.01;
+            camera.position.y += dy;
+            sx += dx;
+            sy += dy;
+        }
+    }
+    var animating = false;
+    window.ondblclick = function() {
+        animating = !animating;
+    };
+
+    function animate(t) {
+        if (!paused) {
+            last = t;
+            if (animating) {
+                var v = pointGeo.vertices;
+                for (var i = 0; i < v.length; i++) {
+                    var u = v[i];
+                    console.log(u)
+                    u.angle += u.speed * 0.01;
+                    u.x = Math.cos(u.angle) * u.radius;
+                    u.z = Math.sin(u.angle) * u.radius;
+                }
+                pointGeo.__dirtyVertices = true;
+            }
+            renderer.clear();
+            camera.lookAt(scene.position);
+            renderer.render(scene, camera);
+        }
+        window.requestAnimationFrame(animate, renderer.domElement);
+    };
+    animate(new Date().getTime());
+    onmessage = function(ev) {
+        paused = (ev.data == 'pause');
+    };
+
+    })
+    //-->
+    </script>
+</body>
+
+</html>
