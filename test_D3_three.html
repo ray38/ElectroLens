@@ -157,7 +157,10 @@
 	                z: +d.z,
 	                n: +d.rho,
 	                gamma: +d.gamma,
-	                epxc: +d.epxc
+	                epxc: +d.epxc,
+	                ad0p2: +d.ad0p2,
+	                deriv1: +d.deriv1,
+	                deriv2: +d.deriv2
 	            }
 	        })
 	        init();
@@ -247,7 +250,7 @@
 			sliderFolder 		= gui.addFolder( 'Slider Control' );
 			planeFolder			= gui.addFolder( 'Plane Control' );
 			
-			moleculeFolder.add( options, 'moleculeName',{'CO2':'CO2', 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4'}).onChange( function( value ) {
+			moleculeFolder.add( options, 'moleculeName',{'CO2':'CO2', 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4', 'C2H2':'C2H2', 'NCCN':'NCCN','C6H6':'C6H6','butadiene':'butadiene'}).onChange( function( value ) {
 				updateOptionFilenames();
 				unfilteredData = [];
 				var data = d3.csv(options.dataFilename, function (d) { 
@@ -258,14 +261,17 @@
 			                z: +d.z,
 			                n: +d.rho,
 			                gamma: +d.gamma,
-			                epxc: +d.epxc
+			                epxc: +d.epxc,
+					ad0p2: +d.ad0p2,
+					deriv1: +d.deriv1,
+					deriv2: +d.deriv2
 			            }
 			        })
 			        changeGeometry(options)
 			    });
 
 			});				
-			moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','epxc':'epxc', 'gamma':'gamma'}).onChange( function( value ) {
+			moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}).onChange( function( value ) {
 				updateGeometry(options);
 			});
 			moleculeFolder.open();
