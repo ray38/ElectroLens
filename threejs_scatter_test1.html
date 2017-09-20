@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #ffffff;
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				padding: 5px;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+				font-weight: bold;
+			}
+			a {
+				color: #fff;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container"></div>
+
+		<script src="js/three.js"></script>
+		<script src="js/jQuery.js"></script>
+
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+		<script src="js/math/Lut.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/libs/dat.gui.min.js"></script>
+		<script src="D3js/d3.min.js"></script>
+		
+		<script src="3DViews/PointCloud_csv.js"></script>
+		<script src="3DViews/PointMatrix_csv.js"></script>
+		<script src="3DViews/Box.js"></script>
+		<script src="3DViews/BoundaryPlanes.js"></script>
+		<script src="3DViews/Utilities.js"></script>
+
+
+
+		<script>
+
+
+		// Global vars...
+		var container, camera, scene, geometry, mesh, renderer, controls, particles, colors;
+		
+		var mousePosition = new THREE.Vector3();
+		var clickRequest = false;
+		//var selectionPlane;
+		var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 1,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
+
+		// DOM element...
+		container = document.createElement('div');
+		document.body.appendChild(container);
+
+		// Camera...
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+		camera.position.set(0, 0, 150);
+
+		// Scene...
+		scene = new THREE.Scene();
+		scene.add(camera);
+
+		// Renderer...
+		renderer = new THREE.WebGLRenderer({
+		    clearAlpha: 1
+		});
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setClearColor(0x000000, 1);
+		document.body.appendChild(renderer.domElement);
+
+		// Controls...
+		controls = new THREE.OrbitControls(camera);
+		controls.enableRotate=false;
+		controls.target.set(0,0,0);
+
+		// Scatter plot...
+		scatterPlot = new THREE.Object3D();
+		scene.add(scatterPlot);
+
+		// Make grid...
+		xzColor = 'black';
+		xyColor = 'black';
+		yzColor = 'black';
+
+
+		// Plot some random points...
+		geometry = new THREE.Geometry();
+		colors = [];
+
+		var material = new THREE.PointsMaterial({
+			size: 0.1,
+			vertexColors: THREE.VertexColors,
+			transparent: true
+		    });
+
+		    material.color.setHSL(1.0, 0.2, 0.7);
+		    
+		for (var i = 0; i < 500000; i++) {
+
+		    colors[i] = new THREE.Color(1, 1, 1);
+		    colors[i].setHSL(1000 / 2000, 1, 0.5);
+
+		    
+
+		    var vertex = new THREE.Vector3();
+		    
+		    var max = 50;
+		    var min = -50;
+
+		    vertex.x = Math.random() * (max - min) + min;
+		    vertex.y = Math.random() * (max - min) + min;
+		    vertex.z = 0;
+
+		    geometry.vertices.push(vertex);
+
+		}
+
+		particles = new THREE.Points(geometry, material);
+		particles.sortParticles = true;
+		scatterPlot.add(particles);
+
+		geometry.colors = colors;
+		
+		var selectionPlane = new THREE.Mesh( new THREE.PlaneGeometry( 10, 10), selectionPlaneMaterial );
+		selectionPlane.position.set( new THREE.Vector3(0,0,0));
+		scene.add( selectionPlane );
+		
+		window.addEventListener( 'mousedown', function( event ) {
+			if ( ! clickRequest ) {
+				/*mousePosition.set(
+					((event.clientX/window.innerWidth) * 2 - 1)*50,
+					(-(event.clientX/window.innerWidth) * 2 + 1)*50,
+					0
+				);*/
+				var vector = new THREE.Vector3();
+				vector.set(	((event.clientX/window.innerWidth) * 2 - 1),
+						(-(event.clientY/window.innerHeight) * 2 + 1),
+						0);
+				vector.unproject( camera );
+				var dir = vector.sub( camera.position ).normalize();
+				var distance = - camera.position.z/dir.z;
+				mousePosition = camera.position.clone().add( dir.multiplyScalar( distance ) );
+				console.log(mousePosition);
+				clickRequest = true;
+			}
+		}, false );
+		
+		
+		
+		animate();
+
+		function animate() {
+		    requestAnimationFrame(animate);
+		    renderer.render(scene, camera);
+		    controls.update();
+		    processClick();
+		}
+		/*
+		function getMouseCoord(){
+			var vector = new THREE.Vector3();
+			vector.set(	((event.clientX/window.innerWidth) * 2 - 1)*50,
+					(-(event.clientX/window.innerWidth) * 2 + 1)*50,
+					0);
+			vector.unproject( camera );
+			var dir = vector.sub( camera.position ).normalize();
+			var distance = - camera.position.z/dir.z;
+			var mousePosition = camera.position.clone().add( dir.multiplyScalar( distance ) );
+			console.log(mousePosition);
+			
+		}*/
+		
+		function spawnPlane(){
+			var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
+			selectionPlane.geometry.verticesNeedUpdate = true;
+			//selectionPlane.position.set( mousePosition );
+			console.log(selectionPlane.geometry.attributes.position);
+			selectionPlane.geometry.attributes.position[0]=(mousePosition.x,mousePosition.y,mousePosition.z);
+			selectionPlane.geometry.attributes.position[1]=(mousePosition.x+1,mousePosition.y,mousePosition.z);
+			selectionPlane.geometry.attributes.position[2]=(mousePosition.x,mousePosition.y+1,mousePosition.z);
+			selectionPlane.geometry.attributes.position[3]=(mousePosition.x+1,mousePosition.y+1,mousePosition.z);
+			/*
+			selectionPlane.geometry.attributes.position[0].set(mousePosition.x,mousePosition.y,mousePosition.z);
+			selectionPlane.geometry.attributes.position[1].set(mousePosition.x+1,mousePosition.y,mousePosition.z);
+			selectionPlane.geometry.attributes.position[2].set(mousePosition.x,mousePosition.y+1,mousePosition.z);
+			selectionPlane.geometry.attributes.position[3].set(mousePosition.x+1,mousePosition.y+1,mousePosition.z);
+			*/
+			/*
+			selectionPlane.position.setX(mousePosition.x);
+			selectionPlane.position.setY(mousePosition.y);
+			selectionPlane.position.setZ(mousePosition.z);
+			*/
+			scene.add( selectionPlane );
+		}
+		
+		function processClick() {
+			if ( clickRequest ) {
+				spawnPlane();
+				clickRequest = false;
+			}
+		}
+
+
+	</script>
+
+</body>
+</html>
