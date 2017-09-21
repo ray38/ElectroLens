@@ -18,7 +18,7 @@ var shaderMaterial = new THREE.ShaderMaterial( {
 
 });
 var particles = options.pointCloudParticles;
-var num_blocks = 1000000;
+var num_blocks = unfilteredData.length;
 var points_in_block = new Float32Array(num_blocks);
 var total = 100;
 var count = 0;
@@ -113,7 +113,7 @@ return System;
 function updatePointCloudGeometry(options){
 
 var particles = options.pointCloudParticles;
-var num_blocks = 1000000;
+var num_blocks = unfilteredData.length;
 var points_in_block = new Float32Array(num_blocks);
 var total = 100;
 var count = 0;

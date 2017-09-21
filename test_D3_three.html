@@ -134,6 +134,7 @@
 				this.x_slider = 0;
 				this.y_slider = 0;
 				this.z_slider = 0;
+				this.densityCutoff = -8;
 				this.view = 'pointCloud';
 				this.moleculeName = 'CO2';
 				this.propertyOfInterest = 'n';
@@ -148,21 +149,29 @@
 				this.planeOpacity = 0.05;
 			};
 		
-		var unfilteredData = [];
-    	var data = d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) { 
+		unfilteredData = [];
+    	var data = d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) {
+
 	        d.forEach(function (d,i) {
-	            unfilteredData[i] = {
-	                x: +d.x,
-	                y: +d.y,
-	                z: +d.z,
-	                n: +d.rho,
-	                gamma: +d.gamma,
-	                epxc: +d.epxc,
-	                ad0p2: +d.ad0p2,
-	                deriv1: +d.deriv1,
-	                deriv2: +d.deriv2
-	            }
+	        	//console.log(d, +d.x, +d.n);
+	        	//if ((+d.rho)> 1e-7){console.log('found')}
+	        	d.n = +d.rho;
+	        	if (d.n> 1e-2){
+	        		//console.log('found', +d.rho);
+        		unfilteredData.push({
+                x: +d.x,
+                y: +d.y,
+                z: +d.z,
+                n: d.n,
+                gamma: +d.gamma,
+                epxc: +d.epxc,
+                ad0p2: +d.ad0p2,
+                deriv1: +d.deriv1,
+                deriv2: +d.deriv2
+            	});}
+	            
 	        })
+	        console.log(unfilteredData.length);
 	        init();
 	        animate();
 	    });
