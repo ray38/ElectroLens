@@ -124,33 +124,36 @@
 		controls = new THREE.OrbitControls(camera);
 		controls.enableRotate=false;
 		controls.target.set(0,0,0);
-
-
-
-		var num = 10000;
-		var randomPoints = [];
-		var maxx = 50;
-		var minn = -50;
-		for (var i=0; i<num; i++){
-			randomPoints[i] = {
-				x:Math.random() * (maxx - minn) + minn,
-				y:Math.random() * (maxx - minn) + minn,
-				selected: true		
-			};
 		
-		}
-		//Plot some random points...
-		
-		//particles = new THREE.Points(geometry, material);
-		particles = getPointCloud(num);
-		particles.sortParticles = true;
-		scene.add(particles);
+		var data;
+		var unfilteredData = [];
+		var num;
+		data = d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) {
 
-		geometry.colors = colors;
-		
-		var selectionPlane = new THREE.Mesh( new THREE.PlaneGeometry( 10, 10), selectionPlaneMaterial );
-		selectionPlane.position.set( new THREE.Vector3(0,0,0));
-		scene.add( selectionPlane );
+			d.forEach(function (d,i) {
+			
+			unfilteredData.push({
+		        x: +d.x,
+		        y: +d.y,
+		        z: +d.z,
+		        n: +d.rho,
+		        gamma: +d.gamma,
+		        epxc: +d.epxc,
+		        ad0p2: +d.ad0p2,
+		        deriv1: +d.deriv1,
+		        deriv2: +d.deriv2,
+		        selected: true
+		    	});
+			    
+			})
+			num = unfilteredData.length;
+			console.log(num);
+			particles = getPointCloud(num);
+			particles.sortParticles = true;
+			scene.add(particles);
+			animate();
+		    });
+			
 		
 		
 		window.addEventListener( 'mousemove', function( event ) {
@@ -164,13 +167,7 @@
 			mousePosition = camera.position.clone().add( dir.multiplyScalar( distance ) );
 		});
 		
-		/*window.addEventListener( 'mousedown mouseup', function( event ) {
-			if ( event.type == "mousedown") {
-				console.log("hold");
-				//clickRequest = true;
-			}
-			//if ( event.type == "mouseup") {clickRequest = false;}
-		}, false );*/
+		
 		var hold = false;
 		window.addEventListener( 'mousedown', function( event ) {
 			if (event.button == 0){
@@ -193,10 +190,6 @@
 				}
 			}
 		}, false );
-		
-		
-		
-		animate();
 
 		function animate() {
 		    requestAnimationFrame(animate);
@@ -238,11 +231,11 @@
 			    
 				
 				
-				positions[i3 + 0] =randomPoints[i].x;
-				positions[i3 + 1] =randomPoints[i].y;
+				positions[i3 + 0] =unfilteredData[i].gamma;
+				positions[i3 + 1] =unfilteredData[i].n;
 				positions[i3 + 2] =0;
 				
-				if (randomPoints[i].selected){
+				if (unfilteredData[i].selected){
 					colors[i3 + 0] = 255;
 					colors[i3 + 1] = 0;
 					colors[i3 + 2] = 0;
@@ -275,7 +268,7 @@
 		
 			for (var i = 0, i3 = 0; i < num; i++, i3+=3) {
 				
-				if (randomPoints[i].selected){
+				if (unfilteredData[i].selected){
 					colors[i3 + 0] = 255;
 					colors[i3 + 1] = 0;
 					colors[i3 + 2] = 0;
@@ -369,21 +362,21 @@
 				var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
 					ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
 				var tempx,tempy,tempz;
-				for (var i=0; i<randomPoints.length; i++){
-					tempx = randomPoints[i].x;
-					tempy = randomPoints[i].y;
+				for (var i=0; i<unfilteredData.length; i++){
+					tempx = unfilteredData[i].x;
+					tempy = unfilteredData[i].y;
 					if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
-						randomPoints[i].selected = true;
+						unfilteredData[i].selected = true;
 						//console.log('selected');
 					}
-					else { randomPoints[i].selected = false; }
+					else { unfilteredData[i].selected = false; }
 				}
 			
 			
 			}
 			else{
-				for (var i=0; i<randomPoints.length; i++){
-					randomPoints[i].selected = true;
+				for (var i=0; i<unfilteredData.length; i++){
+					unfilteredData[i].selected = true;
 				}
 			}
 			
