@@ -38,7 +38,7 @@
 		<script>
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 			var container, stats;
-			var views, scene, renderer;
+			var views, renderer;
 			var mesh, group1, group2, group3, light;
 			var mouseX = 0, mouseY = 0;
 			var windowWidth, windowHeight;
@@ -85,7 +85,8 @@
 				container.appendChild( renderer.domElement );
 				
 				
-				var controlers=[]
+				var controlers=[];
+				var scenes = [];
 				for (var ii =  0; ii < views.length; ++ii ) {
 					var view = views[ii];
 					var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -97,18 +98,33 @@
 					tempControler = new THREE.OrbitControls( camera, renderer.domElement );
 					view.controler = tempControler;
 					controlers.push(tempControler);
+					var tempScene = new THREE.Scene();
+					var tempLight = new THREE.DirectionalLight( 0xffffff );
+					tempLight.position.set( 0, 0, 1 );
+					tempScene.add( light );
+					var cube = new THREE.Mesh( new THREE.CubeGeometry( 200, 200, 200 ), new THREE.MeshNormalMaterial() );
+					tempScene.add( cube );
+					view.scene = tempScene;
+
+					if (ii == 0){
+						var geometry = new THREE.SphereGeometry( 500, 32, 32 );
+						var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+						var sphere = new THREE.Mesh( geometry, material );
+						tempScene.add( sphere );
+
+					}
 				}
 				//temp = new THREE.OrbitControls( camera, renderer.domElement );
-				scene = new THREE.Scene();
-				light = new THREE.DirectionalLight( 0xffffff );
-				light.position.set( 0, 0, 1 );
-				scene.add( light );
+				//scene = new THREE.Scene();
+				//light = new THREE.DirectionalLight( 0xffffff );
+				//light.position.set( 0, 0, 1 );
+				//scene.add( light );
 				// shadow
-				var canvas = document.createElement( 'canvas' );
+				/*var canvas = document.createElement( 'canvas' );
 				canvas.width = 128;
-				canvas.height = 128;
-				cube = new THREE.Mesh( new THREE.CubeGeometry( 200, 200, 200 ), new THREE.MeshNormalMaterial() );
-				scene.add( cube );
+				canvas.height = 128;*/
+				//cube = new THREE.Mesh( new THREE.CubeGeometry( 200, 200, 200 ), new THREE.MeshNormalMaterial() );
+				//scene.add( cube );
 				stats = new Stats();
 				container.appendChild( stats.dom );
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -121,7 +137,7 @@
 				//mouseY = ( event.clientY - windowHeight / 2 );
 				mouseX = event.clientX;
 				mouseY = event.clientY;
-				updateControler()
+				updateControler();
 				//console.log(mouseX,mouseY);
 			}
 			function updateSize() {
@@ -138,7 +154,7 @@
 			}
 
 			function updateControler(){
-				console.log(mouseX,mouseY);
+				//console.log(mouseX,mouseY);
 				for ( var ii = 0; ii < views.length; ++ii ){
 					var view = views[ii];
 					var left   = Math.floor( windowWidth  * view.left );
@@ -189,7 +205,7 @@
 					renderer.setClearColor( view.background );
 					camera.aspect = width / height;
 					camera.updateProjectionMatrix();
-					renderer.render( scene, camera );
+					renderer.render( view.scene, camera );
 				}
 			}
 		</script>

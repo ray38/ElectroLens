@@ -148,11 +148,11 @@
 			})
 			num = unfilteredData.length;
 			console.log(num);
-			particles = getPointCloud(num);
+			particles = getPointCloud(num,'gamma','n');
 			particles.sortParticles = true;
 			scene.add(particles);
 			animate();
-		    });
+		});
 			
 		
 		
@@ -201,7 +201,7 @@
 		
 		
 		
-		function getPointCloud(num){
+		function getPointCloud(num, X, Y){
 			var uniforms = {
 
 				color:     { value: new THREE.Color( 0xffffff ) },
@@ -231,8 +231,8 @@
 			    
 				
 				
-				positions[i3 + 0] =unfilteredData[i].gamma;
-				positions[i3 + 1] =unfilteredData[i].n;
+				positions[i3 + 0] =unfilteredData[i][X];
+				positions[i3 + 1] =unfilteredData[i][Y];
 				positions[i3 + 2] =0;
 				
 				if (unfilteredData[i].selected){
@@ -363,8 +363,8 @@
 					ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
 				var tempx,tempy,tempz;
 				for (var i=0; i<unfilteredData.length; i++){
-					tempx = unfilteredData[i].x;
-					tempy = unfilteredData[i].y;
+					tempx = unfilteredData[i]['gamma'];
+					tempy = unfilteredData[i]['n'];
 					if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
 						unfilteredData[i].selected = true;
 						//console.log('selected');

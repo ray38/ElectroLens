@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - multiple views</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #000;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				background-color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+			a {
+				color: #0080ff;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="container"></div>
+		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - multiple views - webgl</div>
+
+		<script src="js/three.js"></script>
+		<script src="js/jQuery.js"></script>
+
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+		<script src="js/math/Lut.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/libs/dat.gui.min.js"></script>
+		<script src="D3js/d3.min.js"></script>
+		
+		<script src="3DViews/PointCloud_csv.js"></script>
+		<script src="3DViews/PointMatrix_csv.js"></script>
+		<script src="3DViews/Box.js"></script>
+		<script src="3DViews/BoundaryPlanes.js"></script>
+		<script src="3DViews/Utilities.js"></script>
+		<script type="x-shader/x-vertex" id="vertexshader">
+
+			attribute float size;
+			attribute vec3 customColor;
+			attribute float alpha;
+
+	    		varying float vAlpha;
+			varying vec3 vColor;
+
+			void main() {
+
+				vColor = customColor;
+				
+				vAlpha = alpha;
+
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+				gl_PointSize = size * ( 300.0 / -mvPosition.z );
+
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+
+			uniform vec3 color;
+			uniform sampler2D texture;
+
+			varying vec3 vColor;
+			varying float vAlpha;
+
+			void main() {
+
+				gl_FragColor = vec4( color * vColor, vAlpha );
+
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+
+			}
+
+		</script>
+		<script>
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			var container, stats;
+			var views, renderer;
+			var mesh, group1, group2, group3, light;
+			var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
+			var mouseX = 0, mouseY = 0;
+			var windowWidth, windowHeight;
+			var mousePosition;
+			var clickRequest = false;
+			var controlers=[];
+			var scenes = [];
+			var views = [
+				{
+					left: 0,
+					top: 0,
+					width: 0.5,
+					height: 1.0,
+					background: new THREE.Color( 0,0,0 ),
+					eye: [ 0, 0, 800 ],
+					up: [ 0, 1, 0 ],
+					fov: 100,
+					mousePosition: [0,0]
+				},
+				{
+					left: 0.5,
+					top: 0,
+					width: 0.5,
+					height: 1.0,
+					background: new THREE.Color( 0,0,0 ),
+					eye: [ 0, 0, 150 ],
+					up: [ 0, 0, 1 ],
+					fov: 45,
+					mousePosition: [0,0]
+				}
+			];
+			var data;
+			var unfilteredData = [];
+			var num;
+			data = d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) {
+
+				d.forEach(function (d,i) {
+					var n = +d.rho;
+					if (n >1e-3){
+						unfilteredData.push({
+				        x: +d.x,
+				        y: +d.y,
+				        z: +d.z,
+				        n: +d.rho,
+				        gamma: +d.gamma,
+				        epxc: +d.epxc,
+				        ad0p2: +d.ad0p2,
+				        deriv1: +d.deriv1,
+				        deriv2: +d.deriv2,
+				        selected: true
+				    	});
+
+					}
+				
+				
+				    
+				})
+				num = unfilteredData.length;
+				console.log(num);
+				init();
+				animate();
+			});
+
+
+
+			function init() {
+				container = document.getElementById( 'container' );
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				
+				
+				
+
+				for (var ii =  0; ii < views.length; ++ii ) {
+					var view = views[ii];
+					var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
+					camera.position.fromArray( view.eye );
+					view.camera = camera;
+					tempControler = new THREE.OrbitControls( camera, renderer.domElement );
+					view.controler = tempControler;
+					controlers.push(tempControler);
+					var tempScene = new THREE.Scene();
+					view.scene = tempScene;
+					scenes.push(tempScene);
+					if (ii == 1){
+						particles = getPointCloud(num,'gamma','n');
+						particles.sortParticles = true;
+						tempScene.add(particles);
+					}
+
+				}
+				
+				
+				stats = new Stats();
+				container.appendChild( stats.dom );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				var hold = false;
+				window.addEventListener( 'mousedown', function( event ) {
+					if (event.button == 0){
+						hold = true;
+						clickRequest = true;
+					}
+				}, false );
+				window.addEventListener( 'mouseup', function( event ) {
+					if (event.button == 0){
+						hold = false;
+						clickRequest = false;
+					}
+				}, false );
+
+				/*
+				window.addEventListener( 'click', function( event ) {
+					if (event.button == 1){
+						var temp = scene.getObjectByName('selectionPlane');
+						if (temp != null){
+							scene.remove(temp);
+							updateSelection();
+						}
+					}
+				}, false );*/
+				
+			}
+			
+			
+			function onDocumentMouseMove( event ) {
+				mouseX = event.clientX;
+				mouseY = event.clientY;
+				updateControler();
+
+				for ( var ii = 0; ii < views.length; ++ii ){
+					var view = views[ii];
+					var vector = new THREE.Vector3();
+					vector.set(	((event.clientX/window.innerWidth) * 2 - 1),
+							(-(event.clientY/window.innerHeight) * 2 + 1),
+							0.1);
+					vector.unproject( view.camera );
+					var dir = vector.sub( view.camera.position ).normalize();
+					var distance = - view.camera.position.z/dir.z;
+					view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
+				}
+			}
+			function updateSize() {
+				if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
+					windowWidth  = window.innerWidth;
+					windowHeight = window.innerHeight;
+					renderer.setSize ( windowWidth, windowHeight );
+				}
+			}
+			function animate() {
+				render();
+				//processClick();
+				stats.update();
+				requestAnimationFrame( animate );
+			}
+
+			function updateControler(){
+				for ( var ii = 0; ii < views.length; ++ii ){
+					var view = views[ii];
+					var left   = Math.floor( windowWidth  * view.left );
+					var top    = Math.floor( windowHeight * view.top );
+					var width  = Math.floor( windowWidth  * view.width );
+					var height = Math.floor( windowHeight * view.height );
+					
+					if (mouseX > left && mouseX < (left + width) && mouseY > top && mouseY <top + height){
+						enableControler(view.controler);
+					}
+					else{
+						disableControler(view.controler);
+					}
+				}
+			}
+
+			function enableControler(controler){
+				controler.enableZoom = true;
+				controler.enablePan  = true;
+				controler.enableRotate = true;
+			}
+			function disableControler(controler){
+				controler.enableZoom = false;
+				controler.enablePan  = false;
+				controler.enableRotate = false;
+			}
+
+
+			function render() {
+				updateSize();
+				for ( var ii = 0; ii < views.length; ++ii ) {
+					var view = views[ii];
+					var camera = view.camera;
+					//view.updateCamera( camera, scene, mouseX, mouseY );
+					var left   = Math.floor( windowWidth  * view.left );
+					var top    = Math.floor( windowHeight * view.top );
+					var width  = Math.floor( windowWidth  * view.width );
+					var height = Math.floor( windowHeight * view.height );
+					//console.log(left,top,width,height);
+					renderer.setViewport( left, top, width, height );
+					renderer.setScissor( left, top, width, height );
+					renderer.setScissorTest( true );
+					renderer.setClearColor( view.background );
+					camera.aspect = width / height;
+					camera.updateProjectionMatrix();
+					renderer.render( view.scene, camera );
+				}
+			}
+
+
+
+		
+			function getPointCloud(num, X, Y){
+				var uniforms = {
+
+					color:     { value: new THREE.Color( 0xffffff ) },
+					texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
+
+				};
+
+				var shaderMaterial = new THREE.ShaderMaterial( {
+
+					uniforms:       uniforms,
+					vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+					fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+
+					blending:       THREE.AdditiveBlending,
+					depthTest:      false,
+					transparent:    true
+
+				});
+				
+				geometry = new THREE.BufferGeometry();
+				colors = new Float32Array(num *3);
+				positions = new Float32Array(num *3);
+				sizes = new Float32Array(num);
+				alphas = new Float32Array(num);
+			
+				for (var i = 0, i3 = 0; i < num; i++, i3+=3) {
+				    
+					
+					
+					positions[i3 + 0] =unfilteredData[i][X];
+					positions[i3 + 1] =unfilteredData[i][Y];
+					positions[i3 + 2] =0;
+					
+					if (unfilteredData[i].selected){
+						colors[i3 + 0] = 255;
+						colors[i3 + 1] = 0;
+						colors[i3 + 2] = 0;
+						sizes[i] = 0.2;
+					}else {
+						colors[i3 + 0] = 255;
+						colors[i3 + 1] = 255;
+						colors[i3 + 2] = 255;
+						sizes[i] = 0.1;
+					
+					}
+
+					
+					alphas[i] = 1;
+
+				}
+				geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+				geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+				geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+				geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+			
+				var System = new THREE.Points(geometry, shaderMaterial);
+				return System
+			}
+			
+			function updatePointCloud(num){
+				colors = new Float32Array(num *3);
+				sizes = new Float32Array(num);
+				//alphas = new Float32Array(num);
+			
+				for (var i = 0, i3 = 0; i < num; i++, i3+=3) {
+					
+					if (unfilteredData[i].selected){
+						colors[i3 + 0] = 255;
+						colors[i3 + 1] = 0;
+						colors[i3 + 2] = 0;
+						sizes[i] = 0.2;
+					}else {
+						colors[i3 + 0] = 255;
+						colors[i3 + 1] = 255;
+						colors[i3 + 2] = 255;
+						sizes[i] = 0.1;
+					
+					}
+
+					//sizes[i] = 0.1;
+					//alphas[i] = 1;
+
+				}
+				//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+				particles.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+				geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+				//geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+			
+			}
+			
+			
+			function spawnPlane(view){
+				var scene = view.scene;
+				var mousePosition = view.mousePosition;
+				var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
+				selectionPlane.geometry.attributes.position.needsUpdate = true;
+				var p = selectionPlane.geometry.attributes.position.array;
+
+				var i = 0;
+				p[i++] = mousePosition.x-0.01;
+				p[i++] = mousePosition.y+0.01;
+				p[i++] = mousePosition.z;
+				p[i++] = mousePosition.x;
+				p[i++] = mousePosition.y+0.01;
+				p[i++] = mousePosition.z;
+				p[i++] = mousePosition.x-0.01;
+				p[i++] = mousePosition.y;
+				p[i++] = mousePosition.z;
+				p[i++] = mousePosition.x;
+				p[i++] = mousePosition.y;
+				p[i]   = mousePosition.z;
+				
+				//console.log(selectionPlane.geometry.attributes.position.array);
+				selectionPlane.name = 'selectionPlane';
+				scene.add( selectionPlane );
+				updateSelection();
+			}
+			
+			function updatePlane(view, plane){
+				var scene = view.scene;
+				var mousePosition = view.mousePosition;
+				
+				var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
+				selectionPlane.geometry.attributes.position.needsUpdate = true;
+				
+				
+				//console.log(plane);
+				var pOriginal = plane.geometry.attributes.position.array;
+				//console.log(p);
+				
+				var 	originalFirstVerticesCoordx = pOriginal[0],
+					originalFirstVerticesCoordy = pOriginal[1],
+					originalFirstVerticesCoordz = pOriginal[2];
+				
+				p = selectionPlane.geometry.attributes.position.array
+				var i = 0;
+				p[i++] = originalFirstVerticesCoordx;
+				p[i++] = originalFirstVerticesCoordy;
+				p[i++] = originalFirstVerticesCoordz;
+				p[i++] = mousePosition.x;
+				p[i++] = originalFirstVerticesCoordy;
+				p[i++] = mousePosition.z;
+				p[i++] = originalFirstVerticesCoordx;
+				p[i++] = mousePosition.y;
+				p[i++] = mousePosition.z;
+				p[i++] = mousePosition.x;
+				p[i++] = mousePosition.y;
+				p[i]   = mousePosition.z;
+				
+				//console.log(selectionPlane.geometry.attributes.position.array);
+				scene.remove(plane);
+				selectionPlane.name = 'selectionPlane';
+				scene.add( selectionPlane );
+				updateSelection();
+			}
+			
+			function updateSelection(){
+				var tempSelectionPlane = scenes[1].getObjectByName('selectionPlane');
+				if (tempSelectionPlane != null){
+					var p = tempSelectionPlane.geometry.attributes.position.array;
+					var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
+						ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
+					var tempx,tempy,tempz;
+					for (var i=0; i<unfilteredData.length; i++){
+						tempx = unfilteredData[i]['gamma'];
+						tempy = unfilteredData[i]['n'];
+						if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
+							unfilteredData[i].selected = true;
+							//console.log('selected');
+						}
+						else { unfilteredData[i].selected = false; }
+					}
+				
+				
+				}
+				else{
+					for (var i=0; i<unfilteredData.length; i++){
+						unfilteredData[i].selected = true;
+					}
+				}
+				
+				updatePointCloud(num);
+			
+			
+			}
+			
+			function processClick() {
+				if ( clickRequest ) {
+					var temp = views[1].scene.getObjectByName('selectionPlane');
+					if (temp != null){
+						updatePlane(views[1],temp);
+					}
+					else {
+						spawnPlane(views[1]);
+					}
+				}
+			}
+		</script>
+
+	</body>
+</html>

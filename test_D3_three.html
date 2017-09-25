@@ -134,7 +134,7 @@
 				this.x_slider = 0;
 				this.y_slider = 0;
 				this.z_slider = 0;
-				this.densityCutoff = -8;
+				this.densityCutoff = -3;
 				this.view = 'pointCloud';
 				this.moleculeName = 'CO2';
 				this.propertyOfInterest = 'n';
@@ -156,7 +156,7 @@
 	        	//console.log(d, +d.x, +d.n);
 	        	//if ((+d.rho)> 1e-7){console.log('found')}
 	        	d.n = +d.rho;
-	        	if (d.n> 1e-2){
+	        	if (d.n> 1e-3){
 	        		//console.log('found', +d.rho);
         		unfilteredData.push({
                 x: +d.x,
