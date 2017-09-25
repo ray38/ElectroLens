@@ -108,7 +108,10 @@
 					eye: [ 0, 0, 800 ],
 					up: [ 0, 1, 0 ],
 					fov: 100,
-					mousePosition: [0,0]
+					mousePosition: [0,0],
+					controllerZoom : true,
+					controllerRotate : true,
+					controllerPan : true
 				},
 				{
 					left: 0.5,
@@ -119,7 +122,10 @@
 					eye: [ 0, 0, 150 ],
 					up: [ 0, 0, 1 ],
 					fov: 45,
-					mousePosition: [0,0]
+					mousePosition: [0,0],
+					controllerZoom : true,
+					controllerRotate : false,
+					controllerPan : true
 				}
 			];
 			var data;
@@ -129,7 +135,7 @@
 
 				d.forEach(function (d,i) {
 					var n = +d.rho;
-					if (n >1e-3){
+					if (n >1e-2){
 						unfilteredData.push({
 				        x: +d.x,
 				        y: +d.y,
@@ -178,9 +184,11 @@
 					view.scene = tempScene;
 					scenes.push(tempScene);
 					if (ii == 1){
+						tempControler.enableRotate=false;
 						particles = getPointCloud(num,'gamma','n');
 						particles.sortParticles = true;
 						tempScene.add(particles);
+						
 					}
 
 				}
@@ -224,14 +232,23 @@
 
 				for ( var ii = 0; ii < views.length; ++ii ){
 					var view = views[ii];
+					var left   = Math.floor( windowWidth  * view.left );
+					var top    = Math.floor( windowHeight * view.top );
+					var width  = Math.floor( windowWidth  * view.width ) + left;
+					var height = Math.floor( windowHeight * view.height ) + top;
 					var vector = new THREE.Vector3();
-					vector.set(	((event.clientX/window.innerWidth) * 2 - 1),
+					//console.log(left,width,top,height);
+					/*vector.set(	((event.clientX/window.innerWidth) * 2 - 1),
 							(-(event.clientY/window.innerHeight) * 2 + 1),
+							0.1);*/
+					vector.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
+							(-((event.clientY-top)/(height-top)) * 2 + 1),
 							0.1);
 					vector.unproject( view.camera );
 					var dir = vector.sub( view.camera.position ).normalize();
 					var distance = - view.camera.position.z/dir.z;
 					view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
+					//console.log(view.mousePosition)
 				}
 			}
 			function updateSize() {
@@ -243,7 +260,7 @@
 			}
 			function animate() {
 				render();
-				//processClick();
+				processClick();
 				stats.update();
 				requestAnimationFrame( animate );
 			}
@@ -257,7 +274,7 @@
 					var height = Math.floor( windowHeight * view.height );
 					
 					if (mouseX > left && mouseX < (left + width) && mouseY > top && mouseY <top + height){
-						enableControler(view.controler);
+						enableControler(view, view.controler);
 					}
 					else{
 						disableControler(view.controler);
@@ -265,10 +282,10 @@
 				}
 			}
 
-			function enableControler(controler){
-				controler.enableZoom = true;
-				controler.enablePan  = true;
-				controler.enableRotate = true;
+			function enableControler(view, controler){
+				controler.enableZoom = view.controllerZoom;
+				controler.enablePan  = view.controllerPan;
+				controler.enableRotate = view.controllerRotate;
 			}
 			function disableControler(controler){
 				controler.enableZoom = false;
