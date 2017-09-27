@@ -485,41 +485,46 @@
 			}
 			
 			function updatePlane(view, plane){
-				var scene = view.scene;
-				var mousePosition = view.mousePosition;
+				if (view.controllerEnabled){
+					var scene = view.scene;
+
+					var mousePosition = view.mousePosition;
+					
+					var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
+					selectionPlane.geometry.attributes.position.needsUpdate = true;
+					
+					
+					//console.log(plane);
+					var pOriginal = plane.geometry.attributes.position.array;
+					//console.log(p);
+					
+					var 	originalFirstVerticesCoordx = pOriginal[0],
+						originalFirstVerticesCoordy = pOriginal[1],
+						originalFirstVerticesCoordz = pOriginal[2];
+					
+					p = selectionPlane.geometry.attributes.position.array
+					var i = 0;
+					p[i++] = originalFirstVerticesCoordx;
+					p[i++] = originalFirstVerticesCoordy;
+					p[i++] = originalFirstVerticesCoordz;
+					p[i++] = mousePosition.x;
+					p[i++] = originalFirstVerticesCoordy;
+					p[i++] = mousePosition.z;
+					p[i++] = originalFirstVerticesCoordx;
+					p[i++] = mousePosition.y;
+					p[i++] = mousePosition.z;
+					p[i++] = mousePosition.x;
+					p[i++] = mousePosition.y;
+					p[i]   = mousePosition.z;
+					
+					//console.log(selectionPlane.geometry.attributes.position.array);
+					scene.remove(plane);
+					selectionPlane.name = 'selectionPlane';
+					scene.add( selectionPlane );
+					updateSelection();
+
+				}
 				
-				var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
-				selectionPlane.geometry.attributes.position.needsUpdate = true;
-				
-				
-				//console.log(plane);
-				var pOriginal = plane.geometry.attributes.position.array;
-				//console.log(p);
-				
-				var 	originalFirstVerticesCoordx = pOriginal[0],
-					originalFirstVerticesCoordy = pOriginal[1],
-					originalFirstVerticesCoordz = pOriginal[2];
-				
-				p = selectionPlane.geometry.attributes.position.array
-				var i = 0;
-				p[i++] = originalFirstVerticesCoordx;
-				p[i++] = originalFirstVerticesCoordy;
-				p[i++] = originalFirstVerticesCoordz;
-				p[i++] = mousePosition.x;
-				p[i++] = originalFirstVerticesCoordy;
-				p[i++] = mousePosition.z;
-				p[i++] = originalFirstVerticesCoordx;
-				p[i++] = mousePosition.y;
-				p[i++] = mousePosition.z;
-				p[i++] = mousePosition.x;
-				p[i++] = mousePosition.y;
-				p[i]   = mousePosition.z;
-				
-				//console.log(selectionPlane.geometry.attributes.position.array);
-				scene.remove(plane);
-				selectionPlane.name = 'selectionPlane';
-				scene.add( selectionPlane );
-				updateSelection();
 			}
 			
 			function updateSelection(){
