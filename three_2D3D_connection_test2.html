@@ -138,7 +138,7 @@
 				{
 					left: 0,
 					top: 0,
-					width: 0.5,
+					width: 0.7,
 					height: 1.0,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 800 ],
@@ -152,9 +152,9 @@
 					controllerPan : true
 				},
 				{
-					left: 0.5,
+					left: 0.7,
 					top: 0,
-					width: 0.5,
+					width: 0.3,
 					height: 1.0,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 150 ],
@@ -565,13 +565,17 @@
 			
 			function processClick() {
 				if ( clickRequest ) {
-					var temp = views[1].scene.getObjectByName('selectionPlane');
-					if (temp != null){
-						updatePlane(views[1],temp);
+					if (views[1].controllerEnabled){
+						var temp = views[1].scene.getObjectByName('selectionPlane');
+						if (temp != null){
+							updatePlane(views[1],temp);
+						}
+						else {
+							spawnPlane(views[1]);
+						}
+					
 					}
-					else {
-						spawnPlane(views[1]);
-					}
+					
 				}
 			}
 		</script>
