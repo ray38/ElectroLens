@@ -39,7 +39,7 @@
 		<script src="js/libs/dat.gui.min.js"></script>
 		<script src="D3js/d3.min.js"></script>
 		
-		<script src="3DViews/PointCloud_csv.js"></script>
+		<script src="3DViews/PointCloud_selection.js"></script>
 		<script src="3DViews/PointMatrix_csv.js"></script>
 		<script src="3DViews/Box.js"></script>
 		<script src="3DViews/BoundaryPlanes.js"></script>
@@ -88,6 +88,7 @@
 		</script>
 		<script>
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			var System
 			var container, stats;
 			var views, renderer;
 			var mesh, group1, group2, group3, light;
@@ -98,6 +99,42 @@
 			var clickRequest = false;
 			var controlers=[];
 			var scenes = [];
+			var options = new function(){
+				this.pointCloudParticles = 1000;
+				this.pointCloudColorSetting = 1.2;
+				this.pointCloudAlpha = 1;
+				this.pointCloudSize = 1;
+				this.boxParticles = 200;
+				this.boxColorSetting = 10.0;
+				this.boxSize = 10;
+				this.boxOpacity = 1;
+				this.pointMatrixParticles = 100;
+				this.pointMatrixColorSetting = 1.2;
+				this.pointMatrixAlpha = 1;
+				this.pointMatrixSize = 10;
+				this.x_low = 0;
+				this.x_high = 100;
+				this.y_low = 0;
+				this.y_high = 100;
+				this.z_low = 0;
+				this.z_high = 100;
+				this.x_slider = 0;
+				this.y_slider = 0;
+				this.z_slider = 0;
+				this.densityCutoff = -3;
+				this.view = 'pointCloud';
+				this.moleculeName = 'CO2';
+				this.propertyOfInterest = 'n';
+				this.colorMap = 'rainbow';
+				this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
+				this.planeVisibilityU = false;
+				this.planeVisibilityD = false;
+				this.planeVisibilityR = false;
+				this.planeVisibilityL = false;
+				this.planeVisibilityF = false;
+				this.planeVisibilityB = false;
+				this.planeOpacity = 0.05;
+			};
 			var views = [
 				{
 					left: 0,
@@ -109,6 +146,8 @@
 					up: [ 0, 1, 0 ],
 					fov: 100,
 					mousePosition: [0,0],
+					viewType: '3Dview',
+					controllerEnabled: false,
 					controllerZoom : true,
 					controllerRotate : true,
 					controllerPan : true
@@ -123,6 +162,8 @@
 					up: [ 0, 0, 1 ],
 					fov: 45,
 					mousePosition: [0,0],
+					viewType: '2Dscatter',
+					controllerEnabled: false,
 					controllerZoom : true,
 					controllerRotate : false,
 					controllerPan : true
@@ -183,6 +224,10 @@
 					var tempScene = new THREE.Scene();
 					view.scene = tempScene;
 					scenes.push(tempScene);
+					if (ii == 0){
+						System = getPointCloudGeometry(options);
+						tempScene.add( System );
+					}
 					if (ii == 1){
 						tempControler.enableRotate=false;
 						particles = getPointCloud(num,'gamma','n');
@@ -277,17 +322,19 @@
 						enableControler(view, view.controler);
 					}
 					else{
-						disableControler(view.controler);
+						disableControler(view,view.controler);
 					}
 				}
 			}
 
 			function enableControler(view, controler){
+				view.controllerEnabled = true;
 				controler.enableZoom = view.controllerZoom;
 				controler.enablePan  = view.controllerPan;
 				controler.enableRotate = view.controllerRotate;
 			}
-			function disableControler(controler){
+			function disableControler(view, controler){
+				view.controllerEnabled = false;
 				controler.enableZoom = false;
 				controler.enablePan  = false;
 				controler.enableRotate = false;
@@ -487,7 +534,6 @@
 						tempy = unfilteredData[i]['n'];
 						if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
 							unfilteredData[i].selected = true;
-							//console.log('selected');
 						}
 						else { unfilteredData[i].selected = false; }
 					}
@@ -501,6 +547,7 @@
 				}
 				
 				updatePointCloud(num);
+				updatePointCloudGeometry(options);
 			
 			
 			}
