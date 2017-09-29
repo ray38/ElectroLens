@@ -155,7 +155,7 @@
 					left: 0.7,
 					top: 0,
 					width: 0.3,
-					height: 1.0,
+					height: 0.5,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 150 ],
 					up: [ 0, 0, 1 ],
@@ -163,6 +163,25 @@
 					mousePosition: [0,0],
 					viewType: '2Dscatter',
 					plotX: 'gamma',
+					plotY: 'epxc',
+					controllerEnabled: false,
+					controllerZoom : true,
+					controllerRotate : false,
+					controllerPan : true
+				},
+				
+				{
+					left: 0.7,
+					top: 0.5,
+					width: 0.3,
+					height: 0.5,
+					background: new THREE.Color( 0,0,0 ),
+					eye: [ 0, 0, 150 ],
+					up: [ 0, 0, 1 ],
+					fov: 45,
+					mousePosition: [0,0],
+					viewType: '2Dscatter',
+					plotX: 'n',
 					plotY: 'epxc',
 					controllerEnabled: false,
 					controllerZoom : true,
@@ -284,6 +303,8 @@
 				mouseX = event.clientX;
 				mouseY = event.clientY;
 				updateControler();
+				
+				//console.log(views[1].controllerEnabled + views[2].controllerEnabled);
 
 				for ( var ii = 0; ii < views.length; ++ii ){
 					var view = views[ii];
@@ -436,11 +457,7 @@
 			}
 			
 			function updatePointCloud(view,num){
-				//var particles = view.scene.getObjectByName('scatterPoints');
-				//console.log(view.scene);
 				var particles = view.scatterPoints;
-				//console.log(view);
-				//console.log(particles);
 				colors = new Float32Array(num *3);
 				sizes = new Float32Array(num);
 				//alphas = new Float32Array(num);
@@ -473,14 +490,16 @@
 			
 			
 			function spawnPlane(view){
+				console.log(views[1].controllerEnabled);
 				for (var ii =  0; ii < views.length; ++ii ) {
 					var view = views[ii];
 					if (view.viewType == '2Dscatter' && view.controllerEnabled == false){
+						//console.log(view.controllerEnabled);
 						var tempSelectionPlane = view.scene.getObjectByName('selectionPlane');
 						if (tempSelectionPlane != null){
+							console.log('remove plane')
 							view.scene.remove(tempSelectionPlane);
-						}
-					
+						}					
 					}
 				}
 			
@@ -512,7 +531,7 @@
 			}
 			
 			function updatePlane(view, plane){
-				if (view.controllerEnabled){
+				//if (view.controllerEnabled){
 					var scene = view.scene;
 
 					var mousePosition = view.mousePosition;
@@ -550,7 +569,7 @@
 					scene.add( selectionPlane );
 					updateSelection();
 
-				}
+				//}
 				
 			}
 			
@@ -635,11 +654,13 @@
 						var view = views[ii];
 						if (view.viewType == '2Dscatter' && view.controllerEnabled){
 							var temp = view.scene.getObjectByName('selectionPlane');
+							//console.log(temp);
 							if (temp != null){
 								updatePlane(view,temp);
 							}
 							else {
 								spawnPlane(view);
+								console.log('spawn plane');
 							}
 							}
 						}
