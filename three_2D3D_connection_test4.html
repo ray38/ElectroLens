@@ -155,7 +155,7 @@
 					left: 0.7,
 					top: 0,
 					width: 0.3,
-					height: 0.5,
+					height: 0.25,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 150 ],
 					up: [ 0, 0, 1 ],
@@ -172,9 +172,9 @@
 				
 				{
 					left: 0.7,
-					top: 0.5,
+					top: 0.25,
 					width: 0.3,
-					height: 0.5,
+					height: 0.25,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 150 ],
 					up: [ 0, 0, 1 ],
@@ -187,7 +187,46 @@
 					controllerZoom : true,
 					controllerRotate : false,
 					controllerPan : true
+				},
+				
+				{
+					left: 0.7,
+					top: 0.5,
+					width: 0.3,
+					height: 0.25,
+					background: new THREE.Color( 0,0,0 ),
+					eye: [ 0, 0, 150 ],
+					up: [ 0, 0, 1 ],
+					fov: 45,
+					mousePosition: [0,0],
+					viewType: '2Dscatter',
+					plotX: 'n',
+					plotY: 'gamma',
+					controllerEnabled: false,
+					controllerZoom : true,
+					controllerRotate : false,
+					controllerPan : true
+				},
+				
+				{
+					left: 0.7,
+					top: 0.75,
+					width: 0.3,
+					height: 0.25,
+					background: new THREE.Color( 0,0,0 ),
+					eye: [ 0, 0, 150 ],
+					up: [ 0, 0, 1 ],
+					fov: 45,
+					mousePosition: [0,0],
+					viewType: '2Dscatter',
+					plotX: 'gamma',
+					plotY: 'deriv1',
+					controllerEnabled: false,
+					controllerZoom : true,
+					controllerRotate : false,
+					controllerPan : true
 				}
+				
 			];
 			var data;
 			var unfilteredData = [];
@@ -289,9 +328,8 @@
 									view.scene.remove(temp);
 									updateSelection();
 							
-							} 
-						}
-						
+								} 
+							}
 						}
 					}
 				}, false );
@@ -304,8 +342,6 @@
 				mouseY = event.clientY;
 				updateControler();
 				
-				//console.log(views[1].controllerEnabled + views[2].controllerEnabled);
-
 				for ( var ii = 0; ii < views.length; ++ii ){
 					var view = views[ii];
 					var left   = Math.floor( windowWidth  * view.left );
@@ -313,10 +349,7 @@
 					var width  = Math.floor( windowWidth  * view.width ) + left;
 					var height = Math.floor( windowHeight * view.height ) + top;
 					var vector = new THREE.Vector3();
-					//console.log(left,width,top,height);
-					/*vector.set(	((event.clientX/window.innerWidth) * 2 - 1),
-							(-(event.clientY/window.innerHeight) * 2 + 1),
-							0.1);*/
+					
 					vector.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
 							(-((event.clientY-top)/(height-top)) * 2 + 1),
 							0.1);
@@ -324,7 +357,6 @@
 					var dir = vector.sub( view.camera.position ).normalize();
 					var distance = - view.camera.position.z/dir.z;
 					view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
-					//console.log(view.mousePosition)
 				}
 			}
 			function updateSize() {
@@ -377,12 +409,10 @@
 				for ( var ii = 0; ii < views.length; ++ii ) {
 					var view = views[ii];
 					var camera = view.camera;
-					//view.updateCamera( camera, scene, mouseX, mouseY );
 					var left   = Math.floor( windowWidth  * view.left );
 					var top    = Math.floor( windowHeight * view.top );
 					var width  = Math.floor( windowWidth  * view.width );
 					var height = Math.floor( windowHeight * view.height );
-					//console.log(left,top,width,height);
 					renderer.setViewport( left, top, width, height );
 					renderer.setScissor( left, top, width, height );
 					renderer.setScissorTest( true );
@@ -523,52 +553,45 @@
 				p[i++] = mousePosition.y;
 				p[i]   = mousePosition.z;
 				
-				//console.log(selectionPlane.geometry.attributes.position.array);
 				selectionPlane.name = 'selectionPlane';
 				scene.add( selectionPlane );
 				updateSelection();
 			}
 			
 			function updatePlane(view, plane){
-				//if (view.controllerEnabled){
-					var scene = view.scene;
+				var scene = view.scene;
 
-					var mousePosition = view.mousePosition;
-					
-					var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
-					selectionPlane.geometry.attributes.position.needsUpdate = true;
-					
-					
-					//console.log(plane);
-					var pOriginal = plane.geometry.attributes.position.array;
-					//console.log(p);
-					
-					var 	originalFirstVerticesCoordx = pOriginal[0],
-						originalFirstVerticesCoordy = pOriginal[1],
-						originalFirstVerticesCoordz = pOriginal[2];
-					
-					p = selectionPlane.geometry.attributes.position.array
-					var i = 0;
-					p[i++] = originalFirstVerticesCoordx;
-					p[i++] = originalFirstVerticesCoordy;
-					p[i++] = originalFirstVerticesCoordz;
-					p[i++] = mousePosition.x;
-					p[i++] = originalFirstVerticesCoordy;
-					p[i++] = mousePosition.z;
-					p[i++] = originalFirstVerticesCoordx;
-					p[i++] = mousePosition.y;
-					p[i++] = mousePosition.z;
-					p[i++] = mousePosition.x;
-					p[i++] = mousePosition.y;
-					p[i]   = mousePosition.z;
-					
-					//console.log(selectionPlane.geometry.attributes.position.array);
-					scene.remove(plane);
-					selectionPlane.name = 'selectionPlane';
-					scene.add( selectionPlane );
-					updateSelection();
-
-				//}
+				var mousePosition = view.mousePosition;
+				
+				var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
+				selectionPlane.geometry.attributes.position.needsUpdate = true;
+				
+				
+				var pOriginal = plane.geometry.attributes.position.array;
+				
+				var 	originalFirstVerticesCoordx = pOriginal[0],
+					originalFirstVerticesCoordy = pOriginal[1],
+					originalFirstVerticesCoordz = pOriginal[2];
+				
+				p = selectionPlane.geometry.attributes.position.array
+				var i = 0;
+				p[i++] = originalFirstVerticesCoordx;
+				p[i++] = originalFirstVerticesCoordy;
+				p[i++] = originalFirstVerticesCoordz;
+				p[i++] = mousePosition.x;
+				p[i++] = originalFirstVerticesCoordy;
+				p[i++] = mousePosition.z;
+				p[i++] = originalFirstVerticesCoordx;
+				p[i++] = mousePosition.y;
+				p[i++] = mousePosition.z;
+				p[i++] = mousePosition.x;
+				p[i++] = mousePosition.y;
+				p[i]   = mousePosition.z;
+				
+				scene.remove(plane);
+				selectionPlane.name = 'selectionPlane';
+				scene.add( selectionPlane );
+				updateSelection();
 				
 			}
 			
@@ -580,11 +603,9 @@
 						var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 						if (tempSelectionPlane != null){
 							noSelection = false;
-							//console.log('update selection, used view: ' + ii);
 							var p = tempSelectionPlane.geometry.attributes.position.array;
 							var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
 								ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
-							//console.log(xmin, xmax, ymin, ymax)
 							var tempx,tempy;
 							for (var i=0; i<unfilteredData.length; i++){
 								tempx = unfilteredData[i][temp_view.plotX];
@@ -624,13 +645,11 @@
 						var view = views[ii];
 						if (view.viewType == '2Dscatter' && view.controllerEnabled){
 							var temp = view.scene.getObjectByName('selectionPlane');
-							//console.log(temp);
 							if (temp != null){
 								updatePlane(view,temp);
 							}
 							else {
 								spawnPlane(view);
-								//console.log('spawn plane');
 							}
 						}
 					}
