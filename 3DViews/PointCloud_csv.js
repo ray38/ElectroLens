@@ -64,9 +64,9 @@ for ( var k = 0; k < num_blocks; k ++) {
 		
 		for (var j = 0; j < temp_num_points; j ++){
 
-			var x = Math.random()  + x_start;
-			var y = Math.random()  + y_start;
-			var z = Math.random()  + z_start;
+			var x = Math.random()*10  + x_start;
+			var y = Math.random()*10  + y_start;
+			var z = Math.random()*10  + z_start;
 			
 			positions[ i3 + 0 ] = (x - n_inc)*10;
 			positions[ i3 + 1 ] = (y - n_inc)*10;

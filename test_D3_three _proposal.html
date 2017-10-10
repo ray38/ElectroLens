@@ -29,7 +29,7 @@
 
 	<body>
 		<div id="container"></div>
-		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - buffergeometry custom attributes - particles</div>
+		
 
 		<script src="js/three.js"></script>
 		<script src="js/jQuery.js"></script>
@@ -113,10 +113,10 @@
 		
 		
 		options = new function(){
-				this.pointCloudParticles = 2000;
-				this.pointCloudColorSetting = 1.2;
+				this.pointCloudParticles = 200;
+				this.pointCloudColorSetting = 10.0;
 				this.pointCloudAlpha = 1;
-				this.pointCloudSize = 1;
+				this.pointCloudSize = 5;
 				this.boxParticles = 200;
 				this.boxColorSetting = 10.0;
 				this.boxSize = 10;
@@ -156,16 +156,16 @@
 	        	//console.log(d, +d.x, +d.n);
 	        	//if ((+d.rho)> 1e-7){console.log('found')}
 	        	d.n = +d.rho;
-	        	if (d.n> 1e-9){
+	        	if (d.n> 1e-6){
 	        		//console.log('found', +d.rho);
         		unfilteredData.push({
-                x: +d.x-32,
-                y: +d.y-32,
-                z: +d.z-92,
+                x: +d.x-(Math.floor((+d.x)/32)*64),
+                z: +d.y-(Math.floor((+d.y)/32)*64),
+                y: +d.z-92,
                 n: d.n,
-                PCA1: +d.PCA1,
-                PCA2: +d.PCA2,
-                PCA3: +d.PCA3
+                PCA1: +d.PCA1*1000,
+                PCA2: +d.PCA2*1000,
+                PCA3: +d.PCA3*1000
             	});}
 	            
 	        })
@@ -296,7 +296,7 @@
 			
 			
 			
-			pointCloudFolder.add( options, 'pointCloudParticles', 1000, 2000000 ).step( 1000 ).onChange( function( value ) {
+			pointCloudFolder.add( options, 'pointCloudParticles', 10, 500 ).step( 10 ).onChange( function( value ) {
 				changeGeometry(options);
 			});
 			pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 ).onChange( function( value ) {
