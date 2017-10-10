@@ -19,12 +19,14 @@ var shaderMaterial = new THREE.ShaderMaterial( {
 });
 var particles = options.pointCloudParticles;
 var num_blocks = unfilteredData.length;
+console.log(num_blocks)
 var points_in_block = new Float32Array(num_blocks);
 var total = 100;
 var count = 0;
 
 for ( var k = 0; k < num_blocks; k ++) {
-	var num_points  = Math.floor((unfilteredData[k]['n'] / total) * particles);
+	var num_points  = Math.min(Math.floor((unfilteredData[k]['n'] / total) * particles),20);
+	//console.log(num_points)
 	points_in_block[k] = num_points;
 	count += num_points;
 }
@@ -119,7 +121,7 @@ var total = 100;
 var count = 0;
 
 for ( var k = 0; k < num_blocks; k ++) {
-	var num_points  = Math.floor((unfilteredData[k]['n'] / total) * particles);
+	var num_points  = Math.min(Math.floor((unfilteredData[k]['n'] / total) * particles),20);
 	points_in_block[k] = num_points;
 	count += num_points;
 }

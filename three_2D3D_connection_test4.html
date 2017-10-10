@@ -344,19 +344,21 @@
 				
 				for ( var ii = 0; ii < views.length; ++ii ){
 					var view = views[ii];
-					var left   = Math.floor( windowWidth  * view.left );
-					var top    = Math.floor( windowHeight * view.top );
-					var width  = Math.floor( windowWidth  * view.width ) + left;
-					var height = Math.floor( windowHeight * view.height ) + top;
-					var vector = new THREE.Vector3();
+					if (view.controllerEnabled){
+						var left   = Math.floor( windowWidth  * view.left );
+						var top    = Math.floor( windowHeight * view.top );
+						var width  = Math.floor( windowWidth  * view.width ) + left;
+						var height = Math.floor( windowHeight * view.height ) + top;
+						var vector = new THREE.Vector3();
 					
-					vector.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
-							(-((event.clientY-top)/(height-top)) * 2 + 1),
-							0.1);
-					vector.unproject( view.camera );
-					var dir = vector.sub( view.camera.position ).normalize();
-					var distance = - view.camera.position.z/dir.z;
-					view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
+						vector.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
+								(-((event.clientY-top)/(height-top)) * 2 + 1),
+								0.1);
+						vector.unproject( view.camera );
+						var dir = vector.sub( view.camera.position ).normalize();
+						var distance = - view.camera.position.z/dir.z;
+						view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
+					}
 				}
 			}
 			function updateSize() {
