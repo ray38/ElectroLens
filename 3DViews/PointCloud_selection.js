@@ -1,4 +1,4 @@
-function getPointCloudGeometry(options){
+function getPointCloudGeometry(view,options){
 var uniforms = {
 
 	color:     { value: new THREE.Color( 0xffffff ) },
@@ -18,13 +18,13 @@ var shaderMaterial = new THREE.ShaderMaterial( {
 
 });
 var particles = options.pointCloudParticles;
-var num_blocks = unfilteredData.length;
+var num_blocks = view.data.length;
 var points_in_block = new Float32Array(num_blocks);
 var total = 100;
 var count = 0;
 
 for ( var k = 0; k < num_blocks; k ++) {
-	var num_points  = Math.min(Math.floor((unfilteredData[k]['n'] / total) * particles),10);
+	var num_points  = Math.min(Math.floor((view.data[k]['n'] / total) * particles),80);
 	points_in_block[k] = num_points;
 	count += num_points;
 }
@@ -53,9 +53,9 @@ var temp_num_points = 0;
 for ( var k = 0; k < num_blocks; k ++) {
 	temp_num_points  =  points_in_block[k];
 	if (temp_num_points > 0){
-		var x_start = unfilteredData[k]['x']*10 + 50;
-		var y_start = unfilteredData[k]['y']*10 + 50;
-		var z_start = unfilteredData[k]['z']*10 + 50;
+		var x_start = view.data[k]['x']*10 + 50;
+		var y_start = view.data[k]['y']*10 + 50;
+		var z_start = view.data[k]['z']*10 + 50;
 		var x_end = x_start + 1;
 		var y_end = y_start + 1;
 		var z_end = z_start + 1;
@@ -69,7 +69,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 			positions[ i3 + 0 ] = (x - n_inc)*10;
 			positions[ i3 + 1 ] = (y - n_inc)*10;
 			positions[ i3 + 2 ] = (z - n_inc)*10;
-			var color = lut.getColor( unfilteredData[k][options.propertyOfInterest] );
+			var color = lut.getColor( view.data[k][options.propertyOfInterest] );
 			
 			colors[ i3 + 0 ] = color.r;
 			colors[ i3 + 1 ] = color.g;
@@ -77,7 +77,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 			
 			if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
 				(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
-				(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& unfilteredData[k].selected)
+				(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& view.data[k].selected)
 				{
 					alphas[ i ] = options.pointCloudAlpha;
 					sizes[ i ] = options.pointCloudSize;
@@ -110,17 +110,17 @@ return System;
 
 
 
-function updatePointCloudGeometry(options){
+function updatePointCloudGeometry(view,options){
 
 var particles = options.pointCloudParticles;
-var num_blocks = unfilteredData.length;
+var num_blocks = view.data.length;
 var points_in_block = new Float32Array(num_blocks);
 var total = 100;
 var count = 0;
 
 for ( var k = 0; k < num_blocks; k ++) {
 	//var num_points  = Math.floor((unfilteredData[k]['n'] / total) * particles);
-	var num_points  = Math.min(Math.floor((unfilteredData[k]['n'] / total) * particles),10);
+	var num_points  = Math.min(Math.floor((view.data[k]['n'] / total) * particles),80);
 	points_in_block[k] = num_points;
 	count += num_points;
 }
@@ -146,16 +146,16 @@ var temp_num_points = 0;
 for ( var k = 0; k < num_blocks; k ++) {
 	temp_num_points  =  points_in_block[k];
 	if (temp_num_points > 0){
-		var x_start = unfilteredData[k]['x']*10 + 50;
-		var y_start = unfilteredData[k]['y']*10 + 50;
-		var z_start = unfilteredData[k]['z']*10 + 50;
+		var x_start = view.data[k]['x']*10 + 50;
+		var y_start = view.data[k]['y']*10 + 50;
+		var z_start = view.data[k]['z']*10 + 50;
 		var x_end = x_start + 1;
 		var y_end = y_start + 1;
 		var z_end = z_start + 1;
 		
 		for (var j = 0; j < temp_num_points; j ++){
 
-			var color = lut.getColor( unfilteredData[k][options.propertyOfInterest] );
+			var color = lut.getColor( view.data[k][options.propertyOfInterest] );
 			
 			colors[ i3 + 0 ] = color.r;
 			colors[ i3 + 1 ] = color.g;
@@ -163,7 +163,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 			
 			if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
 				(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
-				(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& unfilteredData[k].selected)
+				(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& view.data[k].selected)
 				{
 					alphas[ i ] = options.pointCloudAlpha;
 					sizes[ i ] = options.pointCloudSize;
@@ -180,7 +180,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 	}			
 }
 
-System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+view.System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+view.System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+view.System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 }

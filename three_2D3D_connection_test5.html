@@ -37,6 +37,7 @@
 		<script src="js/controls/OrbitControls.js"></script>
 		<script src="js/libs/dat.gui.min.js"></script>
 		<script src="D3js/d3.min.js"></script>
+		<script src="D3js/d3-queue.js"></script>
 		
 		<script src="3DViews/PointCloud_selection.js"></script>
 		<script src="3DViews/PointMatrix_csv.js"></script>
@@ -87,7 +88,7 @@
 		</script>
 		<script>
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-			var System
+			//var System
 			var container, stats;
 			var views, renderer;
 			var mesh, group1, group2, group3, light;
@@ -98,7 +99,7 @@
 			var clickRequest = false;
 			var controlers=[];
 			var scenes = [];
-			var options = new function(){
+			/*var options = new function(){
 				this.pointCloudParticles = 1000;
 				this.pointCloudColorSetting = 1.2;
 				this.pointCloudAlpha = 1;
@@ -133,29 +134,121 @@
 				this.planeVisibilityF = false;
 				this.planeVisibilityB = false;
 				this.planeOpacity = 0.05;
-			};
+			};*/
 			var views = [
 				{
 					left: 0,
 					top: 0,
 					width: 0.7,
-					height: 1.0,
+					height: 0.5,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 800 ],
 					up: [ 0, 1, 0 ],
 					fov: 100,
 					mousePosition: [0,0],
 					viewType: '3Dview',
+					moleculeName: 'CO2',
+					dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv",
 					controllerEnabled: false,
 					controllerZoom : true,
 					controllerRotate : true,
-					controllerPan : true
+					controllerPan : true,
+					options: new function(){
+						this.pointCloudParticles = 1000;
+						this.pointCloudColorSetting = 1.2;
+						this.pointCloudAlpha = 1;
+						this.pointCloudSize = 1;
+						this.boxParticles = 200;
+						this.boxColorSetting = 10.0;
+						this.boxSize = 10;
+						this.boxOpacity = 1;
+						this.pointMatrixParticles = 100;
+						this.pointMatrixColorSetting = 1.2;
+						this.pointMatrixAlpha = 1;
+						this.pointMatrixSize = 10;
+						this.x_low = 0;
+						this.x_high = 100;
+						this.y_low = 0;
+						this.y_high = 100;
+						this.z_low = 0;
+						this.z_high = 100;
+						this.x_slider = 0;
+						this.y_slider = 0;
+						this.z_slider = 0;
+						this.densityCutoff = -3;
+						this.view = 'pointCloud';
+						this.moleculeName = 'CO2';
+						this.propertyOfInterest = 'n';
+						this.colorMap = 'rainbow';
+						this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
+						this.planeVisibilityU = false;
+						this.planeVisibilityD = false;
+						this.planeVisibilityR = false;
+						this.planeVisibilityL = false;
+						this.planeVisibilityF = false;
+						this.planeVisibilityB = false;
+						this.planeOpacity = 0.05;
+					}
 				},
+				{
+					left: 0,
+					top: 0.5,
+					width: 0.7,
+					height: 0.5,
+					background: new THREE.Color( 0,0,0 ),
+					eye: [ 0, 0, 800 ],
+					up: [ 0, 1, 0 ],
+					fov: 100,
+					mousePosition: [0,0],
+					viewType: '3Dview',
+					moleculeName: 'H2O',
+					dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv",
+					controllerEnabled: false,
+					controllerZoom : true,
+					controllerRotate : true,
+					controllerPan : true,
+					options: new function(){
+						this.pointCloudParticles = 1000;
+						this.pointCloudColorSetting = 1.2;
+						this.pointCloudAlpha = 1;
+						this.pointCloudSize = 1;
+						this.boxParticles = 200;
+						this.boxColorSetting = 10.0;
+						this.boxSize = 10;
+						this.boxOpacity = 1;
+						this.pointMatrixParticles = 100;
+						this.pointMatrixColorSetting = 1.2;
+						this.pointMatrixAlpha = 1;
+						this.pointMatrixSize = 10;
+						this.x_low = 0;
+						this.x_high = 100;
+						this.y_low = 0;
+						this.y_high = 100;
+						this.z_low = 0;
+						this.z_high = 100;
+						this.x_slider = 0;
+						this.y_slider = 0;
+						this.z_slider = 0;
+						this.densityCutoff = -3;
+						this.view = 'pointCloud';
+						this.moleculeName = 'H2O';
+						this.propertyOfInterest = 'n';
+						this.colorMap = 'rainbow';
+						this.dataFilename = "data/H2O_B3LYP_0_0_0_all_descriptors.csv";
+						this.planeVisibilityU = false;
+						this.planeVisibilityD = false;
+						this.planeVisibilityR = false;
+						this.planeVisibilityL = false;
+						this.planeVisibilityF = false;
+						this.planeVisibilityB = false;
+						this.planeOpacity = 0.05;
+					}
+				},				
 				{
 					left: 0.7,
 					top: 0,
 					width: 0.3,
-					height: 0.25,
+					height: 0.5,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 150 ],
 					up: [ 0, 0, 1 ],
@@ -163,25 +256,6 @@
 					mousePosition: [0,0],
 					viewType: '2Dscatter',
 					plotX: 'gamma',
-					plotY: 'epxc',
-					controllerEnabled: false,
-					controllerZoom : true,
-					controllerRotate : false,
-					controllerPan : true
-				},
-				
-				{
-					left: 0.7,
-					top: 0.25,
-					width: 0.3,
-					height: 0.25,
-					background: new THREE.Color( 0,0,0 ),
-					eye: [ 0, 0, 150 ],
-					up: [ 0, 0, 1 ],
-					fov: 45,
-					mousePosition: [0,0],
-					viewType: '2Dscatter',
-					plotX: 'n',
 					plotY: 'epxc',
 					controllerEnabled: false,
 					controllerZoom : true,
@@ -193,7 +267,7 @@
 					left: 0.7,
 					top: 0.5,
 					width: 0.3,
-					height: 0.25,
+					height: 0.5,
 					background: new THREE.Color( 0,0,0 ),
 					eye: [ 0, 0, 150 ],
 					up: [ 0, 0, 1 ],
@@ -201,26 +275,7 @@
 					mousePosition: [0,0],
 					viewType: '2Dscatter',
 					plotX: 'n',
-					plotY: 'gamma',
-					controllerEnabled: false,
-					controllerZoom : true,
-					controllerRotate : false,
-					controllerPan : true
-				},
-				
-				{
-					left: 0.7,
-					top: 0.75,
-					width: 0.3,
-					height: 0.25,
-					background: new THREE.Color( 0,0,0 ),
-					eye: [ 0, 0, 150 ],
-					up: [ 0, 0, 1 ],
-					fov: 45,
-					mousePosition: [0,0],
-					viewType: '2Dscatter',
-					plotX: 'gamma',
-					plotY: 'deriv1',
+					plotY: 'epxc',
 					controllerEnabled: false,
 					controllerZoom : true,
 					controllerRotate : false,
@@ -228,10 +283,45 @@
 				}
 				
 			];
-			var data;
+			
+			var queue=d3.queue();
+			
+			for (var ii =  0; ii < views.length; ++ii ) {
+				var view = views[ii];
+				queue.defer(readCSV,view,view.dataFilename);
+			
+			}
+			
+			function readCSV(view,filename){
+				view.data = [];
+				d3.csv(filename, function (d) {
+					d.forEach(function (d,i) {
+						var n = +d.rho;
+						if (n >1e-2){
+							view.data.push({
+								x: +d.x,
+								y: +d.y,
+								z: +d.z,
+								n: +d.rho,
+								gamma: +d.gamma,
+								epxc: +d.epxc,
+								ad0p2: +d.ad0p2,
+								deriv1: +d.deriv1,
+								deriv2: +d.deriv2,
+								selected: true
+						    	});
+						}
+					})
+				
+				console.log(view.data);
+				});
+			
+			
+			}
+			
 			var unfilteredData = [];
 			var num;
-			data = d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) {
+			d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) {
 
 				d.forEach(function (d,i) {
 					var n = +d.rho;
@@ -264,7 +354,7 @@
 
 			function init() {
 				container = document.getElementById( 'container' );
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
@@ -283,8 +373,9 @@
 					var tempScene = new THREE.Scene();
 					view.scene = tempScene;
 					scenes.push(tempScene);
-					if (ii == 0){
-						System = getPointCloudGeometry(options);
+					if (view.viewType == '3Dview'){
+						var System = getPointCloudGeometry(view,view.options);
+						view.System = System;
 						tempScene.add( System );
 					}
 					if (view.viewType == '2Dscatter'){
@@ -635,8 +726,13 @@
 				}
 				
 				
-				updatePointCloudGeometry(options);
-			
+				//updatePointCloudGeometry(options);
+				for (var ii =  0; ii < views.length; ++ii ) {
+					var view = views[ii];
+					if (view.viewType == '3Dview'){
+						updatePointCloudGeometry(view, view.options);
+					}
+				}
 			
 			
 			}
