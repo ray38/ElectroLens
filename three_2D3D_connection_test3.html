@@ -244,10 +244,10 @@
 					var tempScene = new THREE.Scene();
 					view.scene = tempScene;
 					scenes.push(tempScene);
-					if (ii == 0){
+					/*if (ii == 0){
 						System = getPointCloudGeometry(options);
 						tempScene.add( System );
-					}
+					}*/
 					if (view.viewType == '2Dscatter'){
 						tempControler.enableRotate=false;
 						var particles = getPointCloud(num,view.plotX,view.plotY);
@@ -348,13 +348,13 @@
 					var top    = Math.floor( windowHeight * view.top );
 					var width  = Math.floor( windowWidth  * view.width );
 					var height = Math.floor( windowHeight * view.height );
-					
+					/*
 					if (mouseX > left && mouseX < (left + width) && mouseY > top && mouseY <top + height){
 						enableControler(view, view.controler);
 					}
 					else{
 						disableControler(view,view.controler);
-					}
+					}*/
 				}
 			}
 

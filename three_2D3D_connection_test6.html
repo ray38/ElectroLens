@@ -246,7 +246,7 @@
 					controllerPan : true
 				}
 				
-			];
+			]
 			
 			var unfilteredData = [];
 			var num = 0;
@@ -275,7 +275,7 @@
 				d3.csv(filename, function (d) {
 					d.forEach(function (d,i) {
 						var n = +d.rho;
-						if (n >1e-2){
+						if (n >1e-4){
 							var temp = {
 									x: +d.x,
 									y: +d.y,
