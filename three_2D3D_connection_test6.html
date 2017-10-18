@@ -207,7 +207,7 @@
 						this.planeVisibilityB = false;
 						this.planeOpacity = 0.05;
 					}
-				},				
+				}/*,				
 				{
 					left: 0.7,
 					top: 0,
@@ -244,7 +244,7 @@
 					controllerZoom : true,
 					controllerRotate : false,
 					controllerPan : true
-				}
+				}*/
 				
 			];
 			
@@ -275,7 +275,7 @@
 				d3.csv(filename, function (d) {
 					d.forEach(function (d,i) {
 						var n = +d.rho;
-						if (n >1e-2){
+						if (n >1e-6){
 							var temp = {
 									x: +d.x,
 									y: +d.y,
@@ -295,7 +295,7 @@
 					})
 				number = number + view.data.length;
 				console.log(number);
-				console.log(view.data);
+				//console.log(view.data);
 				callback(null);
 				});
 			
