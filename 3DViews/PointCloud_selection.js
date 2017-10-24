@@ -34,7 +34,7 @@ var n = 100;
 var n2 = Math.pow(n,2);
 var n_inc = n/2;
 
-geometry = new THREE.BufferGeometry();
+var geometry = new THREE.BufferGeometry();
 
 var positions = new Float32Array(count*3);
 var colors = new Float32Array(count *3);

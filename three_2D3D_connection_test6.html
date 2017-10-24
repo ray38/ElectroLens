@@ -246,7 +246,7 @@
 					controllerPan : true
 				}
 				
-			];
+			]
 			
 			var unfilteredData = [];
 			var num = 0;
@@ -256,6 +256,7 @@
 				var view = views[ii];
 				if (view.viewType == '3Dview'){
 					queue.defer(readCSV,view,view.dataFilename,unfilteredData,num);
+					//queue.defer(console.log('wtf'))
 				}			
 			}
 			
@@ -268,6 +269,7 @@
 			
 			
 			function readCSV(view,filename,plotData,number,callback){
+			//console.log('pass')
 			
 				view.data = [];
 				d3.csv(filename, function (d) {
@@ -292,8 +294,8 @@
 						}
 					})
 				number = number + view.data.length;
-				//console.log(number);
-				//console.log(view.data);
+				console.log(number);
+				console.log(view.data);
 				callback(null);
 				});
 			
@@ -332,7 +334,7 @@
 						tempControler.enableRotate=false;
 						var particles = getPointCloud(unfilteredData.length,view.plotX,view.plotY);
 						//particles.sortParticles = true;
-						particles.name = 'scatterPoints';
+						//particles.name = 'scatterPoints';
 						view.scatterPoints = particles;
 						tempScene.add(particles);
 						
@@ -489,11 +491,11 @@
 
 				});
 				
-				var geometry = new THREE.BufferGeometry();
-				var colors = new Float32Array(num *3);
-				var positions = new Float32Array(num *3);
-				var sizes = new Float32Array(num);
-				var alphas = new Float32Array(num);
+				geometry = new THREE.BufferGeometry();
+				colors = new Float32Array(num *3);
+				positions = new Float32Array(num *3);
+				sizes = new Float32Array(num);
+				alphas = new Float32Array(num);
 				console.log(unfilteredData.length);
 				console.log(num);
 			
@@ -503,7 +505,7 @@
 					
 					positions[i3 + 0] =unfilteredData[i][X];
 					positions[i3 + 1] =unfilteredData[i][Y];
-					positions[i3 + 2] =unfilteredData[i][X];
+					positions[i3 + 2] =0;
 					
 					if (unfilteredData[i].selected){
 						colors[i3 + 0] = 255;
