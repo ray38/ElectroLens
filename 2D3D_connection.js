@@ -184,7 +184,7 @@ function readCSV(view,filename,plotData,number,callback){
 	d3.csv(filename, function (d) {
 		d.forEach(function (d,i) {
 			var n = +d.rho;
-			if (n >1e-4){
+			if (n >1e-5){
 				var temp = {
 						x: +d.x,
 						y: +d.y,
@@ -534,7 +534,7 @@ function updatePointCloud(view,num){
 	}
 	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 	particles.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	particles.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	//geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 }

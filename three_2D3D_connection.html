@@ -531,69 +531,6 @@
 				return System
 			}
 			
-			/*
-			function getPointCloud(views, X, Y){
-				var uniforms = {
-
-					color:     { value: new THREE.Color( 0xffffff ) },
-					texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
-
-				};
-
-				var shaderMaterial = new THREE.ShaderMaterial( {
-
-					uniforms:       uniforms,
-					vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-					fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-					blending:       THREE.AdditiveBlending,
-					depthTest:      false,
-					transparent:    true
-
-				});
-				
-				var num = 0;
-				var unfilteredData = [];
-				
-				geometry = new THREE.BufferGeometry();
-				colors = new Float32Array(num *3);
-				positions = new Float32Array(num *3);
-				sizes = new Float32Array(num);
-				alphas = new Float32Array(num);
-			
-				for (var i = 0, i3 = 0; i < num; i++, i3+=3) {
-				    
-					
-					
-					positions[i3 + 0] =unfilteredData[i][X];
-					positions[i3 + 1] =unfilteredData[i][Y];
-					positions[i3 + 2] =0;
-					
-					if (unfilteredData[i].selected){
-						colors[i3 + 0] = 255;
-						colors[i3 + 1] = 0;
-						colors[i3 + 2] = 0;
-						sizes[i] = 0.2;
-					}else {
-						colors[i3 + 0] = 255;
-						colors[i3 + 1] = 255;
-						colors[i3 + 2] = 255;
-						sizes[i] = 0.1;
-					
-					}
-
-					
-					alphas[i] = 1;
-
-				}
-				geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-				geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-				geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-				geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-			
-				var System = new THREE.Points(geometry, shaderMaterial);
-				return System
-			}*/
 			
 			
 			function updatePointCloud(view,num){
@@ -623,7 +560,7 @@
 				}
 				//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 				particles.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-				geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+				particles.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 				//geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 			
 			}
