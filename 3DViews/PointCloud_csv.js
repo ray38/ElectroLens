@@ -58,15 +58,15 @@ for ( var k = 0; k < num_blocks; k ++) {
 		var x_start = unfilteredData[k]['x']*10 + 50;
 		var y_start = unfilteredData[k]['y']*10 + 50;
 		var z_start = unfilteredData[k]['z']*10 + 50;
-		var x_end = x_start + 1;
-		var y_end = y_start + 1;
-		var z_end = z_start + 1;
+		var x_end = x_start + 0.02;
+		var y_end = y_start + 0.02;
+		var z_end = z_start + 0.02;
 		
 		for (var j = 0; j < temp_num_points; j ++){
 
-			var x = Math.random()*10  + x_start;
-			var y = Math.random()*10  + y_start;
-			var z = Math.random()*10  + z_start;
+			var x = Math.random()*0.2  + x_start;
+			var y = Math.random()*0.2  + y_start;
+			var z = Math.random()*0.2  + z_start;
 			
 			positions[ i3 + 0 ] = (x - n_inc)*10;
 			positions[ i3 + 1 ] = (y - n_inc)*10;
@@ -97,7 +97,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 }
 	
 
-
+//console.log(positions)
 geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );

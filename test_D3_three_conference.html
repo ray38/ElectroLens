@@ -29,7 +29,7 @@
 
 	<body>
 		<div id="container"></div>
-		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - buffergeometry custom attributes - particles</div>
+		
 
 		<script src="js/three.js"></script>
 		<script src="js/jQuery.js"></script>
@@ -45,7 +45,7 @@
 		<script src="3DViews/PointMatrix_csv.js"></script>
 		<script src="3DViews/Box.js"></script>
 		<script src="3DViews/BoundaryPlanes.js"></script>
-		<script src="3DViews/Utilities.js"></script>
+		<script src="3DViews/Utilities_conference.js"></script>
 
 		<script type="x-shader/x-vertex" id="vertexshader">
 
@@ -113,10 +113,10 @@
 		
 		
 		options = new function(){
-				this.pointCloudParticles = 1000;
-				this.pointCloudColorSetting = 1.2;
+				this.pointCloudParticles = 500;
+				this.pointCloudColorSetting = 10.0;
 				this.pointCloudAlpha = 1;
-				this.pointCloudSize = 1;
+				this.pointCloudSize = 0.5;
 				this.boxParticles = 200;
 				this.boxColorSetting = 10.0;
 				this.boxSize = 10;
@@ -125,21 +125,22 @@
 				this.pointMatrixColorSetting = 1.2;
 				this.pointMatrixAlpha = 1;
 				this.pointMatrixSize = 10;
-				this.x_low = 0;
-				this.x_high = 100;
-				this.y_low = 0;
-				this.y_high = 100;
-				this.z_low = 0;
-				this.z_high = 100;
+				this.x_low = -500;
+				this.x_high = 500;
+				this.y_low = -500;
+				this.y_high = 500;
+				this.z_low = -500;
+				this.z_high = 500;
 				this.x_slider = 0;
 				this.y_slider = 0;
 				this.z_slider = 0;
 				this.densityCutoff = -3;
 				this.view = 'pointCloud';
 				this.moleculeName = 'CO2';
+				this.fitType = 'LDA';
 				this.propertyOfInterest = 'n';
 				this.colorMap = 'rainbow';
-				this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
+				this.dataFilename = "data/H2O_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv";
 				this.planeVisibilityU = false;
 				this.planeVisibilityD = false;
 				this.planeVisibilityR = false;
@@ -150,25 +151,22 @@
 			};
 		
 		unfilteredData = [];
-    	var data = d3.csv("data/CO2_B3LYP_0_0_0_all_descriptors.csv", function (d) {
+    	var data = d3.csv("data/H2O_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv", function (d) {
 
 	        d.forEach(function (d,i) {
-	        	//console.log(d, +d.x, +d.n);
-	        	//if ((+d.rho)> 1e-7){console.log('found')}
 	        	d.n = +d.rho;
 	        	if (d.n> 2e-1){
-	        		//console.log('found', +d.rho);
-        		unfilteredData.push({
-                x: +d.x,
-                y: +d.y,
-                z: +d.z,
-                n: d.n,
-                gamma: +d.gamma,
-                epxc: +d.epxc,
-                ad0p2: +d.ad0p2,
-                deriv1: +d.deriv1,
-                deriv2: +d.deriv2
-            	});}
+				unfilteredData.push({
+				x: +d.x,
+				y: +d.y,
+				z: +d.z,
+				n: d.n,
+				error: +d.error,
+				gamma: +d.gamma,
+				tau: +d.tau
+				});
+                
+            		}	
 	            
 	        })
 	        console.log(unfilteredData.length);
@@ -259,28 +257,58 @@
 			sliderFolder 		= gui.addFolder( 'Slider Control' );
 			planeFolder			= gui.addFolder( 'Plane Control' );
 			
-			moleculeFolder.add( options, 'moleculeName',{'CO2':'CO2', 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4', 'C2H2':'C2H2', 'NCCN':'NCCN','C6H6':'C6H6','butadiene':'butadiene'}).onChange( function( value ) {
+			moleculeFolder.add( options, 'moleculeName',{'CO2':'CO2', 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4', 'C2H4':'C2H4','H2':'H2'}).onChange( function( value ) {
+							
 				updateOptionFilenames();
 				unfilteredData = [];
 				var data = d3.csv(options.dataFilename, function (d) { 
 			        d.forEach(function (d,i) {
-			            unfilteredData[i] = {
-			                x: +d.x,
-			                y: +d.y,
-			                z: +d.z,
-			                n: +d.rho,
-			                gamma: +d.gamma,
-			                epxc: +d.epxc,
-					ad0p2: +d.ad0p2,
-					deriv1: +d.deriv1,
-					deriv2: +d.deriv2
-			            }
-			        })
+					d.n = +d.rho;
+					if (d.n> 1e-1){
+						unfilteredData.push({
+						x: +d.x,
+						y: +d.y,
+						z: +d.z,
+						n: d.n,
+						error: +d.error,
+						gamma: +d.gamma,
+						tau: +d.tau
+						});
+				
+			    		}	
+				    
+				})
 			        changeGeometry(options)
 			    });
 
-			});				
-			moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}).onChange( function( value ) {
+			});
+			
+			moleculeFolder.add( options, 'fitType',{'LDA':'LDA', 'GGA':'GGA', 'mGGA':'mGGA', 'desc':'desc'}).onChange( function( value ) {
+				updateOptionFilenames();
+				unfilteredData = [];
+				var data = d3.csv(options.dataFilename, function (d) { 
+			        d.forEach(function (d,i) {
+					d.n = +d.rho;
+					if (d.n> 1e-1){
+						unfilteredData.push({
+						x: +d.x,
+						y: +d.y,
+						z: +d.z,
+						n: d.n,
+						error: +d.error,
+						gamma: +d.gamma,
+						tau: +d.tau
+						});
+				
+			    		}	
+				    
+				})
+			        changeGeometry(options)
+			    });
+
+			});
+						
+			moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','error':'error', 'gamma':'gamma','tau':'tau'}).onChange( function( value ) {
 				updateGeometry(options);
 			});
 			moleculeFolder.open();
@@ -298,7 +326,7 @@
 			
 			
 			
-			pointCloudFolder.add( options, 'pointCloudParticles', 10, 20000 ).step( 10 ).onChange( function( value ) {
+			pointCloudFolder.add( options, 'pointCloudParticles', 10, 1000 ).step( 10 ).onChange( function( value ) {
 				changeGeometry(options);
 			});
 			pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 ).onChange( function( value ) {
