@@ -136,11 +136,11 @@
 				this.z_slider = 0;
 				this.densityCutoff = -3;
 				this.view = 'pointCloud';
-				this.moleculeName = 'CO2';
+				this.moleculeName = 'CO';
 				this.fitType = 'LDA';
 				this.propertyOfInterest = 'n';
 				this.colorMap = 'rainbow';
-				this.dataFilename = "data/H2O_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv";
+				this.dataFilename = "data/CO_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv";
 				this.planeVisibilityU = false;
 				this.planeVisibilityD = false;
 				this.planeVisibilityR = false;
@@ -148,20 +148,23 @@
 				this.planeVisibilityF = false;
 				this.planeVisibilityB = false;
 				this.planeOpacity = 0.05;
+				this.resetCamera = function(){controls.reset();};
+
 			};
 		
 		unfilteredData = [];
-    	var data = d3.csv("data/H2O_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv", function (d) {
+    	var data = d3.csv("data/CO_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv", function (d) {
 
 	        d.forEach(function (d,i) {
 	        	d.n = +d.rho;
-	        	if (d.n> 2e-1){
+	        	//console.log(+d.error*1e7);
+	        	if (d.n> 3.5e-1){
 				unfilteredData.push({
 				x: +d.x,
 				y: +d.y,
 				z: +d.z,
 				n: d.n,
-				error: +d.error,
+				error: +d.error*1e7,				
 				gamma: +d.gamma,
 				tau: +d.tau
 				});
@@ -257,20 +260,20 @@
 			sliderFolder 		= gui.addFolder( 'Slider Control' );
 			planeFolder			= gui.addFolder( 'Plane Control' );
 			
-			moleculeFolder.add( options, 'moleculeName',{'CO2':'CO2', 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4', 'C2H4':'C2H4','H2':'H2'}).onChange( function( value ) {
+			moleculeFolder.add( options, 'moleculeName',{/*'CO2':'CO2',*/ 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4', 'C2H4':'C2H4','H2':'H2'}).onChange( function( value ) {
 							
 				updateOptionFilenames();
 				unfilteredData = [];
 				var data = d3.csv(options.dataFilename, function (d) { 
 			        d.forEach(function (d,i) {
 					d.n = +d.rho;
-					if (d.n> 1e-1){
+					if (d.n> 3.5e-1){
 						unfilteredData.push({
 						x: +d.x,
 						y: +d.y,
 						z: +d.z,
 						n: d.n,
-						error: +d.error,
+						error: +d.error*1e7,
 						gamma: +d.gamma,
 						tau: +d.tau
 						});
@@ -289,13 +292,13 @@
 				var data = d3.csv(options.dataFilename, function (d) { 
 			        d.forEach(function (d,i) {
 					d.n = +d.rho;
-					if (d.n> 1e-1){
+					if (d.n> 3.5e-1){
 						unfilteredData.push({
 						x: +d.x,
 						y: +d.y,
 						z: +d.z,
 						n: d.n,
-						error: +d.error,
+						error: +d.error*1e7,
 						gamma: +d.gamma,
 						tau: +d.tau
 						});
@@ -322,6 +325,8 @@
 			viewFolder.add( options, 'colorMap',{'rainbow':'rainbow', 'cooltowarm':'cooltowarm', 'blackbody':'blackbody', 'grayscale':'grayscale'}).onChange( function( value ){
 				updateGeometry(options);			
 			});
+			viewFolder.add( options, 'resetCamera');
+
 			viewFolder.open();
 			
 			
@@ -335,7 +340,7 @@
 			pointCloudFolder.add( options, 'pointCloudSize', 0, 10 ).step( 0.1 ).onChange( function( value ) {
 				updateGeometry(options);
 			});
-			pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {
+			pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 200.0 ).step( 0.1 ).onChange( function( value ) {
 				updateGeometry(options);
 			});
 			pointCloudFolder.open();
