@@ -136,11 +136,11 @@
 				this.z_slider = 0;
 				this.densityCutoff = -3;
 				this.view = 'pointCloud';
-				this.moleculeName = 'CO';
-				this.fitType = 'LDA';
+				this.moleculeName = 'C2H4';
+				this.fitType = 'B3LYP';
 				this.propertyOfInterest = 'n';
 				this.colorMap = 'rainbow';
-				this.dataFilename = "data/CO_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv";
+				this.dataFilename = "data/C2H4_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv";
 				this.planeVisibilityU = false;
 				this.planeVisibilityD = false;
 				this.planeVisibilityR = false;
@@ -153,7 +153,7 @@
 			};
 		
 		unfilteredData = [];
-    	var data = d3.csv("data/CO_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv", function (d) {
+    	var data = d3.csv("data/C2H4_B3LYP_10-0_0-02_5_LDA_error_for_visual.csv", function (d) {
 
 	        d.forEach(function (d,i) {
 	        	d.n = +d.rho;
