@@ -160,6 +160,7 @@ var views = [
 ];
 
 var unfilteredData = [];
+var heatmapData = [];
 var num = 0;
 var queue=d3.queue();
 
@@ -242,6 +243,7 @@ function init() {
 		if (view.viewType == '2Dscatter'){
 			tempControler.enableRotate=false;
 			var particles = getPointCloud(unfilteredData.length,view.plotX,view.plotY);
+			arrangeDataToHeatmap(view,unfilteredData.length,view.plotX,view.plotY,20)
 			//particles.sortParticles = true;
 			particles.name = 'scatterPoints';
 			view.scatterPoints = particles;
@@ -287,6 +289,44 @@ function init() {
 	}, false );
 	
 }
+
+function arrangeDataToHeatmap(view,numData,X,Y,numPerSide){
+	var heatmapStep = [];
+	for (var i=1; i <= numPerSide; i++) {
+		heatmapStep.push(""+i);
+	}
+	var xValue = function(d) {return d[X];};
+	var yValue = function(d) {return d[Y];};
+	
+	var xScale = d3.scaleQuantize()
+	.domain([d3.min(unfilteredData,xValue), d3.max(unfilteredData,xValue)])
+	.range(heatmapStep);
+	
+	var yScale = d3.scaleQuantize()
+	.domain([d3.min(unfilteredData,yValue), d3.max(unfilteredData,yValue)])
+	.range(heatmapStep);
+	
+	var xMap = function(d) {return xScale(xValue(d));};
+	var yMap = function(d) {return yScale(yValue(d));}; 
+	
+	view.data = {};
+	for (var i=0; i<numData; i++){
+		var heatmapX = xMap(unfilteredData[i]);
+		var heatmapY = yMap(unfilteredData[i]);
+		
+		view.data[heatmapX] = view.data[heatmapX] || {};
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || [];
+		//console.log(view.data[heatmapX][heatmapY]);
+		view.data[heatmapX][heatmapY].push(unfilteredData[i]);
+	}
+	
+	console.log(view.data);
+			
+}
+
+
+
+
 
 
 function onDocumentMouseMove( event ) {
@@ -412,9 +452,9 @@ function getPointCloud(num, X, Y){
 	    
 		
 		
-		positions[i3 + 0] =unfilteredData[i][X];
-		positions[i3 + 1] =unfilteredData[i][Y];
-		positions[i3 + 2] =unfilteredData[i][X];
+		positions[i3 + 0] = unfilteredData[i][X];
+		positions[i3 + 1] = unfilteredData[i][Y];
+		positions[i3 + 2] = 0//unfilteredData[i][X];
 		
 		if (unfilteredData[i].selected){
 			colors[i3 + 0] = 255;
@@ -441,70 +481,6 @@ function getPointCloud(num, X, Y){
 	var System = new THREE.Points(geometry, shaderMaterial);
 	return System
 }
-
-/*
-function getPointCloud(views, X, Y){
-	var uniforms = {
-
-		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
-
-	};
-
-	var shaderMaterial = new THREE.ShaderMaterial( {
-
-		uniforms:       uniforms,
-		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-		blending:       THREE.AdditiveBlending,
-		depthTest:      false,
-		transparent:    true
-
-	});
-	
-	var num = 0;
-	var unfilteredData = [];
-	
-	geometry = new THREE.BufferGeometry();
-	colors = new Float32Array(num *3);
-	positions = new Float32Array(num *3);
-	sizes = new Float32Array(num);
-	alphas = new Float32Array(num);
-
-	for (var i = 0, i3 = 0; i < num; i++, i3+=3) {
-	    
-		
-		
-		positions[i3 + 0] =unfilteredData[i][X];
-		positions[i3 + 1] =unfilteredData[i][Y];
-		positions[i3 + 2] =0;
-		
-		if (unfilteredData[i].selected){
-			colors[i3 + 0] = 255;
-			colors[i3 + 1] = 0;
-			colors[i3 + 2] = 0;
-			sizes[i] = 0.2;
-		}else {
-			colors[i3 + 0] = 255;
-			colors[i3 + 1] = 255;
-			colors[i3 + 2] = 255;
-			sizes[i] = 0.1;
-		
-		}
-
-		
-		alphas[i] = 1;
-
-	}
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-
-	var System = new THREE.Points(geometry, shaderMaterial);
-	return System
-}*/
 
 
 function updatePointCloud(view,num){
