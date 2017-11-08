@@ -547,6 +547,7 @@ function init() {
 		if (event.button == 0){
 			hold = false;
 			clickRequest = false;
+			//updateSelection();
 		}
 	}, false );
 

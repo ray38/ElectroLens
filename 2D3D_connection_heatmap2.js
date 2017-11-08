@@ -118,7 +118,7 @@ var views = [
 			this.planeVisibilityB = false;
 			this.planeOpacity = 0.05;
 		}
-	}				
+	},
 	{
 		left: 0.6,
 		top: 0,
@@ -216,26 +216,6 @@ var views = [
 		plotY: 'epxc',
 		plotXTransform: 'log10',
 		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},				
-	{
-		left: 0.8,
-		top: 0,
-		width: 0.4,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'gamma',
-		plotY: 'epxc',
-		plotXTransform: 'linear',
-		plotYTransform: 'linear',
 		controllerEnabled: false,
 		controllerZoom : true,
 		controllerRotate : false,
@@ -505,9 +485,9 @@ function getHeatmap(view,X, Y){
 				colors[i3 + 2] = color.b;
 			}
 			else {
-				colors[i3 + 0] = 0;
-				colors[i3 + 1] = 0;
-				colors[i3 + 2] = 0;
+				colors[i3 + 0] = 100;
+				colors[i3 + 1] = 100;
+				colors[i3 + 2] = 100;
 			}
 			sizes[i] = 2.5;
 			alphas[i] = 1;
@@ -558,9 +538,9 @@ function updateHeatmap(view){
 				colors[i3 + 2] = color.b;
 			}
 			else {
-				colors[i3 + 0] = 0;
-				colors[i3 + 1] = 0;
-				colors[i3 + 2] = 0;
+				colors[i3 + 0] = 100;
+				colors[i3 + 1] = 100;
+				colors[i3 + 2] = 100;
 			}
 			
 			sizes[i] = 2.5;
