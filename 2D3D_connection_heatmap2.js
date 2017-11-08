@@ -14,7 +14,7 @@ var views = [
 	{
 		left: 0,
 		top: 0,
-		width: 0.3,
+		width: 0.6,
 		height: 0.5,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 800 ],
@@ -68,7 +68,7 @@ var views = [
 	{
 		left: 0,
 		top: 0.5,
-		width: 0.3,
+		width: 0.6,
 		height: 0.5,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 800 ],
@@ -118,120 +118,11 @@ var views = [
 			this.planeVisibilityB = false;
 			this.planeOpacity = 0.05;
 		}
-	},
-	{
-		left: 0.3,
-		top: 0,
-		width: 0.3,
-		height: 0.5,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 800 ],
-		up: [ 0, 1, 0 ],
-		fov: 100,
-		mousePosition: [0,0],
-		viewType: '3Dview',
-		moleculeName: 'CO',
-		dataFilename: "data/CO_B3LYP_0_0_0_all_descriptors.csv",
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : true,
-		controllerPan : true,
-		options: new function(){
-			this.pointCloudParticles = 1000;
-			this.pointCloudColorSetting = 1.2;
-			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1;
-			this.boxParticles = 200;
-			this.boxColorSetting = 10.0;
-			this.boxSize = 10;
-			this.boxOpacity = 1;
-			this.pointMatrixParticles = 100;
-			this.pointMatrixColorSetting = 1.2;
-			this.pointMatrixAlpha = 1;
-			this.pointMatrixSize = 10;
-			this.x_low = 0;
-			this.x_high = 100;
-			this.y_low = 0;
-			this.y_high = 100;
-			this.z_low = 0;
-			this.z_high = 100;
-			this.x_slider = 0;
-			this.y_slider = 0;
-			this.z_slider = 0;
-			this.densityCutoff = -3;
-			this.view = 'pointCloud';
-			this.moleculeName = 'CO';
-			this.propertyOfInterest = 'n';
-			this.colorMap = 'rainbow';
-			this.dataFilename = "data/CO_B3LYP_0_0_0_all_descriptors.csv";
-			this.planeVisibilityU = false;
-			this.planeVisibilityD = false;
-			this.planeVisibilityR = false;
-			this.planeVisibilityL = false;
-			this.planeVisibilityF = false;
-			this.planeVisibilityB = false;
-			this.planeOpacity = 0.05;
-		}
-	},
-
-	{
-		left: 0.3,
-		top: 0.5,
-		width: 0.3,
-		height: 0.5,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 800 ],
-		up: [ 0, 1, 0 ],
-		fov: 100,
-		mousePosition: [0,0],
-		viewType: '3Dview',
-		moleculeName: 'CH4',
-		dataFilename: "data/CH4_B3LYP_0_0_0_all_descriptors.csv",
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : true,
-		controllerPan : true,
-		options: new function(){
-			this.pointCloudParticles = 1000;
-			this.pointCloudColorSetting = 1.2;
-			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1;
-			this.boxParticles = 200;
-			this.boxColorSetting = 10.0;
-			this.boxSize = 10;
-			this.boxOpacity = 1;
-			this.pointMatrixParticles = 100;
-			this.pointMatrixColorSetting = 1.2;
-			this.pointMatrixAlpha = 1;
-			this.pointMatrixSize = 10;
-			this.x_low = 0;
-			this.x_high = 100;
-			this.y_low = 0;
-			this.y_high = 100;
-			this.z_low = 0;
-			this.z_high = 100;
-			this.x_slider = 0;
-			this.y_slider = 0;
-			this.z_slider = 0;
-			this.densityCutoff = -3;
-			this.view = 'pointCloud';
-			this.moleculeName = 'CH4';
-			this.propertyOfInterest = 'n';
-			this.colorMap = 'rainbow';
-			this.dataFilename = "data/CH4_B3LYP_0_0_0_all_descriptors.csv";
-			this.planeVisibilityU = false;
-			this.planeVisibilityD = false;
-			this.planeVisibilityR = false;
-			this.planeVisibilityL = false;
-			this.planeVisibilityF = false;
-			this.planeVisibilityB = false;
-			this.planeOpacity = 0.05;
-		}
-	},				
+	}				
 	{
 		left: 0.6,
 		top: 0,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 150 ],
@@ -252,7 +143,7 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.2,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 150 ],
@@ -272,7 +163,7 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.4,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 150 ],
@@ -293,7 +184,7 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.6,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 150 ],
@@ -313,7 +204,7 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.8,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 150 ],
@@ -333,7 +224,7 @@ var views = [
 	{
 		left: 0.8,
 		top: 0,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
 		eye: [ 0, 0, 150 ],
@@ -345,88 +236,6 @@ var views = [
 		plotY: 'epxc',
 		plotXTransform: 'linear',
 		plotYTransform: 'linear',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},
-	
-	{
-		left: 0.8,
-		top: 0.2,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'linear',
-		plotYTransform: 'linear',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},				
-	{
-		left: 0.8,
-		top: 0.4,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'gamma',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},
-	
-	{
-		left: 0.8,
-		top: 0.6,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},
-	{
-		left: 0.8,
-		top: 0.8,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10',
 		controllerEnabled: false,
 		controllerZoom : true,
 		controllerRotate : false,
