@@ -8,15 +8,19 @@ var mouseX = 0, mouseY = 0;
 var windowWidth, windowHeight;
 var mousePosition;
 var clickRequest = false;
+var mouseHold = false;
 var controlers=[];
 var scenes = [];
+
+var heightScale = 2., widthScale = 1.;
 var views = [
 	{
 		left: 0,
 		top: 0,
-		width: 0.3,
+		width: 0.6,
 		height: 0.5,
 		background: new THREE.Color( 0,0,0 ),
+		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 800 ],
 		up: [ 0, 1, 0 ],
 		fov: 100,
@@ -68,9 +72,10 @@ var views = [
 	{
 		left: 0,
 		top: 0.5,
-		width: 0.3,
+		width: 0.6,
 		height: 0.5,
 		background: new THREE.Color( 0,0,0 ),
+		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 800 ],
 		up: [ 0, 1, 0 ],
 		fov: 100,
@@ -120,120 +125,12 @@ var views = [
 		}
 	},
 	{
-		left: 0.3,
-		top: 0,
-		width: 0.3,
-		height: 0.5,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 800 ],
-		up: [ 0, 1, 0 ],
-		fov: 100,
-		mousePosition: [0,0],
-		viewType: '3Dview',
-		moleculeName: 'CO',
-		dataFilename: "data/CO_B3LYP_0_0_0_all_descriptors.csv",
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : true,
-		controllerPan : true,
-		options: new function(){
-			this.pointCloudParticles = 1000;
-			this.pointCloudColorSetting = 1.2;
-			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1;
-			this.boxParticles = 200;
-			this.boxColorSetting = 10.0;
-			this.boxSize = 10;
-			this.boxOpacity = 1;
-			this.pointMatrixParticles = 100;
-			this.pointMatrixColorSetting = 1.2;
-			this.pointMatrixAlpha = 1;
-			this.pointMatrixSize = 10;
-			this.x_low = 0;
-			this.x_high = 100;
-			this.y_low = 0;
-			this.y_high = 100;
-			this.z_low = 0;
-			this.z_high = 100;
-			this.x_slider = 0;
-			this.y_slider = 0;
-			this.z_slider = 0;
-			this.densityCutoff = -3;
-			this.view = 'pointCloud';
-			this.moleculeName = 'CO';
-			this.propertyOfInterest = 'n';
-			this.colorMap = 'rainbow';
-			this.dataFilename = "data/CO_B3LYP_0_0_0_all_descriptors.csv";
-			this.planeVisibilityU = false;
-			this.planeVisibilityD = false;
-			this.planeVisibilityR = false;
-			this.planeVisibilityL = false;
-			this.planeVisibilityF = false;
-			this.planeVisibilityB = false;
-			this.planeOpacity = 0.05;
-		}
-	},
-
-	{
-		left: 0.3,
-		top: 0.5,
-		width: 0.3,
-		height: 0.5,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 800 ],
-		up: [ 0, 1, 0 ],
-		fov: 100,
-		mousePosition: [0,0],
-		viewType: '3Dview',
-		moleculeName: 'CH4',
-		dataFilename: "data/CH4_B3LYP_0_0_0_all_descriptors.csv",
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : true,
-		controllerPan : true,
-		options: new function(){
-			this.pointCloudParticles = 1000;
-			this.pointCloudColorSetting = 1.2;
-			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1;
-			this.boxParticles = 200;
-			this.boxColorSetting = 10.0;
-			this.boxSize = 10;
-			this.boxOpacity = 1;
-			this.pointMatrixParticles = 100;
-			this.pointMatrixColorSetting = 1.2;
-			this.pointMatrixAlpha = 1;
-			this.pointMatrixSize = 10;
-			this.x_low = 0;
-			this.x_high = 100;
-			this.y_low = 0;
-			this.y_high = 100;
-			this.z_low = 0;
-			this.z_high = 100;
-			this.x_slider = 0;
-			this.y_slider = 0;
-			this.z_slider = 0;
-			this.densityCutoff = -3;
-			this.view = 'pointCloud';
-			this.moleculeName = 'CH4';
-			this.propertyOfInterest = 'n';
-			this.colorMap = 'rainbow';
-			this.dataFilename = "data/CH4_B3LYP_0_0_0_all_descriptors.csv";
-			this.planeVisibilityU = false;
-			this.planeVisibilityD = false;
-			this.planeVisibilityR = false;
-			this.planeVisibilityL = false;
-			this.planeVisibilityF = false;
-			this.planeVisibilityB = false;
-			this.planeOpacity = 0.05;
-		}
-	},				
-	{
 		left: 0.6,
 		top: 0,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
+		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 150 ],
 		up: [ 0, 0, 1 ],
 		fov: 45,
@@ -252,9 +149,10 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.2,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
+		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 150 ],
 		up: [ 0, 0, 1 ],
 		fov: 45,
@@ -272,9 +170,10 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.4,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
+		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 150 ],
 		up: [ 0, 0, 1 ],
 		fov: 45,
@@ -293,9 +192,10 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.6,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
+		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 150 ],
 		up: [ 0, 0, 1 ],
 		fov: 45,
@@ -313,111 +213,10 @@ var views = [
 	{
 		left: 0.6,
 		top: 0.8,
-		width: 0.2,
+		width: 0.4,
 		height: 0.2,
 		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},				
-	{
-		left: 0.8,
-		top: 0,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'gamma',
-		plotY: 'epxc',
-		plotXTransform: 'linear',
-		plotYTransform: 'linear',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},
-	
-	{
-		left: 0.8,
-		top: 0.2,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'linear',
-		plotYTransform: 'linear',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},				
-	{
-		left: 0.8,
-		top: 0.4,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'gamma',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},
-	
-	{
-		left: 0.8,
-		top: 0.6,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
-	},
-	{
-		left: 0.8,
-		top: 0.8,
-		width: 0.2,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
+		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 150 ],
 		up: [ 0, 0, 1 ],
 		fov: 45,
@@ -494,7 +293,7 @@ function init() {
 	container = document.getElementById( 'container' );
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize( window.innerWidth , window.innerHeight);
 	container.appendChild( renderer.domElement );
 	
 	
@@ -523,6 +322,10 @@ function init() {
 			//var numberPoints = heatmapPointCount(view.data);
 			//console.log(numberPoints);
 			var particles = getHeatmap(view,view.plotX,view.plotY);
+			var line = getAxis(view);
+			tempScene.add(line);
+			//var title = getTitle(view);
+			//tempScene.add(title);
 			//particles.sortParticles = true;
 			particles.name = 'scatterPoints';
 			view.scatterPoints = particles;
@@ -536,18 +339,19 @@ function init() {
 	stats = new Stats();
 	container.appendChild( stats.dom );
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	var hold = false;
+	//var mouseHold = false;
 	window.addEventListener( 'mousedown', function( event ) {
+		mouseHold = true;
+		console.log(mouseHold);
 		if (event.button == 0){
-			hold = true;
 			clickRequest = true;
 		}
 	}, false );
 	window.addEventListener( 'mouseup', function( event ) {
+		mouseHold = false;
+		console.log(mouseHold);
 		if (event.button == 0){
-			hold = false;
 			clickRequest = false;
-			//updateSelection();
 		}
 	}, false );
 
@@ -593,12 +397,22 @@ function arrangeDataToHeatmap(view,numData,X,Y,numPerSide,transform){
 	var xValue = function(d) {return d[X];}
 	var yValue = function(d) {return d[Y];}*/
 	
+	var xMin = d3.min(unfilteredData,xValue);
+	var xMax = d3.max(unfilteredData,xValue);
+	var yMin = d3.min(unfilteredData,yValue);
+	var yMax = d3.max(unfilteredData,yValue);
+
+	view.xMin = xMin;
+	view.xMax = xMax;
+	view.yMin = yMin;
+	view.yMax = yMax;
+
 	var xScale = d3.scaleQuantize()
-	.domain([d3.min(unfilteredData,xValue), d3.max(unfilteredData,xValue)])
+	.domain([xMin, xMax])
 	.range(heatmapStep);
 	
 	var yScale = d3.scaleQuantize()
-	.domain([d3.min(unfilteredData,yValue), d3.max(unfilteredData,yValue)])
+	.domain([yMin, yMax])
 	.range(heatmapStep);
 	
 	var xMap = function(d) {return xScale(xValue(d));};
@@ -635,8 +449,50 @@ function heatmapPointCount(data){
 
 
 function getAxis(view){
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
+	geometry.vertices.push(new THREE.Vector3(50, -50, 0));
+	geometry.vertices.push(new THREE.Vector3(50, 50, 0));
+	geometry.vertices.push(new THREE.Vector3(-50, 50, 0));
+	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
+	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3, });
+	var line = new THREE.Line(geometry, material);
+	return line;
+}
 
+function getTitle(view) {
+	var titleText = view.plotY + " v.s. " + view.plotX;
 
+	/*var titleGeo = new THREE.TextGeometry( titleText, {
+		size: 10, height: 1, curveSegments: 3,
+        font: 'janda manatee solid', weight: 'normal',
+        bevelThickness: 3, bevelSize: 3, bevelEnabled: true
+	});
+
+    titleGeo.computeBoundingBox();
+    var titleGeoWidth = titleGeo.boundingBox.max.x - titleGeo.boundingBox.min.x;
+	var titleMesh = new THREE.Mesh( titleGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
+	titleMesh.position.set( -0.5 * titleGeoWidth, 50, 0 );
+	return titleMesh;*/
+
+	var loader = new THREE.FontLoader();
+
+	loader.load( 'fonts/helvetiker_bold.typeface.json', function ( font ) {
+
+	    var titleGeo = new THREE.TextGeometry( titleText, {
+			size: 10, font: font/*, height: 1, curveSegments: 3,
+	        font: 'janda manatee solid', weight: 'normal',
+	        bevelThickness: 3, bevelSize: 3, bevelEnabled: true*/
+		});
+
+	    titleGeo.computeBoundingBox();
+	    var titleGeoWidth = titleGeo.boundingBox.max.x - titleGeo.boundingBox.min.x;
+		var titleMesh = new THREE.Mesh( titleGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
+		titleMesh.position.set( -0.5 * titleGeoWidth, 50, 0 );
+		return titleMesh;
+
+	});
+	
 }
 
 function getHeatmap(view,X, Y){
@@ -653,7 +509,7 @@ function getHeatmap(view,X, Y){
 		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
 		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
 
-		//blending:       THREE.AdditiveBlending,
+		blending:       THREE.AdditiveBlending,
 		depthTest:      false,
 		transparent:    true
 
@@ -697,9 +553,9 @@ function getHeatmap(view,X, Y){
 				colors[i3 + 2] = color.b;
 			}
 			else {
-				colors[i3 + 0] = 0;
-				colors[i3 + 1] = 0;
-				colors[i3 + 2] = 0;
+				colors[i3 + 0] = 100;
+				colors[i3 + 1] = 100;
+				colors[i3 + 2] = 100;
 			}
 			sizes[i] = 2.5;
 			alphas[i] = 1;
@@ -750,9 +606,9 @@ function updateHeatmap(view){
 				colors[i3 + 2] = color.b;
 			}
 			else {
-				colors[i3 + 0] = 0;
-				colors[i3 + 1] = 0;
-				colors[i3 + 2] = 0;
+				colors[i3 + 0] = 100;
+				colors[i3 + 1] = 100;
+				colors[i3 + 2] = 100;
 			}
 			
 			sizes[i] = 2.5;
@@ -780,7 +636,8 @@ function updateHeatmap(view){
 function onDocumentMouseMove( event ) {
 	mouseX = event.clientX;
 	mouseY = event.clientY;
-	updateController();
+	if (mouseHold == false){updateController();}
+	//updateController();
 	
 	for ( var ii = 0; ii < views.length; ++ii ){
 		var view = views[ii];
@@ -802,7 +659,7 @@ function onDocumentMouseMove( event ) {
 	}
 }
 function updateSize() {
-	if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
+	if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
 		windowWidth  = window.innerWidth;
 		windowHeight = window.innerHeight;
 		renderer.setSize ( windowWidth, windowHeight );
@@ -858,7 +715,8 @@ function render() {
 		renderer.setViewport( left, top, width, height );
 		renderer.setScissor( left, top, width, height );
 		renderer.setScissorTest( true );
-		renderer.setClearColor( view.background );
+		if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
+		else {renderer.setClearColor( view.background );}
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
 		renderer.render( view.scene, camera );
