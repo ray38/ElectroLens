@@ -181,7 +181,7 @@ var views = [
 		viewType: '2Dscatter',
 		plotX: 'gamma',
 		plotY: 'epxc',
-		plotXTransform: 'log10',
+		plotXTransform: 'linear',
 		plotYTransform: 'log10',
 		controllerEnabled: false,
 		controllerZoom : true,
@@ -293,7 +293,7 @@ function init() {
 	container = document.getElementById( 'container' );
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth , window.innerHeight);
+	renderer.setSize( window.innerWidth , window.innerHeight*2);
 	container.appendChild( renderer.domElement );
 	
 	
@@ -310,6 +310,19 @@ function init() {
 		var tempScene = new THREE.Scene();
 		view.scene = tempScene;
 		scenes.push(tempScene);
+
+
+		var left   = Math.floor( window.innerWidth  * view.left );
+		var top    = Math.floor( window.innerHeight * view.top );
+		var width  = Math.floor( window.innerWidth  * view.width );
+		var height = Math.floor( window.innerHeight * view.height );
+
+		view.windowLeft = left;
+		view.windowTop = top;
+		view.windowWidth = width;
+		view.windowHeight = height;
+		//console.log(left,top);
+
 		if (view.viewType == '3Dview'){
 			var System = getPointCloudGeometry(view,view.options);
 			view.System = System;
@@ -317,18 +330,24 @@ function init() {
 		}
 		if (view.viewType == '2Dscatter'){
 			tempControler.enableRotate=false;
+			var tempRaycaster = new THREE.Raycaster();
+			view.raycaster = tempRaycaster;
+			view.INTERSECTED = null;
+			addHeatmapToolTip(view);
+			addTitle(view);
+			console.log(view.tooltip);
+			console.log(view.title);
+			
 			//var particles = getPointCloud(unfilteredData.length,view.plotX,view.plotY);
 			arrangeDataToHeatmap(view,unfilteredData.length,view.plotX,view.plotY,100)
-			//var numberPoints = heatmapPointCount(view.data);
-			//console.log(numberPoints);
 			var particles = getHeatmap(view,view.plotX,view.plotY);
 			var line = getAxis(view);
 			tempScene.add(line);
-			//var title = getTitle(view);
-			//tempScene.add(title);
-			//particles.sortParticles = true;
 			particles.name = 'scatterPoints';
+			
 			view.scatterPoints = particles;
+			view.attributes = particles.attributes;
+			view.geometry = particles.geometry;
 			tempScene.add(particles);
 			
 		}
@@ -375,6 +394,21 @@ function init() {
 	
 }
 
+function addHeatmapToolTip(view){
+	var tempTooltip = document.createElement('div');
+	tempTooltip.style.position = 'absolute';
+	tempTooltip.innerHTML = "";
+	//tempTooltip.style.width = 100;
+	//tempTooltip.style.height = 100;
+	tempTooltip.style.backgroundColor = "blue";
+	tempTooltip.style.opacity = 0.5;
+	tempTooltip.style.color = "white";
+	tempTooltip.style.top = 0 + 'px';
+	tempTooltip.style.left = 0 + 'px';
+	view.tooltip = tempTooltip;
+	document.body.appendChild(tempTooltip);
+}
+
 function arrangeDataToHeatmap(view,numData,X,Y,numPerSide,transform){
 	var heatmapStep = [];
 	for (var i=1; i <= numPerSide; i++) {
@@ -393,14 +427,15 @@ function arrangeDataToHeatmap(view,numData,X,Y,numPerSide,transform){
 		else {var yValue = function(d) {return Math.log10(d[Y]);};}
 	}
 	
-	/*
-	var xValue = function(d) {return d[X];}
-	var yValue = function(d) {return d[Y];}*/
+	var xMin = Math.floor(d3.min(unfilteredData,xValue));
+	var xMax = Math.ceil(d3.max(unfilteredData,xValue));
+	var yMin = Math.floor(d3.min(unfilteredData,yValue));
+	var yMax = Math.ceil(d3.max(unfilteredData,yValue));
 	
-	var xMin = d3.min(unfilteredData,xValue);
+	/*var xMin = d3.min(unfilteredData,xValue);
 	var xMax = d3.max(unfilteredData,xValue);
 	var yMin = d3.min(unfilteredData,yValue);
-	var yMax = d3.max(unfilteredData,yValue);
+	var yMax = d3.max(unfilteredData,yValue);*/
 
 	view.xMin = xMin;
 	view.xMax = xMax;
@@ -423,6 +458,11 @@ function arrangeDataToHeatmap(view,numData,X,Y,numPerSide,transform){
 	view.dataXMax = d3.max(unfilteredData,xValue);
 	view.dataYMin = d3.min(unfilteredData,yValue);
 	view.dataYMax = d3.max(unfilteredData,yValue);
+
+	view.xScale = xScale;
+	view.yScale = yScale;
+
+	//console.log(xScale.invertExtent(""+50))
 	
 	for (var i=0; i<numData; i++){
 		var heatmapX = xMap(unfilteredData[i]);
@@ -433,7 +473,7 @@ function arrangeDataToHeatmap(view,numData,X,Y,numPerSide,transform){
 		view.data[heatmapX][heatmapY]['list'].push(unfilteredData[i]);
 	}
 	
-	console.log(view.data);
+	//console.log(view.data);
 			
 }
 
@@ -460,10 +500,23 @@ function getAxis(view){
 	return line;
 }
 
-function getTitle(view) {
-	var titleText = view.plotY + " v.s. " + view.plotX;
+function addTitle(view) {
+	var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
+	//var titleText = " v.s. ";
+	var tempTitle = document.createElement('div');
+	tempTitle.style.position = 'absolute';
+	tempTitle.innerHTML = titleText;
+	tempTitle.style.backgroundColor = "black";
+	tempTitle.style.opacity = 0.7;
+	tempTitle.style.color = "white";
+	tempTitle.style.top = view.windowTop + 'px';
+	tempTitle.style.left = view.windowLeft + 'px';
+	view.title = tempTitle;
+	document.body.appendChild(tempTitle);
 
-	/*var titleGeo = new THREE.TextGeometry( titleText, {
+	/*var titleText = view.plotY + " v.s. " + view.plotX;
+
+	var titleGeo = new THREE.TextGeometry( titleText, {
 		size: 10, height: 1, curveSegments: 3,
         font: 'janda manatee solid', weight: 'normal',
         bevelThickness: 3, bevelSize: 3, bevelEnabled: true
@@ -473,16 +526,16 @@ function getTitle(view) {
     var titleGeoWidth = titleGeo.boundingBox.max.x - titleGeo.boundingBox.min.x;
 	var titleMesh = new THREE.Mesh( titleGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
 	titleMesh.position.set( -0.5 * titleGeoWidth, 50, 0 );
-	return titleMesh;*/
+	return titleMesh;
 
 	var loader = new THREE.FontLoader();
 
 	loader.load( 'fonts/helvetiker_bold.typeface.json', function ( font ) {
 
 	    var titleGeo = new THREE.TextGeometry( titleText, {
-			size: 10, font: font/*, height: 1, curveSegments: 3,
+			size: 10, font: font, height: 1, curveSegments: 3,
 	        font: 'janda manatee solid', weight: 'normal',
-	        bevelThickness: 3, bevelSize: 3, bevelEnabled: true*/
+	        bevelThickness: 3, bevelSize: 3, bevelEnabled: true
 		});
 
 	    titleGeo.computeBoundingBox();
@@ -491,7 +544,7 @@ function getTitle(view) {
 		titleMesh.position.set( -0.5 * titleGeoWidth, 50, 0 );
 		return titleMesh;
 
-	});
+	});*/
 	
 }
 
@@ -499,7 +552,7 @@ function getHeatmap(view,X, Y){
 	var uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
+		//texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
 
 	};
 
@@ -525,8 +578,10 @@ function getHeatmap(view,X, Y){
 	var positions = new Float32Array(num *3);
 	var sizes = new Float32Array(num);
 	var alphas = new Float32Array(num);
-	console.log(unfilteredData.length);
-	console.log(num);
+
+	var heatmapInformation = [];
+	//console.log(unfilteredData.length);
+	//console.log(num);
 	
 	lut = new THREE.Lut( 'rainbow', 500 );
 	lut.setMax( 1000);
@@ -545,8 +600,9 @@ function getHeatmap(view,X, Y){
 			positions[i3 + 1] = yPlot-50;
 			positions[i3 + 2] = 0
 			
-			if (countListSelected(data[x][y]['list']) > 0) {
-				var color = lut.getColor( countListSelected(data[x][y]['list']) );
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor( numberDatapointsRepresented );
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -557,14 +613,26 @@ function getHeatmap(view,X, Y){
 				colors[i3 + 1] = 100;
 				colors[i3 + 2] = 100;
 			}
-			sizes[i] = 2.5;
+			sizes[i] = 1.5;
 			alphas[i] = 1;
 			
 			i++;
 			i3 += 3;
+
+			var tempInfo = {x:xPlot-50, 
+							y:yPlot-50, 
+							numberDatapointsRepresented: numberDatapointsRepresented,
+							xStart: view.xScale.invertExtent(""+xPlot)[0],
+							xEnd: 	view.xScale.invertExtent(""+xPlot)[1],
+							yStart: view.yScale.invertExtent(""+yPlot)[0],
+							yEnd: 	view.yScale.invertExtent(""+yPlot)[1]
+							};
+			console.log(tempInfo);
+			heatmapInformation.push(tempInfo)
 		}
 	}
 	
+	view.heatmapInformation = heatmapInformation;
 	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
@@ -611,14 +679,13 @@ function updateHeatmap(view){
 				colors[i3 + 2] = 100;
 			}
 			
-			sizes[i] = 2.5;
+			sizes[i] = 1.5;
 			//alphas[i] = 1;
 			
 			i++;
 			i3 += 3;
 		}
 	}
-	
 	
 	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 	particles.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
@@ -655,6 +722,7 @@ function onDocumentMouseMove( event ) {
 			var dir = vector.sub( view.camera.position ).normalize();
 			var distance = - view.camera.position.z/dir.z;
 			view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
+			if (view.viewType == "2Dscatter"){updateInteractiveHeatmap(view);}
 		}
 	}
 }
@@ -662,7 +730,26 @@ function updateSize() {
 	if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
 		windowWidth  = window.innerWidth;
 		windowHeight = window.innerHeight;
-		renderer.setSize ( windowWidth, windowHeight );
+		renderer.setSize ( windowWidth, windowHeight*2 );
+
+		for ( var ii = 0; ii < views.length; ++ii ){
+			var view = views[ii];
+			if (view.viewType == "2Dscatter") {
+				
+				var left   = Math.floor( windowWidth  * view.left );
+				var top    = Math.floor( windowHeight * view.top );
+				var width  = Math.floor( windowWidth  * view.width );
+				var height = Math.floor( windowHeight * view.height );
+
+				view.windowLeft = left;
+				view.windowTop = top;
+				view.windowWidth = width;
+				view.windowHeight = height;
+
+				view.title.style.top = view.windowTop + 'px';
+				view.title.style.left = view.windowLeft + 'px';
+			}
+		}
 	}
 }
 function animate() {
@@ -703,6 +790,47 @@ function disableControler(view, controler){
 }
 
 
+function updateInteractiveHeatmap(view){
+	var left   = Math.floor( windowWidth  * view.left );
+	var top    = Math.floor( windowHeight * view.top );
+	var width  = Math.floor( windowWidth  * view.width ) + left;
+	var height = Math.floor( windowHeight * view.height ) + top;
+	var mouse = new THREE.Vector2();
+		
+	mouse.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
+					(-((event.clientY-top)/(height-top)) * 2 + 1));
+
+
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+	var intersects = view.raycaster.intersectObject( view.scatterPoints );
+	if ( intersects.length > 0 ) {
+		//console.log("found intersect")
+		
+		view.tooltip.style.top = event.clientY + 5  + 'px';
+		view.tooltip.style.left = event.clientX + 5  + 'px';
+
+		interesctIndex = intersects[ 0 ].index;
+		view.tooltip.innerHTML = 	"x Range: " + view.heatmapInformation[interesctIndex].xStart + " -- " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
+									"y Range: " + view.heatmapInformation[interesctIndex].yStart + " -- " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
+									"number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
+
+		view.scatterPoints.geometry.attributes.size.array[ interesctIndex ]  = 3;
+		view.scatterPoints.geometry.attributes.size.needsUpdate = true;
+
+
+		if ( view.INTERSECTED != intersects[ 0 ].index ) {
+			view.scatterPoints.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
+			view.INTERSECTED = intersects[ 0 ].index;
+			view.scatterPoints.geometry.attributes.size.array[ view.INTERSECTED ] = 3;
+			view.scatterPoints.geometry.attributes.size.needsUpdate = true;
+		}
+
+	}
+	else {	view.tooltip.innerHTML = '';
+			view.scatterPoints.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
+	}
+}
+
 function render() {
 	updateSize();
 	for ( var ii = 0; ii < views.length; ++ii ) {
@@ -712,6 +840,15 @@ function render() {
 		var top    = Math.floor( windowHeight * view.top );
 		var width  = Math.floor( windowWidth  * view.width );
 		var height = Math.floor( windowHeight * view.height );
+
+		view.windowLeft = left;
+		view.windowTop = top;
+		view.windowWidth = width;
+		view.windowHeight = height;
+
+		//view.title.style.top = view.windowTop + 'px';
+		//view.title.style.left = view.windowLeft + 'px';
+
 		renderer.setViewport( left, top, width, height );
 		renderer.setScissor( left, top, width, height );
 		renderer.setScissorTest( true );
@@ -719,6 +856,7 @@ function render() {
 		else {renderer.setClearColor( view.background );}
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
+		//if (view.viewType == "2Dscatter" && view.controllerEnabled){updateInteractiveHeatmap(view);}
 		renderer.render( view.scene, camera );
 	}
 }
@@ -845,8 +983,7 @@ function updateSelection(){
 						else { data[x][y].selected = false;}
 					}
 				}
-				updateSelectionFromHeatmap(temp_view);
-												
+				updateSelectionFromHeatmap(temp_view);							
 			}										
 		}
 	}
@@ -892,7 +1029,5 @@ function processClick() {
 				}
 			}
 		}
-		
-		
 	}
 }
