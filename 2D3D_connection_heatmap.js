@@ -311,6 +311,8 @@ function init() {
 		view.scene = tempScene;
 		scenes.push(tempScene);
 
+		
+
 
 		var left   = Math.floor( window.innerWidth  * view.left );
 		var top    = Math.floor( window.innerHeight * view.top );
@@ -321,7 +323,26 @@ function init() {
 		view.windowTop = top;
 		view.windowWidth = width;
 		view.windowHeight = height;
-		//console.log(left,top);
+
+		
+		//gui.domElement.id = 'gui' + ii;
+
+		var tempGuiContainer = document.createElement('div');
+		
+		tempGuiContainer.style.position = 'absolute';
+		tempGuiContainer.style.top = view.windowTop + 'px';
+		tempGuiContainer.style.left = view.windowLeft + 'px';
+		console.log(tempGuiContainer)
+		document.body.appendChild(tempGuiContainer);
+		var tempGui = new dat.GUI( { autoPlace: false } );
+		view.guiContainer = tempGuiContainer;
+
+		tempGuiContainer.appendChild(tempGui.domElement);
+
+		var moleculeFolder 		= tempGui.addFolder( 'Molecule Selection' );
+		moleculeFolder.open();
+
+
 
 		if (view.viewType == '3Dview'){
 			var System = getPointCloudGeometry(view,view.options);
@@ -810,8 +831,8 @@ function updateInteractiveHeatmap(view){
 		view.tooltip.style.left = event.clientX + 5  + 'px';
 
 		interesctIndex = intersects[ 0 ].index;
-		view.tooltip.innerHTML = 	"x Range: " + view.heatmapInformation[interesctIndex].xStart + " -- " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
-									"y Range: " + view.heatmapInformation[interesctIndex].yStart + " -- " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
+		view.tooltip.innerHTML = 	"x Range: " + view.heatmapInformation[interesctIndex].xStart + "--" + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
+									"y Range: " + view.heatmapInformation[interesctIndex].yStart + "--" + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 									"number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
 
 		view.scatterPoints.geometry.attributes.size.array[ interesctIndex ]  = 3;
@@ -852,6 +873,8 @@ function render() {
 		renderer.setViewport( left, top, width, height );
 		renderer.setScissor( left, top, width, height );
 		renderer.setScissorTest( true );
+		renderer.setClearColor( 0xffffff, 1 ); // border color
+		renderer.clearColor(); // clear color buffer
 		if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
 		else {renderer.setClearColor( view.background );}
 		camera.aspect = width / height;
