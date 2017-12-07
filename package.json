@@ -1,44 +1,40 @@
-
 {
-
   "name": "electron-quick-start",
-
   "version": "1.0.0",
-
   "description": "A minimal Electron application",
-
   "main": "main.js",
-
   "scripts": {
-
+    "build": "babel --presets es2015 es6 -d es5",
     "start": "electron ."
-
   },
-
   "repository": "https://github.com/electron/electron-quick-start",
-
   "keywords": [
-
     "Electron",
-
     "quick",
-
     "start",
-
     "tutorial",
-
     "demo"
-
   ],
-
   "author": "GitHub",
-
   "license": "CC0-1.0",
-
   "devDependencies": {
-
-    "electron": "~1.7.8"
-
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^6.1.0",
+    "electron": "~1.7.8",
+    "factor-bundle": "^2.5.0",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.8.0",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "dependencies": {
+    "babel-plugin-transform-es2015-modules-systemjs": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^6.4.0",
+    "es6": "0.0.7",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.8.0",
+    "grunt-cli": "^1.2.0"
   }
-
 }

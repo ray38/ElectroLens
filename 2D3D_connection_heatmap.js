@@ -1,3 +1,6 @@
+
+import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 //var System
 var container, stats;
@@ -13,226 +16,61 @@ var controlers=[];
 var scenes = [];
 
 var heightScale = 2., widthScale = 1.;
+
+
 var views = [
 	{
-		left: 0,
-		top: 0,
-		width: 0.6,
-		height: 0.5,
-		background: new THREE.Color( 0,0,0 ),
-		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 800 ],
-		up: [ 0, 1, 0 ],
-		fov: 100,
-		mousePosition: [0,0],
-		viewType: '3Dview',
+		viewType: '3DView',
 		moleculeName: 'CO2',
-		dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv",
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : true,
-		controllerPan : true,
-		options: new function(){
-			this.pointCloudParticles = 1000;
-			this.pointCloudColorSetting = 1.2;
-			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1;
-			this.boxParticles = 200;
-			this.boxColorSetting = 10.0;
-			this.boxSize = 10;
-			this.boxOpacity = 1;
-			this.pointMatrixParticles = 100;
-			this.pointMatrixColorSetting = 1.2;
-			this.pointMatrixAlpha = 1;
-			this.pointMatrixSize = 10;
-			this.x_low = 0;
-			this.x_high = 100;
-			this.y_low = 0;
-			this.y_high = 100;
-			this.z_low = 0;
-			this.z_high = 100;
-			this.x_slider = 0;
-			this.y_slider = 0;
-			this.z_slider = 0;
-			this.densityCutoff = -3;
-			this.view = 'pointCloud';
-			this.moleculeName = 'CO2';
-			this.propertyOfInterest = 'n';
-			this.colorMap = 'rainbow';
-			this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
-			this.planeVisibilityU = false;
-			this.planeVisibilityD = false;
-			this.planeVisibilityR = false;
-			this.planeVisibilityL = false;
-			this.planeVisibilityF = false;
-			this.planeVisibilityB = false;
-			this.planeOpacity = 0.05;
-		}
+		dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv"
 	},
 	{
-		left: 0,
-		top: 0.5,
-		width: 0.6,
-		height: 0.5,
-		background: new THREE.Color( 0,0,0 ),
-		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 800 ],
-		up: [ 0, 1, 0 ],
-		fov: 100,
-		mousePosition: [0,0],
-		viewType: '3Dview',
+		viewType: '3DView',
 		moleculeName: 'H2O',
-		dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv",
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : true,
-		controllerPan : true,
-		options: new function(){
-			this.pointCloudParticles = 1000;
-			this.pointCloudColorSetting = 1.2;
-			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1;
-			this.boxParticles = 200;
-			this.boxColorSetting = 10.0;
-			this.boxSize = 10;
-			this.boxOpacity = 1;
-			this.pointMatrixParticles = 100;
-			this.pointMatrixColorSetting = 1.2;
-			this.pointMatrixAlpha = 1;
-			this.pointMatrixSize = 10;
-			this.x_low = 0;
-			this.x_high = 100;
-			this.y_low = 0;
-			this.y_high = 100;
-			this.z_low = 0;
-			this.z_high = 100;
-			this.x_slider = 0;
-			this.y_slider = 0;
-			this.z_slider = 0;
-			this.densityCutoff = -3;
-			this.view = 'pointCloud';
-			this.moleculeName = 'H2O';
-			this.propertyOfInterest = 'n';
-			this.colorMap = 'rainbow';
-			this.dataFilename = "data/H2O_B3LYP_0_0_0_all_descriptors.csv";
-			this.planeVisibilityU = false;
-			this.planeVisibilityD = false;
-			this.planeVisibilityR = false;
-			this.planeVisibilityL = false;
-			this.planeVisibilityF = false;
-			this.planeVisibilityB = false;
-			this.planeOpacity = 0.05;
-		}
+		dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv"
+
 	},
 	{
-		left: 0.6,
-		top: 0,
-		width: 0.4,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
+		viewType: '2DHeatmap',
 		plotX: 'gamma',
 		plotY: 'epxc',
 		plotXTransform: 'linear',
-		plotYTransform: 'linear',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
+		plotYTransform: 'linear'
 	},
 	
 	{
-		left: 0.6,
-		top: 0.2,
-		width: 0.4,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
+
+		viewType: '2DHeatmap',
 		plotX: 'n',
 		plotY: 'epxc',
 		plotXTransform: 'linear',
-		plotYTransform: 'linear',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
+		plotYTransform: 'linear'
 	},				
 	{
-		left: 0.6,
-		top: 0.4,
-		width: 0.4,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
+		viewType: '2DHeatmap',
 		plotX: 'gamma',
 		plotY: 'epxc',
 		plotXTransform: 'linear',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
+		plotYTransform: 'log10'
 	},
 	
 	{
-		left: 0.6,
-		top: 0.6,
-		width: 0.4,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
+		viewType: '2DHeatmap',
 		plotX: 'n',
 		plotY: 'epxc',
 		plotXTransform: 'log10',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
+		plotYTransform: 'log10'
 	},
 	{
-		left: 0.6,
-		top: 0.8,
-		width: 0.4,
-		height: 0.2,
-		background: new THREE.Color( 0,0,0 ),
-		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 150 ],
-		up: [ 0, 0, 1 ],
-		fov: 45,
-		mousePosition: [0,0],
-		viewType: '2Dscatter',
+		viewType: '2DHeatmap',
 		plotX: 'n',
 		plotY: 'epxc',
 		plotXTransform: 'log10',
-		plotYTransform: 'log10',
-		controllerEnabled: false,
-		controllerZoom : true,
-		controllerRotate : false,
-		controllerPan : true
+		plotYTransform: 'log10'
 	}
-	
 ];
+initializeViewSetups(views);
+console.log(views);
 
 var unfilteredData = [];
 var heatmapData = [];
@@ -241,7 +79,7 @@ var queue=d3.queue();
 
 for (var ii =  0; ii < views.length; ++ii ) {
 	var view = views[ii];
-	if (view.viewType == '3Dview'){
+	if (view.viewType == '3DView'){
 		queue.defer(readCSV,view,view.dataFilename,unfilteredData,num);
 	}			
 }
@@ -304,7 +142,7 @@ function init() {
 		var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
 		camera.position.fromArray( view.eye );
 		view.camera = camera;
-		tempControler = new THREE.OrbitControls( camera, renderer.domElement );
+		var tempControler = new THREE.OrbitControls( camera, renderer.domElement );
 		view.controler = tempControler;
 		controlers.push(tempControler);
 		var tempScene = new THREE.Scene();
@@ -344,12 +182,10 @@ function init() {
 
 
 
-		if (view.viewType == '3Dview'){
-			var System = getPointCloudGeometry(view,view.options);
-			view.System = System;
-			tempScene.add( System );
+		if (view.viewType == '3DView'){
+			getPointCloudGeometry(view,view.scene,view.options);
 		}
-		if (view.viewType == '2Dscatter'){
+		if (view.viewType == '2DHeatmap'){
 			tempControler.enableRotate=false;
 			var tempRaycaster = new THREE.Raycaster();
 			view.raycaster = tempRaycaster;
@@ -359,7 +195,6 @@ function init() {
 			console.log(view.tooltip);
 			console.log(view.title);
 			
-			//var particles = getPointCloud(unfilteredData.length,view.plotX,view.plotY);
 			arrangeDataToHeatmap(view,unfilteredData.length,view.plotX,view.plotY,100)
 			var particles = getHeatmap(view,view.plotX,view.plotY);
 			var line = getAxis(view);
@@ -401,7 +236,7 @@ function init() {
 		//if (event.button == 2 ){
 			for ( var ii = 0; ii < views.length; ++ii ){
 				var view = views[ii];
-				if (view.viewType == "2Dscatter"){
+				if (view.viewType == "2DHeatmap"){
 					var temp = view.scene.getObjectByName('selectionPlane');
 					if (temp != null){
 						view.scene.remove(temp);
@@ -534,38 +369,6 @@ function addTitle(view) {
 	tempTitle.style.left = view.windowLeft + 'px';
 	view.title = tempTitle;
 	document.body.appendChild(tempTitle);
-
-	/*var titleText = view.plotY + " v.s. " + view.plotX;
-
-	var titleGeo = new THREE.TextGeometry( titleText, {
-		size: 10, height: 1, curveSegments: 3,
-        font: 'janda manatee solid', weight: 'normal',
-        bevelThickness: 3, bevelSize: 3, bevelEnabled: true
-	});
-
-    titleGeo.computeBoundingBox();
-    var titleGeoWidth = titleGeo.boundingBox.max.x - titleGeo.boundingBox.min.x;
-	var titleMesh = new THREE.Mesh( titleGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
-	titleMesh.position.set( -0.5 * titleGeoWidth, 50, 0 );
-	return titleMesh;
-
-	var loader = new THREE.FontLoader();
-
-	loader.load( 'fonts/helvetiker_bold.typeface.json', function ( font ) {
-
-	    var titleGeo = new THREE.TextGeometry( titleText, {
-			size: 10, font: font, height: 1, curveSegments: 3,
-	        font: 'janda manatee solid', weight: 'normal',
-	        bevelThickness: 3, bevelSize: 3, bevelEnabled: true
-		});
-
-	    titleGeo.computeBoundingBox();
-	    var titleGeoWidth = titleGeo.boundingBox.max.x - titleGeo.boundingBox.min.x;
-		var titleMesh = new THREE.Mesh( titleGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
-		titleMesh.position.set( -0.5 * titleGeoWidth, 50, 0 );
-		return titleMesh;
-
-	});*/
 	
 }
 
@@ -604,7 +407,7 @@ function getHeatmap(view,X, Y){
 	//console.log(unfilteredData.length);
 	//console.log(num);
 	
-	lut = new THREE.Lut( 'rainbow', 500 );
+	var lut = new THREE.Lut( 'rainbow', 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	
@@ -612,8 +415,8 @@ function getHeatmap(view,X, Y){
 	var i = 0;
 	var i3 = 0;
 	
-	for (x in data){
-		for (y in data[x]){
+	for (var x in data){
+		for (var y in data[x]){
 			var xPlot = parseFloat(x);
 			var yPlot = parseFloat(y);
 			
@@ -679,7 +482,7 @@ function updateHeatmap(view){
 	var num = heatmapPointCount(data);
 	colors = new Float32Array(num *3);
 	sizes = new Float32Array(num);
-	lut = new THREE.Lut( 'rainbow', 500 );
+	var lut = new THREE.Lut( 'rainbow', 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	var i = 0;
@@ -743,7 +546,7 @@ function onDocumentMouseMove( event ) {
 			var dir = vector.sub( view.camera.position ).normalize();
 			var distance = - view.camera.position.z/dir.z;
 			view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
-			if (view.viewType == "2Dscatter"){updateInteractiveHeatmap(view);}
+			if (view.viewType == "2DHeatmap"){updateInteractiveHeatmap(view);}
 		}
 	}
 }
@@ -755,7 +558,7 @@ function updateSize() {
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
-			if (view.viewType == "2Dscatter") {
+			if (view.viewType == "2DHeatmap") {
 				
 				var left   = Math.floor( windowWidth  * view.left );
 				var top    = Math.floor( windowHeight * view.top );
@@ -879,7 +682,7 @@ function render() {
 		else {renderer.setClearColor( view.background );}
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
-		//if (view.viewType == "2Dscatter" && view.controllerEnabled){updateInteractiveHeatmap(view);}
+		//if (view.viewType == "2DHeatmap" && view.controllerEnabled){updateInteractiveHeatmap(view);}
 		renderer.render( view.scene, camera );
 	}
 }
@@ -891,7 +694,7 @@ function spawnPlane(view){
 	//console.log(views[1].controllerEnabled);
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var temp_view = views[ii];
-		if (temp_view.viewType == '2Dscatter' && temp_view.controllerEnabled == false){
+		if (temp_view.viewType == '2DHeatmap' && temp_view.controllerEnabled == false){
 			var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 			if (tempSelectionPlane != null){
 				console.log('remove plane')
@@ -985,7 +788,7 @@ function updateSelection(){
 	var noSelection = true;
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var temp_view = views[ii];
-		if (temp_view.viewType == '2Dscatter'){
+		if (temp_view.viewType == '2DHeatmap'){
 			var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 			if (tempSelectionPlane != null){
 				noSelection = false;
@@ -1020,7 +823,7 @@ function updateSelection(){
 	
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
-		if (view.viewType == '2Dscatter'){
+		if (view.viewType == '2DHeatmap'){
 			//updatePointCloud(view,unfilteredData.length);
 			updateHeatmap(view);
 		}
@@ -1030,7 +833,7 @@ function updateSelection(){
 	//updatePointCloudGeometry(options);
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
-		if (view.viewType == '3Dview'){
+		if (view.viewType == '3DView'){
 			updatePointCloudGeometry(view, view.options);
 		}
 	}
@@ -1042,7 +845,7 @@ function processClick() {
 	if ( clickRequest ) {
 		for (var ii =  0; ii < views.length; ++ii ) {
 			var view = views[ii];
-			if (view.viewType == '2Dscatter' && view.controllerEnabled){
+			if (view.viewType == '2DHeatmap' && view.controllerEnabled){
 				var temp = view.scene.getObjectByName('selectionPlane');
 				if (temp != null){
 					updatePlane(view,temp);

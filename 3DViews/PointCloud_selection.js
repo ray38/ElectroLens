@@ -1,4 +1,8 @@
-function getPointCloudGeometry(view,options){
+function getPointCloudGeometry(view,scene,options){
+
+/*var vertexshaderText = ""
+
+var fragmentShaderText = ""*/
 var uniforms = {
 
 	color:     { value: new THREE.Color( 0xffffff ) },
@@ -17,6 +21,8 @@ var shaderMaterial = new THREE.ShaderMaterial( {
 	transparent:    true
 
 });
+//console.log(document.getElementById( 'vertexshader' ).textContent)
+
 var particles = options.pointCloudParticles;
 var num_blocks = view.data.length;
 var points_in_block = new Float32Array(num_blocks);
@@ -28,7 +34,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 	points_in_block[k] = num_points;
 	count += num_points;
 }
-console.log(count);
+//console.log(count);
 
 var n = 100;
 var n2 = Math.pow(n,2);
@@ -44,9 +50,11 @@ var alphas = new Float32Array( count);
 colorMap = options.colorMap;
 numberOfColors = 512;
 
-lut = new THREE.Lut( colorMap, numberOfColors );
-lut.setMax( options.pointCloudColorSetting);
-lut.setMin( 0 );
+var lut = new THREE.Lut( colorMap, numberOfColors );
+lut.setMax( options.pointCloudColorSettingMax );
+lut.setMin( options.pointCloudColorSettingMin );
+console.log(options.pointCloudColorSettingMin, options.pointCloudColorSettingMax);
+console.log(lut);
 
 var i = 0, i3 = 0;
 var temp_num_points = 0;
@@ -71,6 +79,10 @@ for ( var k = 0; k < num_blocks; k ++) {
 			positions[ i3 + 2 ] = (z - n_inc)*10;
 			var color = lut.getColor( view.data[k][options.propertyOfInterest] );
 			
+			/*console.log(options.propertyOfInterest);
+			console.log(view.data[k][options.propertyOfInterest]);
+			console.log(lut);
+			console.log(color);*/
 			colors[ i3 + 0 ] = color.r;
 			colors[ i3 + 1 ] = color.g;
 			colors[ i3 + 2 ] = color.b;
@@ -102,8 +114,8 @@ geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 var System = new THREE.Points( geometry, shaderMaterial );
-
-return System;
+view.System = System;
+scene.add( System );
 
 }
 
@@ -137,7 +149,7 @@ var alphas = new Float32Array( count);
 colorMap = options.colorMap;
 numberOfColors = 512;
 
-lut = new THREE.Lut( colorMap, numberOfColors );
+var lut = new THREE.Lut( colorMap, numberOfColors );
 lut.setMax( options.pointCloudColorSetting);
 lut.setMin( 0 );
 
