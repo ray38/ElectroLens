@@ -1,10 +1,11 @@
-
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
+import {views} from "./view_setup.js";
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 //var System
 var container, stats;
-var views, renderer;
+//var views, renderer;
+var renderer;
 var mesh, group1, group2, group3, light;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 var mouseX = 0, mouseY = 0;
@@ -18,62 +19,11 @@ var scenes = [];
 var heightScale = 2., widthScale = 1.;
 
 
-var views = [
-	{
-		viewType: '3DView',
-		moleculeName: 'CO2',
-		dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv"
-	},
-	{
-		viewType: '3DView',
-		moleculeName: 'H2O',
-		dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv"
-
-	},
-	{
-		viewType: '2DHeatmap',
-		plotX: 'gamma',
-		plotY: 'epxc',
-		plotXTransform: 'linear',
-		plotYTransform: 'linear'
-	},
-	
-	{
-
-		viewType: '2DHeatmap',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'linear',
-		plotYTransform: 'linear'
-	},				
-	{
-		viewType: '2DHeatmap',
-		plotX: 'gamma',
-		plotY: 'epxc',
-		plotXTransform: 'linear',
-		plotYTransform: 'log10'
-	},
-	
-	{
-		viewType: '2DHeatmap',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10'
-	},
-	{
-		viewType: '2DHeatmap',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'log10'
-	}
-];
 initializeViewSetups(views);
-console.log(views);
+
 
 var unfilteredData = [];
-var heatmapData = [];
+//var heatmapData = [];
 var num = 0;
 var queue=d3.queue();
 
@@ -168,7 +118,7 @@ function init() {
 		var tempGuiContainer = document.createElement('div');
 		
 		tempGuiContainer.style.position = 'absolute';
-		tempGuiContainer.style.top = view.windowTop + 'px';
+		tempGuiContainer.style.top = view.windowTop + 5 + 'px';
 		tempGuiContainer.style.left = view.windowLeft + 'px';
 		console.log(tempGuiContainer)
 		document.body.appendChild(tempGuiContainer);
@@ -376,7 +326,7 @@ function getHeatmap(view,X, Y){
 	var uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
-		//texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
+		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
 
 	};
 

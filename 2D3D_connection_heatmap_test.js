@@ -1,12 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+"use strict";
 
 var _MultiviewControlInitializeViewSetupsJs = require("./MultiviewControl/initializeViewSetups.js");
+
+var _view_setupJs = require("./view_setup.js");
 
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 //var System
 var container, stats;
-var views, renderer;
+//var views, renderer;
+var renderer;
 var mesh, group1, group2, group3, light;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide, needsUpdate: true });
 var mouseX = 0,
@@ -21,57 +24,15 @@ var scenes = [];
 var heightScale = 2.,
     widthScale = 1.;
 
-var views = [{
-	viewType: '3DView',
-	moleculeName: 'CO2',
-	dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv"
-}, {
-	viewType: '3DView',
-	moleculeName: 'H2O',
-	dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv"
-
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'gamma',
-	plotY: 'epxc',
-	plotXTransform: 'linear',
-	plotYTransform: 'linear'
-}, {
-
-	viewType: '2DHeatmap',
-	plotX: 'n',
-	plotY: 'epxc',
-	plotXTransform: 'linear',
-	plotYTransform: 'linear'
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'gamma',
-	plotY: 'epxc',
-	plotXTransform: 'linear',
-	plotYTransform: 'log10'
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'n',
-	plotY: 'epxc',
-	plotXTransform: 'log10',
-	plotYTransform: 'log10'
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'n',
-	plotY: 'epxc',
-	plotXTransform: 'log10',
-	plotYTransform: 'log10'
-}];
-_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(views);
-console.log(views);
+_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(_view_setupJs.views);
 
 var unfilteredData = [];
-var heatmapData = [];
+//var heatmapData = [];
 var num = 0;
 var queue = d3.queue();
 
-for (var ii = 0; ii < views.length; ++ii) {
-	var view = views[ii];
+for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+	var view = _view_setupJs.views[ii];
 	if (view.viewType == '3DView') {
 		queue.defer(readCSV, view, view.dataFilename, unfilteredData, num);
 	}
@@ -122,8 +83,8 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight * 2);
 	container.appendChild(renderer.domElement);
 
-	for (var ii = 0; ii < views.length; ++ii) {
-		var view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var view = _view_setupJs.views[ii];
 		var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
 		camera.position.fromArray(view.eye);
 		view.camera = camera;
@@ -149,7 +110,7 @@ function init() {
 		var tempGuiContainer = document.createElement('div');
 
 		tempGuiContainer.style.position = 'absolute';
-		tempGuiContainer.style.top = view.windowTop + 'px';
+		tempGuiContainer.style.top = view.windowTop + 5 + 'px';
 		tempGuiContainer.style.left = view.windowLeft + 'px';
 		console.log(tempGuiContainer);
 		document.body.appendChild(tempGuiContainer);
@@ -209,8 +170,8 @@ function init() {
 	window.addEventListener('dblclick', function (event) {
 		//console.log(event.button);
 		//if (event.button == 2 ){
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
+		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+			var view = _view_setupJs.views[ii];
 			if (view.viewType == "2DHeatmap") {
 				var temp = view.scene.getObjectByName('selectionPlane');
 				if (temp != null) {
@@ -367,10 +328,10 @@ function addTitle(view) {
 function getHeatmap(view, X, Y) {
 	var uniforms = {
 
-		color: { value: new THREE.Color(0xffffff) }
-	};
+		color: { value: new THREE.Color(0xffffff) },
+		texture: { value: new THREE.TextureLoader().load("textures/sprites/disc.png") }
 
-	//texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
+	};
 
 	var shaderMaterial = new THREE.ShaderMaterial({
 
@@ -514,8 +475,8 @@ function onDocumentMouseMove(event) {
 	}
 	//updateController();
 
-	for (var ii = 0; ii < views.length; ++ii) {
-		var view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var view = _view_setupJs.views[ii];
 		if (view.controllerEnabled) {
 			var left = Math.floor(windowWidth * view.left);
 			var top = Math.floor(windowHeight * view.top);
@@ -540,8 +501,8 @@ function updateSize() {
 		windowHeight = window.innerHeight;
 		renderer.setSize(windowWidth, windowHeight * 2);
 
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
+		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+			var view = _view_setupJs.views[ii];
 			if (view.viewType == "2DHeatmap") {
 
 				var left = Math.floor(windowWidth * view.left);
@@ -568,8 +529,8 @@ function animate() {
 }
 
 function updateController() {
-	for (var ii = 0; ii < views.length; ++ii) {
-		var view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var view = _view_setupJs.views[ii];
 		var left = Math.floor(windowWidth * view.left);
 		var top = Math.floor(windowHeight * view.top);
 		var width = Math.floor(windowWidth * view.width);
@@ -633,8 +594,8 @@ function updateInteractiveHeatmap(view) {
 
 function render() {
 	updateSize();
-	for (var ii = 0; ii < views.length; ++ii) {
-		var view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var view = _view_setupJs.views[ii];
 		var camera = view.camera;
 		var left = Math.floor(windowWidth * view.left);
 		var top = Math.floor(windowHeight * view.top);
@@ -668,8 +629,8 @@ function render() {
 
 function spawnPlane(view) {
 	//console.log(views[1].controllerEnabled);
-	for (var ii = 0; ii < views.length; ++ii) {
-		var temp_view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var temp_view = _view_setupJs.views[ii];
 		if (temp_view.viewType == '2DHeatmap' && temp_view.controllerEnabled == false) {
 			var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 			if (tempSelectionPlane != null) {
@@ -758,8 +719,8 @@ function updateSelectionFromHeatmap(view) {
 
 function updateSelection() {
 	var noSelection = true;
-	for (var ii = 0; ii < views.length; ++ii) {
-		var temp_view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var temp_view = _view_setupJs.views[ii];
 		if (temp_view.viewType == '2DHeatmap') {
 			var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 			if (tempSelectionPlane != null) {
@@ -795,8 +756,8 @@ function updateSelection() {
 		}
 	}
 
-	for (var ii = 0; ii < views.length; ++ii) {
-		var view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var view = _view_setupJs.views[ii];
 		if (view.viewType == '2DHeatmap') {
 			//updatePointCloud(view,unfilteredData.length);
 			updateHeatmap(view);
@@ -804,8 +765,8 @@ function updateSelection() {
 	}
 
 	//updatePointCloudGeometry(options);
-	for (var ii = 0; ii < views.length; ++ii) {
-		var view = views[ii];
+	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+		var view = _view_setupJs.views[ii];
 		if (view.viewType == '3DView') {
 			updatePointCloudGeometry(view, view.options);
 		}
@@ -814,8 +775,8 @@ function updateSelection() {
 
 function processClick() {
 	if (clickRequest) {
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
+		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+			var view = _view_setupJs.views[ii];
 			if (view.viewType == '2DHeatmap' && view.controllerEnabled) {
 				var temp = view.scene.getObjectByName('selectionPlane');
 				if (temp != null) {
@@ -828,7 +789,7 @@ function processClick() {
 	}
 }
 
-},{"./MultiviewControl/initializeViewSetups.js":5}],2:[function(require,module,exports){
+},{"./MultiviewControl/initializeViewSetups.js":5,"./view_setup.js":6}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1023,4 +984,52 @@ function initializeViewSetups(views) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":2,"../3DViews/initialize3DViewSetup.js":3,"../MultiviewControl/calculateViewportSizes.js":4}]},{},[1]);
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":2,"../3DViews/initialize3DViewSetup.js":3,"../MultiviewControl/calculateViewportSizes.js":4}],6:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+var views = [{
+	viewType: '3DView',
+	moleculeName: 'CO2',
+	dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv"
+}, {
+	viewType: '3DView',
+	moleculeName: 'H2O',
+	dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv"
+
+}, {
+	viewType: '2DHeatmap',
+	plotX: 'gamma',
+	plotY: 'epxc',
+	plotXTransform: 'linear',
+	plotYTransform: 'linear'
+}, {
+
+	viewType: '2DHeatmap',
+	plotX: 'n',
+	plotY: 'epxc',
+	plotXTransform: 'linear',
+	plotYTransform: 'linear'
+}, {
+	viewType: '2DHeatmap',
+	plotX: 'gamma',
+	plotY: 'epxc',
+	plotXTransform: 'linear',
+	plotYTransform: 'log10'
+}, {
+	viewType: '2DHeatmap',
+	plotX: 'n',
+	plotY: 'epxc',
+	plotXTransform: 'log10',
+	plotYTransform: 'log10'
+}, {
+	viewType: '2DHeatmap',
+	plotX: 'n',
+	plotY: 'epxc',
+	plotXTransform: 'log10',
+	plotYTransform: 'log10'
+}];
+
+exports.views = views;
+
+},{}]},{},[1]);
