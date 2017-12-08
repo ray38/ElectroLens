@@ -749,8 +749,6 @@ function initialize2DHeatmapSetup(viewSetup, views) {
 			};
 			this.fullscreen = function () {
 				_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
-				//viewSetup.guiContainer.style.top = viewSetup.windowTop + 'px';
-				//viewSetup.guiContainer.style.left = viewSetup.windowLeft + 'px';
 			};
 			this.defullscreen = function () {
 				_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
@@ -1171,8 +1169,6 @@ function initialize3DViewSetup(viewSetup, views) {
 			};
 			this.fullscreen = function () {
 				_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
-				//viewSetup.guiContainer.style.top = viewSetup.windowTop + 'px';
-				//viewSetup.guiContainer.style.left = viewSetup.windowLeft + 'px';
 			};
 			this.defullscreen = function () {
 				_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);

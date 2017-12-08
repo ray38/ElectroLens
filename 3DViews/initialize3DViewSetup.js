@@ -58,8 +58,6 @@ export function initialize3DViewSetup(viewSetup,views){
 			this.resetCamera = function(){viewSetup.controller.reset();};
 			this.fullscreen = function(){
 								fullscreenOneView(views,viewSetup);
-								//viewSetup.guiContainer.style.top = viewSetup.windowTop + 'px';
-								//viewSetup.guiContainer.style.left = viewSetup.windowLeft + 'px';
 							};
 			this.defullscreen = function(){deFullscreen(views);};
 		}
