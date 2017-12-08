@@ -59,6 +59,7 @@ export function initialize3DViewSetup(viewSetup){
 
 	viewSetup = extendObject(viewSetup,defaultSetting);
 
+
 }
 
 function extendObject(obj, src) {

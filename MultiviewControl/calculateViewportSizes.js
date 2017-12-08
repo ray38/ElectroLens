@@ -10,7 +10,7 @@ export function calculateViewportSizes(views){
 	}
 
 	if (twoDViewCount == 0) {threeDViewWidth = 1.0; twoDViewWidth = 0.0;}
-	else {threeDViewWidth = 0.7; twoDViewWidth = 0.3;}
+	else {threeDViewWidth = 0.6; twoDViewWidth = 0.4;}
 
 	if (twoDViewCount != 0) {twoDViewHeight = 1.0/twoDViewCount;}
 	if (threeDViewCount != 0) {threeDViewHeight = 1.0/threeDViewCount;}

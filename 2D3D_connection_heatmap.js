@@ -1,6 +1,8 @@
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {views} from "./view_setup.js";
 
+import {arrangeDataToHeatmap, getHeatmap, updateHeatmap} from "./2DHeatmaps/HeatmapView.js";
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 //var System
 var container, stats;
@@ -145,7 +147,7 @@ function init() {
 			console.log(view.tooltip);
 			console.log(view.title);
 			
-			arrangeDataToHeatmap(view,unfilteredData.length,view.plotX,view.plotY,100)
+			arrangeDataToHeatmap(view,unfilteredData)
 			var particles = getHeatmap(view,view.plotX,view.plotY);
 			var line = getAxis(view);
 			tempScene.add(line);
@@ -215,83 +217,8 @@ function addHeatmapToolTip(view){
 	document.body.appendChild(tempTooltip);
 }
 
-function arrangeDataToHeatmap(view,numData,X,Y,numPerSide,transform){
-	var heatmapStep = [];
-	for (var i=1; i <= numPerSide; i++) {
-		heatmapStep.push(""+i);
-	}
-	
-	if (view.plotXTransform == 'linear') {var xValue = function(d) {return d[X];}}
-	if (view.plotYTransform == 'linear') {var yValue = function(d) {return d[Y];}}
-	
-	if (view.plotXTransform == 'log10') {
-		if (view.plotX == 'epxc') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
-		else {var xValue = function(d) {return Math.log10(d[X]);};}
-	}
-	if (view.plotYTransform == 'log10') {
-		if (view.plotY == 'epxc') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
-		else {var yValue = function(d) {return Math.log10(d[Y]);};}
-	}
-	
-	var xMin = Math.floor(d3.min(unfilteredData,xValue));
-	var xMax = Math.ceil(d3.max(unfilteredData,xValue));
-	var yMin = Math.floor(d3.min(unfilteredData,yValue));
-	var yMax = Math.ceil(d3.max(unfilteredData,yValue));
-	
-	/*var xMin = d3.min(unfilteredData,xValue);
-	var xMax = d3.max(unfilteredData,xValue);
-	var yMin = d3.min(unfilteredData,yValue);
-	var yMax = d3.max(unfilteredData,yValue);*/
 
-	view.xMin = xMin;
-	view.xMax = xMax;
-	view.yMin = yMin;
-	view.yMax = yMax;
 
-	var xScale = d3.scaleQuantize()
-	.domain([xMin, xMax])
-	.range(heatmapStep);
-	
-	var yScale = d3.scaleQuantize()
-	.domain([yMin, yMax])
-	.range(heatmapStep);
-	
-	var xMap = function(d) {return xScale(xValue(d));};
-	var yMap = function(d) {return yScale(yValue(d));}; 
-	
-	view.data = {};
-	view.dataXMin = d3.min(unfilteredData,xValue);
-	view.dataXMax = d3.max(unfilteredData,xValue);
-	view.dataYMin = d3.min(unfilteredData,yValue);
-	view.dataYMax = d3.max(unfilteredData,yValue);
-
-	view.xScale = xScale;
-	view.yScale = yScale;
-
-	//console.log(xScale.invertExtent(""+50))
-	
-	for (var i=0; i<numData; i++){
-		var heatmapX = xMap(unfilteredData[i]);
-		var heatmapY = yMap(unfilteredData[i]);
-		
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
-		view.data[heatmapX][heatmapY]['list'].push(unfilteredData[i]);
-	}
-	
-	//console.log(view.data);
-			
-}
-
-function heatmapPointCount(data){
-	var count = 0;
-	for (var x in data){
-		for (var y in data[x]){
-			count = count + 1;
-		}
-	}
-	return count;
-}
 
 
 function getAxis(view){
@@ -321,156 +248,6 @@ function addTitle(view) {
 	document.body.appendChild(tempTitle);
 	
 }
-
-function getHeatmap(view,X, Y){
-	var uniforms = {
-
-		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
-
-	};
-
-	var shaderMaterial = new THREE.ShaderMaterial( {
-
-		uniforms:       uniforms,
-		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-		blending:       THREE.AdditiveBlending,
-		depthTest:      false,
-		transparent:    true
-
-	});
-	
-	var data = view.data;
-	
-	var num = heatmapPointCount(data);
-	
-	
-	var geometry = new THREE.BufferGeometry();
-	var colors = new Float32Array(num *3);
-	var positions = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-
-	var heatmapInformation = [];
-	//console.log(unfilteredData.length);
-	//console.log(num);
-	
-	var lut = new THREE.Lut( 'rainbow', 500 );
-	lut.setMax( 1000);
-	lut.setMin( 0 );
-	
-	
-	var i = 0;
-	var i3 = 0;
-	
-	for (var x in data){
-		for (var y in data[x]){
-			var xPlot = parseFloat(x);
-			var yPlot = parseFloat(y);
-			
-			positions[i3 + 0] = xPlot-50;
-			positions[i3 + 1] = yPlot-50;
-			positions[i3 + 2] = 0
-			
-			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
-			if (numberDatapointsRepresented > 0) {
-				var color = lut.getColor( numberDatapointsRepresented );
-			
-				colors[i3 + 0] = color.r;
-				colors[i3 + 1] = color.g;
-				colors[i3 + 2] = color.b;
-			}
-			else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
-			}
-			sizes[i] = 1.5;
-			alphas[i] = 1;
-			
-			i++;
-			i3 += 3;
-
-			var tempInfo = {x:xPlot-50, 
-							y:yPlot-50, 
-							numberDatapointsRepresented: numberDatapointsRepresented,
-							xStart: view.xScale.invertExtent(""+xPlot)[0],
-							xEnd: 	view.xScale.invertExtent(""+xPlot)[1],
-							yStart: view.yScale.invertExtent(""+yPlot)[0],
-							yEnd: 	view.yScale.invertExtent(""+yPlot)[1]
-							};
-			console.log(tempInfo);
-			heatmapInformation.push(tempInfo)
-		}
-	}
-	
-	view.heatmapInformation = heatmapInformation;
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-
-	var System = new THREE.Points(geometry, shaderMaterial);
-	return System;
-	
-}
-
-function countListSelected(list) {
-	var count = 0;
-	
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].selected){ count += 1;}
-	}
-	return count;
-}
-
-function updateHeatmap(view){
-	var particles = view.scatterPoints;
-	var data = view.data;
-	var num = heatmapPointCount(data);
-	colors = new Float32Array(num *3);
-	sizes = new Float32Array(num);
-	var lut = new THREE.Lut( 'rainbow', 500 );
-	lut.setMax( 1000);
-	lut.setMin( 0 );
-	var i = 0;
-	var i3 = 0;
-	for (x in data){
-		for (y in data[x]){
-			
-			if (countListSelected(data[x][y]['list']) > 0) {
-				var color = lut.getColor( countListSelected(data[x][y]['list']) );
-			
-				colors[i3 + 0] = color.r;
-				colors[i3 + 1] = color.g;
-				colors[i3 + 2] = color.b;
-			}
-			else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
-			}
-			
-			sizes[i] = 1.5;
-			//alphas[i] = 1;
-			
-			i++;
-			i3 += 3;
-		}
-	}
-	
-	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	particles.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	particles.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	//geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-
-}
-
-
-
-
 
 
 
@@ -522,6 +299,9 @@ function updateSize() {
 
 				view.title.style.top = view.windowTop + 'px';
 				view.title.style.left = view.windowLeft + 'px';
+
+				view.guiContainer.style.top = view.windowTop + 'px';
+				view.guiContainer.style.left = view.windowLeft + 'px';
 			}
 		}
 	}
@@ -583,7 +363,7 @@ function updateInteractiveHeatmap(view){
 		view.tooltip.style.top = event.clientY + 5  + 'px';
 		view.tooltip.style.left = event.clientX + 5  + 'px';
 
-		interesctIndex = intersects[ 0 ].index;
+		var interesctIndex = intersects[ 0 ].index;
 		view.tooltip.innerHTML = 	"x Range: " + view.heatmapInformation[interesctIndex].xStart + "--" + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
 									"y Range: " + view.heatmapInformation[interesctIndex].yStart + "--" + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 									"number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;

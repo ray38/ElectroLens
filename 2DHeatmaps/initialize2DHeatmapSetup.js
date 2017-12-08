@@ -6,18 +6,26 @@ export function initialize2DHeatmapSetup(viewSetup){
 		up: [ 0, 0, 1 ],
 		fov: 45,
 		mousePosition: [0,0],
-		//viewType: '2Dscatter',
+		//viewType: '2DHeatmap',
 		//plotX: 'gamma',
 		//plotY: 'epxc',
 		//plotXTransform: 'linear',
-		plotYTransform: 'log10',
+		//plotYTransform: 'log10',
 		controllerEnabled: false,
 		controllerZoom : true,
 		controllerRotate : false,
-		controllerPan : true
+		controllerPan : true,
+		options: new function(){
+			this.numPerSide = 100;
+			this.plotX = viewSetup.plotX;
+			this.plotY = viewSetup.plotY;
+			this.plotXTransform = viewSetup.plotXTransform;
+			this.plotYTransform = viewSetup.plotYTransform;
 		}
+	}
 
 	viewSetup = extendObject(viewSetup,defaultSetting);
+	//viewSetup = defaultSetting;
 
 }
 
