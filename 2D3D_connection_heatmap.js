@@ -10,7 +10,8 @@ import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
 
 
 import {setupViewCameraSceneController } from "./MultiviewControl/setupViewBasic.js";
-import {addHeatmapToolTip, getAxis} from "./2DHeatmaps/Utilities.js";
+import {getAxis} from "./2DHeatmaps/Utilities.js";
+import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container, stats;
@@ -72,10 +73,7 @@ function init() {
 		}
 		if (view.viewType == '2DHeatmap'){
 			view.controller.enableRotate=false;
-			var tempRaycaster = new THREE.Raycaster();
-			view.raycaster = tempRaycaster;
-			view.INTERSECTED = null;
-			addHeatmapToolTip(view);
+			initializeHeatmapToolTip(view);
 			setupOptionBox2DHeatmap(view);
 			getAxis(view);
 
@@ -167,7 +165,7 @@ function onDocumentMouseMove( event ) {
 			var dir = vector.sub( view.camera.position ).normalize();
 			var distance = - view.camera.position.z/dir.z;
 			view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
-			if (view.viewType == "2DHeatmap"){updateInteractiveHeatmap(view);}
+			if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
 		}
 	}
 }
@@ -239,46 +237,7 @@ function disableController(view, controller){
 }
 
 
-function updateInteractiveHeatmap(view){
-	var left   = Math.floor( windowWidth  * view.left );
-	var top    = Math.floor( windowHeight * view.top );
-	var width  = Math.floor( windowWidth  * view.width ) + left;
-	var height = Math.floor( windowHeight * view.height ) + top;
-	var mouse = new THREE.Vector2();
-		
-	mouse.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
-					(-((event.clientY-top)/(height-top)) * 2 + 1));
 
-
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.System );
-	if ( intersects.length > 0 ) {
-		//console.log("found intersect")
-		
-		view.tooltip.style.top = event.clientY + 5  + 'px';
-		view.tooltip.style.left = event.clientX + 5  + 'px';
-
-		var interesctIndex = intersects[ 0 ].index;
-		view.tooltip.innerHTML = 	"x Range: " + view.heatmapInformation[interesctIndex].xStart + "--" + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
-									"y Range: " + view.heatmapInformation[interesctIndex].yStart + "--" + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
-									"number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
-
-		view.System.geometry.attributes.size.array[ interesctIndex ]  = 3;
-		view.System.geometry.attributes.size.needsUpdate = true;
-
-
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
-			view.INTERSECTED = intersects[ 0 ].index;
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 3;
-			view.System.geometry.attributes.size.needsUpdate = true;
-		}
-
-	}
-	else {	view.tooltip.innerHTML = '';
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
-	}
-}
 
 function render() {
 	updateSize();

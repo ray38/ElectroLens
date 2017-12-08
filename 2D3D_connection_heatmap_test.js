@@ -19,6 +19,8 @@ var _MultiviewControlSetupViewBasicJs = require("./MultiviewControl/setupViewBas
 
 var _DHeatmapsUtilitiesJs = require("./2DHeatmaps/Utilities.js");
 
+var _DHeatmapsTooltipJs = require("./2DHeatmaps/tooltip.js");
+
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 var container, stats;
 var renderer;
@@ -73,10 +75,7 @@ function init() {
 		}
 		if (view.viewType == '2DHeatmap') {
 			view.controller.enableRotate = false;
-			var tempRaycaster = new THREE.Raycaster();
-			view.raycaster = tempRaycaster;
-			view.INTERSECTED = null;
-			_DHeatmapsUtilitiesJs.addHeatmapToolTip(view);
+			_DHeatmapsTooltipJs.initializeHeatmapToolTip(view);
 			_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(view);
 			_DHeatmapsUtilitiesJs.getAxis(view);
 
@@ -158,7 +157,7 @@ function onDocumentMouseMove(event) {
 			var distance = -view.camera.position.z / dir.z;
 			view.mousePosition = view.camera.position.clone().add(dir.multiplyScalar(distance));
 			if (view.viewType == "2DHeatmap") {
-				updateInteractiveHeatmap(view);
+				_DHeatmapsTooltipJs.updateHeatmapTooltip(view);
 			}
 		}
 	}
@@ -225,41 +224,6 @@ function disableController(view, controller) {
 	controller.enableZoom = false;
 	controller.enablePan = false;
 	controller.enableRotate = false;
-}
-
-function updateInteractiveHeatmap(view) {
-	var left = Math.floor(windowWidth * view.left);
-	var top = Math.floor(windowHeight * view.top);
-	var width = Math.floor(windowWidth * view.width) + left;
-	var height = Math.floor(windowHeight * view.height) + top;
-	var mouse = new THREE.Vector2();
-
-	mouse.set((event.clientX - left) / (width - left) * 2 - 1, -((event.clientY - top) / (height - top)) * 2 + 1);
-
-	view.raycaster.setFromCamera(mouse.clone(), view.camera);
-	var intersects = view.raycaster.intersectObject(view.System);
-	if (intersects.length > 0) {
-		//console.log("found intersect")
-
-		view.tooltip.style.top = event.clientY + 5 + 'px';
-		view.tooltip.style.left = event.clientX + 5 + 'px';
-
-		var interesctIndex = intersects[0].index;
-		view.tooltip.innerHTML = "x Range: " + view.heatmapInformation[interesctIndex].xStart + "--" + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y Range: " + view.heatmapInformation[interesctIndex].yStart + "--" + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
-
-		view.System.geometry.attributes.size.array[interesctIndex] = 3;
-		view.System.geometry.attributes.size.needsUpdate = true;
-
-		if (view.INTERSECTED != intersects[0].index) {
-			view.System.geometry.attributes.size.array[view.INTERSECTED] = 1.5;
-			view.INTERSECTED = intersects[0].index;
-			view.System.geometry.attributes.size.array[view.INTERSECTED] = 3;
-			view.System.geometry.attributes.size.needsUpdate = true;
-		}
-	} else {
-		view.tooltip.innerHTML = '';
-		view.System.geometry.attributes.size.array[view.INTERSECTED] = 1.5;
-	}
 }
 
 function render() {
@@ -459,7 +423,7 @@ function processClick() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./3DViews/PointCloud_selection.js":6,"./3DViews/setupOptionBox3DView.js":8,"./MultiviewControl/initializeViewSetups.js":10,"./MultiviewControl/setupViewBasic.js":11,"./Utilities/readDataFile.js":12,"./view_setup.js":13}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/initializeViewSetups.js":11,"./MultiviewControl/setupViewBasic.js":12,"./Utilities/readDataFile.js":13,"./view_setup.js":14}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -929,6 +893,71 @@ function setupOptionBox2DHeatmap(view) {
 'use strict';
 
 exports.__esModule = true;
+exports.initializeHeatmapToolTip = initializeHeatmapToolTip;
+exports.updateHeatmapTooltip = updateHeatmapTooltip;
+
+function initializeHeatmapToolTip(view) {
+	var tempRaycaster = new THREE.Raycaster();
+	view.raycaster = tempRaycaster;
+	view.INTERSECTED = null;
+
+	var tempTooltip = document.createElement('div');
+	tempTooltip.style.position = 'absolute';
+	tempTooltip.innerHTML = "";
+	//tempTooltip.style.width = 100;
+	//tempTooltip.style.height = 100;
+	tempTooltip.style.backgroundColor = "blue";
+	tempTooltip.style.opacity = 0.5;
+	tempTooltip.style.color = "white";
+	tempTooltip.style.top = 0 + 'px';
+	tempTooltip.style.left = 0 + 'px';
+	view.tooltip = tempTooltip;
+	document.body.appendChild(tempTooltip);
+}
+
+function updateHeatmapTooltip(view) {
+	/*var left   = Math.floor( windowWidth  * view.left );
+ var top    = Math.floor( windowHeight * view.top );
+ var width  = Math.floor( windowWidth  * view.width ) + left;
+ var height = Math.floor( windowHeight * view.height ) + top;
+ var mouse = new THREE.Vector2();
+ 	
+ mouse.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
+ 				(-((event.clientY-top)/(height-top)) * 2 + 1));*/
+
+	var mouse = new THREE.Vector2();
+	mouse.set((event.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((event.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
+
+	view.raycaster.setFromCamera(mouse.clone(), view.camera);
+	var intersects = view.raycaster.intersectObject(view.System);
+	if (intersects.length > 0) {
+		//console.log("found intersect")
+
+		view.tooltip.style.top = event.clientY + 5 + 'px';
+		view.tooltip.style.left = event.clientX + 5 + 'px';
+
+		var interesctIndex = intersects[0].index;
+		view.tooltip.innerHTML = "x Range: " + view.heatmapInformation[interesctIndex].xStart + ":" + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y Range: " + view.heatmapInformation[interesctIndex].yStart + ":" + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
+
+		view.System.geometry.attributes.size.array[interesctIndex] = 2 * view.options.pointCloudSize;
+		view.System.geometry.attributes.size.needsUpdate = true;
+
+		if (view.INTERSECTED != intersects[0].index) {
+			view.System.geometry.attributes.size.array[view.INTERSECTED] = view.options.pointCloudSize;
+			view.INTERSECTED = intersects[0].index;
+			view.System.geometry.attributes.size.array[view.INTERSECTED] = 2 * view.options.pointCloudSize;
+			view.System.geometry.attributes.size.needsUpdate = true;
+		}
+	} else {
+		view.tooltip.innerHTML = '';
+		view.System.geometry.attributes.size.array[view.INTERSECTED] = view.options.pointCloudSize;
+	}
+}
+
+},{}],7:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
 exports.getPointCloudGeometry = getPointCloudGeometry;
 exports.updatePointCloudGeometry = updatePointCloudGeometry;
 exports.changePointCloudGeometry = changePointCloudGeometry;
@@ -1121,7 +1150,7 @@ function changePointCloudGeometry(view) {
 	getPointCloudGeometry(view);
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1197,7 +1226,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1324,7 +1353,7 @@ function setupOptionBox3DView(view) {
 	//console.log(gui);
 }
 
-},{"./PointCloud_selection.js":6}],9:[function(require,module,exports){
+},{"./PointCloud_selection.js":7}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1383,7 +1412,7 @@ function calculateViewportSizes(views) {
 	}
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1409,7 +1438,7 @@ function initializeViewSetups(views) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":7,"../MultiviewControl/calculateViewportSizes.js":9}],11:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":10}],12:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1436,7 +1465,7 @@ function setupViewCameraSceneController(view, renderer) {
 	view.windowHeight = height;
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1473,7 +1502,7 @@ function readCSV(view, filename, plotData, number, callback) {
 	});
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
