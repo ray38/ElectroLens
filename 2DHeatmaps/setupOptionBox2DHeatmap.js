@@ -55,7 +55,7 @@ export function setupOptionBox2DHeatmap(view){
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
 	});
-	//plotFolder.add(options, 'replotHeatmap');
+	plotFolder.add(options, 'replotHeatmap');
 
 	plotFolder.open()
 

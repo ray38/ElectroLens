@@ -37,3 +37,13 @@ export function addOptionBox(view){
 	tempGuiContainer.appendChild(tempGui.domElement);
 
 }
+
+export function updateOptionBoxLocation(views){
+	setTimeout(function(){
+    	for ( var ii = 0; ii < views.length; ++ii ){
+			var view = views[ii];
+			view.guiContainer.style.top = view.windowTop + 'px';
+			view.guiContainer.style.left = view.windowLeft + 'px';
+		}
+	}, 30);
+}

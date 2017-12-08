@@ -9,7 +9,7 @@ import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
 
 
-import {setupViewCameraSceneController, addOptionBox } from "./MultiviewControl/setupViewBasic.js";
+import {setupViewCameraSceneController, addOptionBox, updateOptionBoxLocation } from "./MultiviewControl/setupViewBasic.js";
 import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis} from "./2DHeatmaps/Utilities.js";
 import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
@@ -68,6 +68,8 @@ function init() {
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
+
+		view.unfilteredData = unfilteredData;
 
 		setupViewCameraSceneController(view,renderer);
 		addOptionBox(view);
@@ -167,8 +169,8 @@ function updateSize() {
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
+			//view.guiContainer.style.top = view.windowTop + 'px';
+			//view.guiContainer.style.left = view.windowLeft + 'px';
 			if (view.viewType == "2DHeatmap") {
 				
 				var left   = Math.floor( windowWidth  * view.left );
@@ -187,6 +189,8 @@ function updateSize() {
 				
 			}
 		}
+
+		updateOptionBoxLocation(views);
 	}
 }
 function animate() {

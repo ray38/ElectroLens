@@ -71,6 +71,8 @@ function init() {
 	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
 		var view = _view_setupJs.views[ii];
 
+		view.unfilteredData = unfilteredData;
+
 		_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
 		_MultiviewControlSetupViewBasicJs.addOptionBox(view);
 
@@ -159,8 +161,8 @@ function updateSize() {
 
 		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
 			var view = _view_setupJs.views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
+			//view.guiContainer.style.top = view.windowTop + 'px';
+			//view.guiContainer.style.left = view.windowLeft + 'px';
 			if (view.viewType == "2DHeatmap") {
 
 				var left = Math.floor(windowWidth * view.left);
@@ -177,6 +179,8 @@ function updateSize() {
 				//view.title.style.left = view.windowLeft + 'px';
 			}
 		}
+
+		_MultiviewControlSetupViewBasicJs.updateOptionBoxLocation(_view_setupJs.views);
 	}
 }
 function animate() {
@@ -642,7 +646,7 @@ function updateHeatmap(view) {
 function replotHeatmap(view) {
 	view.scene.remove(view.System);
 	//var options = view.options;
-	arrangeDataToHeatmap(view, unfilteredData);
+	arrangeDataToHeatmap(view, view.unfilteredData);
 	getHeatmap(view);
 }
 
@@ -740,7 +744,9 @@ function initialize2DHeatmapSetup(viewSetup, views) {
 			this.resetCamera = function () {
 				viewSetup.controller.reset();
 			};
-			//this.replotHeatmap = function(){replotHeatmap(view)};
+			this.replotHeatmap = function () {
+				_HeatmapViewJs.replotHeatmap(viewSetup);
+			};
 			this.fullscreen = function () {
 				_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
 				//viewSetup.guiContainer.style.top = viewSetup.windowTop + 'px';
@@ -817,7 +823,7 @@ function setupOptionBox2DHeatmap(view) {
 	plotFolder.add(options, 'plotYTransform', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10' }).name('Y scale').onChange(function (value) {
 		//updatePointCloudGeometry(view);
 	});
-	//plotFolder.add(options, 'replotHeatmap');
+	plotFolder.add(options, 'replotHeatmap');
 
 	plotFolder.open();
 
@@ -1299,6 +1305,8 @@ exports.calculateViewportSizes = calculateViewportSizes;
 exports.fullscreenOneView = fullscreenOneView;
 exports.deFullscreen = deFullscreen;
 
+var _setupViewBasicJs = require("./setupViewBasic.js");
+
 function calculateViewportSizes(views) {
 	var twoDViewCount = 0.0,
 	    threeDViewCount = 0.0;
@@ -1372,13 +1380,14 @@ function fullscreenOneView(views, view) {
 
 	view.guiContainer.style.visibility = "visible";
 
-	setTimeout(function () {
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
-		}
-	}, 50);
+	/*setTimeout(function(){
+    	for ( var ii = 0; ii < views.length; ++ii ){
+ 		var view = views[ii];
+ 		view.guiContainer.style.top = view.windowTop + 'px';
+ 		view.guiContainer.style.left = view.windowLeft + 'px';
+ 	}
+ }, 30);*/
+	_setupViewBasicJs.updateOptionBoxLocation(views);
 }
 
 function deFullscreen(views) {
@@ -1434,16 +1443,18 @@ function deFullscreen(views) {
 		}
 	}
 
-	setTimeout(function () {
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
-		}
-	}, 50);
+	/*setTimeout(function(){
+    	for ( var ii = 0; ii < views.length; ++ii ){
+ 		var view = views[ii];
+ 		view.guiContainer.style.top = view.windowTop + 'px';
+ 		view.guiContainer.style.left = view.windowLeft + 'px';
+ 	}
+ }, 30);*/
+
+	_setupViewBasicJs.updateOptionBoxLocation(views);
 }
 
-},{}],11:[function(require,module,exports){
+},{"./setupViewBasic.js":13}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1510,6 +1521,7 @@ function initializeViewSetups(views) {
 exports.__esModule = true;
 exports.setupViewCameraSceneController = setupViewCameraSceneController;
 exports.addOptionBox = addOptionBox;
+exports.updateOptionBoxLocation = updateOptionBoxLocation;
 
 function setupViewCameraSceneController(view, renderer) {
 
@@ -1544,6 +1556,16 @@ function addOptionBox(view) {
 	view.gui = tempGui;
 
 	tempGuiContainer.appendChild(tempGui.domElement);
+}
+
+function updateOptionBoxLocation(views) {
+	setTimeout(function () {
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
+			view.guiContainer.style.top = view.windowTop + 'px';
+			view.guiContainer.style.left = view.windowLeft + 'px';
+		}
+	}, 30);
 }
 
 },{}],14:[function(require,module,exports){
@@ -1621,13 +1643,15 @@ var views = [{
 	plotY: 'epxc',
 	plotXTransform: 'log10',
 	plotYTransform: 'neglog10'
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'n',
-	plotY: 'epxc',
-	plotXTransform: 'log10',
-	plotYTransform: 'neglog10'
-}];
+} /*,
+  {
+  viewType: '2DHeatmap',
+  plotX: 'n',
+  plotY: 'epxc',
+  plotXTransform: 'log10',
+  plotYTransform: 'neglog10'
+  }*/
+];
 
 exports.views = views;
 

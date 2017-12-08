@@ -40,14 +40,14 @@ var views = [
 		plotY: 'epxc',
 		plotXTransform: 'log10',
 		plotYTransform: 'neglog10'
-	},
+	}/*,
 	{
 		viewType: '2DHeatmap',
 		plotX: 'n',
 		plotY: 'epxc',
 		plotXTransform: 'log10',
 		plotYTransform: 'neglog10'
-	}
+	}*/
 ];
 
 export {views};

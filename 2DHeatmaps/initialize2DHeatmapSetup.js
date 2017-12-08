@@ -27,7 +27,7 @@ export function initialize2DHeatmapSetup(viewSetup,views){
 			this.plotYTransform = viewSetup.plotYTransform;
 			this.colorMap = 'rainbow';
 			this.resetCamera = function(){viewSetup.controller.reset();};
-			//this.replotHeatmap = function(){replotHeatmap(view)};
+			this.replotHeatmap = function(){replotHeatmap(viewSetup)};
 			this.fullscreen = function(){
 								fullscreenOneView(views,viewSetup);
 								//viewSetup.guiContainer.style.top = viewSetup.windowTop + 'px';

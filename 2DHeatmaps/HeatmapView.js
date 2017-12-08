@@ -237,7 +237,7 @@ export function updateHeatmap(view){
 export function replotHeatmap(view){
 	view.scene.remove(view.System);
 	//var options = view.options;
-	arrangeDataToHeatmap(view,unfilteredData);
+	arrangeDataToHeatmap(view,view.unfilteredData);
 	getHeatmap(view);
 
 }
