@@ -20,7 +20,7 @@ export function initialize2DHeatmapSetup(viewSetup,views){
 		options: new function(){
 			this.numPerSide = 100;
 			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1.5;
+			this.pointCloudSize = 3.0;
 			this.plotX = viewSetup.plotX;
 			this.plotY = viewSetup.plotY;
 			this.plotXTransform = viewSetup.plotXTransform;

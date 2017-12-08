@@ -133,13 +133,9 @@ function init() {
 }
 
 function onKeyDown(e) {
-	/*console.log("key down");
- console.log(e.keyCode);
- console.log(showOptionBoxesBool);*/
 	if (e.keyCode == 72) {
 		_MultiviewControlOptionBoxControlJs.showHideAllOptionBoxes(_view_setupJs.views, showOptionBoxesBool);showOptionBoxesBool = !showOptionBoxesBool;
 	}
-	//console.log(showOptionBoxesBool);
 }
 
 function onDocumentMouseMove(event) {
@@ -751,7 +747,7 @@ function initialize2DHeatmapSetup(viewSetup, views) {
 		options: new function () {
 			this.numPerSide = 100;
 			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1.5;
+			this.pointCloudSize = 3.0;
 			this.plotX = viewSetup.plotX;
 			this.plotY = viewSetup.plotY;
 			this.plotXTransform = viewSetup.plotXTransform;
@@ -1642,7 +1638,6 @@ var views = [{
 	viewType: '3DView',
 	moleculeName: 'H2O',
 	dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv"
-
 }, {
 	viewType: '2DHeatmap',
 	plotX: 'gamma',
@@ -1650,7 +1645,6 @@ var views = [{
 	plotXTransform: 'linear',
 	plotYTransform: 'linear'
 }, {
-
 	viewType: '2DHeatmap',
 	plotX: 'n',
 	plotY: 'epxc',
@@ -1668,15 +1662,7 @@ var views = [{
 	plotY: 'epxc',
 	plotXTransform: 'log10',
 	plotYTransform: 'neglog10'
-} /*,
-  {
-  viewType: '2DHeatmap',
-  plotX: 'n',
-  plotY: 'epxc',
-  plotXTransform: 'log10',
-  plotYTransform: 'neglog10'
-  }*/
-];
+}];
 
 exports.views = views;
 

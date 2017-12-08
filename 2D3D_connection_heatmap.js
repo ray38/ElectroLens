@@ -138,11 +138,7 @@ function init() {
 
 
 function onKeyDown(e){
-	/*console.log("key down");
-	console.log(e.keyCode);
-	console.log(showOptionBoxesBool);*/
 	if (e.keyCode == 72) {showHideAllOptionBoxes(views,showOptionBoxesBool); showOptionBoxesBool = !showOptionBoxesBool;}
-	//console.log(showOptionBoxesBool);
 }
 
 

@@ -8,7 +8,6 @@ var views = [
 		viewType: '3DView',
 		moleculeName: 'H2O',
 		dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv"
-
 	},
 	{
 		viewType: '2DHeatmap',
@@ -17,9 +16,7 @@ var views = [
 		plotXTransform: 'linear',
 		plotYTransform: 'linear'
 	},
-	
 	{
-
 		viewType: '2DHeatmap',
 		plotX: 'n',
 		plotY: 'epxc',
@@ -40,14 +37,7 @@ var views = [
 		plotY: 'epxc',
 		plotXTransform: 'log10',
 		plotYTransform: 'neglog10'
-	}/*,
-	{
-		viewType: '2DHeatmap',
-		plotX: 'n',
-		plotY: 'epxc',
-		plotXTransform: 'log10',
-		plotYTransform: 'neglog10'
-	}*/
+	}
 ];
 
 export {views};
