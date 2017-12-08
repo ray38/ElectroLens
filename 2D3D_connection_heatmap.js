@@ -9,17 +9,16 @@ import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
 
 
-import {setupViewCameraSceneController } from "./MultiviewControl/setupViewBasic.js";
+import {setupViewCameraSceneController, addOptionBox } from "./MultiviewControl/setupViewBasic.js";
+import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis} from "./2DHeatmaps/Utilities.js";
 import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-var container, stats;
-var renderer;
+var container, stats, renderer;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 var mouseX = 0, mouseY = 0;
 var windowWidth, windowHeight;
-var mousePosition;
 var clickRequest = false;
 var mouseHold = false;
 
@@ -27,7 +26,6 @@ var heightScale = 2., widthScale = 1.;
 
 
 initializeViewSetups(views);
-console.log(views)
 
 
 var unfilteredData = [];
@@ -88,7 +86,6 @@ function init() {
 	stats = new Stats();
 	container.appendChild( stats.dom );
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	//var mouseHold = false;
 	window.addEventListener( 'mousedown', function( event ) {
 		mouseHold = true;
 		console.log(mouseHold);
@@ -127,27 +124,13 @@ function init() {
 
 
 
-function addOptionBox(view){
-	var tempGuiContainer = document.createElement('div');
-		
-	tempGuiContainer.style.position = 'absolute';
-	tempGuiContainer.style.top = view.windowTop + 'px';
-	tempGuiContainer.style.left = view.windowLeft + 'px';
-	document.body.appendChild(tempGuiContainer);
-	var tempGui = new dat.GUI( { autoPlace: false } );
-	view.guiContainer = tempGuiContainer;
-	view.gui = tempGui;
 
-	tempGuiContainer.appendChild(tempGui.domElement);
-
-}
 
 
 function onDocumentMouseMove( event ) {
 	mouseX = event.clientX;
 	mouseY = event.clientY;
-	if (mouseHold == false){updateController();}
-	//updateController();
+	if (mouseHold == false){updateController(views, windowWidth, windowHeight, mouseX, mouseY);}
 	
 	for ( var ii = 0; ii < views.length; ++ii ){
 		var view = views[ii];
@@ -206,35 +189,6 @@ function animate() {
 	requestAnimationFrame( animate );
 }
 
-function updateController(){
-	for ( var ii = 0; ii < views.length; ++ii ){
-		var view = views[ii];
-		var left   = Math.floor( windowWidth  * view.left );
-		var top    = Math.floor( windowHeight * view.top );
-		var width  = Math.floor( windowWidth  * view.width );
-		var height = Math.floor( windowHeight * view.height );
-		
-		if (mouseX > left && mouseX < (left + width) && mouseY > top && mouseY <top + height){
-			enableController(view, view.controller);
-		}
-		else{
-			disableController(view,view.controller);
-		}
-	}
-}
-
-function enableController(view, controller){
-	view.controllerEnabled = true;
-	controller.enableZoom = view.controllerZoom;
-	controller.enablePan  = view.controllerPan;
-	controller.enableRotate = view.controllerRotate;
-}
-function disableController(view, controller){
-	view.controllerEnabled = false;
-	controller.enableZoom = false;
-	controller.enablePan  = false;
-	controller.enableRotate = false;
-}
 
 
 
@@ -254,9 +208,6 @@ function render() {
 		view.windowWidth = width;
 		view.windowHeight = height;
 
-		//view.title.style.top = view.windowTop + 'px';
-		//view.title.style.left = view.windowLeft + 'px';
-
 		renderer.setViewport( left, top, width, height );
 		renderer.setScissor( left, top, width, height );
 		renderer.setScissorTest( true );
@@ -266,7 +217,6 @@ function render() {
 		else {renderer.setClearColor( view.background );}
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
-		//if (view.viewType == "2DHeatmap" && view.controllerEnabled){updateInteractiveHeatmap(view);}
 		renderer.render( view.scene, camera );
 	}
 }

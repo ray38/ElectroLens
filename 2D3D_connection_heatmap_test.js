@@ -17,6 +17,8 @@ var _DHeatmapsSetupOptionBox2DHeatmapJs = require("./2DHeatmaps/setupOptionBox2D
 
 var _MultiviewControlSetupViewBasicJs = require("./MultiviewControl/setupViewBasic.js");
 
+var _MultiviewControlControllerControlJs = require("./MultiviewControl/controllerControl.js");
+
 var _DHeatmapsUtilitiesJs = require("./2DHeatmaps/Utilities.js");
 
 var _DHeatmapsTooltipJs = require("./2DHeatmaps/tooltip.js");
@@ -28,7 +30,7 @@ var selectionPlaneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opac
 var mouseX = 0,
     mouseY = 0;
 var windowWidth, windowHeight;
-var mousePosition;
+//var mousePosition;
 var clickRequest = false;
 var mouseHold = false;
 
@@ -67,7 +69,7 @@ function init() {
 		var view = _view_setupJs.views[ii];
 
 		_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
-		addOptionBox(view);
+		_MultiviewControlSetupViewBasicJs.addOptionBox(view);
 
 		if (view.viewType == '3DView') {
 			_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
@@ -120,27 +122,12 @@ function init() {
 	}, false);
 }
 
-function addOptionBox(view) {
-	var tempGuiContainer = document.createElement('div');
-
-	tempGuiContainer.style.position = 'absolute';
-	tempGuiContainer.style.top = view.windowTop + 'px';
-	tempGuiContainer.style.left = view.windowLeft + 'px';
-	document.body.appendChild(tempGuiContainer);
-	var tempGui = new dat.GUI({ autoPlace: false });
-	view.guiContainer = tempGuiContainer;
-	view.gui = tempGui;
-
-	tempGuiContainer.appendChild(tempGui.domElement);
-}
-
 function onDocumentMouseMove(event) {
 	mouseX = event.clientX;
 	mouseY = event.clientY;
 	if (mouseHold == false) {
-		updateController();
+		_MultiviewControlControllerControlJs.updateController(_view_setupJs.views, windowWidth, windowHeight, mouseX, mouseY);
 	}
-	//updateController();
 
 	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
 		var view = _view_setupJs.views[ii];
@@ -197,35 +184,6 @@ function animate() {
 	requestAnimationFrame(animate);
 }
 
-function updateController() {
-	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-		var view = _view_setupJs.views[ii];
-		var left = Math.floor(windowWidth * view.left);
-		var top = Math.floor(windowHeight * view.top);
-		var width = Math.floor(windowWidth * view.width);
-		var height = Math.floor(windowHeight * view.height);
-
-		if (mouseX > left && mouseX < left + width && mouseY > top && mouseY < top + height) {
-			enableController(view, view.controller);
-		} else {
-			disableController(view, view.controller);
-		}
-	}
-}
-
-function enableController(view, controller) {
-	view.controllerEnabled = true;
-	controller.enableZoom = view.controllerZoom;
-	controller.enablePan = view.controllerPan;
-	controller.enableRotate = view.controllerRotate;
-}
-function disableController(view, controller) {
-	view.controllerEnabled = false;
-	controller.enableZoom = false;
-	controller.enablePan = false;
-	controller.enableRotate = false;
-}
-
 function render() {
 	updateSize();
 	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
@@ -241,9 +199,6 @@ function render() {
 		view.windowWidth = width;
 		view.windowHeight = height;
 
-		//view.title.style.top = view.windowTop + 'px';
-		//view.title.style.left = view.windowLeft + 'px';
-
 		renderer.setViewport(left, top, width, height);
 		renderer.setScissor(left, top, width, height);
 		renderer.setScissorTest(true);
@@ -256,7 +211,6 @@ function render() {
 		}
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
-		//if (view.viewType == "2DHeatmap" && view.controllerEnabled){updateInteractiveHeatmap(view);}
 		renderer.render(view.scene, camera);
 	}
 }
@@ -423,7 +377,7 @@ function processClick() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/initializeViewSetups.js":11,"./MultiviewControl/setupViewBasic.js":12,"./Utilities/readDataFile.js":13,"./view_setup.js":14}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/controllerControl.js":11,"./MultiviewControl/initializeViewSetups.js":12,"./MultiviewControl/setupViewBasic.js":13,"./Utilities/readDataFile.js":14,"./view_setup.js":15}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -916,14 +870,6 @@ function initializeHeatmapToolTip(view) {
 }
 
 function updateHeatmapTooltip(view) {
-	/*var left   = Math.floor( windowWidth  * view.left );
- var top    = Math.floor( windowHeight * view.top );
- var width  = Math.floor( windowWidth  * view.width ) + left;
- var height = Math.floor( windowHeight * view.height ) + top;
- var mouse = new THREE.Vector2();
- 	
- mouse.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
- 				(-((event.clientY-top)/(height-top)) * 2 + 1));*/
 
 	var mouse = new THREE.Vector2();
 	mouse.set((event.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((event.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
@@ -937,7 +883,7 @@ function updateHeatmapTooltip(view) {
 		view.tooltip.style.left = event.clientX + 5 + 'px';
 
 		var interesctIndex = intersects[0].index;
-		view.tooltip.innerHTML = "x Range: " + view.heatmapInformation[interesctIndex].xStart + ":" + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y Range: " + view.heatmapInformation[interesctIndex].yStart + ":" + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
+		view.tooltip.innerHTML = "x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
 
 		view.System.geometry.attributes.size.array[interesctIndex] = 2 * view.options.pointCloudSize;
 		view.System.geometry.attributes.size.needsUpdate = true;
@@ -1416,6 +1362,41 @@ function calculateViewportSizes(views) {
 "use strict";
 
 exports.__esModule = true;
+exports.updateController = updateController;
+
+function updateController(views, windowWidth, windowHeight, mouseX, mouseY) {
+	for (var ii = 0; ii < views.length; ++ii) {
+		var view = views[ii];
+		var left = Math.floor(windowWidth * view.left);
+		var top = Math.floor(windowHeight * view.top);
+		var width = Math.floor(windowWidth * view.width);
+		var height = Math.floor(windowHeight * view.height);
+
+		if (mouseX > left && mouseX < left + width && mouseY > top && mouseY < top + height) {
+			enableController(view, view.controller);
+		} else {
+			disableController(view, view.controller);
+		}
+	}
+}
+
+function enableController(view, controller) {
+	view.controllerEnabled = true;
+	controller.enableZoom = view.controllerZoom;
+	controller.enablePan = view.controllerPan;
+	controller.enableRotate = view.controllerRotate;
+}
+function disableController(view, controller) {
+	view.controllerEnabled = false;
+	controller.enableZoom = false;
+	controller.enablePan = false;
+	controller.enableRotate = false;
+}
+
+},{}],12:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
 exports.initializeViewSetups = initializeViewSetups;
 
 var _MultiviewControlCalculateViewportSizesJs = require("../MultiviewControl/calculateViewportSizes.js");
@@ -1438,11 +1419,12 @@ function initializeViewSetups(views) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":10}],12:[function(require,module,exports){
-"use strict";
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":10}],13:[function(require,module,exports){
+'use strict';
 
 exports.__esModule = true;
 exports.setupViewCameraSceneController = setupViewCameraSceneController;
+exports.addOptionBox = addOptionBox;
 
 function setupViewCameraSceneController(view, renderer) {
 
@@ -1465,7 +1447,21 @@ function setupViewCameraSceneController(view, renderer) {
 	view.windowHeight = height;
 }
 
-},{}],13:[function(require,module,exports){
+function addOptionBox(view) {
+	var tempGuiContainer = document.createElement('div');
+
+	tempGuiContainer.style.position = 'absolute';
+	tempGuiContainer.style.top = view.windowTop + 'px';
+	tempGuiContainer.style.left = view.windowLeft + 'px';
+	document.body.appendChild(tempGuiContainer);
+	var tempGui = new dat.GUI({ autoPlace: false });
+	view.guiContainer = tempGuiContainer;
+	view.gui = tempGui;
+
+	tempGuiContainer.appendChild(tempGui.domElement);
+}
+
+},{}],14:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1502,7 +1498,7 @@ function readCSV(view, filename, plotData, number, callback) {
 	});
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
