@@ -4,34 +4,13 @@ export function setupOptionBox3DView(view){
 	var options = view.options;
 	var gui = view.gui;
 	gui.width = 200;
-	gui.height = 10;
+
 
 	var moleculeFolder 		= gui.addFolder( 'Molecule Selection' );
 	var viewFolder 			= gui.addFolder( 'View Selection' );
 	var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
 	var sliderFolder 		= gui.addFolder( 'Slider Control' );
-
-	/*moleculeFolder.add( options, 'moleculeName',{'CO2':'CO2', 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4', 'C2H2':'C2H2', 'NCCN':'NCCN','C6H6':'C6H6','butadiene':'butadiene'}).onChange( function( value ) {
-		updateOptionFilenames();
-		unfilteredData = [];
-		var data = d3.csv(options.dataFilename, function (d) { 
-	        d.forEach(function (d,i) {
-	            unfilteredData[i] = {
-	                x: +d.x,
-	                y: +d.y,
-	                z: +d.z,
-	                n: +d.rho,
-	                gamma: +d.gamma,
-	                epxc: +d.epxc,
-			ad0p2: +d.ad0p2,
-			deriv1: +d.deriv1,
-			deriv2: +d.deriv2
-	            }
-	        })
-	        changeGeometry(options)
-	    });
-
-	});		*/	
+	
 	moleculeFolder.add( options, 'moleculeName')
 	.name( 'Molecule' )
 	.onChange(function( value ){
@@ -57,7 +36,9 @@ export function setupOptionBox3DView(view){
 	.onChange( function( value ){
 		updatePointCloudGeometry(view);			
 	});
-	//viewFolder.add( options, 'resetCamera');
+	viewFolder.add( options, 'resetCamera');
+	viewFolder.add( options, 'fullscreen');
+	viewFolder.add( options, 'defullscreen');
 	viewFolder.open();
 
 

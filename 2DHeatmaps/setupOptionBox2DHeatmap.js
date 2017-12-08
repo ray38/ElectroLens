@@ -64,7 +64,9 @@ export function setupOptionBox2DHeatmap(view){
 	.onChange( function( value ){
 		updateHeatmap(view);			
 	});
-	//viewFolder.add( options, 'resetCamera');
+	viewFolder.add( options, 'resetCamera');
+	viewFolder.add( options, 'fullscreen');
+	viewFolder.add( options, 'defullscreen');
 	//viewFolder.open();
 
 

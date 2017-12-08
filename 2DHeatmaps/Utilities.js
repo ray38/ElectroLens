@@ -1,17 +1,4 @@
-export function addHeatmapToolTip(view){
-	var tempTooltip = document.createElement('div');
-	tempTooltip.style.position = 'absolute';
-	tempTooltip.innerHTML = "";
-	//tempTooltip.style.width = 100;
-	//tempTooltip.style.height = 100;
-	tempTooltip.style.backgroundColor = "blue";
-	tempTooltip.style.opacity = 0.5;
-	tempTooltip.style.color = "white";
-	tempTooltip.style.top = 0 + 'px';
-	tempTooltip.style.left = 0 + 'px';
-	view.tooltip = tempTooltip;
-	document.body.appendChild(tempTooltip);
-}
+
 
 export function getAxis(view){
 	var geometry = new THREE.Geometry();

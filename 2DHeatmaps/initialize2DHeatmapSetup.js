@@ -1,5 +1,6 @@
 import {replotHeatmap} from "./HeatmapView.js";
-export function initialize2DHeatmapSetup(viewSetup){
+import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
+export function initialize2DHeatmapSetup(viewSetup,views){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
@@ -25,8 +26,14 @@ export function initialize2DHeatmapSetup(viewSetup){
 			this.plotXTransform = viewSetup.plotXTransform;
 			this.plotYTransform = viewSetup.plotYTransform;
 			this.colorMap = 'rainbow';
-			//this.resetCamera = function(){view.controler.reset();};
+			this.resetCamera = function(){viewSetup.controller.reset();};
 			//this.replotHeatmap = function(){replotHeatmap(view)};
+			this.fullscreen = function(){
+								fullscreenOneView(views,viewSetup);
+								//viewSetup.guiContainer.style.top = viewSetup.windowTop + 'px';
+								//viewSetup.guiContainer.style.left = viewSetup.windowLeft + 'px';
+							};
+			this.defullscreen = function(){deFullscreen(views);};
 		}
 	}
 

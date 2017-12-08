@@ -4,7 +4,7 @@ export function readCSV(view,filename,plotData,number,callback){
 	d3.csv(filename, function (d) {
 		d.forEach(function (d,i) {
 			var n = +d.rho;
-			if (n >1e-5){
+			if (n >1e-3){
 				var temp = {
 						x: +d.x,
 						y: +d.y,

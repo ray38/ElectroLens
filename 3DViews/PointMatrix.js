@@ -98,10 +98,6 @@ return System;
 }
 
 
-
-
-
-
 function updatePointMatrixGeometry(options) {
 var uniforms = {
 

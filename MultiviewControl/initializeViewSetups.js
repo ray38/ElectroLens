@@ -6,10 +6,10 @@ export function initializeViewSetups(views){
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '2DHeatmap'){ 
-			initialize2DHeatmapSetup(view);
+			initialize2DHeatmapSetup(view,views);
 		}
 		if (view.viewType == '3DView'){ 
-			initialize3DViewSetup(view);
+			initialize3DViewSetup(view,views);
 		}
 	}
 

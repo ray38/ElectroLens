@@ -14,6 +14,8 @@ import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis} from "./2DHeatmaps/Utilities.js";
 import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
 
+import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container, stats, renderer;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
@@ -22,7 +24,12 @@ var windowWidth, windowHeight;
 var clickRequest = false;
 var mouseHold = false;
 
-var heightScale = 2., widthScale = 1.;
+//var heightScale = 2., widthScale = 1.;
+
+options: new function(){
+	this.heightScale = 2.;
+	this.widthScale  = 1.;
+}
 
 
 initializeViewSetups(views);
@@ -156,7 +163,7 @@ function updateSize() {
 	if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
 		windowWidth  = window.innerWidth;
 		windowHeight = window.innerHeight;
-		renderer.setSize ( windowWidth, windowHeight*2 );
+		renderer.setSize ( windowWidth, windowHeight );
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];

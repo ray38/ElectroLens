@@ -1,4 +1,5 @@
-export function initialize3DViewSetup(viewSetup){
+import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
+export function initialize3DViewSetup(viewSetup,views){
 	var defaultSetting = {
 		//left: 0,
 		//top: 0,
@@ -54,7 +55,13 @@ export function initialize3DViewSetup(viewSetup){
 			this.planeVisibilityF = false;
 			this.planeVisibilityB = false;
 			this.planeOpacity = 0.05;
-			//this.resetCamera = function(){view.controler.reset();};
+			this.resetCamera = function(){viewSetup.controller.reset();};
+			this.fullscreen = function(){
+								fullscreenOneView(views,viewSetup);
+								//viewSetup.guiContainer.style.top = viewSetup.windowTop + 'px';
+								//viewSetup.guiContainer.style.left = viewSetup.windowLeft + 'px';
+							};
+			this.defullscreen = function(){deFullscreen(views);};
 		}
 	}
 
