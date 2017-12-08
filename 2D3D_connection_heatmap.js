@@ -5,8 +5,12 @@ import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {readCSV} from "./Utilities/readDataFile.js";
 
-import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js"
-import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js"
+import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
+import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
+
+
+import {setupViewCameraSceneController } from "./MultiviewControl/setupViewBasic.js";
+import {addHeatmapToolTip, getAxist} from "./2DHeatmaps/Utilities.js";
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container, stats;
@@ -58,26 +62,7 @@ function init() {
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
-		var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
-		camera.position.fromArray( view.eye );
-		view.camera = camera;
-		var tempControler = new THREE.OrbitControls( camera, renderer.domElement );
-		view.controler = tempControler;
-		var tempScene = new THREE.Scene();
-		view.scene = tempScene;
-
 		
-
-
-		var left   = Math.floor( window.innerWidth  * view.left );
-		var top    = Math.floor( window.innerHeight * view.top );
-		var width  = Math.floor( window.innerWidth  * view.width );
-		var height = Math.floor( window.innerHeight * view.height );
-
-		view.windowLeft = left;
-		view.windowTop = top;
-		view.windowWidth = width;
-		view.windowHeight = height;
 
 		addOptionBox(view)
 
@@ -86,14 +71,11 @@ function init() {
 			setupOptionBox3DView(view);
 		}
 		if (view.viewType == '2DHeatmap'){
-			tempControler.enableRotate=false;
+			tempController.enableRotate=false;
 			var tempRaycaster = new THREE.Raycaster();
 			view.raycaster = tempRaycaster;
 			view.INTERSECTED = null;
 			addHeatmapToolTip(view);
-			/*addTitle(view);
-			console.log(view.tooltip);
-			console.log(view.title);*/
 			setupOptionBox2DHeatmap(view);
 			getAxis(view);
 
@@ -144,20 +126,7 @@ function init() {
 	
 }
 
-function addHeatmapToolTip(view){
-	var tempTooltip = document.createElement('div');
-	tempTooltip.style.position = 'absolute';
-	tempTooltip.innerHTML = "";
-	//tempTooltip.style.width = 100;
-	//tempTooltip.style.height = 100;
-	tempTooltip.style.backgroundColor = "blue";
-	tempTooltip.style.opacity = 0.5;
-	tempTooltip.style.color = "white";
-	tempTooltip.style.top = 0 + 'px';
-	tempTooltip.style.left = 0 + 'px';
-	view.tooltip = tempTooltip;
-	document.body.appendChild(tempTooltip);
-}
+
 
 
 function addOptionBox(view){
@@ -174,39 +143,6 @@ function addOptionBox(view){
 	tempGuiContainer.appendChild(tempGui.domElement);
 
 }
-
-
-
-
-function getAxis(view){
-	var geometry = new THREE.Geometry();
-	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
-	geometry.vertices.push(new THREE.Vector3(50, -50, 0));
-	geometry.vertices.push(new THREE.Vector3(50, 50, 0));
-	geometry.vertices.push(new THREE.Vector3(-50, 50, 0));
-	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
-	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3, });
-	var line = new THREE.Line(geometry, material);
-	view.scene.add(line);
-	
-}
-
-function addTitle(view) {
-	var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
-	//var titleText = " v.s. ";
-	var tempTitle = document.createElement('div');
-	tempTitle.style.position = 'absolute';
-	tempTitle.innerHTML = titleText;
-	tempTitle.style.backgroundColor = "black";
-	tempTitle.style.opacity = 0.7;
-	tempTitle.style.color = "white";
-	tempTitle.style.top = view.windowTop + 'px';
-	tempTitle.style.left = view.windowLeft + 'px';
-	view.title = tempTitle;
-	document.body.appendChild(tempTitle);
-	
-}
-
 
 
 function onDocumentMouseMove( event ) {
@@ -281,25 +217,25 @@ function updateController(){
 		var height = Math.floor( windowHeight * view.height );
 		
 		if (mouseX > left && mouseX < (left + width) && mouseY > top && mouseY <top + height){
-			enableControler(view, view.controler);
+			enableController(view, view.controller);
 		}
 		else{
-			disableControler(view,view.controler);
+			disableController(view,view.controller);
 		}
 	}
 }
 
-function enableControler(view, controler){
+function enableController(view, controller){
 	view.controllerEnabled = true;
-	controler.enableZoom = view.controllerZoom;
-	controler.enablePan  = view.controllerPan;
-	controler.enableRotate = view.controllerRotate;
+	controller.enableZoom = view.controllerZoom;
+	controller.enablePan  = view.controllerPan;
+	controller.enableRotate = view.controllerRotate;
 }
-function disableControler(view, controler){
+function disableController(view, controller){
 	view.controllerEnabled = false;
-	controler.enableZoom = false;
-	controler.enablePan  = false;
-	controler.enableRotate = false;
+	controller.enableZoom = false;
+	controller.enablePan  = false;
+	controller.enableRotate = false;
 }
 
 
