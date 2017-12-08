@@ -1,3 +1,4 @@
+import {replotHeatmap} from "./HeatmapView.js";
 export function initialize2DHeatmapSetup(viewSetup){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
@@ -6,7 +7,7 @@ export function initialize2DHeatmapSetup(viewSetup){
 		up: [ 0, 0, 1 ],
 		fov: 45,
 		mousePosition: [0,0],
-		//viewType: '2DHeatmap',
+		viewType: '2DHeatmap',
 		//plotX: 'gamma',
 		//plotY: 'epxc',
 		//plotXTransform: 'linear',
@@ -17,10 +18,15 @@ export function initialize2DHeatmapSetup(viewSetup){
 		controllerPan : true,
 		options: new function(){
 			this.numPerSide = 100;
+			this.pointCloudAlpha = 1;
+			this.pointCloudSize = 1.5;
 			this.plotX = viewSetup.plotX;
 			this.plotY = viewSetup.plotY;
 			this.plotXTransform = viewSetup.plotXTransform;
 			this.plotYTransform = viewSetup.plotYTransform;
+			this.colorMap = 'rainbow';
+			//this.resetCamera = function(){view.controler.reset();};
+			//this.replotHeatmap = function(){replotHeatmap(view)};
 		}
 	}
 

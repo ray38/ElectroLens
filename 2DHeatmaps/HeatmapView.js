@@ -121,7 +121,7 @@ export function getHeatmap(view){
 	//console.log(unfilteredData.length);
 	//console.log(num);
 	
-	var lut = new THREE.Lut( 'rainbow', 500 );
+	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	
@@ -151,8 +151,8 @@ export function getHeatmap(view){
 				colors[i3 + 1] = 100;
 				colors[i3 + 2] = 100;
 			}
-			sizes[i] = 1.5;
-			alphas[i] = 1;
+			sizes[i] = options.pointCloudSize;
+			alphas[i] = options.pointCloudAlpha;
 			
 			i++;
 			i3 += 3;
@@ -190,12 +190,14 @@ export function getHeatmap(view){
 
 
 export function updateHeatmap(view){
+	var options = view.options;
 	var System = view.System;
 	var data = view.data;
 	var num = heatmapPointCount(data);
 	var colors = new Float32Array(num *3);
 	var sizes = new Float32Array(num);
-	var lut = new THREE.Lut( 'rainbow', 500 );
+	var alphas = new Float32Array(num);
+	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	var i = 0;
@@ -217,8 +219,8 @@ export function updateHeatmap(view){
 				colors[i3 + 2] = 100;
 			}
 			
-			sizes[i] = 1.5;
-			//alphas[i] = 1;
+			sizes[i] = options.pointCloudSize;
+			alphas[i] = options.pointCloudAlpha;
 			
 			i++;
 			i3 += 3;
@@ -228,7 +230,15 @@ export function updateHeatmap(view){
 	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 	System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	//geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+}
+
+export function replotHeatmap(view){
+	view.scene.remove(view.System);
+	//var options = view.options;
+	arrangeDataToHeatmap(view,unfilteredData);
+	getHeatmap(view);
 
 }
 

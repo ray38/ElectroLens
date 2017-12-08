@@ -1,4 +1,4 @@
-function getPointCloudGeometry(view){
+export function getPointCloudGeometry(view){
 
 /*var vertexshaderText = ""
 
@@ -49,8 +49,8 @@ var colors = new Float32Array(count *3);
 var sizes = new Float32Array( count);
 var alphas = new Float32Array( count);
 
-colorMap = options.colorMap;
-numberOfColors = 512;
+var colorMap = options.colorMap;
+var numberOfColors = 512;
 
 var lut = new THREE.Lut( colorMap, numberOfColors );
 lut.setMax( options.pointCloudColorSettingMax );
@@ -120,7 +120,7 @@ scene.add( System );
 
 
 
-function updatePointCloudGeometry(view){
+export function updatePointCloudGeometry(view){
 
 var options = view.options;
 
@@ -146,8 +146,8 @@ var colors = new Float32Array(count *3);
 var sizes = new Float32Array( count);
 var alphas = new Float32Array( count);
 
-colorMap = options.colorMap;
-numberOfColors = 512;
+var colorMap = options.colorMap;
+var numberOfColors = 512;
 
 var lut = new THREE.Lut( colorMap, numberOfColors );
 lut.setMax( options.pointCloudColorSettingMax );
@@ -198,7 +198,7 @@ view.System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1
 }
 
 
-function changePointCloudGeometry(view){
+export function changePointCloudGeometry(view){
 	view.scene.remove(view.System);
 	getPointCloudGeometry(view);
 }

@@ -1,0 +1,89 @@
+import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./HeatmapView.js";
+export function setupOptionBox2DHeatmap(view){
+
+	var options = view.options;
+	var gui = view.gui;
+	gui.width = 200;
+	//gui.height = 10;
+
+	//var moleculeFolder 		= gui.addFolder( 'Molecule Selection' );
+	var plotFolder			= gui.addFolder( 'Plot Setting' );
+	var viewFolder 			= gui.addFolder( 'View Selection' );
+	//var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
+
+	
+/*	moleculeFolder.add( options, 'moleculeName')
+	.name( 'Molecule' )
+	.onChange(function( value ){
+		options.moleculeName = view.moleculeName;
+		gui.updateDisplay();		
+	});
+	moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
+	.name( 'Color Basis' )
+	.onChange( function( value ) {
+		updatePointCloudGeometry(view);
+	});
+	moleculeFolder.open();*/
+
+
+/*
+	viewFolder.add( options, 'view',{'pointCloud':'pointCloud', 'box':'box', 'pointMatrix':'pointMatrix'}).onChange( function( value ){
+		changeGeometry(options);
+		updateControlPanel(options);
+	});*/
+
+	plotFolder.add( options, 'plotX', {'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
+	.name( 'X' )
+	.onChange( function( value ) {
+		//updatePointCloudGeometry(view);
+	});
+
+	plotFolder.add( options, 'plotXTransform', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10'})
+	.name( 'X scale' )
+	.onChange( function( value ) {
+		//updatePointCloudGeometry(view);
+	});
+
+	plotFolder.add( options, 'plotY', {'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
+	.name( 'Y' )
+	.onChange( function( value ) {
+		//updatePointCloudGeometry(view);
+	});
+
+	plotFolder.add( options, 'plotYTransform', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10'})
+	.name( 'Y scale' )
+	.onChange( function( value ) {
+		//updatePointCloudGeometry(view);
+	});
+	//plotFolder.add(options, 'replotHeatmap');
+
+	plotFolder.open()
+
+	viewFolder.add( options, 'colorMap',{'rainbow':'rainbow', 'cooltowarm':'cooltowarm', 'blackbody':'blackbody', 'grayscale':'grayscale'})
+	.name( 'Color Scheme' )
+	.onChange( function( value ){
+		updateHeatmap(view);			
+	});
+	//viewFolder.add( options, 'resetCamera');
+	//viewFolder.open();
+
+
+
+	viewFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
+	.name( 'Point Opacity' )
+	.onChange( function( value ) {
+		updateHeatmap(view);
+	});
+	viewFolder.add( options, 'pointCloudSize', 0, 10 ).step( 0.1 )
+	.name( 'Point Size' )
+	.onChange( function( value ) {
+		updateHeatmap(view);
+	});
+	/*pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {
+		updatePointCloudGeometry(view);
+	});*/
+	//pointCloudFolder.open();
+
+	//console.log(gui);
+
+}

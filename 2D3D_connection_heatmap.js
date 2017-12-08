@@ -1,15 +1,16 @@
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {views} from "./view_setup.js";
 
-import {arrangeDataToHeatmap, getHeatmap, updateHeatmap} from "./2DHeatmaps/HeatmapView.js";
+import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
+import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {readCSV} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js"
+import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js"
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container, stats;
 var renderer;
-//var mesh, group1, group2, group3, light;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 var mouseX = 0, mouseY = 0;
 var windowWidth, windowHeight;
@@ -21,10 +22,10 @@ var heightScale = 2., widthScale = 1.;
 
 
 initializeViewSetups(views);
+console.log(views)
 
 
 var unfilteredData = [];
-//var heatmapData = [];
 var num = 0;
 var queue=d3.queue();
 
@@ -79,11 +80,6 @@ function init() {
 		view.windowHeight = height;
 
 		addOptionBox(view)
-		//gui.domElement.id = 'gui' + ii;
-
-		
-
-
 
 		if (view.viewType == '3DView'){
 			getPointCloudGeometry(view);
@@ -98,7 +94,7 @@ function init() {
 			/*addTitle(view);
 			console.log(view.tooltip);
 			console.log(view.title);*/
-			
+			setupOptionBox2DHeatmap(view);
 			getAxis(view);
 
 			arrangeDataToHeatmap(view,unfilteredData)
@@ -177,8 +173,6 @@ function addOptionBox(view){
 
 	tempGuiContainer.appendChild(tempGui.domElement);
 
-	//var moleculeFolder 		= tempGui.addFolder( 'Molecule Selection' );
-
 }
 
 
@@ -249,6 +243,8 @@ function updateSize() {
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
+			view.guiContainer.style.top = view.windowTop + 'px';
+			view.guiContainer.style.left = view.windowLeft + 'px';
 			if (view.viewType == "2DHeatmap") {
 				
 				var left   = Math.floor( windowWidth  * view.left );
@@ -264,8 +260,7 @@ function updateSize() {
 				//view.title.style.top = view.windowTop + 'px';
 				//view.title.style.left = view.windowLeft + 'px';
 
-				view.guiContainer.style.top = view.windowTop + 'px';
-				view.guiContainer.style.left = view.windowLeft + 'px';
+				
 			}
 		}
 	}

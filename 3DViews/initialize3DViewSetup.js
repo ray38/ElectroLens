@@ -43,7 +43,7 @@ export function initialize3DViewSetup(viewSetup){
 			this.z_slider = 0;
 			this.densityCutoff = -3;
 			this.view = 'pointCloud';
-			//this.moleculeName = 'CO2';
+			this.moleculeName = viewSetup.moleculeName;
 			this.propertyOfInterest = 'n';
 			this.colorMap = 'rainbow';
 			//this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
@@ -54,6 +54,7 @@ export function initialize3DViewSetup(viewSetup){
 			this.planeVisibilityF = false;
 			this.planeVisibilityB = false;
 			this.planeOpacity = 0.05;
+			//this.resetCamera = function(){view.controler.reset();};
 		}
 	}
 
