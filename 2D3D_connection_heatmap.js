@@ -2,6 +2,7 @@ import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {views} from "./view_setup.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap} from "./2DHeatmaps/HeatmapView.js";
+import {readCSV} from "./Utilities/readDataFile.js";
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 //var System
@@ -15,8 +16,6 @@ var windowWidth, windowHeight;
 var mousePosition;
 var clickRequest = false;
 var mouseHold = false;
-var controlers=[];
-var scenes = [];
 
 var heightScale = 2., widthScale = 1.;
 
@@ -44,39 +43,6 @@ queue.awaitAll(function(error) {
 });
 
 
-function readCSV(view,filename,plotData,number,callback){
-
-	view.data = [];
-	d3.csv(filename, function (d) {
-		d.forEach(function (d,i) {
-			var n = +d.rho;
-			if (n >1e-5){
-				var temp = {
-						x: +d.x,
-						y: +d.y,
-						z: +d.z,
-						n: +d.rho,
-						gamma: +d.gamma,
-						epxc: +d.epxc,
-						ad0p2: +d.ad0p2,
-						deriv1: +d.deriv1,
-						deriv2: +d.deriv2,
-						selected: true
-					}
-			    	
-				view.data.push(temp);
-				plotData.push(temp);
-			}
-		})
-	number = number + view.data.length;
-	//console.log(number);
-	//console.log(view.data);
-	callback(null);
-	});
-
-}
-
-
 
 function init() {
 	console.log('started initialization')
@@ -96,10 +62,8 @@ function init() {
 		view.camera = camera;
 		var tempControler = new THREE.OrbitControls( camera, renderer.domElement );
 		view.controler = tempControler;
-		controlers.push(tempControler);
 		var tempScene = new THREE.Scene();
 		view.scene = tempScene;
-		scenes.push(tempScene);
 
 		
 
@@ -120,7 +84,7 @@ function init() {
 		var tempGuiContainer = document.createElement('div');
 		
 		tempGuiContainer.style.position = 'absolute';
-		tempGuiContainer.style.top = view.windowTop + 5 + 'px';
+		tempGuiContainer.style.top = view.windowTop + 'px';
 		tempGuiContainer.style.left = view.windowLeft + 'px';
 		console.log(tempGuiContainer)
 		document.body.appendChild(tempGuiContainer);
@@ -135,7 +99,7 @@ function init() {
 
 
 		if (view.viewType == '3DView'){
-			getPointCloudGeometry(view,view.scene,view.options);
+			getPointCloudGeometry(view);
 		}
 		if (view.viewType == '2DHeatmap'){
 			tempControler.enableRotate=false;
@@ -143,20 +107,23 @@ function init() {
 			view.raycaster = tempRaycaster;
 			view.INTERSECTED = null;
 			addHeatmapToolTip(view);
-			addTitle(view);
+			/*addTitle(view);
 			console.log(view.tooltip);
-			console.log(view.title);
+			console.log(view.title);*/
 			
-			arrangeDataToHeatmap(view,unfilteredData)
-			var particles = getHeatmap(view,view.plotX,view.plotY);
 			var line = getAxis(view);
 			tempScene.add(line);
-			particles.name = 'scatterPoints';
+
+			arrangeDataToHeatmap(view,unfilteredData)
+			getHeatmap(view);
+			
+			
+			/*particles.name = 'scatterPoints';
 			
 			view.scatterPoints = particles;
 			view.attributes = particles.attributes;
 			view.geometry = particles.geometry;
-			tempScene.add(particles);
+			tempScene.add(particles);*/
 			
 		}
 
@@ -297,8 +264,8 @@ function updateSize() {
 				view.windowWidth = width;
 				view.windowHeight = height;
 
-				view.title.style.top = view.windowTop + 'px';
-				view.title.style.left = view.windowLeft + 'px';
+				//view.title.style.top = view.windowTop + 'px';
+				//view.title.style.left = view.windowLeft + 'px';
 
 				view.guiContainer.style.top = view.windowTop + 'px';
 				view.guiContainer.style.left = view.windowLeft + 'px';
@@ -356,7 +323,7 @@ function updateInteractiveHeatmap(view){
 
 
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.scatterPoints );
+	var intersects = view.raycaster.intersectObject( view.System );
 	if ( intersects.length > 0 ) {
 		//console.log("found intersect")
 		
@@ -368,20 +335,20 @@ function updateInteractiveHeatmap(view){
 									"y Range: " + view.heatmapInformation[interesctIndex].yStart + "--" + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 									"number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
 
-		view.scatterPoints.geometry.attributes.size.array[ interesctIndex ]  = 3;
-		view.scatterPoints.geometry.attributes.size.needsUpdate = true;
+		view.System.geometry.attributes.size.array[ interesctIndex ]  = 3;
+		view.System.geometry.attributes.size.needsUpdate = true;
 
 
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			view.scatterPoints.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
+			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
 			view.INTERSECTED = intersects[ 0 ].index;
-			view.scatterPoints.geometry.attributes.size.array[ view.INTERSECTED ] = 3;
-			view.scatterPoints.geometry.attributes.size.needsUpdate = true;
+			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 3;
+			view.System.geometry.attributes.size.needsUpdate = true;
 		}
 
 	}
 	else {	view.tooltip.innerHTML = '';
-			view.scatterPoints.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
+			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 1.5;
 	}
 }
 
@@ -474,7 +441,7 @@ function updatePlane(view, plane){
 		originalFirstVerticesCoordy = pOriginal[1],
 		originalFirstVerticesCoordz = pOriginal[2];
 	
-	p = selectionPlane.geometry.attributes.position.array
+	var p = selectionPlane.geometry.attributes.position.array
 	var i = 0;
 	p[i++] = originalFirstVerticesCoordx;
 	p[i++] = originalFirstVerticesCoordy;
@@ -564,7 +531,7 @@ function updateSelection(){
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '3DView'){
-			updatePointCloudGeometry(view, view.options);
+			updatePointCloudGeometry(view);
 		}
 	}
 

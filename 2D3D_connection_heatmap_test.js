@@ -7,6 +7,8 @@ var _view_setupJs = require("./view_setup.js");
 
 var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
+var _UtilitiesReadDataFileJs = require("./Utilities/readDataFile.js");
+
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 //var System
 var container, stats;
@@ -20,8 +22,6 @@ var windowWidth, windowHeight;
 var mousePosition;
 var clickRequest = false;
 var mouseHold = false;
-var controlers = [];
-var scenes = [];
 
 var heightScale = 2.,
     widthScale = 1.;
@@ -36,7 +36,7 @@ var queue = d3.queue();
 for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
 	var view = _view_setupJs.views[ii];
 	if (view.viewType == '3DView') {
-		queue.defer(readCSV, view, view.dataFilename, unfilteredData, num);
+		queue.defer(_UtilitiesReadDataFileJs.readCSV, view, view.dataFilename, unfilteredData, num);
 	}
 }
 
@@ -45,37 +45,6 @@ queue.awaitAll(function (error) {
 	init();
 	animate();
 });
-
-function readCSV(view, filename, plotData, number, callback) {
-
-	view.data = [];
-	d3.csv(filename, function (d) {
-		d.forEach(function (d, i) {
-			var n = +d.rho;
-			if (n > 1e-5) {
-				var temp = {
-					x: +d.x,
-					y: +d.y,
-					z: +d.z,
-					n: +d.rho,
-					gamma: +d.gamma,
-					epxc: +d.epxc,
-					ad0p2: +d.ad0p2,
-					deriv1: +d.deriv1,
-					deriv2: +d.deriv2,
-					selected: true
-				};
-
-				view.data.push(temp);
-				plotData.push(temp);
-			}
-		});
-		number = number + view.data.length;
-		//console.log(number);
-		//console.log(view.data);
-		callback(null);
-	});
-}
 
 function init() {
 	console.log('started initialization');
@@ -92,10 +61,8 @@ function init() {
 		view.camera = camera;
 		var tempControler = new THREE.OrbitControls(camera, renderer.domElement);
 		view.controler = tempControler;
-		controlers.push(tempControler);
 		var tempScene = new THREE.Scene();
 		view.scene = tempScene;
-		scenes.push(tempScene);
 
 		var left = Math.floor(window.innerWidth * view.left);
 		var top = Math.floor(window.innerHeight * view.top);
@@ -112,7 +79,7 @@ function init() {
 		var tempGuiContainer = document.createElement('div');
 
 		tempGuiContainer.style.position = 'absolute';
-		tempGuiContainer.style.top = view.windowTop + 5 + 'px';
+		tempGuiContainer.style.top = view.windowTop + 'px';
 		tempGuiContainer.style.left = view.windowLeft + 'px';
 		console.log(tempGuiContainer);
 		document.body.appendChild(tempGuiContainer);
@@ -125,7 +92,7 @@ function init() {
 		moleculeFolder.open();
 
 		if (view.viewType == '3DView') {
-			getPointCloudGeometry(view, view.scene, view.options);
+			getPointCloudGeometry(view);
 		}
 		if (view.viewType == '2DHeatmap') {
 			tempControler.enableRotate = false;
@@ -133,20 +100,22 @@ function init() {
 			view.raycaster = tempRaycaster;
 			view.INTERSECTED = null;
 			addHeatmapToolTip(view);
-			addTitle(view);
-			console.log(view.tooltip);
-			console.log(view.title);
+			/*addTitle(view);
+   console.log(view.tooltip);
+   console.log(view.title);*/
 
-			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view, unfilteredData);
-			var particles = _DHeatmapsHeatmapViewJs.getHeatmap(view, view.plotX, view.plotY);
 			var line = getAxis(view);
 			tempScene.add(line);
-			particles.name = 'scatterPoints';
 
-			view.scatterPoints = particles;
-			view.attributes = particles.attributes;
-			view.geometry = particles.geometry;
-			tempScene.add(particles);
+			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view, unfilteredData);
+			_DHeatmapsHeatmapViewJs.getHeatmap(view);
+
+			/*particles.name = 'scatterPoints';
+   
+   view.scatterPoints = particles;
+   view.attributes = particles.attributes;
+   view.geometry = particles.geometry;
+   tempScene.add(particles);*/
 		}
 	}
 
@@ -276,8 +245,8 @@ function updateSize() {
 				view.windowWidth = width;
 				view.windowHeight = height;
 
-				view.title.style.top = view.windowTop + 'px';
-				view.title.style.left = view.windowLeft + 'px';
+				//view.title.style.top = view.windowTop + 'px';
+				//view.title.style.left = view.windowLeft + 'px';
 
 				view.guiContainer.style.top = view.windowTop + 'px';
 				view.guiContainer.style.left = view.windowLeft + 'px';
@@ -331,7 +300,7 @@ function updateInteractiveHeatmap(view) {
 	mouse.set((event.clientX - left) / (width - left) * 2 - 1, -((event.clientY - top) / (height - top)) * 2 + 1);
 
 	view.raycaster.setFromCamera(mouse.clone(), view.camera);
-	var intersects = view.raycaster.intersectObject(view.scatterPoints);
+	var intersects = view.raycaster.intersectObject(view.System);
 	if (intersects.length > 0) {
 		//console.log("found intersect")
 
@@ -341,18 +310,18 @@ function updateInteractiveHeatmap(view) {
 		var interesctIndex = intersects[0].index;
 		view.tooltip.innerHTML = "x Range: " + view.heatmapInformation[interesctIndex].xStart + "--" + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y Range: " + view.heatmapInformation[interesctIndex].yStart + "--" + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "number of points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
 
-		view.scatterPoints.geometry.attributes.size.array[interesctIndex] = 3;
-		view.scatterPoints.geometry.attributes.size.needsUpdate = true;
+		view.System.geometry.attributes.size.array[interesctIndex] = 3;
+		view.System.geometry.attributes.size.needsUpdate = true;
 
 		if (view.INTERSECTED != intersects[0].index) {
-			view.scatterPoints.geometry.attributes.size.array[view.INTERSECTED] = 1.5;
+			view.System.geometry.attributes.size.array[view.INTERSECTED] = 1.5;
 			view.INTERSECTED = intersects[0].index;
-			view.scatterPoints.geometry.attributes.size.array[view.INTERSECTED] = 3;
-			view.scatterPoints.geometry.attributes.size.needsUpdate = true;
+			view.System.geometry.attributes.size.array[view.INTERSECTED] = 3;
+			view.System.geometry.attributes.size.needsUpdate = true;
 		}
 	} else {
 		view.tooltip.innerHTML = '';
-		view.scatterPoints.geometry.attributes.size.array[view.INTERSECTED] = 1.5;
+		view.System.geometry.attributes.size.array[view.INTERSECTED] = 1.5;
 	}
 }
 
@@ -443,7 +412,7 @@ function updatePlane(view, plane) {
 	    originalFirstVerticesCoordy = pOriginal[1],
 	    originalFirstVerticesCoordz = pOriginal[2];
 
-	p = selectionPlane.geometry.attributes.position.array;
+	var p = selectionPlane.geometry.attributes.position.array;
 	var i = 0;
 	p[i++] = originalFirstVerticesCoordx;
 	p[i++] = originalFirstVerticesCoordy;
@@ -532,7 +501,7 @@ function updateSelection() {
 	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
 		var view = _view_setupJs.views[ii];
 		if (view.viewType == '3DView') {
-			updatePointCloudGeometry(view, view.options);
+			updatePointCloudGeometry(view);
 		}
 	}
 }
@@ -553,7 +522,7 @@ function processClick() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./MultiviewControl/initializeViewSetups.js":6,"./view_setup.js":7}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./MultiviewControl/initializeViewSetups.js":6,"./Utilities/readDataFile.js":7,"./view_setup.js":8}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -666,7 +635,7 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 	//console.log(view.data);
 }
 
-function getHeatmap(view, X, Y) {
+function getHeatmap(view) {
 	var uniforms = {
 
 		color: { value: new THREE.Color(0xffffff) },
@@ -685,6 +654,11 @@ function getHeatmap(view, X, Y) {
 		transparent: true
 
 	});
+
+	var X = view.options.plotX;
+	var Y = view.options.plotY;
+	var options = view.options;
+	var scene = view.scene;
 
 	var data = view.data;
 
@@ -742,7 +716,7 @@ function getHeatmap(view, X, Y) {
 				yStart: view.yScale.invertExtent("" + yPlot)[0],
 				yEnd: view.yScale.invertExtent("" + yPlot)[1]
 			};
-			console.log(tempInfo);
+			//console.log(tempInfo);
 			heatmapInformation.push(tempInfo);
 		}
 	}
@@ -754,11 +728,18 @@ function getHeatmap(view, X, Y) {
 	geometry.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
 	var System = new THREE.Points(geometry, shaderMaterial);
-	return System;
+	//return System;
+
+	//particles.name = 'scatterPoints';
+
+	view.System = System;
+	//view.attributes = particles.attributes;
+	//view.geometry = particles.geometry;
+	scene.add(System);
 }
 
 function updateHeatmap(view) {
-	var particles = view.scatterPoints;
+	var System = view.System;
 	var data = view.data;
 	var num = heatmapPointCount(data);
 	var colors = new Float32Array(num * 3);
@@ -771,8 +752,9 @@ function updateHeatmap(view) {
 	for (var x in data) {
 		for (var y in data[x]) {
 
-			if (countListSelected(data[x][y]['list']) > 0) {
-				var color = lut.getColor(countListSelected(data[x][y]['list']));
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor(numberDatapointsRepresented);
 
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -792,8 +774,8 @@ function updateHeatmap(view) {
 	}
 
 	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	particles.geometry.addAttribute('customColor', new THREE.BufferAttribute(colors, 3));
-	particles.geometry.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
+	System.geometry.addAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+	System.geometry.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	//geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 }
 
@@ -1022,6 +1004,43 @@ function initializeViewSetups(views) {
 }
 
 },{"../2DHeatmaps/initialize2DHeatmapSetup.js":3,"../3DViews/initialize3DViewSetup.js":4,"../MultiviewControl/calculateViewportSizes.js":5}],7:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+exports.readCSV = readCSV;
+
+function readCSV(view, filename, plotData, number, callback) {
+
+	view.data = [];
+	d3.csv(filename, function (d) {
+		d.forEach(function (d, i) {
+			var n = +d.rho;
+			if (n > 1e-5) {
+				var temp = {
+					x: +d.x,
+					y: +d.y,
+					z: +d.z,
+					n: +d.rho,
+					gamma: +d.gamma,
+					epxc: +d.epxc,
+					ad0p2: +d.ad0p2,
+					deriv1: +d.deriv1,
+					deriv2: +d.deriv2,
+					selected: true
+				};
+
+				view.data.push(temp);
+				plotData.push(temp);
+			}
+		});
+		number = number + view.data.length;
+		//console.log(number);
+		//console.log(view.data);
+		callback(null);
+	});
+}
+
+},{}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;

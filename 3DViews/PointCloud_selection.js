@@ -1,4 +1,4 @@
-function getPointCloudGeometry(view,scene,options){
+function getPointCloudGeometry(view){
 
 /*var vertexshaderText = ""
 
@@ -21,7 +21,10 @@ var shaderMaterial = new THREE.ShaderMaterial( {
 	transparent:    true
 
 });
-//console.log(document.getElementById( 'vertexshader' ).textContent)
+
+var options = view.options;
+var scene = view.scene;
+
 
 var particles = options.pointCloudParticles;
 var num_blocks = view.data.length;
@@ -34,7 +37,6 @@ for ( var k = 0; k < num_blocks; k ++) {
 	points_in_block[k] = num_points;
 	count += num_points;
 }
-//console.log(count);
 
 var n = 100;
 var n2 = Math.pow(n,2);
@@ -79,10 +81,6 @@ for ( var k = 0; k < num_blocks; k ++) {
 			positions[ i3 + 2 ] = (z - n_inc)*10;
 			var color = lut.getColor( view.data[k][options.propertyOfInterest] );
 			
-			/*console.log(options.propertyOfInterest);
-			console.log(view.data[k][options.propertyOfInterest]);
-			console.log(lut);
-			console.log(color);*/
 			colors[ i3 + 0 ] = color.r;
 			colors[ i3 + 1 ] = color.g;
 			colors[ i3 + 2 ] = color.b;
@@ -122,7 +120,9 @@ scene.add( System );
 
 
 
-function updatePointCloudGeometry(view,options){
+function updatePointCloudGeometry(view){
+
+var options = view.options;
 
 var particles = options.pointCloudParticles;
 var num_blocks = view.data.length;
@@ -150,8 +150,8 @@ colorMap = options.colorMap;
 numberOfColors = 512;
 
 var lut = new THREE.Lut( colorMap, numberOfColors );
-lut.setMax( options.pointCloudColorSetting);
-lut.setMin( 0 );
+lut.setMax( options.pointCloudColorSettingMax );
+lut.setMin( options.pointCloudColorSettingMin );
 
 var i = 0, i3 = 0;
 var temp_num_points = 0;
