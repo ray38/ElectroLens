@@ -4,12 +4,12 @@ import {views} from "./view_setup.js";
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {readCSV} from "./Utilities/readDataFile.js";
 
+import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js"
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-//var System
 var container, stats;
-//var views, renderer;
 var renderer;
-var mesh, group1, group2, group3, light;
+//var mesh, group1, group2, group3, light;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 var mouseX = 0, mouseY = 0;
 var windowWidth, windowHeight;
@@ -78,28 +78,16 @@ function init() {
 		view.windowWidth = width;
 		view.windowHeight = height;
 
-		
+		addOptionBox(view)
 		//gui.domElement.id = 'gui' + ii;
 
-		var tempGuiContainer = document.createElement('div');
 		
-		tempGuiContainer.style.position = 'absolute';
-		tempGuiContainer.style.top = view.windowTop + 'px';
-		tempGuiContainer.style.left = view.windowLeft + 'px';
-		console.log(tempGuiContainer)
-		document.body.appendChild(tempGuiContainer);
-		var tempGui = new dat.GUI( { autoPlace: false } );
-		view.guiContainer = tempGuiContainer;
-
-		tempGuiContainer.appendChild(tempGui.domElement);
-
-		var moleculeFolder 		= tempGui.addFolder( 'Molecule Selection' );
-		moleculeFolder.open();
 
 
 
 		if (view.viewType == '3DView'){
 			getPointCloudGeometry(view);
+			setupOptionBox3DView(view);
 		}
 		if (view.viewType == '2DHeatmap'){
 			tempControler.enableRotate=false;
@@ -111,19 +99,10 @@ function init() {
 			console.log(view.tooltip);
 			console.log(view.title);*/
 			
-			var line = getAxis(view);
-			tempScene.add(line);
+			getAxis(view);
 
 			arrangeDataToHeatmap(view,unfilteredData)
 			getHeatmap(view);
-			
-			
-			/*particles.name = 'scatterPoints';
-			
-			view.scatterPoints = particles;
-			view.attributes = particles.attributes;
-			view.geometry = particles.geometry;
-			tempScene.add(particles);*/
 			
 		}
 
@@ -185,6 +164,23 @@ function addHeatmapToolTip(view){
 }
 
 
+function addOptionBox(view){
+	var tempGuiContainer = document.createElement('div');
+		
+	tempGuiContainer.style.position = 'absolute';
+	tempGuiContainer.style.top = view.windowTop + 'px';
+	tempGuiContainer.style.left = view.windowLeft + 'px';
+	document.body.appendChild(tempGuiContainer);
+	var tempGui = new dat.GUI( { autoPlace: false } );
+	view.guiContainer = tempGuiContainer;
+	view.gui = tempGui;
+
+	tempGuiContainer.appendChild(tempGui.domElement);
+
+	//var moleculeFolder 		= tempGui.addFolder( 'Molecule Selection' );
+
+}
+
 
 
 
@@ -197,7 +193,8 @@ function getAxis(view){
 	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
 	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3, });
 	var line = new THREE.Line(geometry, material);
-	return line;
+	view.scene.add(line);
+	
 }
 
 function addTitle(view) {

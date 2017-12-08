@@ -9,12 +9,12 @@ var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
 var _UtilitiesReadDataFileJs = require("./Utilities/readDataFile.js");
 
+var _DViewsSetupOptionBox3DViewJs = require("./3DViews/setupOptionBox3DView.js");
+
 if (!Detector.webgl) Detector.addGetWebGLMessage();
-//var System
 var container, stats;
-//var views, renderer;
 var renderer;
-var mesh, group1, group2, group3, light;
+//var mesh, group1, group2, group3, light;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide, needsUpdate: true });
 var mouseX = 0,
     mouseY = 0;
@@ -74,25 +74,12 @@ function init() {
 		view.windowWidth = width;
 		view.windowHeight = height;
 
+		addOptionBox(view);
 		//gui.domElement.id = 'gui' + ii;
-
-		var tempGuiContainer = document.createElement('div');
-
-		tempGuiContainer.style.position = 'absolute';
-		tempGuiContainer.style.top = view.windowTop + 'px';
-		tempGuiContainer.style.left = view.windowLeft + 'px';
-		console.log(tempGuiContainer);
-		document.body.appendChild(tempGuiContainer);
-		var tempGui = new dat.GUI({ autoPlace: false });
-		view.guiContainer = tempGuiContainer;
-
-		tempGuiContainer.appendChild(tempGui.domElement);
-
-		var moleculeFolder = tempGui.addFolder('Molecule Selection');
-		moleculeFolder.open();
 
 		if (view.viewType == '3DView') {
 			getPointCloudGeometry(view);
+			_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view);
 		}
 		if (view.viewType == '2DHeatmap') {
 			tempControler.enableRotate = false;
@@ -104,18 +91,10 @@ function init() {
    console.log(view.tooltip);
    console.log(view.title);*/
 
-			var line = getAxis(view);
-			tempScene.add(line);
+			getAxis(view);
 
 			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view, unfilteredData);
 			_DHeatmapsHeatmapViewJs.getHeatmap(view);
-
-			/*particles.name = 'scatterPoints';
-   
-   view.scatterPoints = particles;
-   view.attributes = particles.attributes;
-   view.geometry = particles.geometry;
-   tempScene.add(particles);*/
 		}
 	}
 
@@ -170,6 +149,22 @@ function addHeatmapToolTip(view) {
 	document.body.appendChild(tempTooltip);
 }
 
+function addOptionBox(view) {
+	var tempGuiContainer = document.createElement('div');
+
+	tempGuiContainer.style.position = 'absolute';
+	tempGuiContainer.style.top = view.windowTop + 'px';
+	tempGuiContainer.style.left = view.windowLeft + 'px';
+	document.body.appendChild(tempGuiContainer);
+	var tempGui = new dat.GUI({ autoPlace: false });
+	view.guiContainer = tempGuiContainer;
+	view.gui = tempGui;
+
+	tempGuiContainer.appendChild(tempGui.domElement);
+
+	//var moleculeFolder 		= tempGui.addFolder( 'Molecule Selection' );
+}
+
 function getAxis(view) {
 	var geometry = new THREE.Geometry();
 	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
@@ -179,7 +174,7 @@ function getAxis(view) {
 	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
 	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 });
 	var line = new THREE.Line(geometry, material);
-	return line;
+	view.scene.add(line);
 }
 
 function addTitle(view) {
@@ -522,7 +517,7 @@ function processClick() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./MultiviewControl/initializeViewSetups.js":6,"./Utilities/readDataFile.js":7,"./view_setup.js":8}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./3DViews/setupOptionBox3DView.js":5,"./MultiviewControl/initializeViewSetups.js":7,"./Utilities/readDataFile.js":8,"./view_setup.js":9}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -922,6 +917,123 @@ function extendObject(obj, src) {
 'use strict';
 
 exports.__esModule = true;
+exports.setupOptionBox3DView = setupOptionBox3DView;
+
+function setupOptionBox3DView(view) {
+
+	var options = view.options;
+	var gui = view.gui;
+
+	var moleculeFolder = gui.addFolder('Molecule Selection');
+	var viewFolder = gui.addFolder('View Selection');
+	var pointCloudFolder = gui.addFolder('point cloud control');
+	var sliderFolder = gui.addFolder('Slider Control');
+
+	/*moleculeFolder.add( options, 'moleculeName',{'CO2':'CO2', 'H2O':'H2O', 'CO':'CO', 'CH4':'CH4', 'C2H2':'C2H2', 'NCCN':'NCCN','C6H6':'C6H6','butadiene':'butadiene'}).onChange( function( value ) {
+ 	updateOptionFilenames();
+ 	unfilteredData = [];
+ 	var data = d3.csv(options.dataFilename, function (d) { 
+         d.forEach(function (d,i) {
+             unfilteredData[i] = {
+                 x: +d.x,
+                 y: +d.y,
+                 z: +d.z,
+                 n: +d.rho,
+                 gamma: +d.gamma,
+                 epxc: +d.epxc,
+ 		ad0p2: +d.ad0p2,
+ 		deriv1: +d.deriv1,
+ 		deriv2: +d.deriv2
+             }
+         })
+         changeGeometry(options)
+     });
+ 
+ });		*/
+	moleculeFolder.add(options, 'propertyOfInterest', { 'n': 'n', 'epxc': 'epxc', 'gamma': 'gamma', 'ad0p2': 'ad0p2', 'deriv1': 'deriv1', 'deriv2': 'deriv2' }).onChange(function (value) {
+		updatePointCloudGeometry(view);
+	});
+	moleculeFolder.open();
+
+	/*
+ 	viewFolder.add( options, 'view',{'pointCloud':'pointCloud', 'box':'box', 'pointMatrix':'pointMatrix'}).onChange( function( value ){
+ 		changeGeometry(options);
+ 		updateControlPanel(options);
+ 	});*/
+
+	viewFolder.add(options, 'colorMap', { 'rainbow': 'rainbow', 'cooltowarm': 'cooltowarm', 'blackbody': 'blackbody', 'grayscale': 'grayscale' }).onChange(function (value) {
+		updatePointCloudGeometry(view);
+	});
+	viewFolder.open();
+
+	pointCloudFolder.add(options, 'pointCloudParticles', 10, 20000).step(10).onChange(function (value) {
+		changePointCloudGeometry(view);
+	});
+	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).onChange(function (value) {
+		updatePointCloudGeometry(view);
+	});
+	pointCloudFolder.add(options, 'pointCloudSize', 0, 10).step(0.1).onChange(function (value) {
+		updatePointCloudGeometry(view);
+	});
+	/*pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {
+ 	updatePointCloudGeometry(view);
+ });*/
+	pointCloudFolder.open();
+
+	sliderFolder.add(options, 'x_low', 0, 100).step(1).onChange(function (value) {
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+	});
+	sliderFolder.add(options, 'x_high', 0, 100).step(1).onChange(function (value) {
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+	});
+	sliderFolder.add(options, 'y_low', 0, 100).step(1).onChange(function (value) {
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+	});
+	sliderFolder.add(options, 'y_high', 0, 100).step(1).onChange(function (value) {
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+	});
+	sliderFolder.add(options, 'z_low', 0, 100).step(1).onChange(function (value) {
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+	});
+	sliderFolder.add(options, 'z_high', 0, 100).step(1).onChange(function (value) {
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+	});
+
+	sliderFolder.add(options, 'x_slider', 0, 100).step(1).onChange(function (value) {
+		options.x_low = value - 1;
+		options.x_high = value;
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+		gui.updateDisplay();
+	});
+	sliderFolder.add(options, 'y_slider', 0, 100).step(1).onChange(function (value) {
+		options.y_low = value - 1;
+		options.y_high = value;
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+		gui.updateDisplay();
+	});
+	sliderFolder.add(options, 'z_slider', 0, 100).step(1).onChange(function (value) {
+		options.z_low = value - 1;
+		options.z_high = value;
+		updatePointCloudGeometry(view);
+		//updatePlane(options);
+		gui.updateDisplay();
+	});
+
+	//sliderFolder.open();
+}
+
+},{}],6:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
 exports.calculateViewportSizes = calculateViewportSizes;
 
 function calculateViewportSizes(views) {
@@ -977,7 +1089,7 @@ function calculateViewportSizes(views) {
 	}
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1003,7 +1115,7 @@ function initializeViewSetups(views) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":3,"../3DViews/initialize3DViewSetup.js":4,"../MultiviewControl/calculateViewportSizes.js":5}],7:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":3,"../3DViews/initialize3DViewSetup.js":4,"../MultiviewControl/calculateViewportSizes.js":6}],8:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1040,7 +1152,7 @@ function readCSV(view, filename, plotData, number, callback) {
 	});
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;

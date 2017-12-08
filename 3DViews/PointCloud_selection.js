@@ -196,3 +196,9 @@ view.System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( col
 view.System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 view.System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 }
+
+
+function changePointCloudGeometry(view){
+	view.scene.remove(view.System);
+	getPointCloudGeometry(view);
+}
