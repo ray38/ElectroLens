@@ -17,6 +17,8 @@ var _DHeatmapsSetupOptionBox2DHeatmapJs = require("./2DHeatmaps/setupOptionBox2D
 
 var _MultiviewControlSetupViewBasicJs = require("./MultiviewControl/setupViewBasic.js");
 
+var _MultiviewControlOptionBoxControlJs = require("./MultiviewControl/optionBoxControl.js");
+
 var _MultiviewControlControllerControlJs = require("./MultiviewControl/controllerControl.js");
 
 var _DHeatmapsUtilitiesJs = require("./2DHeatmaps/Utilities.js");
@@ -33,6 +35,8 @@ var mouseX = 0,
 var windowWidth, windowHeight;
 var clickRequest = false;
 var mouseHold = false;
+
+var showOptionBoxesBool = true;
 
 //var heightScale = 2., widthScale = 1.;
 
@@ -74,7 +78,7 @@ function init() {
 		view.unfilteredData = unfilteredData;
 
 		_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
-		_MultiviewControlSetupViewBasicJs.addOptionBox(view);
+		_MultiviewControlOptionBoxControlJs.addOptionBox(view);
 
 		if (view.viewType == '3DView') {
 			_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
@@ -124,6 +128,18 @@ function init() {
 		}
 		//}
 	}, false);
+
+	window.addEventListener("keydown", onKeyDown, true);
+}
+
+function onKeyDown(e) {
+	/*console.log("key down");
+ console.log(e.keyCode);
+ console.log(showOptionBoxesBool);*/
+	if (e.keyCode == 72) {
+		_MultiviewControlOptionBoxControlJs.showHideAllOptionBoxes(_view_setupJs.views, showOptionBoxesBool);showOptionBoxesBool = !showOptionBoxesBool;
+	}
+	//console.log(showOptionBoxesBool);
 }
 
 function onDocumentMouseMove(event) {
@@ -180,7 +196,7 @@ function updateSize() {
 			}
 		}
 
-		_MultiviewControlSetupViewBasicJs.updateOptionBoxLocation(_view_setupJs.views);
+		_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(_view_setupJs.views);
 	}
 }
 function animate() {
@@ -383,7 +399,7 @@ function processClick() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/calculateViewportSizes.js":10,"./MultiviewControl/controllerControl.js":11,"./MultiviewControl/initializeViewSetups.js":12,"./MultiviewControl/setupViewBasic.js":13,"./Utilities/readDataFile.js":14,"./view_setup.js":15}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/calculateViewportSizes.js":10,"./MultiviewControl/controllerControl.js":11,"./MultiviewControl/initializeViewSetups.js":12,"./MultiviewControl/optionBoxControl.js":13,"./MultiviewControl/setupViewBasic.js":14,"./Utilities/readDataFile.js":15,"./view_setup.js":16}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1301,7 +1317,7 @@ exports.calculateViewportSizes = calculateViewportSizes;
 exports.fullscreenOneView = fullscreenOneView;
 exports.deFullscreen = deFullscreen;
 
-var _setupViewBasicJs = require("./setupViewBasic.js");
+var _optionBoxControlJs = require("./optionBoxControl.js");
 
 function calculateViewportSizes(views) {
 	var twoDViewCount = 0.0,
@@ -1376,14 +1392,7 @@ function fullscreenOneView(views, view) {
 
 	view.guiContainer.style.visibility = "visible";
 
-	/*setTimeout(function(){
-    	for ( var ii = 0; ii < views.length; ++ii ){
- 		var view = views[ii];
- 		view.guiContainer.style.top = view.windowTop + 'px';
- 		view.guiContainer.style.left = view.windowLeft + 'px';
- 	}
- }, 30);*/
-	_setupViewBasicJs.updateOptionBoxLocation(views);
+	_optionBoxControlJs.updateOptionBoxLocation(views);
 }
 
 function deFullscreen(views) {
@@ -1439,18 +1448,10 @@ function deFullscreen(views) {
 		}
 	}
 
-	/*setTimeout(function(){
-    	for ( var ii = 0; ii < views.length; ++ii ){
- 		var view = views[ii];
- 		view.guiContainer.style.top = view.windowTop + 'px';
- 		view.guiContainer.style.left = view.windowLeft + 'px';
- 	}
- }, 30);*/
-
-	_setupViewBasicJs.updateOptionBoxLocation(views);
+	_optionBoxControlJs.updateOptionBoxLocation(views);
 }
 
-},{"./setupViewBasic.js":13}],11:[function(require,module,exports){
+},{"./optionBoxControl.js":13}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1515,30 +1516,9 @@ function initializeViewSetups(views) {
 'use strict';
 
 exports.__esModule = true;
-exports.setupViewCameraSceneController = setupViewCameraSceneController;
 exports.addOptionBox = addOptionBox;
 exports.updateOptionBoxLocation = updateOptionBoxLocation;
-
-function setupViewCameraSceneController(view, renderer) {
-
-	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
-	camera.position.fromArray(view.eye);
-	view.camera = camera;
-	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
-	view.controller = tempController;
-	var tempScene = new THREE.Scene();
-	view.scene = tempScene;
-
-	var left = Math.floor(window.innerWidth * view.left);
-	var top = Math.floor(window.innerHeight * view.top);
-	var width = Math.floor(window.innerWidth * view.width);
-	var height = Math.floor(window.innerHeight * view.height);
-
-	view.windowLeft = left;
-	view.windowTop = top;
-	view.windowWidth = width;
-	view.windowHeight = height;
-}
+exports.showHideAllOptionBoxes = showHideAllOptionBoxes;
 
 function addOptionBox(view) {
 	var tempGuiContainer = document.createElement('div');
@@ -1564,7 +1544,56 @@ function updateOptionBoxLocation(views) {
 	}, 30);
 }
 
+function hideAllOptionBoxes(views) {
+	for (var ii = 0; ii < views.length; ++ii) {
+		var view = views[ii];
+		view.guiContainer.style.visibility = "hidden";
+	}
+}
+
+function showAllOptionBoxes(views) {
+	for (var ii = 0; ii < views.length; ++ii) {
+		var view = views[ii];
+		view.guiContainer.style.visibility = "visible";
+	}
+}
+
+function showHideAllOptionBoxes(views, boxShowBool) {
+	if (boxShowBool) {
+		hideAllOptionBoxes(views);
+	} else {
+		showAllOptionBoxes(views);
+	}
+}
+
 },{}],14:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+exports.setupViewCameraSceneController = setupViewCameraSceneController;
+
+function setupViewCameraSceneController(view, renderer) {
+
+	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
+	camera.position.fromArray(view.eye);
+	view.camera = camera;
+	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
+	view.controller = tempController;
+	var tempScene = new THREE.Scene();
+	view.scene = tempScene;
+
+	var left = Math.floor(window.innerWidth * view.left);
+	var top = Math.floor(window.innerHeight * view.top);
+	var width = Math.floor(window.innerWidth * view.width);
+	var height = Math.floor(window.innerHeight * view.height);
+
+	view.windowLeft = left;
+	view.windowTop = top;
+	view.windowWidth = width;
+	view.windowHeight = height;
+}
+
+},{}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1601,7 +1630,7 @@ function readCSV(view, filename, plotData, number, callback) {
 	});
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;

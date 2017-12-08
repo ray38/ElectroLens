@@ -1,5 +1,4 @@
-import { updateOptionBoxLocation } from "./setupViewBasic.js";
-
+import { updateOptionBoxLocation } from "./optionBoxControl.js"
 export function calculateViewportSizes(views){
 	var twoDViewCount = 0.0, threeDViewCount = 0.0;
 
@@ -61,13 +60,6 @@ export function fullscreenOneView(views, view){
 
 	view.guiContainer.style.visibility = "visible";
 
-	/*setTimeout(function(){
-    	for ( var ii = 0; ii < views.length; ++ii ){
-			var view = views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
-		}
-	}, 30);*/
 	updateOptionBoxLocation(views);
 
 }
@@ -112,13 +104,6 @@ export function deFullscreen(views){
 		}
 	}
 
-	/*setTimeout(function(){
-    	for ( var ii = 0; ii < views.length; ++ii ){
-			var view = views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
-		}
-	}, 30);*/
 
 	updateOptionBoxLocation(views);
 	

@@ -8,8 +8,8 @@ import {readCSV} from "./Utilities/readDataFile.js";
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
 
-
-import {setupViewCameraSceneController, addOptionBox, updateOptionBoxLocation } from "./MultiviewControl/setupViewBasic.js";
+import {setupViewCameraSceneController } from "./MultiviewControl/setupViewBasic.js";
+import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./MultiviewControl/optionBoxControl.js"
 import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis} from "./2DHeatmaps/Utilities.js";
 import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
@@ -23,6 +23,8 @@ var mouseX = 0, mouseY = 0;
 var windowWidth, windowHeight;
 var clickRequest = false;
 var mouseHold = false;
+
+var showOptionBoxesBool = true;
 
 //var heightScale = 2., widthScale = 1.;
 
@@ -127,13 +129,21 @@ function init() {
 			}
 		//}
 	}, false );
+
+	window.addEventListener( "keydown", onKeyDown, true);
 	
 }
 
 
 
 
-
+function onKeyDown(e){
+	/*console.log("key down");
+	console.log(e.keyCode);
+	console.log(showOptionBoxesBool);*/
+	if (e.keyCode == 72) {showHideAllOptionBoxes(views,showOptionBoxesBool); showOptionBoxesBool = !showOptionBoxesBool;}
+	//console.log(showOptionBoxesBool);
+}
 
 
 function onDocumentMouseMove( event ) {
