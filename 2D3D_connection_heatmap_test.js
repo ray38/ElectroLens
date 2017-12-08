@@ -15,6 +15,10 @@ var _DViewsSetupOptionBox3DViewJs = require("./3DViews/setupOptionBox3DView.js")
 
 var _DHeatmapsSetupOptionBox2DHeatmapJs = require("./2DHeatmaps/setupOptionBox2DHeatmap.js");
 
+var _MultiviewControlSetupViewBasicJs = require("./MultiviewControl/setupViewBasic.js");
+
+var _DHeatmapsUtilitiesJs = require("./2DHeatmaps/Utilities.js");
+
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 var container, stats;
 var renderer;
@@ -59,24 +63,8 @@ function init() {
 
 	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
 		var view = _view_setupJs.views[ii];
-		var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
-		camera.position.fromArray(view.eye);
-		view.camera = camera;
-		var tempControler = new THREE.OrbitControls(camera, renderer.domElement);
-		view.controler = tempControler;
-		var tempScene = new THREE.Scene();
-		view.scene = tempScene;
 
-		var left = Math.floor(window.innerWidth * view.left);
-		var top = Math.floor(window.innerHeight * view.top);
-		var width = Math.floor(window.innerWidth * view.width);
-		var height = Math.floor(window.innerHeight * view.height);
-
-		view.windowLeft = left;
-		view.windowTop = top;
-		view.windowWidth = width;
-		view.windowHeight = height;
-
+		_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
 		addOptionBox(view);
 
 		if (view.viewType == '3DView') {
@@ -84,16 +72,13 @@ function init() {
 			_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view);
 		}
 		if (view.viewType == '2DHeatmap') {
-			tempControler.enableRotate = false;
+			view.controller.enableRotate = false;
 			var tempRaycaster = new THREE.Raycaster();
 			view.raycaster = tempRaycaster;
 			view.INTERSECTED = null;
-			addHeatmapToolTip(view);
-			/*addTitle(view);
-   console.log(view.tooltip);
-   console.log(view.title);*/
+			_DHeatmapsUtilitiesJs.addHeatmapToolTip(view);
 			_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(view);
-			getAxis(view);
+			_DHeatmapsUtilitiesJs.getAxis(view);
 
 			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view, unfilteredData);
 			_DHeatmapsHeatmapViewJs.getHeatmap(view);
@@ -136,21 +121,6 @@ function init() {
 	}, false);
 }
 
-function addHeatmapToolTip(view) {
-	var tempTooltip = document.createElement('div');
-	tempTooltip.style.position = 'absolute';
-	tempTooltip.innerHTML = "";
-	//tempTooltip.style.width = 100;
-	//tempTooltip.style.height = 100;
-	tempTooltip.style.backgroundColor = "blue";
-	tempTooltip.style.opacity = 0.5;
-	tempTooltip.style.color = "white";
-	tempTooltip.style.top = 0 + 'px';
-	tempTooltip.style.left = 0 + 'px';
-	view.tooltip = tempTooltip;
-	document.body.appendChild(tempTooltip);
-}
-
 function addOptionBox(view) {
 	var tempGuiContainer = document.createElement('div');
 
@@ -163,33 +133,6 @@ function addOptionBox(view) {
 	view.gui = tempGui;
 
 	tempGuiContainer.appendChild(tempGui.domElement);
-}
-
-function getAxis(view) {
-	var geometry = new THREE.Geometry();
-	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
-	geometry.vertices.push(new THREE.Vector3(50, -50, 0));
-	geometry.vertices.push(new THREE.Vector3(50, 50, 0));
-	geometry.vertices.push(new THREE.Vector3(-50, 50, 0));
-	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
-	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 });
-	var line = new THREE.Line(geometry, material);
-	view.scene.add(line);
-}
-
-function addTitle(view) {
-	var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
-	//var titleText = " v.s. ";
-	var tempTitle = document.createElement('div');
-	tempTitle.style.position = 'absolute';
-	tempTitle.innerHTML = titleText;
-	tempTitle.style.backgroundColor = "black";
-	tempTitle.style.opacity = 0.7;
-	tempTitle.style.color = "white";
-	tempTitle.style.top = view.windowTop + 'px';
-	tempTitle.style.left = view.windowLeft + 'px';
-	view.title = tempTitle;
-	document.body.appendChild(tempTitle);
 }
 
 function onDocumentMouseMove(event) {
@@ -264,24 +207,24 @@ function updateController() {
 		var height = Math.floor(windowHeight * view.height);
 
 		if (mouseX > left && mouseX < left + width && mouseY > top && mouseY < top + height) {
-			enableControler(view, view.controler);
+			enableController(view, view.controller);
 		} else {
-			disableControler(view, view.controler);
+			disableController(view, view.controller);
 		}
 	}
 }
 
-function enableControler(view, controler) {
+function enableController(view, controller) {
 	view.controllerEnabled = true;
-	controler.enableZoom = view.controllerZoom;
-	controler.enablePan = view.controllerPan;
-	controler.enableRotate = view.controllerRotate;
+	controller.enableZoom = view.controllerZoom;
+	controller.enablePan = view.controllerPan;
+	controller.enableRotate = view.controllerRotate;
 }
-function disableControler(view, controler) {
+function disableController(view, controller) {
 	view.controllerEnabled = false;
-	controler.enableZoom = false;
-	controler.enablePan = false;
-	controler.enableRotate = false;
+	controller.enableZoom = false;
+	controller.enablePan = false;
+	controller.enableRotate = false;
 }
 
 function updateInteractiveHeatmap(view) {
@@ -516,7 +459,7 @@ function processClick() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/setupOptionBox2DHeatmap.js":4,"./3DViews/PointCloud_selection.js":5,"./3DViews/setupOptionBox3DView.js":7,"./MultiviewControl/initializeViewSetups.js":9,"./Utilities/readDataFile.js":10,"./view_setup.js":11}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./3DViews/PointCloud_selection.js":6,"./3DViews/setupOptionBox3DView.js":8,"./MultiviewControl/initializeViewSetups.js":10,"./MultiviewControl/setupViewBasic.js":11,"./Utilities/readDataFile.js":12,"./view_setup.js":13}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -808,6 +751,56 @@ function heatmapPointCount(data) {
 'use strict';
 
 exports.__esModule = true;
+exports.addHeatmapToolTip = addHeatmapToolTip;
+exports.getAxis = getAxis;
+exports.addTitle = addTitle;
+
+function addHeatmapToolTip(view) {
+	var tempTooltip = document.createElement('div');
+	tempTooltip.style.position = 'absolute';
+	tempTooltip.innerHTML = "";
+	//tempTooltip.style.width = 100;
+	//tempTooltip.style.height = 100;
+	tempTooltip.style.backgroundColor = "blue";
+	tempTooltip.style.opacity = 0.5;
+	tempTooltip.style.color = "white";
+	tempTooltip.style.top = 0 + 'px';
+	tempTooltip.style.left = 0 + 'px';
+	view.tooltip = tempTooltip;
+	document.body.appendChild(tempTooltip);
+}
+
+function getAxis(view) {
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
+	geometry.vertices.push(new THREE.Vector3(50, -50, 0));
+	geometry.vertices.push(new THREE.Vector3(50, 50, 0));
+	geometry.vertices.push(new THREE.Vector3(-50, 50, 0));
+	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
+	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 });
+	var line = new THREE.Line(geometry, material);
+	view.scene.add(line);
+}
+
+function addTitle(view) {
+	var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
+	//var titleText = " v.s. ";
+	var tempTitle = document.createElement('div');
+	tempTitle.style.position = 'absolute';
+	tempTitle.innerHTML = titleText;
+	tempTitle.style.backgroundColor = "black";
+	tempTitle.style.opacity = 0.7;
+	tempTitle.style.color = "white";
+	tempTitle.style.top = view.windowTop + 'px';
+	tempTitle.style.left = view.windowLeft + 'px';
+	view.title = tempTitle;
+	document.body.appendChild(tempTitle);
+}
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
 exports.initialize2DHeatmapSetup = initialize2DHeatmapSetup;
 
 var _HeatmapViewJs = require("./HeatmapView.js");
@@ -854,7 +847,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"./HeatmapView.js":2}],4:[function(require,module,exports){
+},{"./HeatmapView.js":2}],5:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -932,7 +925,7 @@ function setupOptionBox2DHeatmap(view) {
 	//console.log(gui);
 }
 
-},{"./HeatmapView.js":2}],5:[function(require,module,exports){
+},{"./HeatmapView.js":2}],6:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1128,7 +1121,7 @@ function changePointCloudGeometry(view) {
 	getPointCloudGeometry(view);
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1204,7 +1197,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1331,7 +1324,7 @@ function setupOptionBox3DView(view) {
 	//console.log(gui);
 }
 
-},{"./PointCloud_selection.js":5}],8:[function(require,module,exports){
+},{"./PointCloud_selection.js":6}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1390,7 +1383,7 @@ function calculateViewportSizes(views) {
 	}
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1416,7 +1409,34 @@ function initializeViewSetups(views) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":3,"../3DViews/initialize3DViewSetup.js":6,"../MultiviewControl/calculateViewportSizes.js":8}],10:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":7,"../MultiviewControl/calculateViewportSizes.js":9}],11:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+exports.setupViewCameraSceneController = setupViewCameraSceneController;
+
+function setupViewCameraSceneController(view, renderer) {
+
+	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
+	camera.position.fromArray(view.eye);
+	view.camera = camera;
+	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
+	view.controller = tempController;
+	var tempScene = new THREE.Scene();
+	view.scene = tempScene;
+
+	var left = Math.floor(window.innerWidth * view.left);
+	var top = Math.floor(window.innerHeight * view.top);
+	var width = Math.floor(window.innerWidth * view.width);
+	var height = Math.floor(window.innerHeight * view.height);
+
+	view.windowLeft = left;
+	view.windowTop = top;
+	view.windowWidth = width;
+	view.windowHeight = height;
+}
+
+},{}],12:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1453,7 +1473,7 @@ function readCSV(view, filename, plotData, number, callback) {
 	});
 }
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;

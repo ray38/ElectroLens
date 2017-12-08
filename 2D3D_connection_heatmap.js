@@ -10,7 +10,7 @@ import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
 
 
 import {setupViewCameraSceneController } from "./MultiviewControl/setupViewBasic.js";
-import {addHeatmapToolTip, getAxist} from "./2DHeatmaps/Utilities.js";
+import {addHeatmapToolTip, getAxis} from "./2DHeatmaps/Utilities.js";
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container, stats;
@@ -62,16 +62,16 @@ function init() {
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
-		
 
-		addOptionBox(view)
+		setupViewCameraSceneController(view,renderer);
+		addOptionBox(view);
 
 		if (view.viewType == '3DView'){
 			getPointCloudGeometry(view);
 			setupOptionBox3DView(view);
 		}
 		if (view.viewType == '2DHeatmap'){
-			tempController.enableRotate=false;
+			view.controller.enableRotate=false;
 			var tempRaycaster = new THREE.Raycaster();
 			view.raycaster = tempRaycaster;
 			view.INTERSECTED = null;

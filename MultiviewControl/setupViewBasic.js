@@ -1,4 +1,4 @@
-export function setupViewCameraSceneController(view){
+export function setupViewCameraSceneController(view,renderer){
 
 	var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
 	camera.position.fromArray( view.eye );
