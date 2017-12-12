@@ -10,6 +10,7 @@ export function setupOptionBox2DHeatmap(view){
 	//var moleculeFolder 		= gui.addFolder( 'Molecule Selection' );
 	var plotFolder			= gui.addFolder( 'Plot Setting' );
 	var viewFolder 			= gui.addFolder( 'View Selection' );
+	var detailFolder		= gui.addFolder( 'Detailed Control' );
 	//var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
 
 	
@@ -67,8 +68,9 @@ export function setupOptionBox2DHeatmap(view){
 		changeLegend(view);
 	});
 	viewFolder.add( options, 'resetCamera');
-	viewFolder.add( options, 'fullscreen');
-	viewFolder.add( options, 'defullscreen');
+	//viewFolder.add( options, 'fullscreen');
+	//viewFolder.add( options, 'defullscreen');
+	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
 	//viewFolder.open();
 
 
@@ -89,5 +91,24 @@ export function setupOptionBox2DHeatmap(view){
 	//pointCloudFolder.open();
 
 	//console.log(gui);
+
+	detailFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendY',-10,10).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendWidth',0,1).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendHeight',0,15).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendTick',1,15).step(1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendFontsize',10,75).step(1).onChange( function( value ) {
+		changeLegend(view);	
+	});
 
 }

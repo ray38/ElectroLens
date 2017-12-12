@@ -1,13 +1,14 @@
 export function insertLegend(view){
-	var lut = view.lut
-	var legend = lut.setLegendOn( {  'position': { 'x': 8, 'y': -4, 'z': 0 }, 'dimensions': { 'width': 0.5, 'height': 8 } } );
+	var lut = view.lut;
+	var options = view.options;
+	var legend = lut.setLegendOn( {  'position': { 'x': options.legendX, 'y': options.legendY, 'z': 0 }, 'dimensions': { 'width': options.legendWidth, 'height': options.legendHeight } } );
 	view.sceneHUD.add( legend );
 	view.legend = legend;
-	var labels = lut.setLegendLabels( { /*'title': title,*/ 'ticks': 5 ,'fontsize': 55} );
+	var labels = lut.setLegendLabels( { /*'title': title,*/ 'ticks': options.legendTick ,'fontsize': options.legendFontsize} );
 
 	//view.sceneHUD.add ( labels['title'] );
 
-	for ( var i = 0; i < 5; i++ ) {
+	for ( var i = 0; i < options.legendTick; i++ ) {
 		view.sceneHUD.add ( labels[ 'ticks' ][ i ] );
 		view.sceneHUD.add ( labels[ 'lines' ][ i ] );
 	}

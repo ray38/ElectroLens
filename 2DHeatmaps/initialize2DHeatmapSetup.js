@@ -32,6 +32,23 @@ export function initialize2DHeatmapSetup(viewSetup,views){
 								fullscreenOneView(views,viewSetup);
 							};
 			this.defullscreen = function(){deFullscreen(views);};
+			this.fullscreenBoolean = false;
+			this.toggleFullscreen = function(){
+										if (!this.fullscreenBoolean){
+											fullscreenOneView(views,viewSetup);
+											this.fullscreenBoolean = !this.fullscreenBoolean;
+										}
+										else {
+											deFullscreen(views);
+											this.fullscreenBoolean = !this.fullscreenBoolean;
+										}
+									};
+			this.legendX = 8;
+			this.legendY = -4;
+			this.legendWidth  = 0.5;
+			this.legendHeight = 6;
+			this.legendTick = 5;
+			this.legendFontsize = 55;
 		}
 	}
 

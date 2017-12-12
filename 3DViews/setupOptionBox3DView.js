@@ -11,6 +11,7 @@ export function setupOptionBox3DView(view){
 	var viewFolder 			= gui.addFolder( 'View Selection' );
 	var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
 	var sliderFolder 		= gui.addFolder( 'Slider Control' );
+	var detailFolder		= gui.addFolder( 'Detailed Control' );
 	
 	moleculeFolder.add( options, 'moleculeName')
 	.name( 'Molecule' )
@@ -39,8 +40,9 @@ export function setupOptionBox3DView(view){
 		changeLegend(view);		
 	});
 	viewFolder.add( options, 'resetCamera');
-	viewFolder.add( options, 'fullscreen');
-	viewFolder.add( options, 'defullscreen');
+	//viewFolder.add( options, 'fullscreen');
+	//viewFolder.add( options, 'defullscreen');
+	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.open();
 
 
@@ -124,6 +126,25 @@ export function setupOptionBox3DView(view){
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
+	});
+
+	detailFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendY',-10,10).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendWidth',0,1).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendHeight',0,15).step(0.1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendTick',1,15).step(1).onChange( function( value ) {
+		changeLegend(view);	
+	});
+	detailFolder.add(options,'legendFontsize',10,75).step(1).onChange( function( value ) {
+		changeLegend(view);	
 	});
 
 	//sliderFolder.open();

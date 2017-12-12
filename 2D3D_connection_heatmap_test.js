@@ -789,6 +789,22 @@ function initialize2DHeatmapSetup(viewSetup, views) {
 			this.defullscreen = function () {
 				_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
 			};
+			this.fullscreenBoolean = false;
+			this.toggleFullscreen = function () {
+				if (!this.fullscreenBoolean) {
+					_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
+					this.fullscreenBoolean = !this.fullscreenBoolean;
+				} else {
+					_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
+					this.fullscreenBoolean = !this.fullscreenBoolean;
+				}
+			};
+			this.legendX = 8;
+			this.legendY = -4;
+			this.legendWidth = 0.5;
+			this.legendHeight = 6;
+			this.legendTick = 5;
+			this.legendFontsize = 55;
 		}()
 	};
 
@@ -823,6 +839,7 @@ function setupOptionBox2DHeatmap(view) {
 	//var moleculeFolder 		= gui.addFolder( 'Molecule Selection' );
 	var plotFolder = gui.addFolder('Plot Setting');
 	var viewFolder = gui.addFolder('View Selection');
+	var detailFolder = gui.addFolder('Detailed Control');
 	//var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
 
 	/*	moleculeFolder.add( options, 'moleculeName')
@@ -868,8 +885,9 @@ function setupOptionBox2DHeatmap(view) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 	viewFolder.add(options, 'resetCamera');
-	viewFolder.add(options, 'fullscreen');
-	viewFolder.add(options, 'defullscreen');
+	//viewFolder.add( options, 'fullscreen');
+	//viewFolder.add( options, 'defullscreen');
+	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
 	//viewFolder.open();
 
 	viewFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Point Opacity').onChange(function (value) {
@@ -884,6 +902,25 @@ function setupOptionBox2DHeatmap(view) {
 	//pointCloudFolder.open();
 
 	//console.log(gui);
+
+	detailFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendY', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendWidth', 0, 1).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendHeight', 0, 15).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendTick', 1, 15).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
 }
 
 },{"../MultiviewControl/colorLegend.js":11,"./HeatmapView.js":2}],6:[function(require,module,exports){
@@ -1212,6 +1249,22 @@ function initialize3DViewSetup(viewSetup, views) {
 			this.defullscreen = function () {
 				_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
 			};
+			this.fullscreenBoolean = false;
+			this.toggleFullscreen = function () {
+				if (!this.fullscreenBoolean) {
+					_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
+					this.fullscreenBoolean = !this.fullscreenBoolean;
+				} else {
+					_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
+					this.fullscreenBoolean = !this.fullscreenBoolean;
+				}
+			};
+			this.legendX = 8;
+			this.legendY = -4;
+			this.legendWidth = 0.5;
+			this.legendHeight = 6;
+			this.legendTick = 5;
+			this.legendFontsize = 55;
 		}()
 	};
 
@@ -1245,6 +1298,7 @@ function setupOptionBox3DView(view) {
 	var viewFolder = gui.addFolder('View Selection');
 	var pointCloudFolder = gui.addFolder('point cloud control');
 	var sliderFolder = gui.addFolder('Slider Control');
+	var detailFolder = gui.addFolder('Detailed Control');
 
 	moleculeFolder.add(options, 'moleculeName').name('Molecule').onChange(function (value) {
 		options.moleculeName = view.moleculeName;
@@ -1266,8 +1320,9 @@ function setupOptionBox3DView(view) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 	viewFolder.add(options, 'resetCamera');
-	viewFolder.add(options, 'fullscreen');
-	viewFolder.add(options, 'defullscreen');
+	//viewFolder.add( options, 'fullscreen');
+	//viewFolder.add( options, 'defullscreen');
+	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.open();
 
 	pointCloudFolder.add(options, 'pointCloudParticles', 10, 20000).step(10).name('Point Density').onChange(function (value) {
@@ -1329,6 +1384,25 @@ function setupOptionBox3DView(view) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
+	});
+
+	detailFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendY', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendWidth', 0, 1).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendHeight', 0, 15).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendTick', 1, 15).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 
 	//sliderFolder.open();
@@ -1487,14 +1561,15 @@ exports.changeLegend = changeLegend;
 
 function insertLegend(view) {
 	var lut = view.lut;
-	var legend = lut.setLegendOn({ 'position': { 'x': 8, 'y': -4, 'z': 0 }, 'dimensions': { 'width': 0.5, 'height': 8 } });
+	var options = view.options;
+	var legend = lut.setLegendOn({ 'position': { 'x': options.legendX, 'y': options.legendY, 'z': 0 }, 'dimensions': { 'width': options.legendWidth, 'height': options.legendHeight } });
 	view.sceneHUD.add(legend);
 	view.legend = legend;
-	var labels = lut.setLegendLabels({ /*'title': title,*/'ticks': 5, 'fontsize': 55 });
+	var labels = lut.setLegendLabels({ /*'title': title,*/'ticks': options.legendTick, 'fontsize': options.legendFontsize });
 
 	//view.sceneHUD.add ( labels['title'] );
 
-	for (var i = 0; i < 5; i++) {
+	for (var i = 0; i < options.legendTick; i++) {
 		view.sceneHUD.add(labels['ticks'][i]);
 		view.sceneHUD.add(labels['lines'][i]);
 	}
