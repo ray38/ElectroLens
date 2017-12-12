@@ -16,6 +16,8 @@ import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/toolti
 
 import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
+import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container, stats, renderer;
 var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
@@ -95,6 +97,7 @@ function init() {
 			color: 0x000000,
 		}));
 		//sceneHUD.add(line);
+		border.name = 'border';
 		tempSceneHUD.add(border);
 		view.border = border;
 
@@ -102,6 +105,7 @@ function init() {
 			
 			getPointCloudGeometry(view);
 			setupOptionBox3DView(view);
+			insertLegend(view);
 		}
 		if (view.viewType == '2DHeatmap'){
 			view.controller.enableRotate=false;
@@ -111,6 +115,7 @@ function init() {
 
 			arrangeDataToHeatmap(view,unfilteredData)
 			getHeatmap(view);
+			insertLegend(view);
 			
 		}
 

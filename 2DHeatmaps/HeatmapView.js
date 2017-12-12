@@ -124,18 +124,7 @@ export function getHeatmap(view){
 	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
-
-	var legend = lut.setLegendOn( {  'position': { 'x': 8, 'y': -4, 'z': 0 }, 'dimensions': { 'width': 0.5, 'height': 8 } } );
-	view.sceneHUD.add( legend );
-	view.legend = legend;
-	var labels = lut.setLegendLabels( { 'title': 'Count', 'ticks': 5 ,'fontsize': 55} );
-
-	//view.sceneHUD.add ( labels['title'] );
-
-	for ( var i = 0; i < 5; i++ ) {
-		view.sceneHUD.add ( labels[ 'ticks' ][ i ] );
-		view.sceneHUD.add ( labels[ 'lines' ][ i ] );
-	}
+	view.lut = lut;
 	
 	var i = 0;
 	var i3 = 0;
@@ -211,6 +200,7 @@ export function updateHeatmap(view){
 	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
+	view.lut = lut;
 	var i = 0;
 	var i3 = 0;
 	for (var x in data){

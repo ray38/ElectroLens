@@ -1,4 +1,5 @@
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./HeatmapView.js";
+import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 export function setupOptionBox2DHeatmap(view){
 
 	var options = view.options;
@@ -62,7 +63,8 @@ export function setupOptionBox2DHeatmap(view){
 	viewFolder.add( options, 'colorMap',{'rainbow':'rainbow', 'cooltowarm':'cooltowarm', 'blackbody':'blackbody', 'grayscale':'grayscale'})
 	.name( 'Color Scheme' )
 	.onChange( function( value ){
-		updateHeatmap(view);			
+		updateHeatmap(view);
+		changeLegend(view);
 	});
 	viewFolder.add( options, 'resetCamera');
 	viewFolder.add( options, 'fullscreen');
