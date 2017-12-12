@@ -20,7 +20,7 @@ function enableController(view, controller){
 	controller.enableZoom = view.controllerZoom;
 	controller.enablePan  = view.controllerPan;
 	controller.enableRotate = view.controllerRotate;
-	view.border.material.color = new THREE.Color( 0xff0000 );         
+	view.border.material.color = new THREE.Color( 0xffffff );         
 	view.border.material.needsUpdate = true;
 }
 function disableController(view, controller){

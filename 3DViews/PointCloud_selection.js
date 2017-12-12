@@ -55,10 +55,17 @@ var numberOfColors = 512;
 var lut = new THREE.Lut( colorMap, numberOfColors );
 lut.setMax( options.pointCloudColorSettingMax );
 lut.setMin( options.pointCloudColorSettingMin );
-var legend = lut.setLegendOn( {  'position': { 'x': 8, 'y': 0, 'z': 0 } } );
-console.log(legend);
+var legend = lut.setLegendOn( {  'position': { 'x': 8, 'y': -4, 'z': 0 }, 'dimensions': { 'width': 0.5, 'height': 8 } } );
 view.sceneHUD.add( legend );
 view.legend = legend;
+var labels = lut.setLegendLabels( { 'title': options.propertyOfInterest, 'ticks': 5 ,'fontsize': 55} );
+
+//view.sceneHUD.add ( labels['title'] );
+
+for ( var i = 0; i < 5; i++ ) {
+	view.sceneHUD.add ( labels[ 'ticks' ][ i ] );
+	view.sceneHUD.add ( labels[ 'lines' ][ i ] );
+}
 //console.log(options.pointCloudColorSettingMin, options.pointCloudColorSettingMax);
 //console.log(lut);
 

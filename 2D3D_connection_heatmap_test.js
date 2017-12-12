@@ -568,10 +568,18 @@ function getHeatmap(view) {
 	var lut = new THREE.Lut(options.colorMap, 500);
 	lut.setMax(1000);
 	lut.setMin(0);
-	/*var legend = lut.setLegendOn( );
- console.log(legend);
- view.sceneHUD.add( legend );
- view.legend = legend;*/
+
+	var legend = lut.setLegendOn({ 'position': { 'x': 8, 'y': -4, 'z': 0 }, 'dimensions': { 'width': 0.5, 'height': 8 } });
+	view.sceneHUD.add(legend);
+	view.legend = legend;
+	var labels = lut.setLegendLabels({ 'title': 'Count', 'ticks': 5, 'fontsize': 55 });
+
+	//view.sceneHUD.add ( labels['title'] );
+
+	for (var i = 0; i < 5; i++) {
+		view.sceneHUD.add(labels['ticks'][i]);
+		view.sceneHUD.add(labels['lines'][i]);
+	}
 
 	var i = 0;
 	var i3 = 0;
@@ -1001,10 +1009,17 @@ function getPointCloudGeometry(view) {
 	var lut = new THREE.Lut(colorMap, numberOfColors);
 	lut.setMax(options.pointCloudColorSettingMax);
 	lut.setMin(options.pointCloudColorSettingMin);
-	var legend = lut.setLegendOn({ 'position': { 'x': 8, 'y': 0, 'z': 0 } });
-	console.log(legend);
+	var legend = lut.setLegendOn({ 'position': { 'x': 8, 'y': -4, 'z': 0 }, 'dimensions': { 'width': 0.5, 'height': 8 } });
 	view.sceneHUD.add(legend);
 	view.legend = legend;
+	var labels = lut.setLegendLabels({ 'title': options.propertyOfInterest, 'ticks': 5, 'fontsize': 55 });
+
+	//view.sceneHUD.add ( labels['title'] );
+
+	for (var i = 0; i < 5; i++) {
+		view.sceneHUD.add(labels['ticks'][i]);
+		view.sceneHUD.add(labels['lines'][i]);
+	}
 	//console.log(options.pointCloudColorSettingMin, options.pointCloudColorSettingMax);
 	//console.log(lut);
 
@@ -1499,7 +1514,7 @@ function enableController(view, controller) {
 	controller.enableZoom = view.controllerZoom;
 	controller.enablePan = view.controllerPan;
 	controller.enableRotate = view.controllerRotate;
-	view.border.material.color = new THREE.Color(0xff0000);
+	view.border.material.color = new THREE.Color(0xffffff);
 	view.border.material.needsUpdate = true;
 }
 function disableController(view, controller) {
