@@ -124,7 +124,10 @@ export function getHeatmap(view){
 	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
-	
+	/*var legend = lut.setLegendOn( );
+	console.log(legend);
+	view.sceneHUD.add( legend );
+	view.legend = legend;*/
 	
 	var i = 0;
 	var i3 = 0;

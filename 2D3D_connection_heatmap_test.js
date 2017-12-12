@@ -70,6 +70,8 @@ function init() {
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight * 2);
+
+	renderer.autoClear = false;
 	container.appendChild(renderer.domElement);
 
 	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
@@ -80,7 +82,22 @@ function init() {
 		_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
 		_MultiviewControlOptionBoxControlJs.addOptionBox(view);
 
+		var tempSceneHUD = new THREE.Scene();
+		var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
+		view.sceneHUD = tempSceneHUD;
+		view.cameraHUD = tempCameraHUD;
+
+		var lineGeometry = new THREE.Geometry();
+		lineGeometry.vertices.push(new THREE.Vector3(-10, -10, 0), new THREE.Vector3(10, -10, 0), new THREE.Vector3(10, 10, 0), new THREE.Vector3(-10, 10, 0), new THREE.Vector3(-10, -10, 0));
+		var border = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({
+			color: 0x000000
+		}));
+		//sceneHUD.add(line);
+		tempSceneHUD.add(border);
+		view.border = border;
+
 		if (view.viewType == '3DView') {
+
 			_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
 			_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view);
 		}
@@ -222,14 +239,14 @@ function render() {
 		renderer.setScissorTest(true);
 		renderer.setClearColor(0xffffff, 1); // border color
 		renderer.clearColor(); // clear color buffer
-		if (view.controllerEnabled) {
-			renderer.setClearColor(view.controllerEnabledBackground);
-		} else {
-			renderer.setClearColor(view.background);
-		}
+		renderer.setClearColor(view.background);
+		//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
+		//else {renderer.setClearColor( view.background );}
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
+		renderer.clear();
 		renderer.render(view.scene, camera);
+		renderer.render(view.sceneHUD, view.cameraHUD);
 	}
 }
 
@@ -551,6 +568,10 @@ function getHeatmap(view) {
 	var lut = new THREE.Lut(options.colorMap, 500);
 	lut.setMax(1000);
 	lut.setMin(0);
+	/*var legend = lut.setLegendOn( );
+ console.log(legend);
+ view.sceneHUD.add( legend );
+ view.legend = legend;*/
 
 	var i = 0;
 	var i3 = 0;
@@ -980,8 +1001,12 @@ function getPointCloudGeometry(view) {
 	var lut = new THREE.Lut(colorMap, numberOfColors);
 	lut.setMax(options.pointCloudColorSettingMax);
 	lut.setMin(options.pointCloudColorSettingMin);
-	console.log(options.pointCloudColorSettingMin, options.pointCloudColorSettingMax);
-	console.log(lut);
+	var legend = lut.setLegendOn({ 'position': { 'x': 8, 'y': 0, 'z': 0 } });
+	console.log(legend);
+	view.sceneHUD.add(legend);
+	view.legend = legend;
+	//console.log(options.pointCloudColorSettingMin, options.pointCloudColorSettingMax);
+	//console.log(lut);
 
 	var i = 0,
 	    i3 = 0;
@@ -1474,12 +1499,16 @@ function enableController(view, controller) {
 	controller.enableZoom = view.controllerZoom;
 	controller.enablePan = view.controllerPan;
 	controller.enableRotate = view.controllerRotate;
+	view.border.material.color = new THREE.Color(0xff0000);
+	view.border.material.needsUpdate = true;
 }
 function disableController(view, controller) {
 	view.controllerEnabled = false;
 	controller.enableZoom = false;
 	controller.enablePan = false;
 	controller.enableRotate = false;
+	view.border.material.color = new THREE.Color(0x000000);
+	view.border.material.needsUpdate = true;
 }
 
 },{}],12:[function(require,module,exports){

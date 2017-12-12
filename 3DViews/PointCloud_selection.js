@@ -55,8 +55,12 @@ var numberOfColors = 512;
 var lut = new THREE.Lut( colorMap, numberOfColors );
 lut.setMax( options.pointCloudColorSettingMax );
 lut.setMin( options.pointCloudColorSettingMin );
-console.log(options.pointCloudColorSettingMin, options.pointCloudColorSettingMax);
-console.log(lut);
+var legend = lut.setLegendOn( {  'position': { 'x': 8, 'y': 0, 'z': 0 } } );
+console.log(legend);
+view.sceneHUD.add( legend );
+view.legend = legend;
+//console.log(options.pointCloudColorSettingMin, options.pointCloudColorSettingMax);
+//console.log(lut);
 
 var i = 0, i3 = 0;
 var temp_num_points = 0;

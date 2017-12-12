@@ -63,6 +63,8 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth , window.innerHeight*2);
+
+	renderer.autoClear = false;
 	container.appendChild( renderer.domElement );
 	
 	
@@ -76,7 +78,28 @@ function init() {
 		setupViewCameraSceneController(view,renderer);
 		addOptionBox(view);
 
+
+		var tempSceneHUD = new THREE.Scene();
+ 		var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
+ 		view.sceneHUD = tempSceneHUD;
+ 		view.cameraHUD = tempCameraHUD;
+
+		var lineGeometry = new THREE.Geometry();
+		lineGeometry.vertices.push(	new THREE.Vector3(-10, -10, 0),
+									new THREE.Vector3(10, -10, 0),
+									new THREE.Vector3(10, 10, 0),
+									new THREE.Vector3(-10, 10, 0),
+									new THREE.Vector3(-10, -10, 0));
+		var border = new THREE.Line(lineGeometry,
+		new THREE.LineBasicMaterial({
+			color: 0x000000,
+		}));
+		//sceneHUD.add(line);
+		tempSceneHUD.add(border);
+		view.border = border;
+
 		if (view.viewType == '3DView'){
+			
 			getPointCloudGeometry(view);
 			setupOptionBox3DView(view);
 		}
@@ -230,11 +253,14 @@ function render() {
 		renderer.setScissorTest( true );
 		renderer.setClearColor( 0xffffff, 1 ); // border color
 		renderer.clearColor(); // clear color buffer
-		if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
-		else {renderer.setClearColor( view.background );}
+		renderer.setClearColor( view.background );
+		//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
+		//else {renderer.setClearColor( view.background );}
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
+		renderer.clear();
 		renderer.render( view.scene, camera );
+		renderer.render( view.sceneHUD, view.cameraHUD );
 	}
 }
 
@@ -291,7 +317,7 @@ function updatePlane(view, plane){
 	
 	var pOriginal = plane.geometry.attributes.position.array;
 	
-	var 	originalFirstVerticesCoordx = pOriginal[0],
+	var originalFirstVerticesCoordx = pOriginal[0],
 		originalFirstVerticesCoordy = pOriginal[1],
 		originalFirstVerticesCoordz = pOriginal[2];
 	
