@@ -167,6 +167,12 @@ function init() {
 
 function onKeyDown(e){
 	if (e.keyCode == 72) {showHideAllOptionBoxes(views,showOptionBoxesBool); showOptionBoxesBool = !showOptionBoxesBool;}
+	if (e.keyCode == 70) {
+		for (var ii =  0; ii < views.length; ++ii ) {
+			var view = views[ii];
+			if (view.controllerEnabled) {view.options.toggleFullscreen.call();}
+		}
+	}
 }
 
 

@@ -158,6 +158,14 @@ function onKeyDown(e) {
 	if (e.keyCode == 72) {
 		_MultiviewControlOptionBoxControlJs.showHideAllOptionBoxes(_view_setupJs.views, showOptionBoxesBool);showOptionBoxesBool = !showOptionBoxesBool;
 	}
+	if (e.keyCode == 70) {
+		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+			var view = _view_setupJs.views[ii];
+			if (view.controllerEnabled) {
+				view.options.toggleFullscreen.call();
+			}
+		}
+	}
 }
 
 function onDocumentMouseMove(event) {
@@ -751,6 +759,8 @@ var _HeatmapViewJs = require("./HeatmapView.js");
 
 var _MultiviewControlCalculateViewportSizesJs = require("../MultiviewControl/calculateViewportSizes.js");
 
+var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
+
 function initialize2DHeatmapSetup(viewSetup, views) {
 	var defaultSetting = {
 		background: new THREE.Color(0, 0, 0),
@@ -791,12 +801,12 @@ function initialize2DHeatmapSetup(viewSetup, views) {
 			};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function () {
-				if (!this.fullscreenBoolean) {
+				if (!viewSetup.options.fullscreenBoolean) {
 					_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
-					this.fullscreenBoolean = !this.fullscreenBoolean;
+					viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
 				} else {
 					_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
-					this.fullscreenBoolean = !this.fullscreenBoolean;
+					viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
 				}
 			};
 			this.legendX = 8;
@@ -805,6 +815,16 @@ function initialize2DHeatmapSetup(viewSetup, views) {
 			this.legendHeight = 6;
 			this.legendTick = 5;
 			this.legendFontsize = 55;
+			this.legendShownBoolean = true;
+			this.toggleLegend = function () {
+				if (!viewSetup.options.legendShownBoolean) {
+					_MultiviewControlColorLegendJs.insertLegend(viewSetup);
+					viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+				} else {
+					_MultiviewControlColorLegendJs.removeLegend(viewSetup);
+					viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+				}
+			};
 		}()
 	};
 
@@ -819,7 +839,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":10,"./HeatmapView.js":2}],5:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":10,"../MultiviewControl/colorLegend.js":11,"./HeatmapView.js":2}],5:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -921,6 +941,7 @@ function setupOptionBox2DHeatmap(view) {
 	detailFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
+	detailFolder.add(options, 'toggleLegend');
 }
 
 },{"../MultiviewControl/colorLegend.js":11,"./HeatmapView.js":2}],6:[function(require,module,exports){
@@ -1177,12 +1198,14 @@ function changePointCloudGeometry(view) {
 }
 
 },{}],8:[function(require,module,exports){
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 exports.initialize3DViewSetup = initialize3DViewSetup;
 
 var _MultiviewControlCalculateViewportSizesJs = require("../MultiviewControl/calculateViewportSizes.js");
+
+var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
 
 function initialize3DViewSetup(viewSetup, views) {
 	var defaultSetting = {
@@ -1251,12 +1274,12 @@ function initialize3DViewSetup(viewSetup, views) {
 			};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function () {
-				if (!this.fullscreenBoolean) {
+				if (!viewSetup.options.fullscreenBoolean) {
 					_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
-					this.fullscreenBoolean = !this.fullscreenBoolean;
+					viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
 				} else {
 					_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
-					this.fullscreenBoolean = !this.fullscreenBoolean;
+					viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
 				}
 			};
 			this.legendX = 8;
@@ -1265,6 +1288,16 @@ function initialize3DViewSetup(viewSetup, views) {
 			this.legendHeight = 6;
 			this.legendTick = 5;
 			this.legendFontsize = 55;
+			this.legendShownBoolean = true;
+			this.toggleLegend = function () {
+				if (!viewSetup.options.legendShownBoolean) {
+					_MultiviewControlColorLegendJs.insertLegend(viewSetup);
+					viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+				} else {
+					_MultiviewControlColorLegendJs.removeLegend(viewSetup);
+					viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+				}
+			};
 		}()
 	};
 
@@ -1278,7 +1311,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":10}],9:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":10,"../MultiviewControl/colorLegend.js":11}],9:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1404,6 +1437,7 @@ function setupOptionBox3DView(view) {
 	detailFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
+	detailFolder.add(options, 'toggleLegend');
 
 	//sliderFolder.open();
 	//console.log(gui);

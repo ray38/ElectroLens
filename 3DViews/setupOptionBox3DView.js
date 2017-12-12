@@ -146,6 +146,7 @@ export function setupOptionBox3DView(view){
 	detailFolder.add(options,'legendFontsize',10,75).step(1).onChange( function( value ) {
 		changeLegend(view);	
 	});
+	detailFolder.add( options, 'toggleLegend');
 
 	//sliderFolder.open();
 	//console.log(gui);

@@ -110,5 +110,6 @@ export function setupOptionBox2DHeatmap(view){
 	detailFolder.add(options,'legendFontsize',10,75).step(1).onChange( function( value ) {
 		changeLegend(view);	
 	});
+	detailFolder.add( options, 'toggleLegend');
 
 }

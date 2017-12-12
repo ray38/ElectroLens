@@ -1,5 +1,6 @@
 import {replotHeatmap} from "./HeatmapView.js";
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
+import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 export function initialize2DHeatmapSetup(viewSetup,views){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
@@ -34,13 +35,13 @@ export function initialize2DHeatmapSetup(viewSetup,views){
 			this.defullscreen = function(){deFullscreen(views);};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function(){
-										if (!this.fullscreenBoolean){
+										if (!viewSetup.options.fullscreenBoolean){
 											fullscreenOneView(views,viewSetup);
-											this.fullscreenBoolean = !this.fullscreenBoolean;
+											viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
 										}
 										else {
 											deFullscreen(views);
-											this.fullscreenBoolean = !this.fullscreenBoolean;
+											viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
 										}
 									};
 			this.legendX = 8;
@@ -49,6 +50,17 @@ export function initialize2DHeatmapSetup(viewSetup,views){
 			this.legendHeight = 6;
 			this.legendTick = 5;
 			this.legendFontsize = 55;
+			this.legendShownBoolean = true;
+			this.toggleLegend = function(){
+									if (!viewSetup.options.legendShownBoolean){
+										insertLegend(viewSetup);
+										viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+									}
+									else {
+										removeLegend(viewSetup);
+										viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+									}
+								};
 		}
 	}
 
