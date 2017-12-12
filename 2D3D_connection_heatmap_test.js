@@ -166,6 +166,14 @@ function onKeyDown(e) {
 			}
 		}
 	}
+	if (e.keyCode == 76) {
+		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
+			var view = _view_setupJs.views[ii];
+			if (view.controllerEnabled) {
+				view.options.toggleLegend.call();
+			}
+		}
+	}
 }
 
 function onDocumentMouseMove(event) {

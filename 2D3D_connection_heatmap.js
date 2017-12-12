@@ -173,6 +173,12 @@ function onKeyDown(e){
 			if (view.controllerEnabled) {view.options.toggleFullscreen.call();}
 		}
 	}
+	if (e.keyCode == 76) {
+		for (var ii =  0; ii < views.length; ++ii ) {
+			var view = views[ii];
+			if (view.controllerEnabled) {view.options.toggleLegend.call();}
+		}
+	}
 }
 
 
