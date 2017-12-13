@@ -2,8 +2,8 @@ export function addOptionBox(view){
 	var tempGuiContainer = document.createElement('div');
 		
 	tempGuiContainer.style.position = 'absolute';
-	tempGuiContainer.style.top = view.windowTop + 'px';
-	tempGuiContainer.style.left = view.windowLeft + 'px';
+	tempGuiContainer.style.top = view.windowTop +1+ 'px';
+	tempGuiContainer.style.left = view.windowLeft +1+ 'px';
 	document.body.appendChild(tempGuiContainer);
 	var tempGui = new dat.GUI( { autoPlace: false } );
 	view.guiContainer = tempGuiContainer;
@@ -17,8 +17,8 @@ export function updateOptionBoxLocation(views){
 	setTimeout(function(){
     	for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
+			view.guiContainer.style.top = view.windowTop +1+ 'px';
+			view.guiContainer.style.left = view.windowLeft +1+ 'px';
 		}
 	}, 30);
 }

@@ -26,7 +26,7 @@ export function removeLegend(view) {
 			 sceneHUD.children [ i ].name != 'border' &&
 			 sceneHUD.children [ i ].name != 'directionalLight') {
 
-			console.log(sceneHUD.children [ i ].name);
+			//console.log(sceneHUD.children [ i ].name);
 			sceneHUD.remove ( sceneHUD.children [ i ] );
 
 		}

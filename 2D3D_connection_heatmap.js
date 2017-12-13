@@ -9,7 +9,8 @@ import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
 
 import {setupViewCameraSceneController } from "./MultiviewControl/setupViewBasic.js";
-import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./MultiviewControl/optionBoxControl.js"
+import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./MultiviewControl/optionBoxControl.js";
+import {setupHUD} from "./MultiviewControl/HUDControl.js";
 import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis} from "./2DHeatmaps/Utilities.js";
 import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
@@ -79,27 +80,7 @@ function init() {
 
 		setupViewCameraSceneController(view,renderer);
 		addOptionBox(view);
-
-
-		var tempSceneHUD = new THREE.Scene();
- 		var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
- 		view.sceneHUD = tempSceneHUD;
- 		view.cameraHUD = tempCameraHUD;
-
-		var lineGeometry = new THREE.Geometry();
-		lineGeometry.vertices.push(	new THREE.Vector3(-10, -10, 0),
-									new THREE.Vector3(10, -10, 0),
-									new THREE.Vector3(10, 10, 0),
-									new THREE.Vector3(-10, 10, 0),
-									new THREE.Vector3(-10, -10, 0));
-		var border = new THREE.Line(lineGeometry,
-		new THREE.LineBasicMaterial({
-			color: 0x000000,
-		}));
-		//sceneHUD.add(line);
-		border.name = 'border';
-		tempSceneHUD.add(border);
-		view.border = border;
+		setupHUD(view);
 
 		if (view.viewType == '3DView'){
 			

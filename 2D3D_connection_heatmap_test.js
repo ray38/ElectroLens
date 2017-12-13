@@ -19,6 +19,8 @@ var _MultiviewControlSetupViewBasicJs = require("./MultiviewControl/setupViewBas
 
 var _MultiviewControlOptionBoxControlJs = require("./MultiviewControl/optionBoxControl.js");
 
+var _MultiviewControlHUDControlJs = require("./MultiviewControl/HUDControl.js");
+
 var _MultiviewControlControllerControlJs = require("./MultiviewControl/controllerControl.js");
 
 var _DHeatmapsUtilitiesJs = require("./2DHeatmaps/Utilities.js");
@@ -83,21 +85,26 @@ function init() {
 
 		_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
 		_MultiviewControlOptionBoxControlJs.addOptionBox(view);
+		_MultiviewControlHUDControlJs.setupHUD(view);
 
-		var tempSceneHUD = new THREE.Scene();
-		var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
-		view.sceneHUD = tempSceneHUD;
-		view.cameraHUD = tempCameraHUD;
-
-		var lineGeometry = new THREE.Geometry();
-		lineGeometry.vertices.push(new THREE.Vector3(-10, -10, 0), new THREE.Vector3(10, -10, 0), new THREE.Vector3(10, 10, 0), new THREE.Vector3(-10, 10, 0), new THREE.Vector3(-10, -10, 0));
-		var border = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({
-			color: 0x000000
-		}));
-		//sceneHUD.add(line);
-		border.name = 'border';
-		tempSceneHUD.add(border);
-		view.border = border;
+		/*var tempSceneHUD = new THREE.Scene();
+  	var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
+  	view.sceneHUD = tempSceneHUD;
+  	view.cameraHUD = tempCameraHUD;
+  		var lineGeometry = new THREE.Geometry();
+  lineGeometry.vertices.push(	new THREE.Vector3(-10, -10, 0),
+  							new THREE.Vector3(10, -10, 0),
+  							new THREE.Vector3(10, 10, 0),
+  							new THREE.Vector3(-10, 10, 0),
+  							new THREE.Vector3(-10, -10, 0));
+  var border = new THREE.Line(lineGeometry,
+  new THREE.LineBasicMaterial({
+  	color: 0x000000,
+  }));
+  //sceneHUD.add(line);
+  border.name = 'border';
+  tempSceneHUD.add(border);
+  view.border = border;*/
 
 		if (view.viewType == '3DView') {
 
@@ -433,7 +440,7 @@ function processClick() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/calculateViewportSizes.js":10,"./MultiviewControl/colorLegend.js":11,"./MultiviewControl/controllerControl.js":12,"./MultiviewControl/initializeViewSetups.js":13,"./MultiviewControl/optionBoxControl.js":14,"./MultiviewControl/setupViewBasic.js":15,"./Utilities/readDataFile.js":16,"./view_setup.js":17}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/readDataFile.js":17,"./view_setup.js":18}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -847,7 +854,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":10,"../MultiviewControl/colorLegend.js":11,"./HeatmapView.js":2}],5:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":11,"../MultiviewControl/colorLegend.js":12,"./HeatmapView.js":2}],5:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -952,7 +959,7 @@ function setupOptionBox2DHeatmap(view) {
 	detailFolder.add(options, 'toggleLegend');
 }
 
-},{"../MultiviewControl/colorLegend.js":11,"./HeatmapView.js":2}],6:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":12,"./HeatmapView.js":2}],6:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1319,7 +1326,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":10,"../MultiviewControl/colorLegend.js":11}],9:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":11,"../MultiviewControl/colorLegend.js":12}],9:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1451,7 +1458,30 @@ function setupOptionBox3DView(view) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":11,"./PointCloud_selection.js":7}],10:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":12,"./PointCloud_selection.js":7}],10:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.setupHUD = setupHUD;
+
+function setupHUD(view) {
+	var tempSceneHUD = new THREE.Scene();
+	var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
+	view.sceneHUD = tempSceneHUD;
+	view.cameraHUD = tempCameraHUD;
+
+	var lineGeometry = new THREE.Geometry();
+	lineGeometry.vertices.push(new THREE.Vector3(-10, -10, 0), new THREE.Vector3(10, -10, 0), new THREE.Vector3(10, 10, 0), new THREE.Vector3(-10, 10, 0), new THREE.Vector3(-10, -10, 0));
+	var border = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({
+		color: 0x000000
+	}));
+	//sceneHUD.add(line);
+	border.name = 'border';
+	tempSceneHUD.add(border);
+	view.border = border;
+}
+
+},{}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1593,7 +1623,7 @@ function deFullscreen(views) {
 	_optionBoxControlJs.updateOptionBoxLocation(views);
 }
 
-},{"./optionBoxControl.js":14}],11:[function(require,module,exports){
+},{"./optionBoxControl.js":15}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1625,7 +1655,7 @@ function removeLegend(view) {
 
 		if (sceneHUD.children[i].name != 'camera' && sceneHUD.children[i].name != 'ambientLight' && sceneHUD.children[i].name != 'border' && sceneHUD.children[i].name != 'directionalLight') {
 
-			console.log(sceneHUD.children[i].name);
+			//console.log(sceneHUD.children [ i ].name);
 			sceneHUD.remove(sceneHUD.children[i]);
 		}
 	}
@@ -1636,7 +1666,7 @@ function changeLegend(view) {
 	insertLegend(view);
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1675,7 +1705,7 @@ function disableController(view, controller) {
 	view.border.material.needsUpdate = true;
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1701,7 +1731,7 @@ function initializeViewSetups(views) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":10}],14:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":11}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1713,8 +1743,8 @@ function addOptionBox(view) {
 	var tempGuiContainer = document.createElement('div');
 
 	tempGuiContainer.style.position = 'absolute';
-	tempGuiContainer.style.top = view.windowTop + 'px';
-	tempGuiContainer.style.left = view.windowLeft + 'px';
+	tempGuiContainer.style.top = view.windowTop + 1 + 'px';
+	tempGuiContainer.style.left = view.windowLeft + 1 + 'px';
 	document.body.appendChild(tempGuiContainer);
 	var tempGui = new dat.GUI({ autoPlace: false });
 	view.guiContainer = tempGuiContainer;
@@ -1727,8 +1757,8 @@ function updateOptionBoxLocation(views) {
 	setTimeout(function () {
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
-			view.guiContainer.style.top = view.windowTop + 'px';
-			view.guiContainer.style.left = view.windowLeft + 'px';
+			view.guiContainer.style.top = view.windowTop + 1 + 'px';
+			view.guiContainer.style.left = view.windowLeft + 1 + 'px';
 		}
 	}, 30);
 }
@@ -1755,7 +1785,7 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 	}
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1782,7 +1812,7 @@ function setupViewCameraSceneController(view, renderer) {
 	view.windowHeight = height;
 }
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1819,7 +1849,7 @@ function readCSV(view, filename, plotData, number, callback) {
 	});
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
