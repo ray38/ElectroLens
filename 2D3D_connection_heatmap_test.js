@@ -39,6 +39,7 @@ var mouseX = 0,
 var windowWidth, windowHeight;
 var clickRequest = false;
 var mouseHold = false;
+//var views;
 
 var showOptionBoxesBool = true;
 
@@ -86,25 +87,6 @@ function init() {
 		_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
 		_MultiviewControlOptionBoxControlJs.addOptionBox(view);
 		_MultiviewControlHUDControlJs.setupHUD(view);
-
-		/*var tempSceneHUD = new THREE.Scene();
-  	var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
-  	view.sceneHUD = tempSceneHUD;
-  	view.cameraHUD = tempCameraHUD;
-  		var lineGeometry = new THREE.Geometry();
-  lineGeometry.vertices.push(	new THREE.Vector3(-10, -10, 0),
-  							new THREE.Vector3(10, -10, 0),
-  							new THREE.Vector3(10, 10, 0),
-  							new THREE.Vector3(-10, 10, 0),
-  							new THREE.Vector3(-10, -10, 0));
-  var border = new THREE.Line(lineGeometry,
-  new THREE.LineBasicMaterial({
-  	color: 0x000000,
-  }));
-  //sceneHUD.add(line);
-  border.name = 'border';
-  tempSceneHUD.add(border);
-  view.border = border;*/
 
 		if (view.viewType == '3DView') {
 
@@ -1817,6 +1799,9 @@ function setupViewCameraSceneController(view, renderer) {
 
 exports.__esModule = true;
 exports.readCSV = readCSV;
+exports.readViewsSetup = readViewsSetup;
+
+var _MultiviewControlInitializeViewSetupsJs = require("../MultiviewControl/initializeViewSetups.js");
 
 function readCSV(view, filename, plotData, number, callback) {
 
@@ -1849,7 +1834,32 @@ function readCSV(view, filename, plotData, number, callback) {
 	});
 }
 
-},{}],18:[function(require,module,exports){
+function readViewsSetup(filname, callback) {
+	loadJSON(function (response) {
+		// Parse JSON string into object
+		views = JSON.parse(response);
+		console.log(response);
+		console.log(views);
+		_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(views);
+		callback(null);
+	});
+}
+
+function loadJSON(filename, callback) {
+
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open('GET', filename, true); // Replace 'my_data' with the path to your file
+	xobj.onreadystatechange = function () {
+		if (xobj.readyState == 4 && xobj.status == "200") {
+			// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+			callback(xobj.responseText);
+		}
+	};
+	xobj.send(null);
+}
+
+},{"../MultiviewControl/initializeViewSetups.js":14}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1886,6 +1896,12 @@ var views = [{
 	plotXTransform: 'log10',
 	plotYTransform: 'neglog10'
 }];
+
+var plotSetup = {
+	propertyList: ['x', 'y', 'z', 'n', 'gamma', 'epxc', 'deriv1', 'deriv2'],
+	pointcloudDensity: 'n'
+
+};
 
 exports.views = views;
 

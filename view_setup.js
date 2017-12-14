@@ -40,4 +40,12 @@ var views = [
 	}
 ];
 
+var plotSetup = {
+	propertyList: ['x','y','z','n','gamma','epxc','deriv1','deriv2'],
+	pointcloudDensity: 'n',
+
+
+
+}
+
 export {views};

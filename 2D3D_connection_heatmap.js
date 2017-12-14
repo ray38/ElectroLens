@@ -3,7 +3,7 @@ import {views} from "./view_setup.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
-import {readCSV} from "./Utilities/readDataFile.js";
+import {readCSV, readViewsSetup} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
@@ -26,10 +26,9 @@ var mouseX = 0, mouseY = 0;
 var windowWidth, windowHeight;
 var clickRequest = false;
 var mouseHold = false;
+//var views;
 
 var showOptionBoxesBool = true;
-
-//var heightScale = 2., widthScale = 1.;
 
 options: new function(){
 	this.heightScale = 2.;
@@ -41,13 +40,13 @@ initializeViewSetups(views);
 
 
 var unfilteredData = [];
-var num = 0;
 var queue=d3.queue();
+
 
 for (var ii =  0; ii < views.length; ++ii ) {
 	var view = views[ii];
 	if (view.viewType == '3DView'){
-		queue.defer(readCSV,view,view.dataFilename,unfilteredData,num);
+		queue.defer(readCSV,view,view.dataFilename,unfilteredData);
 	}			
 }
 
@@ -69,9 +68,6 @@ function init() {
 
 	renderer.autoClear = false;
 	container.appendChild( renderer.domElement );
-	
-	
-	
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
@@ -178,8 +174,8 @@ function onDocumentMouseMove( event ) {
 			var vector = new THREE.Vector3();
 		
 			vector.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
-					(-((event.clientY-top)/(height-top)) * 2 + 1),
-					0.1);
+						(-((event.clientY-top)/(height-top)) * 2 + 1),
+						0.1);
 			vector.unproject( view.camera );
 			var dir = vector.sub( view.camera.position ).normalize();
 			var distance = - view.camera.position.z/dir.z;
@@ -196,8 +192,6 @@ function updateSize() {
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
-			//view.guiContainer.style.top = view.windowTop + 'px';
-			//view.guiContainer.style.left = view.windowLeft + 'px';
 			if (view.viewType == "2DHeatmap") {
 				
 				var left   = Math.floor( windowWidth  * view.left );
@@ -209,9 +203,6 @@ function updateSize() {
 				view.windowTop = top;
 				view.windowWidth = width;
 				view.windowHeight = height;
-
-				//view.title.style.top = view.windowTop + 'px';
-				//view.title.style.left = view.windowLeft + 'px';
 
 				
 			}

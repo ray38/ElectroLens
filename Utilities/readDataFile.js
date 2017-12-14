@@ -1,4 +1,5 @@
-export function readCSV(view,filename,plotData,number,callback){
+import {initializeViewSetups} from "../MultiviewControl/initializeViewSetups.js";
+export function readCSV(view,filename,plotData,callback){
 
 	view.data = [];
 	d3.csv(filename, function (d) {
@@ -22,10 +23,36 @@ export function readCSV(view,filename,plotData,number,callback){
 				plotData.push(temp);
 			}
 		})
-	number = number + view.data.length;
+	//number = number + view.data.length;
 	//console.log(number);
 	//console.log(view.data);
 	callback(null);
 	});
 
+}
+
+
+export function readViewsSetup(filname,callback){
+	loadJSON(function(response) {
+		// Parse JSON string into object
+		views = JSON.parse(response);
+		console.log(response);
+		console.log(views);
+		initializeViewSetups(views);
+		callback(null);
+	});
+}
+
+function loadJSON(filename,callback) {   
+
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open('GET', filename, true); // Replace 'my_data' with the path to your file
+	xobj.onreadystatechange = function () {
+		if (xobj.readyState == 4 && xobj.status == "200") {
+			// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+		callback(xobj.responseText);
+		}
+	};
+	xobj.send(null);  
 }
