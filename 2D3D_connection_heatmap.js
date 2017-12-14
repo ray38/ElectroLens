@@ -1,5 +1,5 @@
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
-import {views} from "./view_setup.js";
+//import {views} from "./view_setup.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
@@ -19,8 +19,50 @@ import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
 import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
 
-main();
-function main() {
+
+var uploader = document.getElementById("uploader");
+/*var reader = new FileReader();
+console.log(reader);
+console.log(uploader);
+var data;
+
+reader.onload = function(e) {
+    var contents = e.target.result;
+    var rawData = contents.split(/\n/);
+    var tempData = rawData.slice(2, rawData.length);
+    //data = getPts(tempData);
+    //scatter(data);
+
+    // remove button after loading file
+    uploader.parentNode.removeChild(uploader);
+};*/
+
+uploader.addEventListener("change", handleFiles, false);
+
+function handleFiles() {
+    var file = this.files[0];
+    console.log(file);
+
+    $.ajax({
+    	url: file.name,
+    	dataType: 'json',
+    	type: 'get',
+    	cache: false,
+    	success: function(data) {
+    		//console.log(data);
+    		var views = data.views;
+    		uploader.parentNode.removeChild(uploader);
+    		main(views);
+    	}
+
+    })
+
+
+    //uploader.parentNode.removeChild(uploader);
+    //reader.readAsText(file);
+};
+
+function main(views) {
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 	var container, stats, renderer;

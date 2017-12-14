@@ -3,7 +3,7 @@
 
 var _MultiviewControlInitializeViewSetupsJs = require("./MultiviewControl/initializeViewSetups.js");
 
-var _view_setupJs = require("./view_setup.js");
+//import {views} from "./view_setup.js";
 
 var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
@@ -31,8 +31,48 @@ var _MultiviewControlCalculateViewportSizesJs = require("./MultiviewControl/calc
 
 var _MultiviewControlColorLegendJs = require("./MultiviewControl/colorLegend.js");
 
-//main();
-function main() {
+var uploader = document.getElementById("uploader");
+/*var reader = new FileReader();
+console.log(reader);
+console.log(uploader);
+var data;
+
+reader.onload = function(e) {
+    var contents = e.target.result;
+    var rawData = contents.split(/\n/);
+    var tempData = rawData.slice(2, rawData.length);
+    //data = getPts(tempData);
+    //scatter(data);
+
+    // remove button after loading file
+    uploader.parentNode.removeChild(uploader);
+};*/
+
+uploader.addEventListener("change", handleFiles, false);
+
+function handleFiles() {
+	var file = this.files[0];
+	console.log(file);
+
+	$.ajax({
+		url: file.name,
+		dataType: 'json',
+		type: 'get',
+		cache: false,
+		success: function success(data) {
+			//console.log(data);
+			var views = data.views;
+			uploader.parentNode.removeChild(uploader);
+			main(views);
+		}
+
+	});
+
+	//uploader.parentNode.removeChild(uploader);
+	//reader.readAsText(file);
+};
+
+function main(views) {
 
 	if (!Detector.webgl) Detector.addGetWebGLMessage();
 	var container, stats, renderer;
@@ -50,13 +90,13 @@ function main() {
 		this.widthScale = 1.;
 	}();
 
-	_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(_view_setupJs.views);
+	_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(views);
 
 	var unfilteredData = [];
 	var queue = d3.queue();
 
-	for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-		var view = _view_setupJs.views[ii];
+	for (var ii = 0; ii < views.length; ++ii) {
+		var view = views[ii];
 		if (view.viewType == '3DView') {
 			queue.defer(_UtilitiesReadDataFileJs.readCSV, view, view.dataFilename, unfilteredData);
 		}
@@ -78,8 +118,8 @@ function main() {
 		renderer.autoClear = false;
 		container.appendChild(renderer.domElement);
 
-		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-			var view = _view_setupJs.views[ii];
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
 
 			view.unfilteredData = unfilteredData;
 
@@ -126,8 +166,8 @@ function main() {
 		window.addEventListener('dblclick', function (event) {
 			//console.log(event.button);
 			//if (event.button == 2 ){
-			for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-				var view = _view_setupJs.views[ii];
+			for (var ii = 0; ii < views.length; ++ii) {
+				var view = views[ii];
 				if (view.viewType == "2DHeatmap") {
 					var temp = view.scene.getObjectByName('selectionPlane');
 					if (temp != null) {
@@ -144,19 +184,19 @@ function main() {
 
 	function onKeyDown(e) {
 		if (e.keyCode == 72) {
-			_MultiviewControlOptionBoxControlJs.showHideAllOptionBoxes(_view_setupJs.views, showOptionBoxesBool);showOptionBoxesBool = !showOptionBoxesBool;
+			_MultiviewControlOptionBoxControlJs.showHideAllOptionBoxes(views, showOptionBoxesBool);showOptionBoxesBool = !showOptionBoxesBool;
 		}
 		if (e.keyCode == 70) {
-			for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-				var view = _view_setupJs.views[ii];
+			for (var ii = 0; ii < views.length; ++ii) {
+				var view = views[ii];
 				if (view.controllerEnabled) {
 					view.options.toggleFullscreen.call();
 				}
 			}
 		}
 		if (e.keyCode == 76) {
-			for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-				var view = _view_setupJs.views[ii];
+			for (var ii = 0; ii < views.length; ++ii) {
+				var view = views[ii];
 				if (view.controllerEnabled) {
 					view.options.toggleLegend.call();
 				}
@@ -168,11 +208,11 @@ function main() {
 		mouseX = event.clientX;
 		mouseY = event.clientY;
 		if (mouseHold == false) {
-			_MultiviewControlControllerControlJs.updateController(_view_setupJs.views, windowWidth, windowHeight, mouseX, mouseY);
+			_MultiviewControlControllerControlJs.updateController(views, windowWidth, windowHeight, mouseX, mouseY);
 		}
 
-		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-			var view = _view_setupJs.views[ii];
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
 			if (view.controllerEnabled) {
 				var left = Math.floor(windowWidth * view.left);
 				var top = Math.floor(windowHeight * view.top);
@@ -197,8 +237,8 @@ function main() {
 			windowHeight = window.innerHeight;
 			renderer.setSize(windowWidth, windowHeight);
 
-			for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-				var view = _view_setupJs.views[ii];
+			for (var ii = 0; ii < views.length; ++ii) {
+				var view = views[ii];
 				if (view.viewType == "2DHeatmap") {
 
 					var left = Math.floor(windowWidth * view.left);
@@ -213,7 +253,7 @@ function main() {
 				}
 			}
 
-			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(_view_setupJs.views);
+			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
 		}
 	}
 	function animate() {
@@ -225,8 +265,8 @@ function main() {
 
 	function render() {
 		updateSize();
-		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-			var view = _view_setupJs.views[ii];
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
 			var camera = view.camera;
 			var left = Math.floor(windowWidth * view.left);
 			var top = Math.floor(windowHeight * view.top);
@@ -256,8 +296,8 @@ function main() {
 
 	function spawnPlane(view) {
 		//console.log(views[1].controllerEnabled);
-		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-			var temp_view = _view_setupJs.views[ii];
+		for (var ii = 0; ii < views.length; ++ii) {
+			var temp_view = views[ii];
 			if (temp_view.viewType == '2DHeatmap' && temp_view.controllerEnabled == false) {
 				var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 				if (tempSelectionPlane != null) {
@@ -346,8 +386,8 @@ function main() {
 
 	function updateSelection() {
 		var noSelection = true;
-		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-			var temp_view = _view_setupJs.views[ii];
+		for (var ii = 0; ii < views.length; ++ii) {
+			var temp_view = views[ii];
 			if (temp_view.viewType == '2DHeatmap') {
 				var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 				if (tempSelectionPlane != null) {
@@ -383,8 +423,8 @@ function main() {
 			}
 		}
 
-		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-			var view = _view_setupJs.views[ii];
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
 			if (view.viewType == '2DHeatmap') {
 				//updatePointCloud(view,unfilteredData.length);
 				_DHeatmapsHeatmapViewJs.updateHeatmap(view);
@@ -392,8 +432,8 @@ function main() {
 		}
 
 		//updatePointCloudGeometry(options);
-		for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-			var view = _view_setupJs.views[ii];
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
 			if (view.viewType == '3DView') {
 				_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
 			}
@@ -402,8 +442,8 @@ function main() {
 
 	function processClick() {
 		if (clickRequest) {
-			for (var ii = 0; ii < _view_setupJs.views.length; ++ii) {
-				var view = _view_setupJs.views[ii];
+			for (var ii = 0; ii < views.length; ++ii) {
+				var view = views[ii];
 				if (view.viewType == '2DHeatmap' && view.controllerEnabled) {
 					var temp = view.scene.getObjectByName('selectionPlane');
 					if (temp != null) {
@@ -417,7 +457,7 @@ function main() {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/readDataFile.js":17,"./view_setup.js":18}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/readDataFile.js":17}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1854,50 +1894,4 @@ function loadJSON(filename, callback) {
 	xobj.send(null);
 }
 
-},{"../MultiviewControl/initializeViewSetups.js":14}],18:[function(require,module,exports){
-'use strict';
-
-exports.__esModule = true;
-var views = [{
-	viewType: '3DView',
-	moleculeName: 'CO2',
-	dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv"
-}, {
-	viewType: '3DView',
-	moleculeName: 'H2O',
-	dataFilename: "data/H2O_B3LYP_0_0_0_all_descriptors.csv"
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'gamma',
-	plotY: 'epxc',
-	plotXTransform: 'linear',
-	plotYTransform: 'linear'
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'n',
-	plotY: 'epxc',
-	plotXTransform: 'linear',
-	plotYTransform: 'linear'
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'gamma',
-	plotY: 'epxc',
-	plotXTransform: 'linear',
-	plotYTransform: 'neglog10'
-}, {
-	viewType: '2DHeatmap',
-	plotX: 'n',
-	plotY: 'epxc',
-	plotXTransform: 'log10',
-	plotYTransform: 'neglog10'
-}];
-
-var plotSetup = {
-	propertyList: ['x', 'y', 'z', 'n', 'gamma', 'epxc', 'deriv1', 'deriv2'],
-	pointcloudDensity: 'n'
-
-};
-
-exports.views = views;
-
-},{}]},{},[1]);
+},{"../MultiviewControl/initializeViewSetups.js":14}]},{},[1]);
