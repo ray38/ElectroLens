@@ -69,7 +69,11 @@ function main(views, plotSetup) {
 	var windowWidth, windowHeight;
 	var clickRequest = false;
 	var mouseHold = false;
+
+	var continuousSelection = false;
 	var planeSelection = false;
+
+	var activeView = null;
 
 	var showOptionBoxesBool = true;
 
@@ -144,16 +148,28 @@ function main(views, plotSetup) {
 				clickRequest = false;
 				if (planeSelection) {
 					planeSelection = false;
-					for (var ii = 0; ii < views.length; ++ii) {
-						var view = views[ii];
-						if (view.viewType == "2DHeatmap") {
-							var temp = view.scene.getObjectByName('selectionPlane');
-							if (temp != null) {
-								updateSelection();
-								view.scene.remove(temp);
-							}
+					var temp_view = activeView;
+					if (temp_view.viewType == "2DHeatmap") {
+						var temp = temp_view.scene.getObjectByName('selectionPlane');
+						if (temp != null) {
+							//updateSelection();
+							updatePlaneSelection(temp_view);
+							temp_view.scene.remove(temp);
 						}
 					}
+
+					/*for ( var ii = 0; ii < views.length; ++ii ){
+     	var view = views[ii];
+     	if (view.viewType == "2DHeatmap"){
+     		var temp = view.scene.getObjectByName('selectionPlane');
+     		if (temp != null){
+     			//updateSelection();
+     			updatePlaneSelection();
+     			view.scene.remove(temp);
+     			
+     		} 
+     	}
+     }*/
 				}
 			}
 		}, false);
@@ -161,6 +177,7 @@ function main(views, plotSetup) {
 		window.addEventListener('dblclick', function (event) {
 			deselectAll();
 			updateAllPlots();
+			continuousSelection = false;
 		}, false);
 
 		window.addEventListener("keydown", onKeyDown, true);
@@ -191,12 +208,22 @@ function main(views, plotSetup) {
 		}
 	}
 
+	function updateActiveView(views) {
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
+			if (view.controllerEnabled) {
+				return view;
+			}
+		}
+	}
+
 	function onDocumentMouseMove(event) {
 		mouseX = event.clientX;
 		mouseY = event.clientY;
 		if (mouseHold == false) {
 			_MultiviewControlControllerControlJs.updateController(views, windowWidth, windowHeight, mouseX, mouseY);
 		}
+		activeView = updateActiveView(views);
 
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
@@ -282,16 +309,16 @@ function main(views, plotSetup) {
 	}
 
 	function spawnPlane(view) {
-		for (var ii = 0; ii < views.length; ++ii) {
-			var temp_view = views[ii];
-			if (temp_view.viewType == '2DHeatmap' && temp_view.controllerEnabled == false) {
-				var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
-				if (tempSelectionPlane != null) {
-					console.log('remove plane');
-					temp_view.scene.remove(tempSelectionPlane);
-				}
-			}
-		}
+		/*for (var ii =  0; ii < views.length; ++ii ) {
+  	var temp_view = views[ii];
+  	if (temp_view.viewType == '2DHeatmap' && temp_view.controllerEnabled == false){
+  		var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
+  		if (tempSelectionPlane != null){
+  			console.log('remove plane')
+  			temp_view.scene.remove(tempSelectionPlane);
+  		}					
+  	}
+  }*/
 
 		var scene = view.scene;
 		var mousePosition = view.mousePosition;
@@ -315,7 +342,7 @@ function main(views, plotSetup) {
 
 		selectionPlane.name = 'selectionPlane';
 		scene.add(selectionPlane);
-		updateSelection();
+		//updateSelection();
 	}
 
 	function updatePlane(view, plane) {
@@ -361,11 +388,12 @@ function main(views, plotSetup) {
 					for (var i = 0; i < data[x][y]['list'].length; i++) {
 						data[x][y]['list'][i].selected = true;
 					}
-				} else {
-					for (var i = 0; i < data[x][y]['list'].length; i++) {
-						data[x][y]['list'][i].selected = false;
-					}
 				}
+				/*else {
+    	for (var i = 0; i < data[x][y]['list'].length; i++) {
+    		data[x][y]['list'][i].selected = false;
+    	}
+    }*/
 			}
 		}
 	}
@@ -392,57 +420,100 @@ function main(views, plotSetup) {
 		}
 	}
 
-	function updateSelection() {
-		//var noSelection = true;
-		for (var ii = 0; ii < views.length; ++ii) {
-			var temp_view = views[ii];
-			if (temp_view.viewType == '2DHeatmap') {
-				var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
-				if (tempSelectionPlane != null) {
-					//noSelection = false;
-					var p = tempSelectionPlane.geometry.attributes.position.array;
-					var xmin = Math.min(p[0], p[9]),
-					    xmax = Math.max(p[0], p[9]),
-					    ymin = Math.min(p[1], p[10]),
-					    ymax = Math.max(p[1], p[10]);
-					var tempx, tempy;
+	function updatePlaneSelection(temp_view) {
+		//var temp_view = activeView;
+		//if (temp_view.viewType == '2DHeatmap'){
+		var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
+		if (tempSelectionPlane != null) {
+			var p = tempSelectionPlane.geometry.attributes.position.array;
+			var xmin = Math.min(p[0], p[9]),
+			    xmax = Math.max(p[0], p[9]),
+			    ymin = Math.min(p[1], p[10]),
+			    ymax = Math.max(p[1], p[10]);
+			var tempx, tempy;
 
-					console.log('updating selection');
+			console.log('updating plane selection');
 
-					var data = temp_view.data;
-					for (var x in data) {
-						for (var y in data[x]) {
-							tempx = parseFloat(x) - 50;
-							tempy = parseFloat(y) - 50;
-							if (tempx > xmin && tempx < xmax && tempy > ymin && tempy < ymax) {
-								data[x][y].selected = true;
-							} else {
-								data[x][y].selected = false;
-							}
-						}
+			var data = temp_view.data;
+			for (var x in data) {
+				for (var y in data[x]) {
+					tempx = parseFloat(x) - 50;
+					tempy = parseFloat(y) - 50;
+					if (tempx > xmin && tempx < xmax && tempy > ymin && tempy < ymax) {
+						data[x][y].selected = true;
 					}
-					updateSelectionFromHeatmap(temp_view);
+					//else { data[x][y].selected = false;}
 				}
 			}
+			updateSelectionFromHeatmap(temp_view);
 		}
-
-		/*if(noSelection){
-  	deselectAll();
-  }*/
+		//}
 		updateAllPlots();
 	}
 
+	/*
+ 	function updateSelection(){
+ 		//var noSelection = true;
+ 		for (var ii =  0; ii < views.length; ++ii ) {
+ 			var temp_view = views[ii];
+ 			if (temp_view.viewType == '2DHeatmap'){
+ 				var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
+ 				if (tempSelectionPlane != null){
+ 					//noSelection = false;
+ 					var p = tempSelectionPlane.geometry.attributes.position.array;
+ 					var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
+ 						ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
+ 					var tempx,tempy;
+ 
+ 					console.log('updating selection')
+ 					
+ 					var data = temp_view.data
+ 					for (var x in data){
+ 						for (var y in data[x]){
+ 							tempx = parseFloat(x)-50;
+ 							tempy = parseFloat(y)-50;
+ 							if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
+ 								data[x][y].selected = true;
+ 							}
+ 							else { data[x][y].selected = false;}
+ 						}
+ 					}
+ 					updateSelectionFromHeatmap(temp_view);							
+ 				}										
+ 			}
+ 		}
+ 
+ 		//if(noSelection){
+ 		//	deselectAll();
+ 		//}
+ 		updateAllPlots();
+ 
+ 	}
+ */
 	function processClick() {
+		/*if ( clickRequest && planeSelection ) {
+  	for (var ii =  0; ii < views.length; ++ii ) {
+  		var view = views[ii];
+  		if (view.viewType == '2DHeatmap' && view.controllerEnabled){
+  			var temp = view.scene.getObjectByName('selectionPlane');
+  			if (temp != null){
+  				updatePlane(view,temp);
+  			}
+  			else {
+  				spawnPlane(view);
+  			}
+  		}
+  	}
+  }*/
 		if (clickRequest && planeSelection) {
-			for (var ii = 0; ii < views.length; ++ii) {
-				var view = views[ii];
-				if (view.viewType == '2DHeatmap' && view.controllerEnabled) {
-					var temp = view.scene.getObjectByName('selectionPlane');
-					if (temp != null) {
-						updatePlane(view, temp);
-					} else {
-						spawnPlane(view);
-					}
+			var view = activeView;
+			if (view.viewType == '2DHeatmap') {
+				continuousSelection = true;
+				var temp = view.scene.getObjectByName('selectionPlane');
+				if (temp != null) {
+					updatePlane(view, temp);
+				} else {
+					spawnPlane(view);
 				}
 			}
 		}
