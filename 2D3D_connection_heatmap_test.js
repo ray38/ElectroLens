@@ -69,14 +69,10 @@ function main(views, plotSetup) {
 	var windowWidth, windowHeight;
 	var clickRequest = false;
 	var mouseHold = false;
+	var planeSelection = false;
 
 	var showOptionBoxesBool = true;
-	/*
- 	options: new function(){
- 		this.heightScale = 2.;
- 		this.widthScale  = 1.;
- 	}
- */
+
 	_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(views);
 
 	var unfilteredData = [];
@@ -138,33 +134,42 @@ function main(views, plotSetup) {
 		document.addEventListener('mousemove', onDocumentMouseMove, false);
 		window.addEventListener('mousedown', function (event) {
 			mouseHold = true;
-			//console.log(mouseHold);
 			if (event.button == 0) {
 				clickRequest = true;
 			}
 		}, false);
 		window.addEventListener('mouseup', function (event) {
 			mouseHold = false;
-			//console.log(mouseHold);
 			if (event.button == 0) {
 				clickRequest = false;
+				if (planeSelection) {
+					planeSelection = false;
+					for (var ii = 0; ii < views.length; ++ii) {
+						var view = views[ii];
+						if (view.viewType == "2DHeatmap") {
+							var temp = view.scene.getObjectByName('selectionPlane');
+							if (temp != null) {
+								updateSelection();
+								view.scene.remove(temp);
+							}
+						}
+					}
+				}
 			}
 		}, false);
 
 		window.addEventListener('dblclick', function (event) {
-			//console.log(event.button);
-			//if (event.button == 2 ){
-			for (var ii = 0; ii < views.length; ++ii) {
-				var view = views[ii];
-				if (view.viewType == "2DHeatmap") {
-					var temp = view.scene.getObjectByName('selectionPlane');
-					if (temp != null) {
-						view.scene.remove(temp);
-						updateSelection();
-					}
-				}
-			}
-			//}
+			/*for ( var ii = 0; ii < views.length; ++ii ){
+   	var view = views[ii];
+   	if (view.viewType == "2DHeatmap"){
+   		var temp = view.scene.getObjectByName('selectionPlane');
+   		if (temp != null){
+   			view.scene.remove(temp);
+   		} 
+   	}
+   }*/
+			deselectAll();
+			updateAllPlots();
 		}, false);
 
 		window.addEventListener("keydown", onKeyDown, true);
@@ -189,6 +194,9 @@ function main(views, plotSetup) {
 					view.options.toggleLegend.call();
 				}
 			}
+		}
+		if (e.keyCode == 49) {
+			planeSelection = true;
 		}
 	}
 
@@ -283,7 +291,6 @@ function main(views, plotSetup) {
 	}
 
 	function spawnPlane(view) {
-		//console.log(views[1].controllerEnabled);
 		for (var ii = 0; ii < views.length; ++ii) {
 			var temp_view = views[ii];
 			if (temp_view.viewType == '2DHeatmap' && temp_view.controllerEnabled == false) {
@@ -352,7 +359,7 @@ function main(views, plotSetup) {
 		scene.remove(plane);
 		selectionPlane.name = 'selectionPlane';
 		scene.add(selectionPlane);
-		updateSelection();
+		//updateSelection();
 	}
 
 	function updateSelectionFromHeatmap(view) {
@@ -372,6 +379,28 @@ function main(views, plotSetup) {
 		}
 	}
 
+	function deselectAll() {
+		for (var i = 0; i < unfilteredData.length; i++) {
+			unfilteredData[i].selected = true;
+		}
+	}
+
+	function updateAllPlots() {
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
+			if (view.viewType == '2DHeatmap') {
+				_DHeatmapsHeatmapViewJs.updateHeatmap(view);
+			}
+		}
+
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
+			if (view.viewType == '3DView') {
+				_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
+			}
+		}
+	}
+
 	function updateSelection() {
 		var noSelection = true;
 		for (var ii = 0; ii < views.length; ++ii) {
@@ -387,13 +416,14 @@ function main(views, plotSetup) {
 					    ymax = Math.max(p[1], p[10]);
 					var tempx, tempy;
 
+					console.log('updating selection');
+
 					var data = temp_view.data;
 					for (var x in data) {
 						for (var y in data[x]) {
 							tempx = parseFloat(x) - 50;
 							tempy = parseFloat(y) - 50;
 							if (tempx > xmin && tempx < xmax && tempy > ymin && tempy < ymax) {
-								//console.log('true')
 								data[x][y].selected = true;
 							} else {
 								data[x][y].selected = false;
@@ -406,30 +436,34 @@ function main(views, plotSetup) {
 		}
 
 		if (noSelection) {
-			for (var i = 0; i < unfilteredData.length; i++) {
-				unfilteredData[i].selected = true;
-			}
+			deselectAll();
 		}
-
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
-			if (view.viewType == '2DHeatmap') {
-				//updatePointCloud(view,unfilteredData.length);
-				_DHeatmapsHeatmapViewJs.updateHeatmap(view);
-			}
-		}
-
-		//updatePointCloudGeometry(options);
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
-			if (view.viewType == '3DView') {
-				_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
-			}
-		}
+		updateAllPlots();
+		/*if(noSelection){
+  	console.log('no selection')
+  	for (var i=0; i<unfilteredData.length; i++){
+  		unfilteredData[i].selected = true;
+  	}
+  }
+  
+  for (var ii =  0; ii < views.length; ++ii ) {
+  	var view = views[ii];
+  	if (view.viewType == '2DHeatmap'){
+  		updateHeatmap(view);
+  	}
+  }
+  
+  
+  for (var ii =  0; ii < views.length; ++ii ) {
+  	var view = views[ii];
+  	if (view.viewType == '3DView'){
+  		updatePointCloudGeometry(view);
+  	}
+  }*/
 	}
 
 	function processClick() {
-		if (clickRequest) {
+		if (clickRequest && planeSelection) {
 			for (var ii = 0; ii < views.length; ++ii) {
 				var view = views[ii];
 				if (view.viewType == '2DHeatmap' && view.controllerEnabled) {
@@ -1879,7 +1913,6 @@ function readCSV2(view, plotData, plotSetup, callback) {
 				};
 				for (var i = 0; i < propertyList.length; i++) {
 					temp[propertyList[i]] = +d[propertyList[i]];
-					//console.log(temp[propertyList[i]])
 				}
 
 				view.data.push(temp);
