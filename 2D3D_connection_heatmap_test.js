@@ -32,21 +32,7 @@ var _MultiviewControlCalculateViewportSizesJs = require("./MultiviewControl/calc
 var _MultiviewControlColorLegendJs = require("./MultiviewControl/colorLegend.js");
 
 var uploader = document.getElementById("uploader");
-/*var reader = new FileReader();
-console.log(reader);
-console.log(uploader);
-var data;
-
-reader.onload = function(e) {
-    var contents = e.target.result;
-    var rawData = contents.split(/\n/);
-    var tempData = rawData.slice(2, rawData.length);
-    //data = getPts(tempData);
-    //scatter(data);
-
-    // remove button after loading file
-    uploader.parentNode.removeChild(uploader);
-};*/
+var uploader_wrapper = document.getElementById("uploader_wrapper");
 
 uploader.addEventListener("change", handleFiles, false);
 
@@ -55,7 +41,7 @@ function handleFiles() {
 	console.log(file);
 
 	$.ajax({
-		url: file.name,
+		url: file.path,
 		dataType: 'json',
 		type: 'get',
 		cache: false,
@@ -63,14 +49,11 @@ function handleFiles() {
 			//console.log(data);
 			var views = data.views;
 			uploader.parentNode.removeChild(uploader);
+			uploader_wrapper.parentNode.removeChild(uploader_wrapper);
 			main(views);
 		}
-
 	});
-
-	//uploader.parentNode.removeChild(uploader);
-	//reader.readAsText(file);
-};
+}
 
 function main(views) {
 
@@ -84,12 +67,12 @@ function main(views) {
 	var mouseHold = false;
 
 	var showOptionBoxesBool = true;
-
-	options: new function () {
-		this.heightScale = 2.;
-		this.widthScale = 1.;
-	}();
-
+	/*
+ 	options: new function(){
+ 		this.heightScale = 2.;
+ 		this.widthScale  = 1.;
+ 	}
+ */
 	_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(views);
 
 	var unfilteredData = [];
@@ -98,7 +81,7 @@ function main(views) {
 	for (var ii = 0; ii < views.length; ++ii) {
 		var view = views[ii];
 		if (view.viewType == '3DView') {
-			queue.defer(_UtilitiesReadDataFileJs.readCSV, view, view.dataFilename, unfilteredData);
+			queue.defer(_UtilitiesReadDataFileJs.readCSV, view, unfilteredData);
 		}
 	}
 
@@ -150,14 +133,14 @@ function main(views) {
 		document.addEventListener('mousemove', onDocumentMouseMove, false);
 		window.addEventListener('mousedown', function (event) {
 			mouseHold = true;
-			console.log(mouseHold);
+			//console.log(mouseHold);
 			if (event.button == 0) {
 				clickRequest = true;
 			}
 		}, false);
 		window.addEventListener('mouseup', function (event) {
 			mouseHold = false;
-			console.log(mouseHold);
+			//console.log(mouseHold);
 			if (event.button == 0) {
 				clickRequest = false;
 			}
@@ -1838,12 +1821,14 @@ exports.readViewsSetup = readViewsSetup;
 
 var _MultiviewControlInitializeViewSetupsJs = require("../MultiviewControl/initializeViewSetups.js");
 
-function readCSV(view, filename, plotData, callback) {
+function readCSV(view, plotData, callback) {
 
+	var filename = view.dataFilename;
 	view.data = [];
 	d3.csv(filename, function (d) {
 		d.forEach(function (d, i) {
 			var n = +d.rho;
+
 			if (n > 1e-3) {
 				var temp = {
 					x: +d.x,

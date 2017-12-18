@@ -3,7 +3,7 @@ import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
-import {readCSV, readViewsSetup} from "./Utilities/readDataFile.js";
+import {readCSV/*, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
@@ -21,21 +21,7 @@ import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/color
 
 
 var uploader = document.getElementById("uploader");
-/*var reader = new FileReader();
-console.log(reader);
-console.log(uploader);
-var data;
-
-reader.onload = function(e) {
-    var contents = e.target.result;
-    var rawData = contents.split(/\n/);
-    var tempData = rawData.slice(2, rawData.length);
-    //data = getPts(tempData);
-    //scatter(data);
-
-    // remove button after loading file
-    uploader.parentNode.removeChild(uploader);
-};*/
+var uploader_wrapper = document.getElementById("uploader_wrapper");
 
 uploader.addEventListener("change", handleFiles, false);
 
@@ -44,7 +30,7 @@ function handleFiles() {
     console.log(file);
 
     $.ajax({
-    	url: file.name,
+    	url: file.path,
     	dataType: 'json',
     	type: 'get',
     	cache: false,
@@ -52,15 +38,11 @@ function handleFiles() {
     		//console.log(data);
     		var views = data.views;
     		uploader.parentNode.removeChild(uploader);
+    		uploader_wrapper.parentNode.removeChild(uploader_wrapper);
     		main(views);
     	}
-
     })
-
-
-    //uploader.parentNode.removeChild(uploader);
-    //reader.readAsText(file);
-};
+}
 
 function main(views) {
 
@@ -73,35 +55,29 @@ function main(views) {
 	var mouseHold = false;
 
 	var showOptionBoxesBool = true;
-
+/*
 	options: new function(){
 		this.heightScale = 2.;
 		this.widthScale  = 1.;
 	}
-
-
+*/
 	initializeViewSetups(views);
-
 
 	var unfilteredData = [];
 	var queue=d3.queue();
 
-
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '3DView'){
-			queue.defer(readCSV,view,view.dataFilename,unfilteredData);
+			queue.defer(readCSV,view,unfilteredData);
 		}			
 	}
-
 
 	queue.awaitAll(function(error) {
 		if (error) throw error;
 		init();
 		animate();
 	});
-
-
 
 	function init() {
 		console.log('started initialization')
@@ -148,14 +124,14 @@ function main(views) {
 		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 		window.addEventListener( 'mousedown', function( event ) {
 			mouseHold = true;
-			console.log(mouseHold);
+			//console.log(mouseHold);
 			if (event.button == 0){
 				clickRequest = true;
 			}
 		}, false );
 		window.addEventListener( 'mouseup', function( event ) {
 			mouseHold = false;
-			console.log(mouseHold);
+			//console.log(mouseHold);
 			if (event.button == 0){
 				clickRequest = false;
 			}
@@ -466,5 +442,4 @@ function main(views) {
 			}
 		}
 	}
-
 }
