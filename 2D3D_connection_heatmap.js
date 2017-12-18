@@ -152,18 +152,6 @@ function main(views,plotSetup) {
 						} 
 					}
 
-					/*for ( var ii = 0; ii < views.length; ++ii ){
-						var view = views[ii];
-						if (view.viewType == "2DHeatmap"){
-							var temp = view.scene.getObjectByName('selectionPlane');
-							if (temp != null){
-								//updateSelection();
-								updatePlaneSelection();
-								view.scene.remove(temp);
-								
-							} 
-						}
-					}*/
 				}
 			}
 		}, false );
@@ -310,16 +298,6 @@ function main(views,plotSetup) {
 
 
 	function spawnPlane(view){
-		/*for (var ii =  0; ii < views.length; ++ii ) {
-			var temp_view = views[ii];
-			if (temp_view.viewType == '2DHeatmap' && temp_view.controllerEnabled == false){
-				var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
-				if (tempSelectionPlane != null){
-					console.log('remove plane')
-					temp_view.scene.remove(tempSelectionPlane);
-				}					
-			}
-		}*/
 
 
 		var scene = view.scene;
@@ -425,8 +403,6 @@ function main(views,plotSetup) {
 	}
 
 	function updatePlaneSelection(temp_view) {
-		//var temp_view = activeView;
-		//if (temp_view.viewType == '2DHeatmap'){
 		var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 		if (tempSelectionPlane != null){
 			var p = tempSelectionPlane.geometry.attributes.position.array;
@@ -448,65 +424,11 @@ function main(views,plotSetup) {
 				}
 			}
 			updateSelectionFromHeatmap(temp_view);							
-		}										
-		//}
+		}	
 		updateAllPlots();
 	}
 
-/*
-	function updateSelection(){
-		//var noSelection = true;
-		for (var ii =  0; ii < views.length; ++ii ) {
-			var temp_view = views[ii];
-			if (temp_view.viewType == '2DHeatmap'){
-				var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
-				if (tempSelectionPlane != null){
-					//noSelection = false;
-					var p = tempSelectionPlane.geometry.attributes.position.array;
-					var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
-						ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
-					var tempx,tempy;
-
-					console.log('updating selection')
-					
-					var data = temp_view.data
-					for (var x in data){
-						for (var y in data[x]){
-							tempx = parseFloat(x)-50;
-							tempy = parseFloat(y)-50;
-							if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
-								data[x][y].selected = true;
-							}
-							else { data[x][y].selected = false;}
-						}
-					}
-					updateSelectionFromHeatmap(temp_view);							
-				}										
-			}
-		}
-
-		//if(noSelection){
-		//	deselectAll();
-		//}
-		updateAllPlots();
-
-	}
-*/
 	function processClick() {
-		/*if ( clickRequest && planeSelection ) {
-			for (var ii =  0; ii < views.length; ++ii ) {
-				var view = views[ii];
-				if (view.viewType == '2DHeatmap' && view.controllerEnabled){
-					var temp = view.scene.getObjectByName('selectionPlane');
-					if (temp != null){
-						updatePlane(view,temp);
-					}
-					else {
-						spawnPlane(view);
-					}
-				}
-			}
-		}*/
 		if ( clickRequest && planeSelection ) {
 			var view = activeView;
 			if (view.viewType == '2DHeatmap'){
