@@ -52,5 +52,6 @@ export function updateHeatmapTooltip(view){
 	}
 	else {	view.tooltip.innerHTML = '';
 			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
+			view.INTERSECTED = null;
 	}
 }

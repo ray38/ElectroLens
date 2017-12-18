@@ -163,7 +163,9 @@ export function getHeatmap(view){
 							xStart: view.xScale.invertExtent(""+xPlot)[0],
 							xEnd: 	view.xScale.invertExtent(""+xPlot)[1],
 							yStart: view.yScale.invertExtent(""+yPlot)[0],
-							yEnd: 	view.yScale.invertExtent(""+yPlot)[1]
+							yEnd: 	view.yScale.invertExtent(""+yPlot)[1],
+							heatmapX: x,
+							heatmapY: y
 							};
 			//console.log(tempInfo);
 			heatmapInformation.push(tempInfo)
