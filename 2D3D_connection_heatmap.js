@@ -3,7 +3,7 @@ import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
-import {readCSV/*, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {readCSV,readCSV2/*, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
@@ -28,23 +28,28 @@ uploader.addEventListener("change", handleFiles, false);
 function handleFiles() {
     var file = this.files[0];
     console.log(file);
-
     $.ajax({
-    	url: file.path,
+    	url: file.name,
     	dataType: 'json',
     	type: 'get',
     	cache: false,
     	success: function(data) {
-    		//console.log(data);
+    		console.log('loading setup');
     		var views = data.views;
+    		var plotSetup = data.plotSetup;
     		uploader.parentNode.removeChild(uploader);
     		uploader_wrapper.parentNode.removeChild(uploader_wrapper);
-    		main(views);
-    	}
+    		main(views,plotSetup);
+    	},
+    	error: function(requestObject, error, errorThrown) {
+            alert(error);
+            alert(errorThrown);
+        }
     })
 }
 
-function main(views) {
+
+function main(views,plotSetup) {
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 	var container, stats, renderer;
@@ -69,7 +74,8 @@ function main(views) {
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '3DView'){
-			queue.defer(readCSV,view,unfilteredData);
+			//queue.defer(readCSV,view,unfilteredData);
+			queue.defer(readCSV2,view,unfilteredData,plotSetup);
 		}			
 	}
 

@@ -34,28 +34,29 @@ export function readCSV(view,plotData,callback){
 }
 
 
-export function readCSV2(view,plotData,dataOptions,callback){
+export function readCSV2(view,plotData,plotSetup,callback){
 
 	var filename = view.dataFilename;
+	var propertyList = plotSetup.propertyList;
+	var density = plotSetup.pointcloudDensity;
+	var densityCutoff = plotSetup.densityCutoff;
+	var systemName = view.moleculeName;
+	console.log(density,densityCutoff,propertyList)
 	view.data = [];
 	d3.csv(filename, function (d) {
 		d.forEach(function (d,i) {
-			var n = +d.rho;
-
-			if (n >1e-3){
+			var n = +d[density];
+			if (n >densityCutoff){
 				var temp = {
-						x: +d.x,
-						y: +d.y,
-						z: +d.z,
-						n: +d.rho,
-						gamma: +d.gamma,
-						epxc: +d.epxc,
-						ad0p2: +d.ad0p2,
-						deriv1: +d.deriv1,
-						deriv2: +d.deriv2,
-						selected: true
+						n: +d[density],
+						selected: true,
+						name: systemName
 					}
-			    	
+				for (var i = 0; i < propertyList.length; i++) {
+				    temp[propertyList[i]] = +d[propertyList[i]];
+				}
+
+
 				view.data.push(temp);
 				plotData.push(temp);
 			}

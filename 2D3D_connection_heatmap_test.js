@@ -9,7 +9,7 @@ var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
 var _DViewsPointCloud_selectionJs = require("./3DViews/PointCloud_selection.js");
 
-var _UtilitiesReadDataFileJs = require("./Utilities/readDataFile.js");
+var _UtilitiesReadDataFileJs = require( /*, readViewsSetup*/"./Utilities/readDataFile.js");
 
 var _DViewsSetupOptionBox3DViewJs = require("./3DViews/setupOptionBox3DView.js");
 
@@ -39,23 +39,27 @@ uploader.addEventListener("change", handleFiles, false);
 function handleFiles() {
 	var file = this.files[0];
 	console.log(file);
-
 	$.ajax({
-		url: file.path,
+		url: file.name,
 		dataType: 'json',
 		type: 'get',
 		cache: false,
 		success: function success(data) {
-			//console.log(data);
+			console.log('loading setup');
 			var views = data.views;
+			var plotSetup = data.plotSetup;
 			uploader.parentNode.removeChild(uploader);
 			uploader_wrapper.parentNode.removeChild(uploader_wrapper);
-			main(views);
+			main(views, plotSetup);
+		},
+		error: function error(requestObject, _error, errorThrown) {
+			alert(_error);
+			alert(errorThrown);
 		}
 	});
 }
 
-function main(views) {
+function main(views, plotSetup) {
 
 	if (!Detector.webgl) Detector.addGetWebGLMessage();
 	var container, stats, renderer;
@@ -81,7 +85,8 @@ function main(views) {
 	for (var ii = 0; ii < views.length; ++ii) {
 		var view = views[ii];
 		if (view.viewType == '3DView') {
-			queue.defer(_UtilitiesReadDataFileJs.readCSV, view, unfilteredData);
+			//queue.defer(readCSV,view,unfilteredData);
+			queue.defer(_UtilitiesReadDataFileJs.readCSV2, view, unfilteredData, plotSetup);
 		}
 	}
 
@@ -1817,7 +1822,7 @@ function setupViewCameraSceneController(view, renderer) {
 
 exports.__esModule = true;
 exports.readCSV = readCSV;
-exports.readViewsSetup = readViewsSetup;
+exports.readCSV2 = readCSV2;
 
 var _MultiviewControlInitializeViewSetupsJs = require("../MultiviewControl/initializeViewSetups.js");
 
@@ -1854,18 +1859,73 @@ function readCSV(view, plotData, callback) {
 	});
 }
 
-function readViewsSetup(filname, callback) {
-	loadJSON(function (response) {
-		// Parse JSON string into object
-		views = JSON.parse(response);
-		console.log(response);
-		console.log(views);
-		_MultiviewControlInitializeViewSetupsJs.initializeViewSetups(views);
+function readCSV2(view, plotData, plotSetup, callback) {
+
+	var filename = view.dataFilename;
+	var propertyList = plotSetup.propertyList;
+	var density = plotSetup.pointcloudDensity;
+	var densityCutoff = plotSetup.densityCutoff;
+	var systemName = view.moleculeName;
+	console.log(density, densityCutoff, propertyList);
+	view.data = [];
+	d3.csv(filename, function (d) {
+		d.forEach(function (d, i) {
+			var n = +d[density];
+			if (n > densityCutoff) {
+				var temp = {
+					n: +d[density],
+					selected: true,
+					name: systemName
+				};
+				for (var i = 0; i < propertyList.length; i++) {
+					temp[propertyList[i]] = +d[propertyList[i]];
+					//console.log(temp[propertyList[i]])
+				}
+
+				view.data.push(temp);
+				plotData.push(temp);
+			}
+		});
 		callback(null);
 	});
 }
 
-function loadJSON(filename, callback) {
+function getCoordinateScales(data) {
+	var xValue = function xValue(d) {
+		return d.x;
+	};
+	var yValue = function yValue(d) {
+		return d.y;
+	};
+	var zValue = function zValue(d) {
+		return d.z;
+	};
+	var xMin = d3.min(data, xValue);
+	var xMax = d3.max(data, xValue);
+	var yMin = d3.min(data, yValue);
+	var yMax = d3.max(data, yValue);
+	var zMin = d3.min(data, zValue);
+	var zMax = d3.max(data, zValue);
+}
+
+function preprocessData(view) {
+	var data = view.data;
+}
+
+/*
+
+export function readViewsSetup(filname,callback){
+	loadJSON(function(response) {
+		// Parse JSON string into object
+		views = JSON.parse(response);
+		console.log(response);
+		console.log(views);
+		initializeViewSetups(views);
+		callback(null);
+	});
+}
+
+function loadJSON(filename,callback) {   
 
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
@@ -1873,10 +1933,10 @@ function loadJSON(filename, callback) {
 	xobj.onreadystatechange = function () {
 		if (xobj.readyState == 4 && xobj.status == "200") {
 			// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-			callback(xobj.responseText);
+		callback(xobj.responseText);
 		}
 	};
-	xobj.send(null);
-}
+	xobj.send(null);  
+}*/
 
 },{"../MultiviewControl/initializeViewSetups.js":14}]},{},[1]);
