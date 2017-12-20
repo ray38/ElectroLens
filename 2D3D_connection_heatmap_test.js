@@ -1922,6 +1922,9 @@ function adjustColorScaleAccordingToDefault(view) {
 },{}],18:[function(require,module,exports){
 "use strict";
 
+exports.__esModule = true;
+exports.arrayToIdenticalObject = arrayToIdenticalObject;
+
 function arrayToIdenticalObject(array) {
 	var result = {};
 	for (var i = 0; i < array.length; i++) {
