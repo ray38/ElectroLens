@@ -96,6 +96,12 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		changeLegend(view);	
 	});
 	detailFolder.add( options, 'toggleLegend');
+	
+	detailFolder.addColor(options,'backgroundColor')
+	.name('background')
+	.onChange( function( value ) {
+		view.background = new THREE.Color(value);
+	});
 
 	gui.close();
 

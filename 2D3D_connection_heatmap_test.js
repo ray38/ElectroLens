@@ -859,6 +859,7 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 		controllerRotate: false,
 		controllerPan: true,
 		options: new function () {
+			this.backgroundColor = "#000000";
 			this.numPerSide = 100;
 			this.pointCloudAlpha = 1;
 			this.pointCloudSize = 3.0;
@@ -1007,6 +1008,10 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 	detailFolder.add(options, 'toggleLegend');
+
+	detailFolder.addColor(options, 'backgroundColor').name('background').onChange(function (value) {
+		view.background = new THREE.Color(value);
+	});
 
 	gui.close();
 }
@@ -1297,6 +1302,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		controllerRotate: true,
 		controllerPan: true,
 		options: new function () {
+			this.backgroundColor = "#000000";
 			this.pointCloudParticles = 1000;
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;
@@ -1528,6 +1534,10 @@ function setupOptionBox3DView(view, plotSetup) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 	detailFolder.add(options, 'toggleLegend');
+
+	detailFolder.addColor(options, 'backgroundColor').name('background').onChange(function (value) {
+		view.background = new THREE.Color(value);
+	});
 
 	//sliderFolder.open();
 	//console.log(gui);

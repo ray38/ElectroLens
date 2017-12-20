@@ -20,6 +20,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		controllerRotate : true,
 		controllerPan : true,
 		options: new function(){
+			this.backgroundColor = "#000000";
 			this.pointCloudParticles = 1000;
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;

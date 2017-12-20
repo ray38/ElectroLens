@@ -169,6 +169,12 @@ export function setupOptionBox3DView(view,plotSetup){
 	});
 	detailFolder.add( options, 'toggleLegend');
 
+	detailFolder.addColor(options,'backgroundColor')
+	.name('background')
+	.onChange( function( value ) {
+		view.background = new THREE.Color(value);
+	});
+
 	//sliderFolder.open();
 	//console.log(gui);
 			

@@ -19,6 +19,7 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		controllerRotate : false,
 		controllerPan : true,
 		options: new function(){
+			this.backgroundColor = "#000000";
 			this.numPerSide = 100;
 			this.pointCloudAlpha = 1;
 			this.pointCloudSize = 3.0;
