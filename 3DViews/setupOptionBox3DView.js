@@ -1,9 +1,12 @@
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./PointCloud_selection.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultColorScales, adjustColorScaleAccordingToDefault} from "../Utilities/colorScale.js";
-export function setupOptionBox3DView(view){
+import {arrayToIdenticalObject} from "../Utilities/other.js";
+export function setupOptionBox3DView(view,plotSetup){
 
 	var options = view.options;
+	var propertyList = plotSetup["propertyList"];
+	var propertyChoiceObject = arrayToIdenticalObject(propertyList);
 	var gui = view.gui;
 	gui.width = 200;
 
@@ -20,7 +23,7 @@ export function setupOptionBox3DView(view){
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();		
 	});
-	moleculeFolder.add( options, 'propertyOfInterest',{'rho':'rho','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
+	moleculeFolder.add( options, 'propertyOfInterest', propertyChoiceObject/*{'rho':'rho','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/)
 	.name( 'Color Basis' )
 	.onChange( function( value ) {
 		adjustColorScaleAccordingToDefault(view);

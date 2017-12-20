@@ -125,13 +125,13 @@ function main(views, plotSetup) {
 				_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
 
 				_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
-				_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view);
+				_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view, plotSetup);
 				_MultiviewControlColorLegendJs.insertLegend(view);
 			}
 			if (view.viewType == '2DHeatmap') {
 				view.controller.enableRotate = false;
 				_DHeatmapsTooltipJs.initializeHeatmapToolTip(view);
-				_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(view);
+				_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(view, plotSetup);
 				_DHeatmapsUtilitiesJs.getAxis(view);
 
 				_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view, unfilteredData);
@@ -484,7 +484,7 @@ function main(views, plotSetup) {
 		if (clickRequest) {
 			var view = activeView;
 			if (view.viewType == '2DHeatmap') {
-				console.log(continuousSelection, planeSelection, pointSelection);
+				//console.log(continuousSelection, planeSelection, pointSelection)
 				if (continuousSelection == false /*&& (planeSelection == true || pointSelection == true)*/) {
 						if (planeSelection == true || pointSelection == true) {
 							console.log('deselect');
@@ -511,7 +511,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/colorScale.js":17,"./Utilities/readDataFile.js":18}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/colorScale.js":17,"./Utilities/readDataFile.js":19}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -929,10 +929,14 @@ var _HeatmapViewJs = require("./HeatmapView.js");
 
 var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
 
-function setupOptionBox2DHeatmap(view) {
+var _UtilitiesOtherJs = require("../Utilities/other.js");
+
+function setupOptionBox2DHeatmap(view, plotSetup) {
 
 	var options = view.options;
 	var gui = view.gui;
+	var propertyList = plotSetup["propertyList"];
+	var propertyChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(propertyList);
 	gui.width = 200;
 	//gui.height = 10;
 
@@ -942,26 +946,7 @@ function setupOptionBox2DHeatmap(view) {
 	var detailFolder = gui.addFolder('Detailed Control');
 	//var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
 
-	/*	moleculeFolder.add( options, 'moleculeName')
- 	.name( 'Molecule' )
- 	.onChange(function( value ){
- 		options.moleculeName = view.moleculeName;
- 		gui.updateDisplay();		
- 	});
- 	moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
- 	.name( 'Color Basis' )
- 	.onChange( function( value ) {
- 		updatePointCloudGeometry(view);
- 	});
- 	moleculeFolder.open();*/
-
-	/*
- 	viewFolder.add( options, 'view',{'pointCloud':'pointCloud', 'box':'box', 'pointMatrix':'pointMatrix'}).onChange( function( value ){
- 		changeGeometry(options);
- 		updateControlPanel(options);
- 	});*/
-
-	plotFolder.add(options, 'plotX', { 'n': 'n', 'epxc': 'epxc', 'gamma': 'gamma', 'ad0p2': 'ad0p2', 'deriv1': 'deriv1', 'deriv2': 'deriv2' }).name('X').onChange(function (value) {
+	plotFolder.add(options, 'plotX', propertyChoiceObject /*{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/).name('X').onChange(function (value) {
 		//updatePointCloudGeometry(view);
 	});
 
@@ -969,7 +954,7 @@ function setupOptionBox2DHeatmap(view) {
 		//updatePointCloudGeometry(view);
 	});
 
-	plotFolder.add(options, 'plotY', { 'n': 'n', 'epxc': 'epxc', 'gamma': 'gamma', 'ad0p2': 'ad0p2', 'deriv1': 'deriv1', 'deriv2': 'deriv2' }).name('Y').onChange(function (value) {
+	plotFolder.add(options, 'plotY', propertyChoiceObject /*{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/).name('Y').onChange(function (value) {
 		//updatePointCloudGeometry(view);
 	});
 
@@ -1026,7 +1011,7 @@ function setupOptionBox2DHeatmap(view) {
 	gui.close();
 }
 
-},{"../MultiviewControl/colorLegend.js":12,"./HeatmapView.js":2}],6:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":12,"../Utilities/other.js":18,"./HeatmapView.js":2}],6:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1409,9 +1394,13 @@ var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js
 
 var _UtilitiesColorScaleJs = require("../Utilities/colorScale.js");
 
-function setupOptionBox3DView(view) {
+var _UtilitiesOtherJs = require("../Utilities/other.js");
+
+function setupOptionBox3DView(view, plotSetup) {
 
 	var options = view.options;
+	var propertyList = plotSetup["propertyList"];
+	var propertyChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(propertyList);
 	var gui = view.gui;
 	gui.width = 200;
 
@@ -1425,9 +1414,10 @@ function setupOptionBox3DView(view) {
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();
 	});
-	moleculeFolder.add(options, 'propertyOfInterest', { 'rho': 'rho', 'epxc': 'epxc', 'gamma': 'gamma', 'ad0p2': 'ad0p2', 'deriv1': 'deriv1', 'deriv2': 'deriv2' }).name('Color Basis').onChange(function (value) {
-		_PointCloud_selectionJs.updatePointCloudGeometry(view);
+	moleculeFolder.add(options, 'propertyOfInterest', propertyChoiceObject /*{'rho':'rho','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/).name('Color Basis').onChange(function (value) {
 		_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
+		_PointCloud_selectionJs.updatePointCloudGeometry(view);
+
 		_MultiviewControlColorLegendJs.changeLegend(view);
 		gui.updateDisplay();
 	});
@@ -1543,7 +1533,7 @@ function setupOptionBox3DView(view) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":12,"../Utilities/colorScale.js":17,"./PointCloud_selection.js":7}],10:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":12,"../Utilities/colorScale.js":17,"../Utilities/other.js":18,"./PointCloud_selection.js":7}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1930,6 +1920,17 @@ function adjustColorScaleAccordingToDefault(view) {
 }
 
 },{}],18:[function(require,module,exports){
+"use strict";
+
+function arrayToIdenticalObject(array) {
+	var result = {};
+	for (var i = 0; i < array.length; i++) {
+		result[array[i]] = array[i];
+	}
+	return result;
+}
+
+},{}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;

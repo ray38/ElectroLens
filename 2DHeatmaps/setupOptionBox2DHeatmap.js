@@ -1,9 +1,12 @@
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./HeatmapView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
-export function setupOptionBox2DHeatmap(view){
+import {arrayToIdenticalObject} from "../Utilities/other.js";
+export function setupOptionBox2DHeatmap(view,plotSetup){
 
 	var options = view.options;
 	var gui = view.gui;
+	var propertyList = plotSetup["propertyList"];
+	var propertyChoiceObject = arrayToIdenticalObject(propertyList);
 	gui.width = 200;
 	//gui.height = 10;
 
@@ -14,27 +17,9 @@ export function setupOptionBox2DHeatmap(view){
 	//var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
 
 	
-/*	moleculeFolder.add( options, 'moleculeName')
-	.name( 'Molecule' )
-	.onChange(function( value ){
-		options.moleculeName = view.moleculeName;
-		gui.updateDisplay();		
-	});
-	moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
-	.name( 'Color Basis' )
-	.onChange( function( value ) {
-		updatePointCloudGeometry(view);
-	});
-	moleculeFolder.open();*/
 
 
-/*
-	viewFolder.add( options, 'view',{'pointCloud':'pointCloud', 'box':'box', 'pointMatrix':'pointMatrix'}).onChange( function( value ){
-		changeGeometry(options);
-		updateControlPanel(options);
-	});*/
-
-	plotFolder.add( options, 'plotX', {'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
+	plotFolder.add( options, 'plotX', propertyChoiceObject/*{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/)
 	.name( 'X' )
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
@@ -46,7 +31,7 @@ export function setupOptionBox2DHeatmap(view){
 		//updatePointCloudGeometry(view);
 	});
 
-	plotFolder.add( options, 'plotY', {'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
+	plotFolder.add( options, 'plotY', propertyChoiceObject/*{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/)
 	.name( 'Y' )
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);

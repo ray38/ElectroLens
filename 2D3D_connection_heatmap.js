@@ -115,13 +115,13 @@ function main(views,plotSetup) {
 				adjustColorScaleAccordingToDefault(view);				
 
 				getPointCloudGeometry(view);
-				setupOptionBox3DView(view);
+				setupOptionBox3DView(view,plotSetup);
 				insertLegend(view);
 			}
 			if (view.viewType == '2DHeatmap'){
 				view.controller.enableRotate=false;
 				initializeHeatmapToolTip(view);
-				setupOptionBox2DHeatmap(view);
+				setupOptionBox2DHeatmap(view,plotSetup);
 				getAxis(view);
 
 				arrangeDataToHeatmap(view,unfilteredData)
@@ -482,7 +482,7 @@ function main(views,plotSetup) {
 		if ( clickRequest ) {
 			var view = activeView;
 			if (view.viewType == '2DHeatmap'){
-				console.log(continuousSelection, planeSelection, pointSelection)
+				//console.log(continuousSelection, planeSelection, pointSelection)
 				if (continuousSelection == false /*&& (planeSelection == true || pointSelection == true)*/){
 					if (planeSelection == true || pointSelection == true){
 						console.log('deselect')
