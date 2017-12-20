@@ -23,7 +23,7 @@
 		},
 		{
 			"viewType": "2DHeatmap",
-			"plotX": "n",
+			"plotX": "rho",
 			"plotY": "epxc",
 			"plotXTransform": "linear",
 			"plotYTransform": "linear"
@@ -38,7 +38,7 @@
 		
 		{
 			"viewType": "2DHeatmap",
-			"plotX": "n",
+			"plotX": "rho",
 			"plotY": "epxc",
 			"plotXTransform": "log10",
 			"plotYTransform": "neglog10"

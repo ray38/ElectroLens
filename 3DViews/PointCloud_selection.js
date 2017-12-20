@@ -33,7 +33,7 @@ var total = 100;
 var count = 0;
 
 for ( var k = 0; k < num_blocks; k ++) {
-	var num_points  = Math.min(Math.floor((view.data[k]['n'] / total) * particles),40);
+	var num_points  = Math.min(Math.floor((view.data[k][options.density] / total) * particles),40);
 	points_in_block[k] = num_points;
 	count += num_points;
 }
@@ -131,7 +131,7 @@ var count = 0;
 
 for ( var k = 0; k < num_blocks; k ++) {
 	//var num_points  = Math.floor((unfilteredData[k]['n'] / total) * particles);
-	var num_points  = Math.min(Math.floor((view.data[k]['n'] / total) * particles),40);
+	var num_points  = Math.min(Math.floor((view.data[k][options.density] / total) * particles),40);
 	points_in_block[k] = num_points;
 	count += num_points;
 }

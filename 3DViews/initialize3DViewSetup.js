@@ -1,6 +1,6 @@
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
-export function initialize3DViewSetup(viewSetup,views){
+export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	var defaultSetting = {
 		//left: 0,
 		//top: 0,
@@ -46,7 +46,8 @@ export function initialize3DViewSetup(viewSetup,views){
 			this.densityCutoff = -3;
 			this.view = 'pointCloud';
 			this.moleculeName = viewSetup.moleculeName;
-			this.propertyOfInterest = 'rho';
+			this.propertyOfInterest = plotSetup["pointcloudDensity"];
+			this.density = plotSetup["pointcloudDensity"];
 			this.colorMap = 'rainbow';
 			//this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
 			this.planeVisibilityU = false;

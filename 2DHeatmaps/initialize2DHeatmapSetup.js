@@ -1,7 +1,7 @@
 import {replotHeatmap} from "./HeatmapView.js";
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
-export function initialize2DHeatmapSetup(viewSetup,views){
+export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),

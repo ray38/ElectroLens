@@ -1,5 +1,6 @@
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./PointCloud_selection.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
+import {calcDefaultColorScales, adjustColorScaleAccordingToDefault} from "../Utilities/colorScale.js";
 export function setupOptionBox3DView(view){
 
 	var options = view.options;
@@ -19,10 +20,14 @@ export function setupOptionBox3DView(view){
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();		
 	});
-	moleculeFolder.add( options, 'propertyOfInterest',{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
+	moleculeFolder.add( options, 'propertyOfInterest',{'rho':'rho','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'})
 	.name( 'Color Basis' )
 	.onChange( function( value ) {
+		adjustColorScaleAccordingToDefault(view);
 		updatePointCloudGeometry(view);
+		
+		changeLegend(view);	
+		gui.updateDisplay();
 	});
 	moleculeFolder.open();
 
@@ -62,15 +67,17 @@ export function setupOptionBox3DView(view){
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 	});
-	pointCloudFolder.add( options, 'pointCloudColorSettingMin', -10, 10 ).step( 0.1 )
+	pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.1 )
 	.name( 'Color Scale Min' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
+		changeLegend(view);	
 	});
-	pointCloudFolder.add( options, 'pointCloudColorSettingMax', -10, 10 ).step( 0.1 )
+	pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.1 )
 	.name( 'Color Scale Max' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
+		changeLegend(view);	
 	});
 
 	/*pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {

@@ -18,7 +18,7 @@ import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
 import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
 
-import {calcDefaultColorScales} from "./Utilities/unfilteredDataAnalysis.js";
+import {calcDefaultColorScales, adjustColorScaleAccordingToDefault} from "./Utilities/colorScale.js";
 
 
 var uploader = document.getElementById("uploader");
@@ -68,7 +68,7 @@ function main(views,plotSetup) {
 
 	var showOptionBoxesBool = true;
 
-	initializeViewSetups(views);
+	initializeViewSetups(views,plotSetup);
 
 	var unfilteredData = [];
 	var queue=d3.queue();
@@ -112,11 +112,7 @@ function main(views,plotSetup) {
 			if (view.viewType == '3DView'){
 				
 				view.defaultColorScales = defaultColorScales;
-				console.log(view.defaultColorScales);
-				console.log( view.defaultColorScales[view.options.propertyOfInterest]);
-
-				view.options.pointCloudColorSettingMin = view.defaultColorScales[view.options.propertyOfInterest]['min'];
-				view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max'];
+				adjustColorScaleAccordingToDefault(view);				
 
 				getPointCloudGeometry(view);
 				setupOptionBox3DView(view);

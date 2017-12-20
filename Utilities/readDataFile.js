@@ -49,7 +49,7 @@ export function readCSV2(view,plotData,plotSetup,callback){
 			var n = +d[density];
 			if (n >densityCutoff){
 				var temp = {
-						n: +d[density],
+						//n: +d[density],
 						selected: true,
 						name: systemName
 					}
