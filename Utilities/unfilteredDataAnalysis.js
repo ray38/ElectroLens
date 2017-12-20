@@ -1,5 +1,5 @@
 export function calcDefaultColorScales(plotSetup,unfilteredData){
-	result = {};
+	var result = {};
 	var propertyList = plotSetup.propertyList;
 	for (var i = 0; i < propertyList.length; i++) {
 	    var property = propertyList[i];

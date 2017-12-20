@@ -46,7 +46,7 @@ export function initialize3DViewSetup(viewSetup,views){
 			this.densityCutoff = -3;
 			this.view = 'pointCloud';
 			this.moleculeName = viewSetup.moleculeName;
-			this.propertyOfInterest = 'n';
+			this.propertyOfInterest = 'rho';
 			this.colorMap = 'rainbow';
 			//this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
 			this.planeVisibilityU = false;

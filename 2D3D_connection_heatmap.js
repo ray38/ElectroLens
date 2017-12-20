@@ -112,8 +112,11 @@ function main(views,plotSetup) {
 			if (view.viewType == '3DView'){
 				
 				view.defaultColorScales = defaultColorScales;
+				console.log(view.defaultColorScales);
+				console.log( view.defaultColorScales[view.options.propertyOfInterest]);
+
 				view.options.pointCloudColorSettingMin = view.defaultColorScales[view.options.propertyOfInterest]['min'];
-				view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max']
+				view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max'];
 
 				getPointCloudGeometry(view);
 				setupOptionBox3DView(view);

@@ -29,6 +29,8 @@ var _MultiviewControlCalculateViewportSizesJs = require("./MultiviewControl/calc
 
 var _MultiviewControlColorLegendJs = require("./MultiviewControl/colorLegend.js");
 
+var _UtilitiesUnfilteredDataAnalysisJs = require("./Utilities/unfilteredDataAnalysis.js");
+
 var uploader = document.getElementById("uploader");
 var uploader_wrapper = document.getElementById("uploader_wrapper");
 
@@ -106,6 +108,8 @@ function main(views, plotSetup) {
 		renderer.autoClear = false;
 		container.appendChild(renderer.domElement);
 
+		var defaultColorScales = _UtilitiesUnfilteredDataAnalysisJs.calcDefaultColorScales(plotSetup, unfilteredData);
+
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
 
@@ -116,6 +120,13 @@ function main(views, plotSetup) {
 			_MultiviewControlHUDControlJs.setupHUD(view);
 
 			if (view.viewType == '3DView') {
+
+				view.defaultColorScales = defaultColorScales;
+				console.log(view.defaultColorScales);
+				console.log(view.defaultColorScales[view.options.propertyOfInterest]);
+
+				view.options.pointCloudColorSettingMin = view.defaultColorScales[view.options.propertyOfInterest]['min'];
+				view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max'];
 
 				_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
 				_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view);
@@ -504,7 +515,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/readDataFile.js":17}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/readDataFile.js":17,"./Utilities/unfilteredDataAnalysis.js":18}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1331,7 +1342,7 @@ function initialize3DViewSetup(viewSetup, views) {
 			this.densityCutoff = -3;
 			this.view = 'pointCloud';
 			this.moleculeName = viewSetup.moleculeName;
-			this.propertyOfInterest = 'n';
+			this.propertyOfInterest = 'rho';
 			this.colorMap = 'rainbow';
 			//this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
 			this.planeVisibilityU = false;
@@ -1445,6 +1456,13 @@ function setupOptionBox3DView(view) {
 	pointCloudFolder.add(options, 'pointCloudSize', 0, 10).step(0.1).name('Point Size').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 	});
+	pointCloudFolder.add(options, 'pointCloudColorSettingMin', -10, 10).step(0.1).name('Color Scale Min').onChange(function (value) {
+		_PointCloud_selectionJs.updatePointCloudGeometry(view);
+	});
+	pointCloudFolder.add(options, 'pointCloudColorSettingMax', -10, 10).step(0.1).name('Color Scale Max').onChange(function (value) {
+		_PointCloud_selectionJs.updatePointCloudGeometry(view);
+	});
+
 	/*pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {
  	updatePointCloudGeometry(view);
  });*/
@@ -2062,4 +2080,25 @@ function loadJSON(filename,callback) {
 	xobj.send(null);  
 }*/
 
-},{"../MultiviewControl/initializeViewSetups.js":14}]},{},[1]);
+},{"../MultiviewControl/initializeViewSetups.js":14}],18:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.calcDefaultColorScales = calcDefaultColorScales;
+
+function calcDefaultColorScales(plotSetup, unfilteredData) {
+	var result = {};
+	var propertyList = plotSetup.propertyList;
+	for (var i = 0; i < propertyList.length; i++) {
+		var property = propertyList[i];
+		var xValue = function xValue(d) {
+			return d[property];
+		};
+		var xMin = d3.min(unfilteredData, xValue);
+		var xMax = d3.max(unfilteredData, xValue);
+		result[property] = { 'min': xMin, 'max': xMax };
+	}
+	return result;
+}
+
+},{}]},{},[1]);
