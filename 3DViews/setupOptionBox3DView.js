@@ -62,6 +62,17 @@ export function setupOptionBox3DView(view){
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 	});
+	pointCloudFolder.add( options, 'pointCloudColorSettingMin', -10, 10 ).step( 0.1 )
+	.name( 'Color Scale Min' )
+	.onChange( function( value ) {
+		updatePointCloudGeometry(view);
+	});
+	pointCloudFolder.add( options, 'pointCloudColorSettingMax', -10, 10 ).step( 0.1 )
+	.name( 'Color Scale Max' )
+	.onChange( function( value ) {
+		updatePointCloudGeometry(view);
+	});
+
 	/*pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {
 		updatePointCloudGeometry(view);
 	});*/

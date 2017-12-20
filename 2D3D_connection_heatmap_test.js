@@ -3,13 +3,11 @@
 
 var _MultiviewControlInitializeViewSetupsJs = require("./MultiviewControl/initializeViewSetups.js");
 
-//import {views} from "./view_setup.js";
-
 var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
 var _DViewsPointCloud_selectionJs = require("./3DViews/PointCloud_selection.js");
 
-var _UtilitiesReadDataFileJs = require( /*, readViewsSetup*/"./Utilities/readDataFile.js");
+var _UtilitiesReadDataFileJs = require( /*,readCSVPapaparse, readViewsSetup*/"./Utilities/readDataFile.js");
 
 var _DViewsSetupOptionBox3DViewJs = require("./3DViews/setupOptionBox3DView.js");
 
@@ -103,7 +101,7 @@ function main(views, plotSetup) {
 		container = document.getElementById('container');
 		renderer = new THREE.WebGLRenderer({ antialias: false });
 		renderer.setPixelRatio(window.devicePixelRatio);
-		renderer.setSize(window.innerWidth, window.innerHeight * 2);
+		renderer.setSize(window.innerWidth, window.innerHeight);
 
 		renderer.autoClear = false;
 		container.appendChild(renderer.domElement);
@@ -247,23 +245,22 @@ function main(views, plotSetup) {
 
 			for (var ii = 0; ii < views.length; ++ii) {
 				var view = views[ii];
-				if (view.viewType == "2DHeatmap") {
 
-					var left = Math.floor(windowWidth * view.left);
-					var top = Math.floor(windowHeight * view.top);
-					var width = Math.floor(windowWidth * view.width);
-					var height = Math.floor(windowHeight * view.height);
+				var left = Math.floor(windowWidth * view.left);
+				var top = Math.floor(windowHeight * view.top);
+				var width = Math.floor(windowWidth * view.width);
+				var height = Math.floor(windowHeight * view.height);
 
-					view.windowLeft = left;
-					view.windowTop = top;
-					view.windowWidth = width;
-					view.windowHeight = height;
-				}
+				view.windowLeft = left;
+				view.windowTop = top;
+				view.windowWidth = width;
+				view.windowHeight = height;
 			}
 
 			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
 		}
 	}
+
 	function animate() {
 		render();
 		processClick();
@@ -1537,7 +1534,12 @@ function setupHUD(view) {
 	view.cameraHUD = tempCameraHUD;
 
 	var lineGeometry = new THREE.Geometry();
-	lineGeometry.vertices.push(new THREE.Vector3(-10, -10, 0), new THREE.Vector3(10, -10, 0), new THREE.Vector3(10, 10, 0), new THREE.Vector3(-10, 10, 0), new THREE.Vector3(-10, -10, 0));
+	/*lineGeometry.vertices.push(	new THREE.Vector3(-10, -10, 0),
+ 							new THREE.Vector3(10, -10, 0),
+ 							new THREE.Vector3(10, 10, 0),
+ 							new THREE.Vector3(-10, 10, 0),
+ 							new THREE.Vector3(-10, -10, 0));*/
+	lineGeometry.vertices.push(new THREE.Vector3(-9.999, -9.999, 0), new THREE.Vector3(9.999, -9.999, 0), new THREE.Vector3(9.999, 9.999, 0), new THREE.Vector3(-9.999, 9.999, 0), new THREE.Vector3(-9.999, -9.999, 0));
 	var border = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({
 		color: 0x000000
 	}));

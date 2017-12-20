@@ -18,6 +18,8 @@ import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
 import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
 
+import {calcDefaultColorScales} from "./Utilities/unfilteredDataAnalysis.js";
+
 
 var uploader = document.getElementById("uploader");
 var uploader_wrapper = document.getElementById("uploader_wrapper");
@@ -89,12 +91,14 @@ function main(views,plotSetup) {
 	function init() {
 		console.log('started initialization')
 		container = document.getElementById( 'container' );
-		renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer = new THREE.WebGLRenderer( { antialias: false } );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth , window.innerHeight);
 
 		renderer.autoClear = false;
 		container.appendChild( renderer.domElement );
+
+		var defaultColorScales = calcDefaultColorScales(plotSetup,unfilteredData);
 
 		for (var ii =  0; ii < views.length; ++ii ) {
 			var view = views[ii];
@@ -107,6 +111,10 @@ function main(views,plotSetup) {
 
 			if (view.viewType == '3DView'){
 				
+				view.defaultColorScales = defaultColorScales;
+				view.options.pointCloudColorSettingMin = view.defaultColorScales[view.options.propertyOfInterest]['min'];
+				view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max']
+
 				getPointCloudGeometry(view);
 				setupOptionBox3DView(view);
 				insertLegend(view);

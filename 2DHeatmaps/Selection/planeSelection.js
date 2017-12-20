@@ -1,5 +1,5 @@
 function spawnPlane(view){
-
+	var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 
 	var scene = view.scene;
 	var mousePosition = view.mousePosition;
@@ -27,6 +27,8 @@ function spawnPlane(view){
 }
 
 function updatePlane(view, plane){
+	var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
+	
 	var scene = view.scene;
 
 	var mousePosition = view.mousePosition;
