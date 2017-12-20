@@ -44,6 +44,7 @@ export function updateHeatmapTooltip(view){
 
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {
 			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
+			view.System.geometry.attributes.size.needsUpdate = true;
 			view.INTERSECTED = intersects[ 0 ].index;
 			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 2 * view.options.pointCloudSize;
 			view.System.geometry.attributes.size.needsUpdate = true;
@@ -52,6 +53,7 @@ export function updateHeatmapTooltip(view){
 	}
 	else {	view.tooltip.innerHTML = '';
 			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
+			view.System.geometry.attributes.size.needsUpdate = true;
 			view.INTERSECTED = null;
 	}
 }

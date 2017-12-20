@@ -35,7 +35,7 @@ export function readCSV(view,plotData,callback){
 
 
 export function readCSV2(view,plotData,plotSetup,callback){
-
+	console.log('started loading')
 	var filename = view.dataFilename;
 	var propertyList = plotSetup.propertyList;
 	var density = plotSetup.pointcloudDensity;
@@ -44,6 +44,67 @@ export function readCSV2(view,plotData,plotSetup,callback){
 	console.log(density,densityCutoff,propertyList)
 	view.data = [];
 	d3.csv(filename, function (d) {
+		console.log('end loading')
+		d.forEach(function (d,i) {
+			var n = +d[density];
+			if (n >densityCutoff){
+				var temp = {
+						n: +d[density],
+						selected: true,
+						name: systemName
+					}
+				for (var i = 0; i < propertyList.length; i++) {
+				    temp[propertyList[i]] = +d[propertyList[i]];
+				}
+
+
+				view.data.push(temp);
+				plotData.push(temp);
+			}
+		})
+		console.log('end parsing')
+	callback(null);
+	});
+
+}
+
+export function readCSVPapaparse(view,plotData,plotSetup,callback){
+	console.log('started using papa')
+	var filename = view.dataFilename;
+	var propertyList = plotSetup.propertyList;
+	var density = plotSetup.pointcloudDensity;
+	var densityCutoff = plotSetup.densityCutoff;
+	var systemName = view.moleculeName;
+	console.log(density,densityCutoff,propertyList)
+	view.data = [];
+	/*Papa.parse(filename, {
+		complete: function(results) {
+			console.log('successfully used papa')
+			console.log(results);
+			callback(null);
+		}
+	});*/
+	$.ajax({
+    	url: filename,
+    	//dataType: 'json',
+    	type: 'get',
+    	cache: false,
+    	success: function(data) {
+    		console.log('loading setup');
+    		Papa.parse(data, {
+				complete: function(results) {
+					console.log('successfully used papa')
+					console.log(results);
+					callback(null);
+				}
+			});
+    	},
+    	error: function(requestObject, error, errorThrown) {
+            alert(error);
+            alert(errorThrown);
+        }
+    })
+	/*d3.csv(filename, function (d) {
 		d.forEach(function (d,i) {
 			var n = +d[density];
 			if (n >densityCutoff){
@@ -62,7 +123,7 @@ export function readCSV2(view,plotData,plotSetup,callback){
 			}
 		})
 	callback(null);
-	});
+	});*/
 
 }
 

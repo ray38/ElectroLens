@@ -12,15 +12,6 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 	
 	if (XTransform == 'linear') {var xValue = function(d) {return d[X];}}
 	if (YTransform == 'linear') {var yValue = function(d) {return d[Y];}}
-	
-	/*if (XTransform == 'log10') {
-		if (X == 'epxc') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
-		else {var xValue = function(d) {return Math.log10(d[X]);};}
-	}
-	if (YTransform == 'log10') {
-		if (Y == 'epxc') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
-		else {var yValue = function(d) {return Math.log10(d[Y]);};}
-	}*/
 
 	if (XTransform == 'log10') {var xValue = function(d) {return Math.log10(d[X]);};}
 	if (YTransform == 'log10') {var yValue = function(d) {return Math.log10(d[Y]);};}
@@ -215,15 +206,18 @@ export function updateHeatmap(view){
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
 			}
 			else {
 				colors[i3 + 0] = 100;
 				colors[i3 + 1] = 100;
 				colors[i3 + 2] = 100;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha/2;
 			}
 			
-			sizes[i] = options.pointCloudSize;
-			alphas[i] = options.pointCloudAlpha;
+			
 			
 			i++;
 			i3 += 3;

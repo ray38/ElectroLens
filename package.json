@@ -35,6 +35,7 @@
     "es6": "0.0.7",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.8.0",
-    "grunt-cli": "^1.2.0"
+    "grunt-cli": "^1.2.0",
+    "papaparse": "^4.3.6"
   }
 }

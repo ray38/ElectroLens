@@ -112,4 +112,6 @@ export function setupOptionBox2DHeatmap(view){
 	});
 	detailFolder.add( options, 'toggleLegend');
 
+	gui.close();
+
 }

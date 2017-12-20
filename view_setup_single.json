@@ -1,0 +1,19 @@
+{
+	"views": [
+		{
+			"viewType": "3DView",
+			"moleculeName": "CO2",
+			"dataFilename": "data/CO2_B3LYP_0_0_0_all_descriptors.csv",
+			"gridSpacing": {"x":0.2,"y":0.2,"z":0.2},
+			"systemDimension": {"x":[-5,5],"y":[-5,5],"z":[-5,5]}
+		}
+	],
+
+	"plotSetup" : {
+		"propertyList": ["x","y","z","rho","gamma","epxc","deriv1","deriv2"],
+		"pointcloudDensity": "rho",
+		"densityCutoff": 1e-3
+	}
+
+
+}

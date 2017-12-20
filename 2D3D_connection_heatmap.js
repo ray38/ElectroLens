@@ -1,9 +1,8 @@
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
-//import {views} from "./view_setup.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
-import {readCSV,readCSV2/*, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {readCSV,readCSV2/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
@@ -77,6 +76,7 @@ function main(views,plotSetup) {
 		if (view.viewType == '3DView'){
 			//queue.defer(readCSV,view,unfilteredData);
 			queue.defer(readCSV2,view,unfilteredData,plotSetup);
+			//queue.defer(readCSVPapaparse,view,unfilteredData,plotSetup);
 		}			
 	}
 
@@ -91,7 +91,7 @@ function main(views,plotSetup) {
 		container = document.getElementById( 'container' );
 		renderer = new THREE.WebGLRenderer( { antialias: true } );
 		renderer.setPixelRatio( window.devicePixelRatio );
-		renderer.setSize( window.innerWidth , window.innerHeight*2);
+		renderer.setSize( window.innerWidth , window.innerHeight);
 
 		renderer.autoClear = false;
 		container.appendChild( renderer.domElement );
@@ -239,34 +239,28 @@ function main(views,plotSetup) {
 
 			for ( var ii = 0; ii < views.length; ++ii ){
 				var view = views[ii];
-				if (view.viewType == "2DHeatmap") {
 					
-					var left   = Math.floor( windowWidth  * view.left );
-					var top    = Math.floor( windowHeight * view.top );
-					var width  = Math.floor( windowWidth  * view.width );
-					var height = Math.floor( windowHeight * view.height );
+				var left   = Math.floor( windowWidth  * view.left );
+				var top    = Math.floor( windowHeight * view.top );
+				var width  = Math.floor( windowWidth  * view.width );
+				var height = Math.floor( windowHeight * view.height );
 
-					view.windowLeft = left;
-					view.windowTop = top;
-					view.windowWidth = width;
-					view.windowHeight = height;
-
-				}
+				view.windowLeft = left;
+				view.windowTop = top;
+				view.windowWidth = width;
+				view.windowHeight = height;
 			}
 
 			updateOptionBoxLocation(views);
 		}
 	}
+
 	function animate() {
 		render();
 		processClick();
 		stats.update();
 		requestAnimationFrame( animate );
 	}
-
-
-
-
 
 	function render() {
 		updateSize();
@@ -390,13 +384,7 @@ function main(views,plotSetup) {
 				unfilteredData[i].selected = false;
 			}
 
-		/*for (var ii =  0; ii < views.length; ++ii ) {
-			var view = views[ii];
-			var data = view.data;
-			for (var i=0; i<data.length; i++){
-				data[i].selected = false;
-			}
-		}*/
+
 		for (var ii =  0; ii < views.length; ++ii ) {
 			var view = views[ii];
 			if (view.viewType == '2DHeatmap'){
@@ -414,13 +402,7 @@ function main(views,plotSetup) {
 		for (var i=0; i<unfilteredData.length; i++){
 				unfilteredData[i].selected = true;
 			}
-		/*for (var ii =  0; ii < views.length; ++ii ) {
-			var view = views[ii];
-			var data = view.data;
-			for (var i=0; i<data.length; i++){
-				data[i].selected = true;
-			}
-		}*/
+
 		for (var ii =  0; ii < views.length; ++ii ) {
 			var view = views[ii];
 			if (view.viewType == '2DHeatmap'){
@@ -493,11 +475,16 @@ function main(views,plotSetup) {
 		if ( clickRequest ) {
 			var view = activeView;
 			if (view.viewType == '2DHeatmap'){
-				if (continuousSelection == false){
-					deselectAll();
-					updateAllPlots();
+				console.log(continuousSelection, planeSelection, pointSelection)
+				if (continuousSelection == false /*&& (planeSelection == true || pointSelection == true)*/){
+					if (planeSelection == true || pointSelection == true){
+						console.log('deselect')
+						deselectAll();
+						updateAllPlots();
+						continuousSelection = true;
+					}
 				}
-				continuousSelection = true;
+				
 
 				if (planeSelection){
 					var temp = view.scene.getObjectByName('selectionPlane');

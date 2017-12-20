@@ -88,6 +88,7 @@ function main(views, plotSetup) {
 		if (view.viewType == '3DView') {
 			//queue.defer(readCSV,view,unfilteredData);
 			queue.defer(_UtilitiesReadDataFileJs.readCSV2, view, unfilteredData, plotSetup);
+			//queue.defer(readCSVPapaparse,view,unfilteredData,plotSetup);
 		}
 	}
 
@@ -100,7 +101,7 @@ function main(views, plotSetup) {
 	function init() {
 		console.log('started initialization');
 		container = document.getElementById('container');
-		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer = new THREE.WebGLRenderer({ antialias: false });
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight * 2);
 
@@ -386,13 +387,6 @@ function main(views, plotSetup) {
 			unfilteredData[i].selected = false;
 		}
 
-		/*for (var ii =  0; ii < views.length; ++ii ) {
-  	var view = views[ii];
-  	var data = view.data;
-  	for (var i=0; i<data.length; i++){
-  		data[i].selected = false;
-  	}
-  }*/
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
 			if (view.viewType == '2DHeatmap') {
@@ -410,13 +404,7 @@ function main(views, plotSetup) {
 		for (var i = 0; i < unfilteredData.length; i++) {
 			unfilteredData[i].selected = true;
 		}
-		/*for (var ii =  0; ii < views.length; ++ii ) {
-  	var view = views[ii];
-  	var data = view.data;
-  	for (var i=0; i<data.length; i++){
-  		data[i].selected = true;
-  	}
-  }*/
+
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
 			if (view.viewType == '2DHeatmap') {
@@ -492,11 +480,15 @@ function main(views, plotSetup) {
 		if (clickRequest) {
 			var view = activeView;
 			if (view.viewType == '2DHeatmap') {
-				if (continuousSelection == false) {
-					deselectAll();
-					updateAllPlots();
-				}
-				continuousSelection = true;
+				console.log(continuousSelection, planeSelection, pointSelection);
+				if (continuousSelection == false /*&& (planeSelection == true || pointSelection == true)*/) {
+						if (planeSelection == true || pointSelection == true) {
+							console.log('deselect');
+							deselectAll();
+							updateAllPlots();
+							continuousSelection = true;
+						}
+					}
 
 				if (planeSelection) {
 					var temp = view.scene.getObjectByName('selectionPlane');
@@ -548,15 +540,6 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 			return d[Y];
 		};
 	}
-
-	/*if (XTransform == 'log10') {
- 	if (X == 'epxc') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
- 	else {var xValue = function(d) {return Math.log10(d[X]);};}
- }
- if (YTransform == 'log10') {
- 	if (Y == 'epxc') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
- 	else {var yValue = function(d) {return Math.log10(d[Y]);};}
- }*/
 
 	if (XTransform == 'log10') {
 		var xValue = function xValue(d) {
@@ -759,14 +742,15 @@ function updateHeatmap(view) {
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
 			} else {
 				colors[i3 + 0] = 100;
 				colors[i3 + 1] = 100;
 				colors[i3 + 2] = 100;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha / 2;
 			}
-
-			sizes[i] = options.pointCloudSize;
-			alphas[i] = options.pointCloudAlpha;
 
 			i++;
 			i3 += 3;
@@ -1034,6 +1018,8 @@ function setupOptionBox2DHeatmap(view) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 	detailFolder.add(options, 'toggleLegend');
+
+	gui.close();
 }
 
 },{"../MultiviewControl/colorLegend.js":12,"./HeatmapView.js":2}],6:[function(require,module,exports){
@@ -1083,6 +1069,7 @@ function updateHeatmapTooltip(view) {
 
 		if (view.INTERSECTED != intersects[0].index) {
 			view.System.geometry.attributes.size.array[view.INTERSECTED] = view.options.pointCloudSize;
+			view.System.geometry.attributes.size.needsUpdate = true;
 			view.INTERSECTED = intersects[0].index;
 			view.System.geometry.attributes.size.array[view.INTERSECTED] = 2 * view.options.pointCloudSize;
 			view.System.geometry.attributes.size.needsUpdate = true;
@@ -1090,6 +1077,7 @@ function updateHeatmapTooltip(view) {
 	} else {
 		view.tooltip.innerHTML = '';
 		view.System.geometry.attributes.size.array[view.INTERSECTED] = view.options.pointCloudSize;
+		view.System.geometry.attributes.size.needsUpdate = true;
 		view.INTERSECTED = null;
 	}
 }
@@ -1136,7 +1124,7 @@ function getPointCloudGeometry(view) {
 	var count = 0;
 
 	for (var k = 0; k < num_blocks; k++) {
-		var num_points = Math.min(Math.floor(view.data[k]['n'] / total * particles), 80);
+		var num_points = Math.min(Math.floor(view.data[k]['n'] / total * particles), 40);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -1224,7 +1212,7 @@ function updatePointCloudGeometry(view) {
 
 	for (var k = 0; k < num_blocks; k++) {
 		//var num_points  = Math.floor((unfilteredData[k]['n'] / total) * particles);
-		var num_points = Math.min(Math.floor(view.data[k]['n'] / total * particles), 80);
+		var num_points = Math.min(Math.floor(view.data[k]['n'] / total * particles), 40);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -1891,11 +1879,12 @@ function setupViewCameraSceneController(view, renderer) {
 }
 
 },{}],17:[function(require,module,exports){
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 exports.readCSV = readCSV;
 exports.readCSV2 = readCSV2;
+exports.readCSVPapaparse = readCSVPapaparse;
 
 var _MultiviewControlInitializeViewSetupsJs = require("../MultiviewControl/initializeViewSetups.js");
 
@@ -1933,7 +1922,7 @@ function readCSV(view, plotData, callback) {
 }
 
 function readCSV2(view, plotData, plotSetup, callback) {
-
+	console.log('started loading');
 	var filename = view.dataFilename;
 	var propertyList = plotSetup.propertyList;
 	var density = plotSetup.pointcloudDensity;
@@ -1942,6 +1931,7 @@ function readCSV2(view, plotData, plotSetup, callback) {
 	console.log(density, densityCutoff, propertyList);
 	view.data = [];
 	d3.csv(filename, function (d) {
+		console.log('end loading');
 		d.forEach(function (d, i) {
 			var n = +d[density];
 			if (n > densityCutoff) {
@@ -1958,8 +1948,67 @@ function readCSV2(view, plotData, plotSetup, callback) {
 				plotData.push(temp);
 			}
 		});
+		console.log('end parsing');
 		callback(null);
 	});
+}
+
+function readCSVPapaparse(view, plotData, plotSetup, callback) {
+	console.log('started using papa');
+	var filename = view.dataFilename;
+	var propertyList = plotSetup.propertyList;
+	var density = plotSetup.pointcloudDensity;
+	var densityCutoff = plotSetup.densityCutoff;
+	var systemName = view.moleculeName;
+	console.log(density, densityCutoff, propertyList);
+	view.data = [];
+	/*Papa.parse(filename, {
+ 	complete: function(results) {
+ 		console.log('successfully used papa')
+ 		console.log(results);
+ 		callback(null);
+ 	}
+ });*/
+	$.ajax({
+		url: filename,
+		//dataType: 'json',
+		type: 'get',
+		cache: false,
+		success: function success(data) {
+			console.log('loading setup');
+			Papa.parse(data, {
+				complete: function complete(results) {
+					console.log('successfully used papa');
+					console.log(results);
+					callback(null);
+				}
+			});
+		},
+		error: function error(requestObject, _error, errorThrown) {
+			alert(_error);
+			alert(errorThrown);
+		}
+	});
+	/*d3.csv(filename, function (d) {
+ 	d.forEach(function (d,i) {
+ 		var n = +d[density];
+ 		if (n >densityCutoff){
+ 			var temp = {
+ 					n: +d[density],
+ 					selected: true,
+ 					name: systemName
+ 				}
+ 			for (var i = 0; i < propertyList.length; i++) {
+ 			    temp[propertyList[i]] = +d[propertyList[i]];
+ 			}
+ 
+ 
+ 			view.data.push(temp);
+ 			plotData.push(temp);
+ 		}
+ 	})
+ callback(null);
+ });*/
 }
 
 function getCoordinateScales(data) {
