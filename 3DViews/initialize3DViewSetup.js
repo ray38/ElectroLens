@@ -1,6 +1,20 @@
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
+	var gridSpacing = viewSetup.gridSpacing;
+	var systemDimension = viewSetup.systemDimension;
+	var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
+	var yCoordMin = systemDimension["y"][0], yCoordMax = systemDimension["y"][1];
+	var zCoordMin = systemDimension["z"][0], zCoordMax = systemDimension["z"][1];
+	var xSteps = (xCoordMax - xCoordMin)/gridSpacing.x;
+	var ySteps = (yCoordMax - yCoordMin)/gridSpacing.y;
+	var zSteps = (zCoordMax - zCoordMin)/gridSpacing.z;
+	var xPlotMin = 0.0 - (xSteps/2.0), xPlotMax =  0.0 + (xSteps/2.0);
+	var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
+	var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0);
+
+
+
 	var defaultSetting = {
 		//left: 0,
 		//top: 0,
@@ -19,6 +33,9 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		controllerZoom : true,
 		controllerRotate : true,
 		controllerPan : true,
+		xPlotScale : d3.scaleLinear().domain([xCoordMin,xCoordMax]).range([xPlotMin,xPlotMax]),
+		yPlotScale : d3.scaleLinear().domain([yCoordMin,yCoordMax]).range([yPlotMin,yPlotMax]),
+		zPlotScale : d3.scaleLinear().domain([zCoordMin,zCoordMax]).range([zPlotMin,zPlotMax]),
 		options: new function(){
 			this.backgroundColor = "#000000";
 			this.pointCloudParticles = 1000;
