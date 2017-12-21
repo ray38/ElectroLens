@@ -41,6 +41,11 @@ export function readCSV2(view,plotData,plotSetup,callback){
 	var density = plotSetup.pointcloudDensity;
 	var densityCutoff = plotSetup.densityCutoff;
 	var systemName = view.moleculeName;
+
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	var zPlotScale = view.zPlotScale;
+
 	console.log(density,densityCutoff,propertyList)
 	view.data = [];
 	d3.csv(filename, function (d) {
@@ -49,7 +54,6 @@ export function readCSV2(view,plotData,plotSetup,callback){
 			var n = +d[density];
 			if (n >densityCutoff){
 				var temp = {
-						//n: +d[density],
 						selected: true,
 						name: systemName
 					}

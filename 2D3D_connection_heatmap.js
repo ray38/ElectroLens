@@ -54,7 +54,7 @@ function main(views,plotSetup) {
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 	var container, stats, renderer;
-	var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
+	//var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 	var mouseX = 0, mouseY = 0;
 	var windowWidth, windowHeight;
 	var clickRequest = false;
