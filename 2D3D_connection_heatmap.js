@@ -39,6 +39,7 @@ function handleFiles() {
     		var plotSetup = data.plotSetup;
     		uploader.parentNode.removeChild(uploader);
     		uploader_wrapper.parentNode.removeChild(uploader_wrapper);
+    		initializeViewSetups(views,plotSetup);
     		main(views,plotSetup);
     	},
     	error: function(requestObject, error, errorThrown) {
@@ -67,7 +68,7 @@ function main(views,plotSetup) {
 
 	var showOptionBoxesBool = true;
 
-	initializeViewSetups(views,plotSetup);
+	//initializeViewSetups(views,plotSetup);
 
 	var unfilteredData = [];
 	var queue=d3.queue();
