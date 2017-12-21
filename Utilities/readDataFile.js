@@ -54,6 +54,9 @@ export function readCSV2(view,plotData,plotSetup,callback){
 			var n = +d[density];
 			if (n >densityCutoff){
 				var temp = {
+						xPlot: xPlotScale(+d.x),
+						yPlot: yPlotScale(+d.y),
+						zPlot: zPlotScale(+d.z),
 						selected: true,
 						name: systemName
 					}
