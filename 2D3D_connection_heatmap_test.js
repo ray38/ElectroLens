@@ -63,7 +63,7 @@ function main(views, plotSetup) {
 
 	if (!Detector.webgl) Detector.addGetWebGLMessage();
 	var container, stats, renderer;
-	var selectionPlaneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide, needsUpdate: true });
+	//var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 	var mouseX = 0,
 	    mouseY = 0;
 	var windowWidth, windowHeight;
@@ -1091,9 +1091,6 @@ exports.changePointCloudGeometry = changePointCloudGeometry;
 
 function getPointCloudGeometry(view) {
 
-	/*var vertexshaderText = ""
- 
- var fragmentShaderText = ""*/
 	var uniforms = {
 
 		color: { value: new THREE.Color(0xffffff) },
@@ -1127,10 +1124,10 @@ function getPointCloudGeometry(view) {
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
-
-	var n = 100;
-	var n2 = Math.pow(n, 2);
-	var n_inc = n / 2;
+	/*
+ var n = 100;
+ var n2 = Math.pow(n,2);
+ var n_inc = n/2;*/
 
 	var geometry = new THREE.BufferGeometry();
 
@@ -1153,9 +1150,16 @@ function getPointCloudGeometry(view) {
 	for (var k = 0; k < num_blocks; k++) {
 		temp_num_points = points_in_block[k];
 		if (temp_num_points > 0) {
-			var x_start = view.data[k]['x'] * 10 + 50;
-			var y_start = view.data[k]['y'] * 10 + 50;
-			var z_start = view.data[k]['z'] * 10 + 50;
+			/*var x_start = view.data[k]['x']*10 + 50;
+   var y_start = view.data[k]['y']*10 + 50;
+   var z_start = view.data[k]['z']*10 + 50;
+   var x_end = x_start + 1;
+   var y_end = y_start + 1;
+   var z_end = z_start + 1;*/
+
+			var x_start = view.data[k]['xPlot'];
+			var y_start = view.data[k]['yPlot'];
+			var z_start = view.data[k]['zPlot'];
 			var x_end = x_start + 1;
 			var y_end = y_start + 1;
 			var z_end = z_start + 1;
@@ -1166,9 +1170,13 @@ function getPointCloudGeometry(view) {
 				var y = Math.random() * 1 + y_start;
 				var z = Math.random() * 1 + z_start;
 
-				positions[i3 + 0] = (x - n_inc) * 10;
-				positions[i3 + 1] = (y - n_inc) * 10;
-				positions[i3 + 2] = (z - n_inc) * 10;
+				/*positions[ i3 + 0 ] = (x - n_inc)*10;
+    positions[ i3 + 1 ] = (y - n_inc)*10;
+    positions[ i3 + 2 ] = (z - n_inc)*10;*/
+				positions[i3 + 0] = x * 10;
+				positions[i3 + 1] = y * 10;
+				positions[i3 + 2] = z * 10;
+
 				var color = lut.getColor(view.data[k][options.propertyOfInterest]);
 
 				colors[i3 + 0] = color.r;
@@ -1238,9 +1246,16 @@ function updatePointCloudGeometry(view) {
 	for (var k = 0; k < num_blocks; k++) {
 		temp_num_points = points_in_block[k];
 		if (temp_num_points > 0) {
-			var x_start = view.data[k]['x'] * 10 + 50;
-			var y_start = view.data[k]['y'] * 10 + 50;
-			var z_start = view.data[k]['z'] * 10 + 50;
+			/*var x_start = view.data[k]['x']*10 + 50;
+   var y_start = view.data[k]['y']*10 + 50;
+   var z_start = view.data[k]['z']*10 + 50;
+   var x_end = x_start + 1;
+   var y_end = y_start + 1;
+   var z_end = z_start + 1;*/
+
+			var x_start = view.data[k]['xPlot'];
+			var y_start = view.data[k]['yPlot'];
+			var z_start = view.data[k]['zPlot'];
 			var x_end = x_start + 1;
 			var y_end = y_start + 1;
 			var z_end = z_start + 1;
@@ -1343,11 +1358,11 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
    this.pointMatrixColorSettingMin = 0.0;
    this.pointMatrixAlpha = 1;
    this.pointMatrixSize = 10;*/
-			this.x_low = 0;
+			this.x_low = -100;
 			this.x_high = 100;
-			this.y_low = 0;
+			this.y_low = -100;
 			this.y_high = 100;
-			this.z_low = 0;
+			this.z_low = -100;
 			this.z_high = 100;
 			this.x_slider = 0;
 			this.y_slider = 0;
@@ -1494,46 +1509,46 @@ function setupOptionBox3DView(view, plotSetup) {
  });*/
 	pointCloudFolder.open();
 
-	sliderFolder.add(options, 'x_low', 0, 100).step(1).name('x low').onChange(function (value) {
+	sliderFolder.add(options, 'x_low', -100, 100).step(1).name('x low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'x_high', 0, 100).step(1).name('x high').onChange(function (value) {
+	sliderFolder.add(options, 'x_high', -100, 100).step(1).name('x high').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'y_low', 0, 100).step(1).name('y low').onChange(function (value) {
+	sliderFolder.add(options, 'y_low', -100, 100).step(1).name('y low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'y_high', 0, 100).step(1).name('y high').onChange(function (value) {
+	sliderFolder.add(options, 'y_high', -100, 100).step(1).name('y high').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'z_low', 0, 100).step(1).name('z low').onChange(function (value) {
+	sliderFolder.add(options, 'z_low', -100, 100).step(1).name('z low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'z_high', 0, 100).step(1).name('z high').onChange(function (value) {
+	sliderFolder.add(options, 'z_high', -100, 100).step(1).name('z high').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
 
-	sliderFolder.add(options, 'x_slider', 0, 100).step(1).onChange(function (value) {
+	sliderFolder.add(options, 'x_slider', -100, 100).step(1).onChange(function (value) {
 		options.x_low = value - 1;
 		options.x_high = value;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
 	});
-	sliderFolder.add(options, 'y_slider', 0, 100).step(1).onChange(function (value) {
+	sliderFolder.add(options, 'y_slider', -100, 100).step(1).onChange(function (value) {
 		options.y_low = value - 1;
 		options.y_high = value;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
 	});
-	sliderFolder.add(options, 'z_slider', 0, 100).step(1).onChange(function (value) {
+	sliderFolder.add(options, 'z_slider', -100, 100).step(1).onChange(function (value) {
 		options.z_low = value - 1;
 		options.z_high = value;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
@@ -2019,6 +2034,11 @@ function readCSV2(view, plotData, plotSetup, callback) {
 	var density = plotSetup.pointcloudDensity;
 	var densityCutoff = plotSetup.densityCutoff;
 	var systemName = view.moleculeName;
+
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	var zPlotScale = view.zPlotScale;
+
 	console.log(density, densityCutoff, propertyList);
 	view.data = [];
 	d3.csv(filename, function (d) {
@@ -2027,7 +2047,9 @@ function readCSV2(view, plotData, plotSetup, callback) {
 			var n = +d[density];
 			if (n > densityCutoff) {
 				var temp = {
-					//n: +d[density],
+					xPlot: xPlotScale(+d.x),
+					yPlot: yPlotScale(+d.y),
+					zPlot: zPlotScale(+d.z),
 					selected: true,
 					name: systemName
 				};

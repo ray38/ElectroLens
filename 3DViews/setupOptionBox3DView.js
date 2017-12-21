@@ -90,58 +90,58 @@ export function setupOptionBox3DView(view,plotSetup){
 
 
 
-	sliderFolder.add( options, 'x_low', 0, 100 ).step( 1 )
+	sliderFolder.add( options, 'x_low', -100, 100 ).step( 1 )
 	.name( 'x low' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'x_high', 0, 100 ).step( 1 )
+	sliderFolder.add( options, 'x_high', -100, 100 ).step( 1 )
 	.name( 'x high' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'y_low', 0, 100  ).step( 1 )
+	sliderFolder.add( options, 'y_low', -100, 100  ).step( 1 )
 	.name( 'y low' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'y_high', 0, 100  ).step( 1 )
+	sliderFolder.add( options, 'y_high', -100, 100  ).step( 1 )
 	.name( 'y high' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'z_low', 0, 100  ).step( 1 )
+	sliderFolder.add( options, 'z_low', -100, 100  ).step( 1 )
 	.name( 'z low' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'z_high', 0, 100  ).step( 1 )
+	sliderFolder.add( options, 'z_high', -100, 100  ).step( 1 )
 	.name( 'z high' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
 
-	sliderFolder.add( options,'x_slider', 0, 100  ).step( 1 ).onChange( function( value ) {
+	sliderFolder.add( options,'x_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
 		options.x_low = value-1;
 		options.x_high = value;
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
-	sliderFolder.add( options,'y_slider', 0, 100  ).step( 1 ).onChange( function( value ) {
+	sliderFolder.add( options,'y_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
 		options.y_low = value-1;
 		options.y_high = value;
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
-	sliderFolder.add( options,'z_slider', 0, 100  ).step( 1 ).onChange( function( value ) {
+	sliderFolder.add( options,'z_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
 		options.z_low = value-1;
 		options.z_high = value;
 		updatePointCloudGeometry(view);

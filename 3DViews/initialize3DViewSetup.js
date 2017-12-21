@@ -52,11 +52,11 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.pointMatrixColorSettingMin = 0.0;
 			this.pointMatrixAlpha = 1;
 			this.pointMatrixSize = 10;*/
-			this.x_low = 0;
+			this.x_low = -100;
 			this.x_high = 100;
-			this.y_low = 0;
+			this.y_low = -100;
 			this.y_high = 100;
-			this.z_low = 0;
+			this.z_low = -100;
 			this.z_high = 100;
 			this.x_slider = 0;
 			this.y_slider = 0;
