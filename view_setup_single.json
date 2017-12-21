@@ -12,7 +12,7 @@
 	"plotSetup" : {
 		"propertyList": ["x","y","z","rho","gamma","epxc","deriv1","deriv2"],
 		"pointcloudDensity": "rho",
-		"densityCutoff": 1e-3
+		"densityCutoff": 1e-5
 	}
 
 

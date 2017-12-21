@@ -1124,6 +1124,7 @@ function getPointCloudGeometry(view) {
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
+	console.log("total points in cloud: ", count);
 	/*
  var n = 100;
  var n2 = Math.pow(n,2);
@@ -1486,7 +1487,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.open();
 
-	pointCloudFolder.add(options, 'pointCloudParticles', 10, 20000).step(10).name('Point Density').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudParticles', 10, 500000).step(10).name('Point Density').onChange(function (value) {
 		_PointCloud_selectionJs.changePointCloudGeometry(view);
 	});
 	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Point Opacity').onChange(function (value) {

@@ -34,6 +34,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 	points_in_block[k] = num_points;
 	count += num_points;
 }
+console.log("total points in cloud: ", count)
 /*
 var n = 100;
 var n2 = Math.pow(n,2);
@@ -85,7 +86,7 @@ for ( var k = 0; k < num_blocks; k ++) {
 			positions[ i3 + 0 ] = x*10;
 			positions[ i3 + 1 ] = y*10;
 			positions[ i3 + 2 ] = z*10;
-			
+
 			var color = lut.getColor( view.data[k][options.propertyOfInterest] );
 			
 			colors[ i3 + 0 ] = color.r;
