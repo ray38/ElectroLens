@@ -42,6 +42,11 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
 	});
+	plotFolder.add( options, 'numPerSide', 10, 1000)
+	.name('# Points')
+	.onChange( function( value ) {
+		//options.replotHeatmap.call();
+	});
 	plotFolder.add(options, 'replotHeatmap');
 
 	plotFolder.open()
@@ -60,7 +65,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 
 
 
-	viewFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
+	viewFolder.add( options, 'pointCloudAlpha', 0, 1 ).step( 0.01 )
 	.name( 'Point Opacity' )
 	.onChange( function( value ) {
 		updateHeatmap(view);
@@ -96,7 +101,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		changeLegend(view);	
 	});
 	detailFolder.add( options, 'toggleLegend');
-	
+
 	detailFolder.addColor(options,'backgroundColor')
 	.name('background')
 	.onChange( function( value ) {

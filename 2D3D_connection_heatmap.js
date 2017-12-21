@@ -35,7 +35,6 @@ function handleFiles() {
     	type: 'get',
     	cache: false,
     	success: function(data) {
-    		console.log('loading setup');
     		var views = data.views;
     		var plotSetup = data.plotSetup;
     		uploader.parentNode.removeChild(uploader);

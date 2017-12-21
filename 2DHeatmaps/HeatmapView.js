@@ -41,6 +41,8 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 	var yScale = d3.scaleQuantize()
 	.domain([yMin, yMax])
 	.range(heatmapStep);
+
+	console.log(xScale,yScale)
 	
 	var xMap = function(d) {return xScale(xValue(d));};
 	var yMap = function(d) {return yScale(yValue(d));}; 

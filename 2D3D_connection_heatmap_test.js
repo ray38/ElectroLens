@@ -45,7 +45,6 @@ function handleFiles() {
 		type: 'get',
 		cache: false,
 		success: function success(data) {
-			console.log('loading setup');
 			var views = data.views;
 			var plotSetup = data.plotSetup;
 			uploader.parentNode.removeChild(uploader);
@@ -586,6 +585,8 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 
 	var yScale = d3.scaleQuantize().domain([yMin, yMax]).range(heatmapStep);
 
+	console.log(xScale, yScale);
+
 	var xMap = function xMap(d) {
 		return xScale(xValue(d));
 	};
@@ -962,6 +963,9 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	plotFolder.add(options, 'plotYTransform', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10' }).name('Y scale').onChange(function (value) {
 		//updatePointCloudGeometry(view);
 	});
+	plotFolder.add(options, 'numPerSide', 10, 1000).name('# Points').onChange(function (value) {
+		//options.replotHeatmap.call();
+	});
 	plotFolder.add(options, 'replotHeatmap');
 
 	plotFolder.open();
@@ -1157,9 +1161,9 @@ function getPointCloudGeometry(view) {
 
 			for (var j = 0; j < temp_num_points; j++) {
 
-				var x = Math.random() * 10 + x_start;
-				var y = Math.random() * 10 + y_start;
-				var z = Math.random() * 10 + z_start;
+				var x = Math.random() * 1 + x_start;
+				var y = Math.random() * 1 + y_start;
+				var z = Math.random() * 1 + z_start;
 
 				positions[i3 + 0] = (x - n_inc) * 10;
 				positions[i3 + 1] = (y - n_inc) * 10;
