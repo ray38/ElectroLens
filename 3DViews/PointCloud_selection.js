@@ -132,10 +132,6 @@ for ( var k = 0; k < num_blocks; k ++) {
 	count += num_points;
 }
 
-var n = 100;
-var n2 = Math.pow(n,2);
-var n_inc = n/2;
-
 
 var colors = new Float32Array(count *3);
 var sizes = new Float32Array( count);
@@ -193,6 +189,10 @@ view.System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( col
 view.System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 view.System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 }
+
+
+
+
 
 
 export function changePointCloudGeometry(view){
