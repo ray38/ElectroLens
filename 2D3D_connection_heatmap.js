@@ -91,7 +91,7 @@ function main(views,plotSetup) {
 	function init() {
 		console.log('started initialization')
 		container = document.getElementById( 'container' );
-		renderer = new THREE.WebGLRenderer( { antialias: false } );
+		renderer = new THREE.WebGLRenderer( { antialias: true } );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth , window.innerHeight);
 
@@ -274,8 +274,11 @@ function main(views,plotSetup) {
 		for ( var ii = 0; ii < views.length; ++ii ) {
 
 			var view = views[ii];
-			if (view.viewType == '3DView' && view.options.animate ) {animatePointCloudGeometry(view);}
-			view.System.geometry.attributes.size.needsUpdate = true;
+			if (view.viewType == '3DView' && view.options.animate ) {
+				animatePointCloudGeometry(view);
+				view.System.geometry.attributes.size.needsUpdate = true;
+			}
+			
 			var camera = view.camera;
 			var left   = Math.floor( windowWidth  * view.left );
 			var top    = Math.floor( windowHeight * view.top );

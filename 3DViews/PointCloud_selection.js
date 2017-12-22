@@ -86,7 +86,8 @@ export function getPointCloudGeometry(view){
 					(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& view.data[k].selected)
 					{
 						alphas[ i ] = options.pointCloudAlpha;
-						if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
+						//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
+						if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
 						else { sizes[ i ] = options.pointCloudSize; }
 						
 					}
@@ -163,7 +164,8 @@ export function updatePointCloudGeometry(view){
 				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.data[k].selected)
 		{
 			alphas[ i ] = options.pointCloudAlpha;
-			if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
+			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
+			if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
 			else { sizes[ i ] = options.pointCloudSize; }
 		}
 		else {
@@ -195,6 +197,8 @@ export function animatePointCloudGeometry(view){
 	var points_in_block = new Float32Array(num_blocks);
 	var count = view.System.geometry.attributes.size.array.length;
 
+
+	//var colors = new Float32Array(count *3);
 	var sizes = new Float32Array( count);
 
 	for (var i = 0, i3 = 0; i < count; i++){
@@ -208,7 +212,7 @@ export function animatePointCloudGeometry(view){
 				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.data[k].selected)
 		{
 			var temp = sizeArray[i]-0.1;
-			if (temp >= 0.5) {sizeArray[i] = temp;}
+			if (temp >= 0.0) {sizeArray[i] = temp;}
 			else {sizeArray[i] = options.pointCloudSize;}
 		}
 		else {
