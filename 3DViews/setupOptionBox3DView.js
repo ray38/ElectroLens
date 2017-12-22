@@ -129,21 +129,21 @@ export function setupOptionBox3DView(view,plotSetup){
 
 	sliderFolder.add( options,'x_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
 		options.x_low = value-1;
-		options.x_high = value;
+		options.x_high = value+1;
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
 	sliderFolder.add( options,'y_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
 		options.y_low = value-1;
-		options.y_high = value;
+		options.y_high = value+1;
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
 	sliderFolder.add( options,'z_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
 		options.z_low = value-1;
-		options.z_high = value;
+		options.z_high = value+1;
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();

@@ -1487,7 +1487,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.open();
 
-	pointCloudFolder.add(options, 'pointCloudParticles', 10, 500000).step(10).name('Point Density').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudParticles', 10, 50000).step(10).name('Point Density').onChange(function (value) {
 		_PointCloud_selectionJs.changePointCloudGeometry(view);
 	});
 	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Point Opacity').onChange(function (value) {
@@ -1537,21 +1537,21 @@ function setupOptionBox3DView(view, plotSetup) {
 
 	sliderFolder.add(options, 'x_slider', -100, 100).step(1).onChange(function (value) {
 		options.x_low = value - 1;
-		options.x_high = value;
+		options.x_high = value + 1;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
 	});
 	sliderFolder.add(options, 'y_slider', -100, 100).step(1).onChange(function (value) {
 		options.y_low = value - 1;
-		options.y_high = value;
+		options.y_high = value + 1;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
 	});
 	sliderFolder.add(options, 'z_slider', -100, 100).step(1).onChange(function (value) {
 		options.z_low = value - 1;
-		options.z_high = value;
+		options.z_high = value + 1;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
