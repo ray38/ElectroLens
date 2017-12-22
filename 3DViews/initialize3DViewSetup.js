@@ -36,9 +36,16 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		xPlotScale : d3.scaleLinear().domain([xCoordMin,xCoordMax]).range([xPlotMin,xPlotMax]),
 		yPlotScale : d3.scaleLinear().domain([yCoordMin,yCoordMax]).range([yPlotMin,yPlotMax]),
 		zPlotScale : d3.scaleLinear().domain([zCoordMin,zCoordMax]).range([zPlotMin,zPlotMax]),
+		xPlotMin : xPlotMin,
+		xPlotMax : xPlotMax,
+		yPlotMin : yPlotMin,
+		yPlotMax : yPlotMax,
+		zPlotMin : zPlotMin,
+		zPlotMax : zPlotMax,
 		options: new function(){
 			this.backgroundColor = "#000000";
 			this.pointCloudParticles = 1000;
+			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;
 			this.pointCloudAlpha = 1;
@@ -52,12 +59,12 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.pointMatrixColorSettingMin = 0.0;
 			this.pointMatrixAlpha = 1;
 			this.pointMatrixSize = 10;*/
-			this.x_low = -100;
-			this.x_high = 100;
-			this.y_low = -100;
-			this.y_high = 100;
-			this.z_low = -100;
-			this.z_high = 100;
+			this.x_low =  xPlotMin;
+			this.x_high = xPlotMax;
+			this.y_low =  yPlotMin;
+			this.y_high = yPlotMax;
+			this.z_low =  zPlotMin;
+			this.z_high = zPlotMax;
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;

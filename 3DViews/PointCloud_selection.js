@@ -30,7 +30,7 @@ export function getPointCloudGeometry(view){
 	var count = 0;
 
 	for ( var k = 0; k < num_blocks; k ++) {
-		var num_points  = Math.min(Math.floor((view.data[k][options.density] / total) * particles),40);
+		var num_points  = Math.min(Math.floor((view.data[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}

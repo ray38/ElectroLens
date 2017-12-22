@@ -23,7 +23,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();		
 	});
-	moleculeFolder.add( options, 'propertyOfInterest', propertyChoiceObject/*{'rho':'rho','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/)
+	moleculeFolder.add( options, 'propertyOfInterest', propertyChoiceObject)
 	.name( 'Color Basis' )
 	.onChange( function( value ) {
 		adjustColorScaleAccordingToDefault(view);
@@ -55,18 +55,18 @@ export function setupOptionBox3DView(view,plotSetup){
 
 
 
-	pointCloudFolder.add( options, 'pointCloudParticles', 10, 50000 ).step( 10 )
-	.name( 'Point Density' )
+	pointCloudFolder.add( options, 'pointCloudParticles', 10, 30000 ).step( 10 )
+	.name( 'Density' )
 	.onChange( function( value ) {
 		changePointCloudGeometry(view);
 	});
 	pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
-	.name( 'Point Opacity' )
+	.name( 'Opacity' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 	});
 	pointCloudFolder.add( options, 'pointCloudSize', 0, 10 ).step( 0.1 )
-	.name( 'Point Size' )
+	.name( 'Size' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 	});
@@ -82,66 +82,68 @@ export function setupOptionBox3DView(view,plotSetup){
 		updatePointCloudGeometry(view);
 		changeLegend(view);	
 	});
+	pointCloudFolder.add( options, 'pointCloudMaxPointPerBlock', 10, 200 ).step( 10 )
+	.name( 'Max Density')
+	.onChange( function( value ) {
+		changePointCloudGeometry(view);
+	});
 
-	/*pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {
-		updatePointCloudGeometry(view);
-	});*/
 	pointCloudFolder.open();
 
 
 
-	sliderFolder.add( options, 'x_low', -100, 100 ).step( 1 )
+	sliderFolder.add( options, 'x_low', view.xPlotMin, view.xPlotMax ).step( 1 )
 	.name( 'x low' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'x_high', -100, 100 ).step( 1 )
+	sliderFolder.add( options, 'x_high', view.xPlotMin, view.xPlotMax ).step( 1 )
 	.name( 'x high' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'y_low', -100, 100  ).step( 1 )
+	sliderFolder.add( options, 'y_low', view.yPlotMin, view.yPlotMax ).step( 1 )
 	.name( 'y low' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'y_high', -100, 100  ).step( 1 )
+	sliderFolder.add( options, 'y_high', view.yPlotMin, view.yPlotMax ).step( 1 )
 	.name( 'y high' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'z_low', -100, 100  ).step( 1 )
+	sliderFolder.add( options, 'z_low', view.zPlotMin, view.zPlotMax  ).step( 1 )
 	.name( 'z low' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add( options, 'z_high', -100, 100  ).step( 1 )
+	sliderFolder.add( options, 'z_high', view.zPlotMin, view.zPlotMax ).step( 1 )
 	.name( 'z high' )
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
 
-	sliderFolder.add( options,'x_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
+	sliderFolder.add( options,'x_slider', view.xPlotMin, view.xPlotMax  ).step( 1 ).onChange( function( value ) {
 		options.x_low = value-1;
 		options.x_high = value+1;
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
-	sliderFolder.add( options,'y_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
+	sliderFolder.add( options,'y_slider', view.yPlotMin, view.yPlotMax  ).step( 1 ).onChange( function( value ) {
 		options.y_low = value-1;
 		options.y_high = value+1;
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
-	sliderFolder.add( options,'z_slider', -100, 100  ).step( 1 ).onChange( function( value ) {
+	sliderFolder.add( options,'z_slider', view.zPlotMin, view.zPlotMax  ).step( 1 ).onChange( function( value ) {
 		options.z_low = value-1;
 		options.z_high = value+1;
 		updatePointCloudGeometry(view);

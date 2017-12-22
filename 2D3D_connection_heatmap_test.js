@@ -1120,7 +1120,7 @@ function getPointCloudGeometry(view) {
 	var count = 0;
 
 	for (var k = 0; k < num_blocks; k++) {
-		var num_points = Math.min(Math.floor(view.data[k][options.density] / total * particles), 40);
+		var num_points = Math.min(Math.floor(view.data[k][options.density] / total * particles), options.pointCloudMaxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -1304,9 +1304,16 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		xPlotScale: d3.scaleLinear().domain([xCoordMin, xCoordMax]).range([xPlotMin, xPlotMax]),
 		yPlotScale: d3.scaleLinear().domain([yCoordMin, yCoordMax]).range([yPlotMin, yPlotMax]),
 		zPlotScale: d3.scaleLinear().domain([zCoordMin, zCoordMax]).range([zPlotMin, zPlotMax]),
+		xPlotMin: xPlotMin,
+		xPlotMax: xPlotMax,
+		yPlotMin: yPlotMin,
+		yPlotMax: yPlotMax,
+		zPlotMin: zPlotMin,
+		zPlotMax: zPlotMax,
 		options: new function () {
 			this.backgroundColor = "#000000";
 			this.pointCloudParticles = 1000;
+			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;
 			this.pointCloudAlpha = 1;
@@ -1320,12 +1327,12 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
    this.pointMatrixColorSettingMin = 0.0;
    this.pointMatrixAlpha = 1;
    this.pointMatrixSize = 10;*/
-			this.x_low = -100;
-			this.x_high = 100;
-			this.y_low = -100;
-			this.y_high = 100;
-			this.z_low = -100;
-			this.z_high = 100;
+			this.x_low = xPlotMin;
+			this.x_high = xPlotMax;
+			this.y_low = yPlotMin;
+			this.y_high = yPlotMax;
+			this.z_low = zPlotMin;
+			this.z_high = zPlotMax;
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;
@@ -1423,7 +1430,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();
 	});
-	moleculeFolder.add(options, 'propertyOfInterest', propertyChoiceObject /*{'rho':'rho','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/).name('Color Basis').onChange(function (value) {
+	moleculeFolder.add(options, 'propertyOfInterest', propertyChoiceObject).name('Color Basis').onChange(function (value) {
 		_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 
@@ -1448,13 +1455,13 @@ function setupOptionBox3DView(view, plotSetup) {
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.open();
 
-	pointCloudFolder.add(options, 'pointCloudParticles', 10, 50000).step(10).name('Point Density').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudParticles', 10, 30000).step(10).name('Density').onChange(function (value) {
 		_PointCloud_selectionJs.changePointCloudGeometry(view);
 	});
-	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Point Opacity').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 	});
-	pointCloudFolder.add(options, 'pointCloudSize', 0, 10).step(0.1).name('Point Size').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudSize', 0, 10).step(0.1).name('Size').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 	});
 	pointCloudFolder.add(options, 'pointCloudColorSettingMin', -1000, 1000).step(0.1).name('Color Scale Min').onChange(function (value) {
@@ -1465,52 +1472,52 @@ function setupOptionBox3DView(view, plotSetup) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
+	pointCloudFolder.add(options, 'pointCloudMaxPointPerBlock', 10, 200).step(10).name('Max Density').onChange(function (value) {
+		_PointCloud_selectionJs.changePointCloudGeometry(view);
+	});
 
-	/*pointCloudFolder.add( options, 'pointCloudColorSetting', 0.1, 20.0 ).step( 0.1 ).onChange( function( value ) {
- 	updatePointCloudGeometry(view);
- });*/
 	pointCloudFolder.open();
 
-	sliderFolder.add(options, 'x_low', -100, 100).step(1).name('x low').onChange(function (value) {
+	sliderFolder.add(options, 'x_low', view.xPlotMin, view.xPlotMax).step(1).name('x low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'x_high', -100, 100).step(1).name('x high').onChange(function (value) {
+	sliderFolder.add(options, 'x_high', view.xPlotMin, view.xPlotMax).step(1).name('x high').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'y_low', -100, 100).step(1).name('y low').onChange(function (value) {
+	sliderFolder.add(options, 'y_low', view.yPlotMin, view.yPlotMax).step(1).name('y low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'y_high', -100, 100).step(1).name('y high').onChange(function (value) {
+	sliderFolder.add(options, 'y_high', view.yPlotMin, view.yPlotMax).step(1).name('y high').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'z_low', -100, 100).step(1).name('z low').onChange(function (value) {
+	sliderFolder.add(options, 'z_low', view.zPlotMin, view.zPlotMax).step(1).name('z low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
-	sliderFolder.add(options, 'z_high', -100, 100).step(1).name('z high').onChange(function (value) {
+	sliderFolder.add(options, 'z_high', view.zPlotMin, view.zPlotMax).step(1).name('z high').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 	});
 
-	sliderFolder.add(options, 'x_slider', -100, 100).step(1).onChange(function (value) {
+	sliderFolder.add(options, 'x_slider', view.xPlotMin, view.xPlotMax).step(1).onChange(function (value) {
 		options.x_low = value - 1;
 		options.x_high = value + 1;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
 	});
-	sliderFolder.add(options, 'y_slider', -100, 100).step(1).onChange(function (value) {
+	sliderFolder.add(options, 'y_slider', view.yPlotMin, view.yPlotMax).step(1).onChange(function (value) {
 		options.y_low = value - 1;
 		options.y_high = value + 1;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		//updatePlane(options);
 		gui.updateDisplay();
 	});
-	sliderFolder.add(options, 'z_slider', -100, 100).step(1).onChange(function (value) {
+	sliderFolder.add(options, 'z_slider', view.zPlotMin, view.zPlotMax).step(1).onChange(function (value) {
 		options.z_low = value - 1;
 		options.z_high = value + 1;
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
