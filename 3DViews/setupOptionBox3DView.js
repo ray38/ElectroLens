@@ -87,6 +87,10 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ) {
 		changePointCloudGeometry(view);
 	});
+	pointCloudFolder.add( options, 'animate')
+	.onChange( function( value ) {
+		updatePointCloudGeometry(view);
+	});
 
 	pointCloudFolder.open();
 

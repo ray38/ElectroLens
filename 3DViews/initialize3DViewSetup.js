@@ -44,12 +44,13 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		zPlotMax : zPlotMax,
 		options: new function(){
 			this.backgroundColor = "#000000";
-			this.pointCloudParticles = 1000;
+			this.pointCloudParticles = 500;
 			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;
 			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 1;
+			this.pointCloudSize = 5;
+			this.animate = false;
 			/*this.boxParticles = 200;
 			this.boxColorSetting = 10.0;
 			this.boxSize = 10;

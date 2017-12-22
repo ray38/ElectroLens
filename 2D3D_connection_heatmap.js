@@ -1,7 +1,7 @@
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
-import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
+import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {readCSV,readCSV2/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
@@ -54,7 +54,7 @@ function main(views,plotSetup) {
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 	var container, stats, renderer;
-	//var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
+	var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 	var mouseX = 0, mouseY = 0;
 	var windowWidth, windowHeight;
 	var clickRequest = false;
@@ -272,7 +272,10 @@ function main(views,plotSetup) {
 	function render() {
 		updateSize();
 		for ( var ii = 0; ii < views.length; ++ii ) {
+
 			var view = views[ii];
+			if (view.viewType == '3DView' && view.options.animate ) {animatePointCloudGeometry(view);}
+			view.System.geometry.attributes.size.needsUpdate = true;
 			var camera = view.camera;
 			var left   = Math.floor( windowWidth  * view.left );
 			var top    = Math.floor( windowHeight * view.top );
@@ -292,6 +295,7 @@ function main(views,plotSetup) {
 			renderer.setClearColor( view.background );
 			//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
 			//else {renderer.setClearColor( view.background );}
+
 			camera.aspect = width / height;
 			camera.updateProjectionMatrix();
 			renderer.clear();
