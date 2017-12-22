@@ -1125,10 +1125,6 @@ function getPointCloudGeometry(view) {
 		count += num_points;
 	}
 	console.log("total points in cloud: ", count);
-	/*
- var n = 100;
- var n2 = Math.pow(n,2);
- var n_inc = n/2;*/
 
 	var geometry = new THREE.BufferGeometry();
 
@@ -1151,12 +1147,6 @@ function getPointCloudGeometry(view) {
 	for (var k = 0; k < num_blocks; k++) {
 		temp_num_points = points_in_block[k];
 		if (temp_num_points > 0) {
-			/*var x_start = view.data[k]['x']*10 + 50;
-   var y_start = view.data[k]['y']*10 + 50;
-   var z_start = view.data[k]['z']*10 + 50;
-   var x_end = x_start + 1;
-   var y_end = y_start + 1;
-   var z_end = z_start + 1;*/
 
 			var x_start = view.data[k]['xPlot'];
 			var y_start = view.data[k]['yPlot'];
@@ -1171,9 +1161,6 @@ function getPointCloudGeometry(view) {
 				var y = Math.random() * 1 + y_start;
 				var z = Math.random() * 1 + z_start;
 
-				/*positions[ i3 + 0 ] = (x - n_inc)*10;
-    positions[ i3 + 1 ] = (y - n_inc)*10;
-    positions[ i3 + 2 ] = (z - n_inc)*10;*/
 				positions[i3 + 0] = x * 10;
 				positions[i3 + 1] = y * 10;
 				positions[i3 + 2] = z * 10;
@@ -1247,12 +1234,6 @@ function updatePointCloudGeometry(view) {
 	for (var k = 0; k < num_blocks; k++) {
 		temp_num_points = points_in_block[k];
 		if (temp_num_points > 0) {
-			/*var x_start = view.data[k]['x']*10 + 50;
-   var y_start = view.data[k]['y']*10 + 50;
-   var z_start = view.data[k]['z']*10 + 50;
-   var x_end = x_start + 1;
-   var y_end = y_start + 1;
-   var z_end = z_start + 1;*/
 
 			var x_start = view.data[k]['xPlot'];
 			var y_start = view.data[k]['yPlot'];
