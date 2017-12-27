@@ -1679,7 +1679,7 @@ function setupHUD(view) {
 }
 
 },{}],11:[function(require,module,exports){
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 exports.calculateViewportSizes = calculateViewportSizes;
@@ -1687,6 +1687,8 @@ exports.fullscreenOneView = fullscreenOneView;
 exports.deFullscreen = deFullscreen;
 
 var _optionBoxControlJs = require("./optionBoxControl.js");
+
+var _DHeatmapsUtilitiesJs = require("../2DHeatmaps/Utilities.js");
 
 function calculateViewportSizes(views) {
 	var twoDViewCount = 0.0,
@@ -1752,6 +1754,9 @@ function fullscreenOneView(views, view) {
 
 		//tempView.guiContainer.style.display = "none";
 		tempView.guiContainer.style.visibility = "hidden";
+		if (tempView.viewType == '2DHeatmap') {
+			tempView.title.style.visibility = "hidden";
+		}
 	}
 
 	view.left = 0.0;
@@ -1760,8 +1765,12 @@ function fullscreenOneView(views, view) {
 	view.width = 1.0;
 
 	view.guiContainer.style.visibility = "visible";
+	if (view.viewType == '2DHeatmap') {
+		view.title.style.visibility = "visible";
+	}
 
 	_optionBoxControlJs.updateOptionBoxLocation(views);
+	_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 }
 
 function deFullscreen(views) {
@@ -1806,6 +1815,8 @@ function deFullscreen(views) {
 			view.width = twoDViewWidth;
 
 			twoDViewTopCounter += twoDViewHeight;
+
+			view.title.style.visibility = "visible";
 		}
 		if (view.viewType == '3DView') {
 			view.left = 0.0;
@@ -1818,9 +1829,10 @@ function deFullscreen(views) {
 	}
 
 	_optionBoxControlJs.updateOptionBoxLocation(views);
+	_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 }
 
-},{"./optionBoxControl.js":15}],12:[function(require,module,exports){
+},{"../2DHeatmaps/Utilities.js":3,"./optionBoxControl.js":15}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;

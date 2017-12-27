@@ -1,4 +1,5 @@
-import { updateOptionBoxLocation } from "./optionBoxControl.js"
+import { updateOptionBoxLocation } from "./optionBoxControl.js";
+import { update2DHeatmapTitlesLocation } from "../2DHeatmaps/Utilities.js";
 export function calculateViewportSizes(views){
 	var twoDViewCount = 0.0, threeDViewCount = 0.0;
 
@@ -51,6 +52,9 @@ export function fullscreenOneView(views, view){
 
 		//tempView.guiContainer.style.display = "none";
 		tempView.guiContainer.style.visibility = "hidden";
+		if (tempView.viewType == '2DHeatmap') {
+			tempView.title.style.visibility = "hidden";
+		}
 	}
 
 	view.left = 0.0;
@@ -59,8 +63,12 @@ export function fullscreenOneView(views, view){
 	view.width = 1.0;
 
 	view.guiContainer.style.visibility = "visible";
+	if (view.viewType == '2DHeatmap') {
+		view.title.style.visibility = "visible";
+	}
 
 	updateOptionBoxLocation(views);
+	update2DHeatmapTitlesLocation(views);
 
 }
 
@@ -93,6 +101,8 @@ export function deFullscreen(views){
 			view.width = twoDViewWidth;
 
 			twoDViewTopCounter += twoDViewHeight; 
+
+			view.title.style.visibility = "visible";
 		}
 		if (view.viewType == '3DView'){ 
 			view.left = 0.0;
@@ -106,5 +116,6 @@ export function deFullscreen(views){
 
 
 	updateOptionBoxLocation(views);
+	update2DHeatmapTitlesLocation(views);
 	
 }
