@@ -91,6 +91,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 	});
+	console.log(pointCloudFolder);
 
 	pointCloudFolder.open();
 

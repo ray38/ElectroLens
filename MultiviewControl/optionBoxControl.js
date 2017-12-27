@@ -23,6 +23,8 @@ export function updateOptionBoxLocation(views){
 	}, 30);
 }
 
+
+
 function hideAllOptionBoxes(views){
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];

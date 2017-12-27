@@ -11,7 +11,7 @@ import {setupViewCameraSceneController } from "./MultiviewControl/setupViewBasic
 import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./MultiviewControl/optionBoxControl.js";
 import {setupHUD} from "./MultiviewControl/HUDControl.js";
 import {updateController} from "./MultiviewControl/controllerControl.js";
-import {getAxis} from "./2DHeatmaps/Utilities.js";
+import {getAxis, addTitle, update2DHeatmapTitlesLocation} from "./2DHeatmaps/Utilities.js";
 import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
 
 import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
@@ -20,8 +20,9 @@ import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/color
 
 import {calcDefaultColorScales, adjustColorScaleAccordingToDefault} from "./Utilities/colorScale.js";
 
-
+console.log('starting');
 var uploader = document.getElementById("uploader");
+console.log(uploader);
 var uploader_wrapper = document.getElementById("uploader_wrapper");
 
 uploader.addEventListener("change", handleFiles, false);
@@ -123,6 +124,7 @@ function main(views,plotSetup) {
 				initializeHeatmapToolTip(view);
 				setupOptionBox2DHeatmap(view,plotSetup);
 				getAxis(view);
+				addTitle(view);
 
 				arrangeDataToHeatmap(view,unfilteredData)
 				getHeatmap(view);
@@ -259,6 +261,7 @@ function main(views,plotSetup) {
 			}
 
 			updateOptionBoxLocation(views);
+			update2DHeatmapTitlesLocation(views);
 		}
 	}
 
