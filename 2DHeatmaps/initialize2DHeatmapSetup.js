@@ -18,6 +18,8 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		controllerZoom : true,
 		controllerRotate : false,
 		controllerPan : true,
+		xPlotScale : d3.scaleLinear().domain([0, 100]).range([-50,50]),
+		yPlotScale : d3.scaleLinear().domain([0, 100]).range([-50,50]),
 		options: new function(){
 			this.backgroundColor = "#000000";
 			this.numPerSide = 100;

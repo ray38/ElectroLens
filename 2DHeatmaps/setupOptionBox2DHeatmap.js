@@ -45,6 +45,8 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	plotFolder.add( options, 'numPerSide', 10, 1000)
 	.name('# Points')
 	.onChange( function( value ) {
+		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
+		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
 		//options.replotHeatmap.call();
 	});
 	plotFolder.add(options, 'replotHeatmap');

@@ -462,10 +462,12 @@ function main(views, plotSetup) {
 			console.log('updating plane selection');
 
 			var data = temp_view.data;
+			var xPlotScale = temp_view.xPlotScale;
+			var yPlotScale = temp_view.yPlotScale;
 			for (var x in data) {
 				for (var y in data[x]) {
-					tempx = parseFloat(x) - 50;
-					tempy = parseFloat(y) - 50;
+					tempx = xPlotScale(parseFloat(x));
+					tempy = yPlotScale(parseFloat(y));
 					if (tempx > xmin && tempx < xmax && tempy > ymin && tempy < ymax) {
 						data[x][y].selected = true;
 					} else {
@@ -676,8 +678,10 @@ function getHeatmap(view) {
 	var i = 0;
 	var i3 = 0;
 
-	var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50, 50]);
-	var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50, 50]);
+	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
 
 	for (var x in data) {
 		for (var y in data[x]) {
@@ -908,6 +912,8 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 		controllerZoom: true,
 		controllerRotate: false,
 		controllerPan: true,
+		xPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
+		yPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
 		options: new function () {
 			this.backgroundColor = "#000000";
 			this.numPerSide = 100;
@@ -1013,6 +1019,8 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		//updatePointCloudGeometry(view);
 	});
 	plotFolder.add(options, 'numPerSide', 10, 1000).name('# Points').onChange(function (value) {
+		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
+		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
 		//options.replotHeatmap.call();
 	});
 	plotFolder.add(options, 'replotHeatmap');

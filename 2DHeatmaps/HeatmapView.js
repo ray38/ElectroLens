@@ -122,8 +122,10 @@ export function getHeatmap(view){
 	var i = 0;
 	var i3 = 0;
 
-	var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
 	
 	for (var x in data){
 		for (var y in data[x]){
