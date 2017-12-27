@@ -676,13 +676,16 @@ function getHeatmap(view) {
 	var i = 0;
 	var i3 = 0;
 
+	var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50, 50]);
+	var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50, 50]);
+
 	for (var x in data) {
 		for (var y in data[x]) {
-			var xPlot = parseFloat(x);
-			var yPlot = parseFloat(y);
+			var xPlot = xPlotScale(parseFloat(x));
+			var yPlot = yPlotScale(parseFloat(y));
 
-			positions[i3 + 0] = xPlot - 50;
-			positions[i3 + 1] = yPlot - 50;
+			positions[i3 + 0] = xPlot;
+			positions[i3 + 1] = yPlot;
 			positions[i3 + 2] = 0;
 
 			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
