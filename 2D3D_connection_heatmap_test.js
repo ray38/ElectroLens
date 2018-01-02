@@ -845,7 +845,7 @@ function addTitle(view) {
 	tempTitle.style.width = tempWidth;
 	tempTitle.innerHTML = titleText;
 	tempTitle.style.backgroundColor = "black";
-	tempTitle.style.opacity = 0.7;
+	tempTitle.style.opacity = 1.0;
 	tempTitle.style.color = "white";
 	tempTitle.style.top = view.windowTop + 'px';
 	//tempTitle.style.left = view.windowLeft + 'px';
