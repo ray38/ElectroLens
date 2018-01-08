@@ -1,0 +1,31 @@
+body {
+	color: #000;
+	font-family:Monospace;
+	font-size:13px;
+	text-align:center;
+	background-color: #fff;
+	margin: 0px;
+	overflow: hidden;
+}
+#info {
+	position: absolute;
+	top: 0px; width: 100%;
+	padding: 5px;
+}
+a {
+	color: #0080ff;
+}
+
+/* DAT GUI */
+
+
+.dg {
+    text-align: left;
+}
+
+/*
+div.dg li:not(.folder){
+	height:20px;
+	line-height: 20px;
+}
+*/

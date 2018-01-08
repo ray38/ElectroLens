@@ -42,6 +42,12 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		yPlotMax : yPlotMax,
 		zPlotMin : zPlotMin,
 		zPlotMax : zPlotMax,
+		xCoordMin : xCoordMin,
+		xCoordMax : xCoordMax,
+		yCoordMin : yCoordMin,
+		yCoordMax : yCoordMax,
+		zCoordMin : zCoordMin,
+		zCoordMax : zCoordMax,
 		options: new function(){
 			this.backgroundColor = "#000000";
 			this.pointCloudParticles = 500;
@@ -84,10 +90,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.planeVisibilityB = false;
 			this.planeOpacity = 0.05;
 			this.resetCamera = function(){viewSetup.controller.reset();};
-			this.fullscreen = function(){
-								fullscreenOneView(views,viewSetup);
-							};
-			this.defullscreen = function(){deFullscreen(views);};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function(){
 										if (!viewSetup.options.fullscreenBoolean){

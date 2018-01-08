@@ -7,6 +7,8 @@ var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
 var _DViewsPointCloud_selectionJs = require("./3DViews/PointCloud_selection.js");
 
+var _DViewsSystemEdgeJs = require("./3DViews/systemEdge.js");
+
 var _UtilitiesReadDataFileJs = require( /*,readCSVPapaparse, readViewsSetup*/"./Utilities/readDataFile.js");
 
 var _DViewsSetupOptionBox3DViewJs = require("./3DViews/setupOptionBox3DView.js");
@@ -127,6 +129,7 @@ function main(views, plotSetup) {
 				_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
 
 				_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
+				_DViewsSystemEdgeJs.addSystemEdge(view);
 				_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view, plotSetup);
 				_MultiviewControlColorLegendJs.insertLegend(view);
 			}
@@ -524,7 +527,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./MultiviewControl/HUDControl.js":10,"./MultiviewControl/calculateViewportSizes.js":11,"./MultiviewControl/colorLegend.js":12,"./MultiviewControl/controllerControl.js":13,"./MultiviewControl/initializeViewSetups.js":14,"./MultiviewControl/optionBoxControl.js":15,"./MultiviewControl/setupViewBasic.js":16,"./Utilities/colorScale.js":17,"./Utilities/readDataFile.js":19}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./3DViews/systemEdge.js":10,"./MultiviewControl/HUDControl.js":11,"./MultiviewControl/calculateViewportSizes.js":12,"./MultiviewControl/colorLegend.js":13,"./MultiviewControl/controllerControl.js":14,"./MultiviewControl/initializeViewSetups.js":15,"./MultiviewControl/optionBoxControl.js":16,"./MultiviewControl/setupViewBasic.js":17,"./Utilities/colorScale.js":18,"./Utilities/readDataFile.js":20}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -976,7 +979,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":11,"../MultiviewControl/colorLegend.js":12,"./HeatmapView.js":2}],5:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":12,"../MultiviewControl/colorLegend.js":13,"./HeatmapView.js":2}],5:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1077,7 +1080,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	gui.close();
 }
 
-},{"../MultiviewControl/colorLegend.js":12,"../Utilities/other.js":18,"./HeatmapView.js":2}],6:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":13,"../Utilities/other.js":19,"./HeatmapView.js":2}],6:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1413,6 +1416,12 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		yPlotMax: yPlotMax,
 		zPlotMin: zPlotMin,
 		zPlotMax: zPlotMax,
+		xCoordMin: xCoordMin,
+		xCoordMax: xCoordMax,
+		yCoordMin: yCoordMin,
+		yCoordMax: yCoordMax,
+		zCoordMin: zCoordMin,
+		zCoordMax: zCoordMax,
 		options: new function () {
 			this.backgroundColor = "#000000";
 			this.pointCloudParticles = 500;
@@ -1502,7 +1511,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":11,"../MultiviewControl/colorLegend.js":12}],9:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":12,"../MultiviewControl/colorLegend.js":13}],9:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1661,7 +1670,29 @@ function setupOptionBox3DView(view, plotSetup) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":12,"../Utilities/colorScale.js":17,"../Utilities/other.js":18,"./PointCloud_selection.js":7}],10:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":13,"../Utilities/colorScale.js":18,"../Utilities/other.js":19,"./PointCloud_selection.js":7}],10:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+exports.addSystemEdge = addSystemEdge;
+
+function addSystemEdge(view) {
+
+	var options = view.options;
+	var scene = view.scene;
+
+	var geometry = new THREE.CubeGeometry(10.0 * (view.xPlotScale(view.xCoordMax) - view.xPlotScale(view.xCoordMin)), 10.0 * (view.yPlotScale(view.yCoordMax) - view.yPlotScale(view.yCoordMin)), 10.0 * (view.zPlotScale(view.zCoordMax) - view.zPlotScale(view.zCoordMin)));
+
+	var geo = new THREE.EdgesGeometry(geometry); // or WireframeGeometry( geometry )
+
+	var mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+
+	var wireframe = new THREE.LineSegments(geo, mat);
+
+	scene.add(wireframe);
+}
+
+},{}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1689,7 +1720,7 @@ function setupHUD(view) {
 	view.border = border;
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1843,7 +1874,7 @@ function deFullscreen(views) {
 	_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 }
 
-},{"../2DHeatmaps/Utilities.js":3,"./optionBoxControl.js":15}],12:[function(require,module,exports){
+},{"../2DHeatmaps/Utilities.js":3,"./optionBoxControl.js":16}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1886,7 +1917,7 @@ function changeLegend(view) {
 	insertLegend(view);
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1925,7 +1956,7 @@ function disableController(view, controller) {
 	view.border.material.needsUpdate = true;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1951,7 +1982,7 @@ function initializeViewSetups(views, plotSetup) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":11}],15:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":12}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2005,7 +2036,7 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 	}
 }
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2032,7 +2063,7 @@ function setupViewCameraSceneController(view, renderer) {
 	view.windowHeight = height;
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2059,7 +2090,7 @@ function adjustColorScaleAccordingToDefault(view) {
 	view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max'];
 }
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2073,7 +2104,7 @@ function arrayToIdenticalObject(array) {
 	return result;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2262,4 +2293,4 @@ function loadJSON(filename,callback) {
 	xobj.send(null);  
 }*/
 
-},{"../MultiviewControl/initializeViewSetups.js":14}]},{},[1]);
+},{"../MultiviewControl/initializeViewSetups.js":15}]},{},[1]);

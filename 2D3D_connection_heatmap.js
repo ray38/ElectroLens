@@ -2,6 +2,7 @@ import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
+import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {readCSV,readCSV2/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
@@ -116,6 +117,7 @@ function main(views,plotSetup) {
 				adjustColorScaleAccordingToDefault(view);				
 
 				getPointCloudGeometry(view);
+				addSystemEdge(view);
 				setupOptionBox3DView(view,plotSetup);
 				insertLegend(view);
 			}

@@ -32,10 +32,6 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.colorMap = 'rainbow';
 			this.resetCamera = function(){viewSetup.controller.reset();};
 			this.replotHeatmap = function(){replotHeatmap(viewSetup)};
-			this.fullscreen = function(){
-								fullscreenOneView(views,viewSetup);
-							};
-			this.defullscreen = function(){deFullscreen(views);};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function(){
 										if (!viewSetup.options.fullscreenBoolean){
