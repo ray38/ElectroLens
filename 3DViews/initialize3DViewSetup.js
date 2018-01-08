@@ -1,5 +1,6 @@
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
+import {addSystemEdge, removeSystemEdge} from "./systemEdge.js";
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	var gridSpacing = viewSetup.gridSpacing;
 	var systemDimension = viewSetup.systemDimension;
@@ -90,6 +91,17 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.planeVisibilityB = false;
 			this.planeOpacity = 0.05;
 			this.resetCamera = function(){viewSetup.controller.reset();};
+			this.systemEdgeBoolean = true;
+			this.toggleSystemEdge = function(){
+										if(!viewSetup.options.systemEdgeBoolean){
+											addSystemEdge(viewSetup);
+											viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
+										}
+										else {
+											removeSystemEdge(viewSetup);
+											viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
+										}
+									};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function(){
 										if (!viewSetup.options.fullscreenBoolean){

@@ -51,6 +51,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	//viewFolder.add( options, 'fullscreen');
 	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
+	viewFolder.add( options, 'toggleSystemEdge').name('System Edge');
 	viewFolder.open();
 
 
