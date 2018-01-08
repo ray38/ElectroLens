@@ -1262,7 +1262,7 @@ function getPointCloudGeometry(view) {
 	scene.add(System);
 
 	if (options.PBCBoolean) {
-		addPointCloudPeriodicReplicates(view);
+		changePointCloudPeriodicReplicates(view);
 	}
 }
 
@@ -1513,7 +1513,7 @@ function changePointCloudGeometry(view) {
 }
 
 function changePointCloudPeriodicReplicates(view) {
-	if (view.options.PBCBoolean) {
+	if (view.periodicReplicateSystems != null) {
 		view.scene.remove(view.periodicReplicateSystems);
 	}
 	addPointCloudPeriodicReplicates(view);

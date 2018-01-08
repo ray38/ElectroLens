@@ -119,7 +119,7 @@ export function getPointCloudGeometry(view){
 	scene.add( System );
 
 	if (options.PBCBoolean){
-		addPointCloudPeriodicReplicates(view);
+		changePointCloudPeriodicReplicates(view);
 	}
 
 }
@@ -390,9 +390,10 @@ export function animatePointCloudGeometry(view){
 export function changePointCloudGeometry(view){
 	view.scene.remove(view.System);
 	getPointCloudGeometry(view);
+
 }
 
 export function changePointCloudPeriodicReplicates(view){
-	if (view.options.PBCBoolean){view.scene.remove(view.periodicReplicateSystems);}
+	if (view.periodicReplicateSystems != null ){view.scene.remove(view.periodicReplicateSystems);}
 	addPointCloudPeriodicReplicates(view);
 }
