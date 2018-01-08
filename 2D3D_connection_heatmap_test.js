@@ -933,12 +933,6 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 			this.replotHeatmap = function () {
 				_HeatmapViewJs.replotHeatmap(viewSetup);
 			};
-			this.fullscreen = function () {
-				_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
-			};
-			this.defullscreen = function () {
-				_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
-			};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function () {
 				if (!viewSetup.options.fullscreenBoolean) {
@@ -1145,9 +1139,12 @@ function updateHeatmapTooltip(view) {
 
 exports.__esModule = true;
 exports.getPointCloudGeometry = getPointCloudGeometry;
+exports.addPointCloudPeriodicReplicates = addPointCloudPeriodicReplicates;
+exports.updatePointCloudPeriodicReplicates = updatePointCloudPeriodicReplicates;
 exports.updatePointCloudGeometry = updatePointCloudGeometry;
 exports.animatePointCloudGeometry = animatePointCloudGeometry;
 exports.changePointCloudGeometry = changePointCloudGeometry;
+exports.changePointCloudPeriodicReplicates = changePointCloudPeriodicReplicates;
 
 function getPointCloudGeometry(view) {
 
@@ -1261,7 +1258,158 @@ function getPointCloudGeometry(view) {
 
 	var System = new THREE.Points(geometry, shaderMaterial);
 	view.System = System;
+	//console.log(System);
 	scene.add(System);
+
+	if (options.PBCBoolean) {
+		addPointCloudPeriodicReplicates(view);
+	}
+}
+
+Float32Array.prototype.concat = function () {
+	var bytesPerIndex = 4,
+	    buffers = Array.prototype.slice.call(arguments);
+
+	// add self
+	buffers.unshift(this);
+
+	buffers = buffers.map(function (item) {
+		if (item instanceof Float32Array) {
+			return item.buffer;
+		} else if (item instanceof ArrayBuffer) {
+			if (item.byteLength / bytesPerIndex % 1 !== 0) {
+				throw new Error('One of the ArrayBuffers is not from a Float32Array');
+			}
+			return item;
+		} else {
+			throw new Error('You can only concat Float32Array, or ArrayBuffers');
+		}
+	});
+
+	var concatenatedByteLength = buffers.map(function (a) {
+		return a.byteLength;
+	}).reduce(function (a, b) {
+		return a + b;
+	}, 0);
+
+	var concatenatedArray = new Float32Array(concatenatedByteLength / bytesPerIndex);
+
+	var offset = 0;
+	buffers.forEach(function (buffer, index) {
+		concatenatedArray.set(new Float32Array(buffer), offset);
+		offset += buffer.byteLength / bytesPerIndex;
+	});
+
+	return concatenatedArray;
+};
+
+function getPositionArrayAfterTranslation(positions, count, x, y, z) {
+	var result = new Float32Array(count * 3);
+	for (var i = 0; i < count * 3; i = i + 3) {
+		result[i] = positions[i] + x;
+		result[i + 1] = positions[i + 1] + y;
+		result[i + 2] = positions[i + 2] + z;
+	}
+	return result;
+}
+
+function addPointCloudPeriodicReplicates(view) {
+
+	var options = view.options;
+	var scene = view.scene;
+	var positions = view.System.geometry.attributes.position.array;
+	var count = view.System.geometry.attributes.size.array.length;
+	var colors = view.System.geometry.attributes.customColor.array;
+	var sizes = view.System.geometry.attributes.size.array;
+	var alphas = view.System.geometry.attributes.alpha.array;
+	var shaderMaterial = view.System.material;
+
+	var geometry = new THREE.BufferGeometry();
+	var xStep = 10.0 * (view.xPlotMax - view.xPlotMin);
+	var yStep = 10.0 * (view.yPlotMax - view.yPlotMin);
+	var zStep = 10.0 * (view.zPlotMax - view.zPlotMin);
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+
+	var replicatePositions = new Float32Array();
+	var replicateColors = new Float32Array();
+	var replicateSizes = new Float32Array();
+	var replicateAlphas = new Float32Array();
+	console.log('create replicates');
+	console.log(replicatePositions instanceof Float32Array);
+	console.log(positions instanceof Float32Array);
+
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				if ((i == 0 && j == 0 && k == 0) == false) {
+					var tempPositions = getPositionArrayAfterTranslation(positions, count, i * xStep, j * yStep, k * zStep);
+					replicatePositions = replicatePositions.concat(tempPositions);
+					replicateSizes = replicateSizes.concat(sizes);
+					replicateAlphas = replicateAlphas.concat(alphas);
+					replicateColors = replicateColors.concat(colors);
+				}
+			}
+		}
+	}
+
+	geometry.addAttribute('position', new THREE.BufferAttribute(replicatePositions, 3));
+	geometry.addAttribute('customColor', new THREE.BufferAttribute(replicateColors, 3));
+	geometry.addAttribute('size', new THREE.BufferAttribute(replicateSizes, 1));
+	geometry.addAttribute('alpha', new THREE.BufferAttribute(replicateAlphas, 1));
+
+	var System = new THREE.Points(geometry, shaderMaterial);
+	view.periodicReplicateSystems = System;
+	scene.add(System);
+}
+
+function updatePointCloudPeriodicReplicates(view) {
+	var replicateSystems = view.periodicReplicateSystems;
+
+	var options = view.options;
+	var scene = view.scene;
+	var count = view.System.geometry.attributes.size.array.length;
+	var colors = view.System.geometry.attributes.customColor.array;
+	var sizes = view.System.geometry.attributes.size.array;
+	var alphas = view.System.geometry.attributes.alpha.array;
+	var shaderMaterial = view.System.material;
+
+	var geometry = new THREE.BufferGeometry();
+	var xStep = 10.0 * (view.xPlotMax - view.xPlotMin);
+	var yStep = 10.0 * (view.yPlotMax - view.yPlotMin);
+	var zStep = 10.0 * (view.zPlotMax - view.zPlotMin);
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.xPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.xPBC - 1) / 2 + 1;
+
+	var replicateColors = new Float32Array();
+	var replicateSizes = new Float32Array();
+	var replicateAlphas = new Float32Array();
+
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				if ((i == 0 && j == 0 && k == 0) == false) {
+					replicateSizes = replicateSizes.concat(sizes);
+					replicateAlphas = replicateAlphas.concat(alphas);
+					replicateColors = replicateColors.concat(colors);
+				}
+			}
+		}
+	}
+
+	view.periodicReplicateSystems.geometry.addAttribute('customColor', new THREE.BufferAttribute(replicateColors, 3));
+	view.periodicReplicateSystems.geometry.addAttribute('size', new THREE.BufferAttribute(replicateSizes, 1));
+	view.periodicReplicateSystems.geometry.addAttribute('alpha', new THREE.BufferAttribute(replicateAlphas, 1));
 }
 
 function updatePointCloudGeometry(view) {
@@ -1317,6 +1465,10 @@ function updatePointCloudGeometry(view) {
 	view.System.geometry.addAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 	view.System.geometry.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	view.System.geometry.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+
+	if (options.PBCBoolean) {
+		updatePointCloudPeriodicReplicates(view);
+	}
 }
 
 function animatePointCloudGeometry(view) {
@@ -1360,6 +1512,13 @@ function changePointCloudGeometry(view) {
 	getPointCloudGeometry(view);
 }
 
+function changePointCloudPeriodicReplicates(view) {
+	if (view.options.PBCBoolean) {
+		view.scene.remove(view.periodicReplicateSystems);
+	}
+	addPointCloudPeriodicReplicates(view);
+}
+
 },{}],8:[function(require,module,exports){
 "use strict";
 
@@ -1369,6 +1528,8 @@ exports.initialize3DViewSetup = initialize3DViewSetup;
 var _MultiviewControlCalculateViewportSizesJs = require("../MultiviewControl/calculateViewportSizes.js");
 
 var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
+
+var _systemEdgeJs = require("./systemEdge.js");
 
 function initialize3DViewSetup(viewSetup, views, plotSetup) {
 	var gridSpacing = viewSetup.gridSpacing;
@@ -1431,6 +1592,10 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.pointCloudAlpha = 1;
 			this.pointCloudSize = 5;
 			this.animate = false;
+			this.xPBC = 1;
+			this.yPBC = 1;
+			this.zPBC = 1;
+			this.PBCBoolean = false;
 			/*this.boxParticles = 200;
    this.boxColorSetting = 10.0;
    this.boxSize = 10;
@@ -1466,11 +1631,15 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.resetCamera = function () {
 				viewSetup.controller.reset();
 			};
-			this.fullscreen = function () {
-				_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
-			};
-			this.defullscreen = function () {
-				_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
+			this.systemEdgeBoolean = true;
+			this.toggleSystemEdge = function () {
+				if (viewSetup.options.systemEdgeBoolean) {
+					_systemEdgeJs.addSystemEdge(viewSetup);
+					//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
+				} else {
+						_systemEdgeJs.removeSystemEdge(viewSetup);
+						//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
+					}
 			};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function () {
@@ -1511,7 +1680,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":12,"../MultiviewControl/colorLegend.js":13}],9:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":12,"../MultiviewControl/colorLegend.js":13,"./systemEdge.js":10}],9:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1562,13 +1731,52 @@ function setupOptionBox3DView(view, plotSetup) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
-	viewFolder.add(options, 'resetCamera');
+	viewFolder.add(options, 'resetCamera').name('Set Camera');
 	//viewFolder.add( options, 'fullscreen');
 	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
+	//viewFolder.add( options, 'toggleSystemEdge').name('System Edge');
+	viewFolder.add(options, 'systemEdgeBoolean').name('System Edge').onChange(function (value) {
+		//updatePointCloudGeometry(view);
+		options.toggleSystemEdge.call();
+		gui.updateDisplay();
+	});
+
+	var PBCFolder = viewFolder.addFolder('PBC');
+
+	PBCFolder.add(options, 'xPBC', { '1': 1, '3': 3, '5': 5 }).onChange(function (value) {
+		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
+			_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+			options.PBCBoolean = true;
+		} else {
+			view.scene.remove(view.periodicReplicateSystems);
+			options.PBCBoolean = false;
+		}
+	});
+
+	PBCFolder.add(options, 'yPBC', { '1': 1, '3': 3, '5': 5 }).onChange(function (value) {
+		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
+			_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+			options.PBCBoolean = true;
+		} else {
+			view.scene.remove(view.periodicReplicateSystems);
+			options.PBCBoolean = false;
+		}
+	});
+
+	PBCFolder.add(options, 'zPBC', { '1': 1, '3': 3, '5': 5 }).onChange(function (value) {
+		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
+			_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+			options.PBCBoolean = true;
+		} else {
+			view.scene.remove(view.periodicReplicateSystems);
+			options.PBCBoolean = false;
+		}
+	});
+	PBCFolder.close();
 	viewFolder.open();
 
-	pointCloudFolder.add(options, 'pointCloudParticles', 10, 30000).step(10).name('Density').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudParticles', 10, 5000).step(10).name('Density').onChange(function (value) {
 		_PointCloud_selectionJs.changePointCloudGeometry(view);
 	});
 	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
@@ -1675,6 +1883,7 @@ function setupOptionBox3DView(view, plotSetup) {
 
 exports.__esModule = true;
 exports.addSystemEdge = addSystemEdge;
+exports.removeSystemEdge = removeSystemEdge;
 
 function addSystemEdge(view) {
 
@@ -1689,7 +1898,13 @@ function addSystemEdge(view) {
 
 	var wireframe = new THREE.LineSegments(geo, mat);
 
+	view.systemEdge = wireframe;
+
 	scene.add(wireframe);
+}
+
+function removeSystemEdge(view) {
+	view.scene.remove(view.systemEdge);
 }
 
 },{}],11:[function(require,module,exports){

@@ -1,4 +1,4 @@
-import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry} from "./PointCloud_selection.js";
+import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry, changePointCloudPeriodicReplicates} from "./PointCloud_selection.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultColorScales, adjustColorScaleAccordingToDefault} from "../Utilities/colorScale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
@@ -47,16 +47,62 @@ export function setupOptionBox3DView(view,plotSetup){
 		updatePointCloudGeometry(view);
 		changeLegend(view);		
 	});
-	viewFolder.add( options, 'resetCamera');
+	viewFolder.add( options, 'resetCamera').name('Set Camera');
 	//viewFolder.add( options, 'fullscreen');
 	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
-	viewFolder.add( options, 'toggleSystemEdge').name('System Edge');
+	//viewFolder.add( options, 'toggleSystemEdge').name('System Edge');
+	viewFolder.add( options, 'systemEdgeBoolean')
+	.name('System Edge')
+	.onChange( function( value ) {
+		//updatePointCloudGeometry(view);
+		options.toggleSystemEdge.call();
+		gui.updateDisplay();
+	});
+
+	var PBCFolder = viewFolder.addFolder('PBC')
+
+	PBCFolder.add( options, 'xPBC', {'1':1, '3':3, '5':5})
+	.onChange( function( value ){
+		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
+			changePointCloudPeriodicReplicates(view);
+			options.PBCBoolean = true;
+		}
+		else {
+			view.scene.remove(view.periodicReplicateSystems);
+			options.PBCBoolean = false;
+		}
+	});
+
+	PBCFolder.add( options, 'yPBC', {'1':1, '3':3, '5':5})
+	.onChange( function( value ){
+		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
+			changePointCloudPeriodicReplicates(view);
+			options.PBCBoolean = true;
+		}
+		else {
+			view.scene.remove(view.periodicReplicateSystems);
+			options.PBCBoolean = false;
+		}
+	});
+
+	PBCFolder.add( options, 'zPBC', {'1':1, '3':3, '5':5})
+	.onChange( function( value ){
+		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
+			changePointCloudPeriodicReplicates(view);
+			options.PBCBoolean = true;
+		}
+		else {
+			view.scene.remove(view.periodicReplicateSystems);
+			options.PBCBoolean = false;
+		}
+	});
+	PBCFolder.close();
 	viewFolder.open();
 
 
 
-	pointCloudFolder.add( options, 'pointCloudParticles', 10, 30000 ).step( 10 )
+	pointCloudFolder.add( options, 'pointCloudParticles', 10, 5000 ).step( 10 )
 	.name( 'Density' )
 	.onChange( function( value ) {
 		changePointCloudGeometry(view);

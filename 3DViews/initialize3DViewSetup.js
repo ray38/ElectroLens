@@ -58,6 +58,10 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.pointCloudAlpha = 1;
 			this.pointCloudSize = 5;
 			this.animate = false;
+			this.xPBC = 1;
+			this.yPBC = 1;
+			this.zPBC = 1;
+			this.PBCBoolean = false;
 			/*this.boxParticles = 200;
 			this.boxColorSetting = 10.0;
 			this.boxSize = 10;
@@ -93,13 +97,13 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.resetCamera = function(){viewSetup.controller.reset();};
 			this.systemEdgeBoolean = true;
 			this.toggleSystemEdge = function(){
-										if(!viewSetup.options.systemEdgeBoolean){
+										if(viewSetup.options.systemEdgeBoolean){
 											addSystemEdge(viewSetup);
-											viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
+											//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
 										}
 										else {
 											removeSystemEdge(viewSetup);
-											viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
+											//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
 										}
 									};
 			this.fullscreenBoolean = false;
