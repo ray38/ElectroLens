@@ -91,6 +91,7 @@ function main(views,plotSetup) {
 	});
 
 	function init() {
+		console.log(unfilteredData)
 		console.log('started initialization')
 		container = document.getElementById( 'container' );
 		renderer = new THREE.WebGLRenderer( { antialias: true } );

@@ -23,7 +23,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		//height: 0.5,
 		background: new THREE.Color( 0,0,0 ),
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 800 ],
+		eye: [ 0, 0, 1200 ],
 		up: [ 0, 1, 0 ],
 		fov: 100,
 		mousePosition: [0,0],

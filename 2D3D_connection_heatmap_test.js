@@ -103,6 +103,7 @@ function main(views, plotSetup) {
 	});
 
 	function init() {
+		console.log(unfilteredData);
 		console.log('started initialization');
 		container = document.getElementById('container');
 		renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -1015,7 +1016,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	plotFolder.add(options, 'plotYTransform', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10' }).name('Y scale').onChange(function (value) {
 		//updatePointCloudGeometry(view);
 	});
-	plotFolder.add(options, 'numPerSide', 10, 1000).name('# Points').onChange(function (value) {
+	plotFolder.add(options, 'numPerSide', 10, 50000).name('# Points').onChange(function (value) {
 		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
 		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
 		//options.replotHeatmap.call();
@@ -1557,7 +1558,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		//height: 0.5,
 		background: new THREE.Color(0, 0, 0),
 		controllerEnabledBackground: new THREE.Color(0.1, 0.1, 0.1),
-		eye: [0, 0, 800],
+		eye: [0, 0, 1200],
 		up: [0, 1, 0],
 		fov: 100,
 		mousePosition: [0, 0],
@@ -1776,7 +1777,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	PBCFolder.close();
 	viewFolder.open();
 
-	pointCloudFolder.add(options, 'pointCloudParticles', 10, 5000).step(10).name('Density').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudParticles', 10, 500000).step(10).name('Density').onChange(function (value) {
 		_PointCloud_selectionJs.changePointCloudGeometry(view);
 	});
 	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {

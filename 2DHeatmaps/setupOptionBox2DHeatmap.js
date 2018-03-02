@@ -42,7 +42,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
 	});
-	plotFolder.add( options, 'numPerSide', 10, 1000)
+	plotFolder.add( options, 'numPerSide', 10, 50000)
 	.name('# Points')
 	.onChange( function( value ) {
 		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
