@@ -42,6 +42,8 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 	.domain([yMin, yMax])
 	.range(heatmapStep);
 
+	console.log(xMin,xMax,yMin,yMax)
+
 	console.log(xScale,yScale)
 	
 	var xMap = function(d) {return xScale(xValue(d));};
@@ -158,14 +160,15 @@ export function getHeatmap(view){
 			var tempInfo = {x:xPlot-50, 
 							y:yPlot-50, 
 							numberDatapointsRepresented: numberDatapointsRepresented,
-							xStart: view.xScale.invertExtent(""+xPlot)[0],
-							xEnd: 	view.xScale.invertExtent(""+xPlot)[1],
-							yStart: view.yScale.invertExtent(""+yPlot)[0],
-							yEnd: 	view.yScale.invertExtent(""+yPlot)[1],
+							xStart: view.xScale.invertExtent(x)[0],
+							xEnd: 	view.xScale.invertExtent(x)[1],
+							yStart: view.yScale.invertExtent(y)[0],
+							yEnd: 	view.yScale.invertExtent(y)[1]/*,
 							heatmapX: x,
-							heatmapY: y
+							heatmapY: y*/
 							};
 			//console.log(tempInfo);
+			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
 			heatmapInformation.push(tempInfo)
 		}
 	}

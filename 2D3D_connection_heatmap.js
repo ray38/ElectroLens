@@ -1,4 +1,6 @@
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
+import {initialize2DHeatmapSetup} from "./2DHeatmaps/initialize2DHeatmapSetup.js";
+import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.js";
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
@@ -139,7 +141,7 @@ function main(views,plotSetup) {
 		
 		
 		stats = new Stats();
-		container.appendChild( stats.dom );
+		//container.appendChild( stats.dom );
 		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 		window.addEventListener( 'mousedown', function( event ) {
 			mouseHold = true;
@@ -203,6 +205,39 @@ function main(views,plotSetup) {
 		if (e.keyCode == 50) {
 			pointSelection = !pointSelection;
 			planeSelection = false;
+		}
+		if (e.keyCode == 107) {
+			var temp_view = {
+								"viewType": "2DHeatmap",
+								"plotX": plotSetup.propertyList[0],
+								"plotY": plotSetup.propertyList[0],
+								"plotXTransform": "linear",
+								"plotYTransform": "linear"
+							}
+			views.push(temp_view);
+			initialize2DHeatmapSetup(temp_view,views,plotSetup);
+			calculateViewportSizes(views);
+
+			temp_view.unfilteredData = unfilteredData;
+
+			setupViewCameraSceneController(temp_view,renderer);
+			addOptionBox(temp_view);
+			setupHUD(temp_view);
+
+			
+			temp_view.controller.enableRotate=false;
+			initializeHeatmapToolTip(temp_view);
+			setupOptionBox2DHeatmap(temp_view,plotSetup);
+			getAxis(temp_view);
+			addTitle(temp_view);
+
+			arrangeDataToHeatmap(temp_view,unfilteredData)
+			getHeatmap(temp_view);
+			insertLegend(temp_view);
+			updateOptionBoxLocation(views);
+			update2DHeatmapTitlesLocation(views);
+				
+			
 		}
 	}
 

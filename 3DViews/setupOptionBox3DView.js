@@ -102,7 +102,7 @@ export function setupOptionBox3DView(view,plotSetup){
 
 
 
-	pointCloudFolder.add( options, 'pointCloudParticles', 10, 500000 ).step( 10 )
+	pointCloudFolder.add( options, 'pointCloudParticles', 10, 10000 ).step( 10 )
 	.name( 'Density' )
 	.onChange( function( value ) {
 		changePointCloudGeometry(view);
@@ -140,7 +140,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	});
 	console.log(pointCloudFolder);
 
-	pointCloudFolder.open();
+	pointCloudFolder.close();
 
 
 

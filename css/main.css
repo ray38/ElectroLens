@@ -23,6 +23,9 @@ a {
     text-align: left;
 }
 
+.dg {
+       font: 400 5px Verdana, Arial, sans-serif;
+} 
 /*
 div.dg li:not(.folder){
 	height:20px;

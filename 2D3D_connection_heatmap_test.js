@@ -3,6 +3,10 @@
 
 var _MultiviewControlInitializeViewSetupsJs = require("./MultiviewControl/initializeViewSetups.js");
 
+var _DHeatmapsInitialize2DHeatmapSetupJs = require("./2DHeatmaps/initialize2DHeatmapSetup.js");
+
+var _MultiviewControlCalculateViewportSizesJs = require("./MultiviewControl/calculateViewportSizes.js");
+
 var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
 var _DViewsPointCloud_selectionJs = require("./3DViews/PointCloud_selection.js");
@@ -26,8 +30,6 @@ var _MultiviewControlControllerControlJs = require("./MultiviewControl/controlle
 var _DHeatmapsUtilitiesJs = require("./2DHeatmaps/Utilities.js");
 
 var _DHeatmapsTooltipJs = require("./2DHeatmaps/tooltip.js");
-
-var _MultiviewControlCalculateViewportSizesJs = require("./MultiviewControl/calculateViewportSizes.js");
 
 var _MultiviewControlColorLegendJs = require("./MultiviewControl/colorLegend.js");
 
@@ -148,7 +150,7 @@ function main(views, plotSetup) {
 		}
 
 		stats = new Stats();
-		container.appendChild(stats.dom);
+		//container.appendChild( stats.dom );
 		document.addEventListener('mousemove', onDocumentMouseMove, false);
 		window.addEventListener('mousedown', function (event) {
 			mouseHold = true;
@@ -211,6 +213,36 @@ function main(views, plotSetup) {
 		if (e.keyCode == 50) {
 			pointSelection = !pointSelection;
 			planeSelection = false;
+		}
+		if (e.keyCode == 107) {
+			var temp_view = {
+				"viewType": "2DHeatmap",
+				"plotX": plotSetup.propertyList[0],
+				"plotY": plotSetup.propertyList[0],
+				"plotXTransform": "linear",
+				"plotYTransform": "linear"
+			};
+			views.push(temp_view);
+			_DHeatmapsInitialize2DHeatmapSetupJs.initialize2DHeatmapSetup(temp_view, views, plotSetup);
+			_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
+
+			temp_view.unfilteredData = unfilteredData;
+
+			_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(temp_view, renderer);
+			_MultiviewControlOptionBoxControlJs.addOptionBox(temp_view);
+			_MultiviewControlHUDControlJs.setupHUD(temp_view);
+
+			temp_view.controller.enableRotate = false;
+			_DHeatmapsTooltipJs.initializeHeatmapToolTip(temp_view);
+			_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(temp_view, plotSetup);
+			_DHeatmapsUtilitiesJs.getAxis(temp_view);
+			_DHeatmapsUtilitiesJs.addTitle(temp_view);
+
+			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(temp_view, unfilteredData);
+			_DHeatmapsHeatmapViewJs.getHeatmap(temp_view);
+			_MultiviewControlColorLegendJs.insertLegend(temp_view);
+			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
+			_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 		}
 	}
 
@@ -528,7 +560,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./3DViews/systemEdge.js":10,"./MultiviewControl/HUDControl.js":11,"./MultiviewControl/calculateViewportSizes.js":12,"./MultiviewControl/colorLegend.js":13,"./MultiviewControl/controllerControl.js":14,"./MultiviewControl/initializeViewSetups.js":15,"./MultiviewControl/optionBoxControl.js":16,"./MultiviewControl/setupViewBasic.js":17,"./Utilities/colorScale.js":18,"./Utilities/readDataFile.js":20}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/initialize2DHeatmapSetup.js":4,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./3DViews/systemEdge.js":10,"./MultiviewControl/HUDControl.js":11,"./MultiviewControl/calculateViewportSizes.js":12,"./MultiviewControl/colorLegend.js":13,"./MultiviewControl/controllerControl.js":14,"./MultiviewControl/initializeViewSetups.js":15,"./MultiviewControl/optionBoxControl.js":16,"./MultiviewControl/setupViewBasic.js":17,"./Utilities/colorScale.js":18,"./Utilities/readDataFile.js":20}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -602,6 +634,8 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 	var xScale = d3.scaleQuantize().domain([xMin, xMax]).range(heatmapStep);
 
 	var yScale = d3.scaleQuantize().domain([yMin, yMax]).range(heatmapStep);
+
+	console.log(xMin, xMax, yMin, yMax);
 
 	console.log(xScale, yScale);
 
@@ -717,14 +751,15 @@ function getHeatmap(view) {
 			var tempInfo = { x: xPlot - 50,
 				y: yPlot - 50,
 				numberDatapointsRepresented: numberDatapointsRepresented,
-				xStart: view.xScale.invertExtent("" + xPlot)[0],
-				xEnd: view.xScale.invertExtent("" + xPlot)[1],
-				yStart: view.yScale.invertExtent("" + yPlot)[0],
-				yEnd: view.yScale.invertExtent("" + yPlot)[1],
-				heatmapX: x,
-				heatmapY: y
+				xStart: view.xScale.invertExtent(x)[0],
+				xEnd: view.xScale.invertExtent(x)[1],
+				yStart: view.yScale.invertExtent(y)[0],
+				yEnd: view.yScale.invertExtent(y)[1] /*,
+                                         heatmapX: x,
+                                         heatmapY: y*/
 			};
 			//console.log(tempInfo);
+			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
 			heatmapInformation.push(tempInfo);
 		}
 	}
@@ -1777,7 +1812,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	PBCFolder.close();
 	viewFolder.open();
 
-	pointCloudFolder.add(options, 'pointCloudParticles', 10, 500000).step(10).name('Density').onChange(function (value) {
+	pointCloudFolder.add(options, 'pointCloudParticles', 10, 10000).step(10).name('Density').onChange(function (value) {
 		_PointCloud_selectionJs.changePointCloudGeometry(view);
 	});
 	pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
@@ -1802,7 +1837,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	});
 	console.log(pointCloudFolder);
 
-	pointCloudFolder.open();
+	pointCloudFolder.close();
 
 	sliderFolder.add(options, 'x_low', view.xPlotMin, view.xPlotMax).step(1).name('x low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
