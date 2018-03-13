@@ -7,13 +7,9 @@
     "build": "babel --presets es2015 es6 -d es5",
     "start": "electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/ray38/electron_visualization",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "ElectroLens"
   ],
   "author": "GitHub",
   "license": "CC0-1.0",

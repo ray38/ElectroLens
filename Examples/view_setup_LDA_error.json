@@ -1,0 +1,47 @@
+{
+	"views": [
+		{
+			"viewType": "3DView",
+			"moleculeName": "CO2",
+			"dataFilename": "data/CO2_B3LYP_downsampled_data.csv",
+			"gridSpacing": {"x":0.1,"y":0.1,"z":0.1},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
+		},
+		{
+			"viewType": "3DView",
+			"moleculeName": "N2O",
+			"dataFilename": "data/N2O_B3LYP_downsampled_data.csv",
+			"gridSpacing": {"x":0.1,"y":0.1,"z":0.1},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
+		},
+		{
+			"viewType": "3DView",
+			"moleculeName": "O3",
+			"dataFilename": "data/O3_B3LYP_downsampled_data.csv",
+			"gridSpacing": {"x":0.1,"y":0.1,"z":0.1},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
+		},
+		{
+			"viewType": "2DHeatmap",
+			"plotX": "rho",
+			"plotY": "LDA_residual",
+			"plotXTransform": "linear",
+			"plotYTransform": "linear"
+		},
+		{
+			"viewType": "2DHeatmap",
+			"plotX": "rho",
+			"plotY": "epxc",
+			"plotXTransform": "linear",
+			"plotYTransform": "linear"
+		}
+	],
+
+	"plotSetup" : {
+		"propertyList": ["rho","gamma","epxc","LDA_residual"],
+		"pointcloudDensity": "rho",
+		"densityCutoff": 1e-4
+	}
+
+
+}

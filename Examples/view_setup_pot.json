@@ -1,0 +1,19 @@
+{
+	"views": [
+		{
+			"viewType": "3DView",
+			"moleculeName": "pot",
+			"dataFilename": "data/pot.csv",
+			"gridSpacing": {"x":0.090133246575342468,"y":0.09171686153846155,"z":0.092826372693726941},
+			"systemDimension": {"x":[0.0,6.4895937534246571],"y":[0.0,5.8691147548998952],"z":[0.0,25.063120627306276]}
+		}
+	],
+
+	"plotSetup" : {
+		"propertyList": ["x","y","z","rho","difference"],
+		"pointcloudDensity": "rho",
+		"densityCutoff": 1e-5
+	}
+
+
+}
