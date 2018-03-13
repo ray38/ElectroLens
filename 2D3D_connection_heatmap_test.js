@@ -45,8 +45,9 @@ uploader.addEventListener("change", handleFiles, false);
 function handleFiles() {
 	var file = this.files[0];
 	console.log(file);
+	console.log(this);
 	$.ajax({
-		url: file.name,
+		url: file.path,
 		dataType: 'json',
 		type: 'get',
 		cache: false,
