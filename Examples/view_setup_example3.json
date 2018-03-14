@@ -1,0 +1,17 @@
+{
+	"views": [
+		{
+			"viewType": "3DView",
+			"moleculeName": "C6H6",
+			"dataFilename": "Examples/data/C6H6_B3LYP_0_0_0_all_descriptors.csv",
+			"gridSpacing": {"x":0.1,"y":0.1,"z":0.1},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
+		}
+	],
+
+	"plotSetup" : {
+		"propertyList": ["rho","gamma","epxc","deriv1","deriv2"],
+		"pointcloudDensity": "rho",
+		"densityCutoff": 1e-5
+	}
+}

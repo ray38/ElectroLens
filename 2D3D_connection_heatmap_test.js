@@ -2300,6 +2300,17 @@ function setupViewCameraSceneController(view, renderer) {
 	camera.position.fromArray(view.eye);
 	view.camera = camera;
 	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
+	tempController.minAzimuthAngle = -Infinity; // radians
+	tempController.maxAzimuthAngle = Infinity; // radians
+	tempController.minPolarAngle = -Infinity; // radians
+	tempController.maxPolarAngle = Infinity; // radians
+	/*var tempController = new THREE.TrackballControls( camera, renderer.domElement );
+ tempController.rotateSpeed = 10.0;
+ tempController.zoomSpeed = 10.2;
+ tempController.panSpeed = 10.8;
+ tempController.noZoom = false;
+ tempController.noPan = false;
+ tempController.staticMoving = true;*/
 	view.controller = tempController;
 	var tempScene = new THREE.Scene();
 	view.scene = tempScene;
