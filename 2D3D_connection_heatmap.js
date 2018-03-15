@@ -115,6 +115,10 @@ function main(views,plotSetup) {
 			addOptionBox(view);
 			setupHUD(view);
 
+			view.controller.addEventListener( 'change', render );
+
+			console.log(view.controller)
+
 			if (view.viewType == '3DView'){
 				
 				view.defaultColorScales = defaultColorScales;
@@ -179,6 +183,8 @@ function main(views,plotSetup) {
 		}, false );
 
 		window.addEventListener( "keydown", onKeyDown, true);
+
+
 		
 	}
 
@@ -320,6 +326,8 @@ function main(views,plotSetup) {
 				animatePointCloudGeometry(view);
 				view.System.geometry.attributes.size.needsUpdate = true;
 			}
+
+			//view.controller.update();
 			
 			var camera = view.camera;
 			var left   = Math.floor( windowWidth  * view.left );

@@ -127,6 +127,10 @@ function main(views, plotSetup) {
 			_MultiviewControlOptionBoxControlJs.addOptionBox(view);
 			_MultiviewControlHUDControlJs.setupHUD(view);
 
+			view.controller.addEventListener('change', render);
+
+			console.log(view.controller);
+
 			if (view.viewType == '3DView') {
 
 				view.defaultColorScales = defaultColorScales;
@@ -325,6 +329,8 @@ function main(views, plotSetup) {
 				_DViewsPointCloud_selectionJs.animatePointCloudGeometry(view);
 				view.System.geometry.attributes.size.needsUpdate = true;
 			}
+
+			//view.controller.update();
 
 			var camera = view.camera;
 			var left = Math.floor(windowWidth * view.left);
@@ -2196,14 +2202,22 @@ function enableController(view, controller) {
 	controller.enableZoom = view.controllerZoom;
 	controller.enablePan = view.controllerPan;
 	controller.enableRotate = view.controllerRotate;
-	view.border.material.color = new THREE.Color(0xffffff);
-	view.border.material.needsUpdate = true;
-}
-function disableController(view, controller) {
-	view.controllerEnabled = false;
-	controller.enableZoom = false;
-	controller.enablePan = false;
-	controller.enableRotate = false;
+
+	/*controller.noZoom = false;
+ controller.noPan  = false;
+ controller.staticMoving = true;/*
+ view.border.material.color = new THREE.Color( 0xffffff );         
+ view.border.material.needsUpdate = true;
+ }
+ function disableController(view, controller){
+ view.controllerEnabled = false;
+ controller.enableZoom = false;
+ controller.enablePan  = false;
+ controller.enableRotate = false;
+ 
+ /*controller.noZoom = true;
+ controller.noPan  = true;
+ controller.staticMoving = false;*/
 	view.border.material.color = new THREE.Color(0x000000);
 	view.border.material.needsUpdate = true;
 }
@@ -2302,8 +2316,8 @@ function setupViewCameraSceneController(view, renderer) {
 	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
 	tempController.minAzimuthAngle = -Infinity; // radians
 	tempController.maxAzimuthAngle = Infinity; // radians
-	tempController.minPolarAngle = -Infinity; // radians
-	tempController.maxPolarAngle = Infinity; // radians
+	tempController.minPolarAngle = -2 * Math.PI; // radians
+	tempController.maxPolarAngle = 2 * Math.PI; // radians
 	/*var tempController = new THREE.TrackballControls( camera, renderer.domElement );
  tempController.rotateSpeed = 10.0;
  tempController.zoomSpeed = 10.2;

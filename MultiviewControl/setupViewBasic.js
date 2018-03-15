@@ -6,8 +6,8 @@ export function setupViewCameraSceneController(view,renderer){
 	var tempController = new THREE.OrbitControls( camera, renderer.domElement );
 	tempController.minAzimuthAngle = - Infinity; // radians
 	tempController.maxAzimuthAngle = Infinity; // radians
-	tempController.minPolarAngle = - Infinity; // radians
-	tempController.maxPolarAngle = Infinity; // radians
+	tempController.minPolarAngle = - 2* Math.PI; // radians
+	tempController.maxPolarAngle = 2* Math.PI; // radians
 	/*var tempController = new THREE.TrackballControls( camera, renderer.domElement );
 	tempController.rotateSpeed = 10.0;
 	tempController.zoomSpeed = 10.2;

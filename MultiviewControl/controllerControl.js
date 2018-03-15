@@ -20,6 +20,10 @@ function enableController(view, controller){
 	controller.enableZoom = view.controllerZoom;
 	controller.enablePan  = view.controllerPan;
 	controller.enableRotate = view.controllerRotate;
+
+	/*controller.noZoom = false;
+	controller.noPan  = false;
+	controller.staticMoving = true;/*
 	view.border.material.color = new THREE.Color( 0xffffff );         
 	view.border.material.needsUpdate = true;
 }
@@ -28,6 +32,10 @@ function disableController(view, controller){
 	controller.enableZoom = false;
 	controller.enablePan  = false;
 	controller.enableRotate = false;
+
+	/*controller.noZoom = true;
+	controller.noPan  = true;
+	controller.staticMoving = false;*/
 	view.border.material.color = new THREE.Color( 0x000000 );         
 	view.border.material.needsUpdate = true;
 }
