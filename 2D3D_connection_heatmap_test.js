@@ -2205,17 +2205,17 @@ function enableController(view, controller) {
 
 	/*controller.noZoom = false;
  controller.noPan  = false;
- controller.staticMoving = true;/*
- view.border.material.color = new THREE.Color( 0xffffff );         
- view.border.material.needsUpdate = true;
- }
- function disableController(view, controller){
- view.controllerEnabled = false;
- controller.enableZoom = false;
- controller.enablePan  = false;
- controller.enableRotate = false;
- 
- /*controller.noZoom = true;
+ controller.staticMoving = true;*/
+	view.border.material.color = new THREE.Color(0xffffff);
+	view.border.material.needsUpdate = true;
+}
+function disableController(view, controller) {
+	view.controllerEnabled = false;
+	controller.enableZoom = false;
+	controller.enablePan = false;
+	controller.enableRotate = false;
+
+	/*controller.noZoom = true;
  controller.noPan  = true;
  controller.staticMoving = false;*/
 	view.border.material.color = new THREE.Color(0x000000);

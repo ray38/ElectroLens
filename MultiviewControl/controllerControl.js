@@ -23,7 +23,7 @@ function enableController(view, controller){
 
 	/*controller.noZoom = false;
 	controller.noPan  = false;
-	controller.staticMoving = true;/*
+	controller.staticMoving = true;*/
 	view.border.material.color = new THREE.Color( 0xffffff );         
 	view.border.material.needsUpdate = true;
 }

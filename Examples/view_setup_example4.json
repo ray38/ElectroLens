@@ -50,6 +50,4 @@
 		"pointcloudDensity": "rho",
 		"densityCutoff": 1e-3
 	}
-
-
 }
