@@ -1,11 +1,17 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "ElectroLens",
+  "version": "0.1.0",
+  "description": "Tool to visualize at electron density data",
   "main": "main.js",
   "scripts": {
-    "build": "babel --presets es2015 es6 -d es5",
-    "start": "electron ."
+    "build": "electron-packager . ElectroLens",
+    "start": "electron .",
+    "pack": "build --dir",
+    "dist": "build -w"
+  },
+  "build": {
+    "appId": "ray38.medfordgroup.ElectroLens",
+    "productName": "ElectroLens"
   },
   "repository": "https://github.com/ray38/electron_visualization",
   "keywords": [
@@ -19,6 +25,8 @@
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^6.1.0",
     "electron": "~1.7.8",
+    "electron-builder": "^20.5.1",
+    "electron-packager": "^11.1.0",
     "factor-bundle": "^2.5.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.8.0",
@@ -28,6 +36,7 @@
     "babel-plugin-transform-es2015-modules-systemjs": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^6.4.0",
+    "electron-packager": "^11.1.0",
     "es6": "0.0.7",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.8.0",
