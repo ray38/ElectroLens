@@ -60,6 +60,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		changeLegend(view);
 	});
 	viewFolder.add( options, 'resetCamera');
+	//viewFolder.add( options, 'planeSelection');
 	//viewFolder.add( options, 'fullscreen');
 	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');

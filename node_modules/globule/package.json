@@ -23,7 +23,6 @@
   },
   "_npmVersion": "1.1.70",
   "_phantomChildren": {
-    "lru-cache": "2.7.3",
     "sigmund": "1.0.1"
   },
   "_requested": {

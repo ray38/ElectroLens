@@ -1002,6 +1002,10 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 					viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
 				}
 			};
+			this.planeSelection = function () {
+				planeSelection = !planeSelection;
+				pointSelection = false;
+			};
 		}()
 	};
 
@@ -1072,6 +1076,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 	viewFolder.add(options, 'resetCamera');
+	viewFolder.add(options, 'planeSelection');
 	//viewFolder.add( options, 'fullscreen');
 	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
