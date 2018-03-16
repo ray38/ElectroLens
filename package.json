@@ -11,7 +11,12 @@
   },
   "build": {
     "appId": "ray38.medfordgroup.ElectroLens",
-    "productName": "ElectroLens"
+    "productName": "ElectroLens",
+    "icon": "screenshots/icon.ico",
+    "win":{
+      "icon": "screenshots/icon.ico",
+      "publisherName": "Xiangyun Lei"
+    }
   },
   "repository": "https://github.com/ray38/electron_visualization",
   "keywords": [
