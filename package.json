@@ -1,11 +1,25 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "ElectroLens",
+  "version": "0.1.0",
+  "description": "Tool to visualize at electron density data",
   "main": "main.js",
   "scripts": {
+    "start": "electron .",
     "build": "babel --presets es2015 es6 -d es5",
-    "start": "electron ."
+    "pack": "build --dir",
+    "dist": "build -w",
+    "package-win": "electron-packager . ElectroLens --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/win/logo.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName='ElectroLens'",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/logo.icns --prune=true --out=release-builds",
+    "package-linux": "electron-packager . ElectroLens --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/64x64.png --prune=true --out=release-builds"
+  },
+  "build": {
+    "appId": "ray38.medfordgroup.ElectroLens",
+    "productName": "ElectroLens",
+    "icon": "screenshots/icon.ico",
+    "win":{
+      "icon": "screenshots/icon.ico",
+      "publisherName": "Xiangyun Lei"
+    }
   },
   "repository": "https://github.com/ray38/electron_visualization",
   "keywords": [
@@ -19,6 +33,8 @@
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^6.1.0",
     "electron": "~1.7.8",
+    "electron-builder": "^20.5.1",
+    "electron-packager": "^11.1.0",
     "factor-bundle": "^2.5.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.8.0",
@@ -26,11 +42,7 @@
   },
   "dependencies": {
     "babel-plugin-transform-es2015-modules-systemjs": "^6.24.1",
-    "babel-preset-es2015": "^6.24.1",
-    "babelify": "^6.4.0",
     "es6": "0.0.7",
-    "grunt": "^0.4.5",
-    "grunt-browserify": "^3.8.0",
     "grunt-cli": "^1.2.0",
     "papaparse": "^4.3.6"
   }

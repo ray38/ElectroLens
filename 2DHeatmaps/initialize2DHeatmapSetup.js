@@ -60,6 +60,10 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 										viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
 									}
 								};
+			this.planeSelection = function(){
+									planeSelection = !planeSelection;
+									pointSelection = false;
+								};
 		}
 	}
 

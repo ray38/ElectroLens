@@ -13,7 +13,10 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1920, height: 1080})
+  //mainWindow = new BrowserWindow({width: 1920, height: 1080})
+  mainWindow = new BrowserWindow({width: 1920, height: 1080, title: "ElectroLens", show:false, icon: path.join(__dirname, 'assets/icons/png/64x64.png')})
+  mainWindow.maximize()
+  mainWindow.show()
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
