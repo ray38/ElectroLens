@@ -25,7 +25,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		//updatePointCloudGeometry(view);
 	});
 
-	plotFolder.add( options, 'plotXTransform', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10'})
+	plotFolder.add( options, 'plotXTransform', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
 	.name( 'X scale' )
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
@@ -37,7 +37,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		//updatePointCloudGeometry(view);
 	});
 
-	plotFolder.add( options, 'plotYTransform', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10'})
+	plotFolder.add( options, 'plotYTransform', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
 	.name( 'Y scale' )
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);

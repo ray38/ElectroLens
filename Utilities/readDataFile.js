@@ -37,6 +37,7 @@ export function readCSV(view,plotData,callback){
 export function readCSV2(view,plotData,plotSetup,callback){
 	console.log('started loading')
 	var filename = view.dataFilename;
+	console.log(filename)
 	var propertyList = plotSetup.propertyList;
 	var density = plotSetup.pointcloudDensity;
 	var densityCutoff = plotSetup.densityCutoff;
@@ -48,7 +49,15 @@ export function readCSV2(view,plotData,plotSetup,callback){
 
 	console.log(density,densityCutoff,propertyList)
 	view.data = [];
-	d3.csv(filename, function (d) {
+
+	d3.csv(filename, function (error,d) {
+		if (error && error.target.status === 404) {
+			console.log(error);
+			console.log("File not found");
+		}
+		if(d.length === 0){
+			console.log("File empty")
+		}
 		console.log('end loading')
 		d.forEach(function (d,i) {
 			var n = +d[density];

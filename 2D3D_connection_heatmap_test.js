@@ -623,6 +623,52 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 		};
 	}
 
+	if (XTransform == 'symlog10') {
+		var xValue = function xValue(d) {
+			if (d[X] > 0.0) {
+				return Math.log10(d[X]) + 9.0;
+			} else if (d[X] < 0.0) {
+				return -1 * Math.log10(-1 * d[X]) - 9.0;
+			} else {
+				return 0.0;
+			}
+		};
+	}
+	if (YTransform == 'symlog10') {
+		var yValue = function yValue(d) {
+			if (d[Y] > 0.0) {
+				return Math.log10(d[Y]) + 9.0;
+			} else if (d[Y] < 0.0) {
+				return -1 * Math.log10(-1 * d[Y]) - 9.0;
+			} else {
+				return 0.0;
+			}
+		};
+	}
+
+	if (XTransform == 'symlogPC') {
+		var xValue = function xValue(d) {
+			if (d[X] > 0.0) {
+				return Math.log10(d[X]) - 2.0;
+			} else if (d[X] < 0.0) {
+				return -1 * Math.log10(-1 * d[X]) + 2.0;
+			} else {
+				return 0.0;
+			}
+		};
+	}
+	if (YTransform == 'symlogPC') {
+		var yValue = function yValue(d) {
+			if (d[Y] > 0.0) {
+				return Math.log10(d[Y]) + 4.5;
+			} else if (d[Y] < 0.0) {
+				return -1 * Math.log10(-1 * d[Y]) - 4.5;
+			} else {
+				return 0.0;
+			}
+		};
+	}
+
 	var xMin = Math.floor(d3.min(unfilteredData, xValue));
 	var xMax = Math.ceil(d3.max(unfilteredData, xValue));
 	var yMin = Math.floor(d3.min(unfilteredData, yValue));
@@ -1051,7 +1097,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		//updatePointCloudGeometry(view);
 	});
 
-	plotFolder.add(options, 'plotXTransform', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10' }).name('X scale').onChange(function (value) {
+	plotFolder.add(options, 'plotXTransform', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('X scale').onChange(function (value) {
 		//updatePointCloudGeometry(view);
 	});
 
@@ -1059,7 +1105,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		//updatePointCloudGeometry(view);
 	});
 
-	plotFolder.add(options, 'plotYTransform', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10' }).name('Y scale').onChange(function (value) {
+	plotFolder.add(options, 'plotYTransform', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('Y scale').onChange(function (value) {
 		//updatePointCloudGeometry(view);
 	});
 	plotFolder.add(options, 'numPerSide', 10, 50000).name('# Points').onChange(function (value) {
@@ -1076,7 +1122,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
 	viewFolder.add(options, 'resetCamera');
-	viewFolder.add(options, 'planeSelection');
+	//viewFolder.add( options, 'planeSelection');
 	//viewFolder.add( options, 'fullscreen');
 	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
@@ -2387,7 +2433,7 @@ function arrayToIdenticalObject(array) {
 }
 
 },{}],20:[function(require,module,exports){
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 exports.readCSV = readCSV;
@@ -2432,6 +2478,7 @@ function readCSV(view, plotData, callback) {
 function readCSV2(view, plotData, plotSetup, callback) {
 	console.log('started loading');
 	var filename = view.dataFilename;
+	console.log(filename);
 	var propertyList = plotSetup.propertyList;
 	var density = plotSetup.pointcloudDensity;
 	var densityCutoff = plotSetup.densityCutoff;
@@ -2443,7 +2490,15 @@ function readCSV2(view, plotData, plotSetup, callback) {
 
 	console.log(density, densityCutoff, propertyList);
 	view.data = [];
-	d3.csv(filename, function (d) {
+
+	d3.csv(filename, function (error, d) {
+		if (error && error.target.status === 404) {
+			console.log(error);
+			console.log("File not found");
+		}
+		if (d.length === 0) {
+			console.log("File empty");
+		}
 		console.log('end loading');
 		d.forEach(function (d, i) {
 			var n = +d[density];

@@ -18,6 +18,48 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 
 	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
 	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
+
+	if (XTransform == 'symlog10') {var xValue = function(d) {
+		if (d[X]>0.0){
+			return Math.log10(d[X]) + 9.0;
+		}else if (d[X]<0.0) {
+			return -1*Math.log10(-1*d[X]) - 9.0;
+		}
+		else {
+			return 0.0;
+		}
+	}}
+	if (YTransform == 'symlog10') {var yValue = function(d) {
+		if (d[Y]>0.0){
+			return Math.log10(d[Y]) + 9.0;
+		}else if (d[Y]<0.0) {
+			return -1*Math.log10(-1*d[Y]) - 9.0;
+		}
+		else {
+			return 0.0;
+		}
+	}}
+
+	if (XTransform == 'symlogPC') {var xValue = function(d) {
+		if (d[X]>0.0){
+			return Math.log10(d[X]) -2.0;
+		}else if (d[X]<0.0) {
+			return -1*Math.log10(-1*d[X]) + 2.0;
+		}
+		else {
+			return 0.0;
+		}
+	}}
+	if (YTransform == 'symlogPC') {var yValue = function(d) {
+		if (d[Y]>0.0){
+			return Math.log10(d[Y]) + 4.5;
+		}else if (d[Y]<0.0) {
+			return -1*Math.log10(-1*d[Y]) - 4.5;
+		}
+		else {
+			return 0.0;
+		}
+	}}
 	
 	var xMin = Math.floor(d3.min(unfilteredData,xValue));
 	var xMax = Math.ceil(d3.max(unfilteredData,xValue));
