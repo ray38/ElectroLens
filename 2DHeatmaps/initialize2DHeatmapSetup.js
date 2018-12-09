@@ -4,6 +4,7 @@ import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colo
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
+		backgroundAlpha: 1.0,
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 150 ],
 		up: [ 0, 0, 1 ],
@@ -22,8 +23,9 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		yPlotScale : d3.scaleLinear().domain([0, 100]).range([-50,50]),
 		options: new function(){
 			this.backgroundColor = "#000000";
+			this.backgroundAlpha = 0.0;
 			this.numPerSide = 100;
-			this.pointCloudAlpha = 1;
+			this.pointCloudAlpha = 1.0;
 			this.pointCloudSize = 3.0;
 			this.plotX = viewSetup.plotX;
 			this.plotY = viewSetup.plotY;

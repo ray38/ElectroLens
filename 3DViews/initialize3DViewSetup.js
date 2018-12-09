@@ -14,6 +14,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
 	var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0);
 
+	//plot gridspacing is 1
+
 
 
 	var defaultSetting = {
@@ -22,6 +24,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		//width: 0.6,
 		//height: 0.5,
 		background: new THREE.Color( 0,0,0 ),
+		backgroundAlpha: 1.0,
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 1200 ],
 		up: [ 0, 1, 0 ],
@@ -51,6 +54,13 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		zCoordMax : zCoordMax,
 		options: new function(){
 			this.backgroundColor = "#000000";
+			this.backgroundAlpha = 0.0;
+			this.showMolecule = true;
+			this.atomSize = 1.0;
+			this.bondSize = 1.0;
+			this.moleculeTransparency = 1.0;
+			this.maxBondLength = 1.5;
+			this.minBondLength = 0.3;
 			this.pointCloudParticles = 500;
 			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
@@ -96,6 +106,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.planeOpacity = 0.05;
 			this.resetCamera = function(){viewSetup.controller.reset();};
 			this.systemEdgeBoolean = true;
+			this.autoRotateSystem = false;
+			this.autoRotateSpeed = 2.0;
 			this.toggleSystemEdge = function(){
 										if(viewSetup.options.systemEdgeBoolean){
 											addSystemEdge(viewSetup);

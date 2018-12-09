@@ -11,6 +11,8 @@ var _DHeatmapsHeatmapViewJs = require("./2DHeatmaps/HeatmapView.js");
 
 var _DViewsPointCloud_selectionJs = require("./3DViews/PointCloud_selection.js");
 
+var _DViewsMoleculeViewJs = require("./3DViews/MoleculeView.js");
+
 var _DViewsSystemEdgeJs = require("./3DViews/systemEdge.js");
 
 var _UtilitiesReadDataFileJs = require( /*,readCSVPapaparse, readViewsSetup*/"./Utilities/readDataFile.js");
@@ -109,7 +111,7 @@ function main(views, plotSetup) {
 		console.log(unfilteredData);
 		console.log('started initialization');
 		container = document.getElementById('container');
-		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, clearAlpha: 1 });
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -132,11 +134,12 @@ function main(views, plotSetup) {
 			console.log(view.controller);
 
 			if (view.viewType == '3DView') {
-
+				view.controller.autoRotate = false;
 				view.defaultColorScales = defaultColorScales;
 				_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
 
 				_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
+				_DViewsMoleculeViewJs.getMoleculeGeometry(view);
 				_DViewsSystemEdgeJs.addSystemEdge(view);
 				_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view, plotSetup);
 				_MultiviewControlColorLegendJs.insertLegend(view);
@@ -317,6 +320,14 @@ function main(views, plotSetup) {
 		render();
 		processClick();
 		stats.update();
+
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
+			if (view.viewType == '3DView') {
+				view.controller.update();
+			}
+		}
+
 		requestAnimationFrame(animate);
 	}
 
@@ -329,6 +340,11 @@ function main(views, plotSetup) {
 				_DViewsPointCloud_selectionJs.animatePointCloudGeometry(view);
 				view.System.geometry.attributes.size.needsUpdate = true;
 			}
+
+			//if (view.viewType == '3DView' ) {
+			//	view.System.rotation.x += 0.05;
+			//	view.System.geometry.attributes.size.needsUpdate = true;
+			//}
 
 			//view.controller.update();
 
@@ -348,7 +364,7 @@ function main(views, plotSetup) {
 			renderer.setScissorTest(true);
 			renderer.setClearColor(0xffffff, 1); // border color
 			renderer.clearColor(); // clear color buffer
-			renderer.setClearColor(view.background);
+			renderer.setClearColor(view.background, view.backgroundAlpha);
 			//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
 			//else {renderer.setClearColor( view.background );}
 
@@ -567,7 +583,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/initialize2DHeatmapSetup.js":4,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/PointCloud_selection.js":7,"./3DViews/setupOptionBox3DView.js":9,"./3DViews/systemEdge.js":10,"./MultiviewControl/HUDControl.js":11,"./MultiviewControl/calculateViewportSizes.js":12,"./MultiviewControl/colorLegend.js":13,"./MultiviewControl/controllerControl.js":14,"./MultiviewControl/initializeViewSetups.js":15,"./MultiviewControl/optionBoxControl.js":16,"./MultiviewControl/setupViewBasic.js":17,"./Utilities/colorScale.js":18,"./Utilities/readDataFile.js":20}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Utilities.js":3,"./2DHeatmaps/initialize2DHeatmapSetup.js":4,"./2DHeatmaps/setupOptionBox2DHeatmap.js":5,"./2DHeatmaps/tooltip.js":6,"./3DViews/MoleculeView.js":7,"./3DViews/PointCloud_selection.js":8,"./3DViews/setupOptionBox3DView.js":10,"./3DViews/systemEdge.js":11,"./MultiviewControl/HUDControl.js":12,"./MultiviewControl/calculateViewportSizes.js":13,"./MultiviewControl/colorLegend.js":14,"./MultiviewControl/controllerControl.js":15,"./MultiviewControl/initializeViewSetups.js":16,"./MultiviewControl/optionBoxControl.js":17,"./MultiviewControl/setupViewBasic.js":18,"./Utilities/colorScale.js":19,"./Utilities/readDataFile.js":21}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -626,9 +642,9 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 	if (XTransform == 'symlog10') {
 		var xValue = function xValue(d) {
 			if (d[X] > 0.0) {
-				return Math.log10(d[X]) + 9.0;
+				return Math.log10(d[X]) + 3.0;
 			} else if (d[X] < 0.0) {
-				return -1 * Math.log10(-1 * d[X]) - 9.0;
+				return -1 * Math.log10(-1 * d[X]) - 3.0;
 			} else {
 				return 0.0;
 			}
@@ -637,9 +653,9 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 	if (YTransform == 'symlog10') {
 		var yValue = function yValue(d) {
 			if (d[Y] > 0.0) {
-				return Math.log10(d[Y]) + 9.0;
+				return Math.log10(d[Y]) + 3.0;
 			} else if (d[Y] < 0.0) {
-				return -1 * Math.log10(-1 * d[Y]) - 9.0;
+				return -1 * Math.log10(-1 * d[Y]) - 3.0;
 			} else {
 				return 0.0;
 			}
@@ -990,6 +1006,7 @@ var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js
 function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 	var defaultSetting = {
 		background: new THREE.Color(0, 0, 0),
+		backgroundAlpha: 1.0,
 		controllerEnabledBackground: new THREE.Color(0.1, 0.1, 0.1),
 		eye: [0, 0, 150],
 		up: [0, 0, 1],
@@ -1008,8 +1025,9 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 		yPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
 		options: new function () {
 			this.backgroundColor = "#000000";
+			this.backgroundAlpha = 0.0;
 			this.numPerSide = 100;
-			this.pointCloudAlpha = 1;
+			this.pointCloudAlpha = 1.0;
 			this.pointCloudSize = 3.0;
 			this.plotX = viewSetup.plotX;
 			this.plotY = viewSetup.plotY;
@@ -1066,7 +1084,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":12,"../MultiviewControl/colorLegend.js":13,"./HeatmapView.js":2}],5:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":13,"../MultiviewControl/colorLegend.js":14,"./HeatmapView.js":2}],5:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1161,6 +1179,10 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	});
 	detailFolder.add(options, 'toggleLegend');
 
+	detailFolder.add(options, 'backgroundAlpha', 0.0, 1.0).step(0.1).name('background transparency').onChange(function (value) {
+		view.backgroundAlpha = value;
+	});
+
 	detailFolder.addColor(options, 'backgroundColor').name('background').onChange(function (value) {
 		view.background = new THREE.Color(value);
 	});
@@ -1168,7 +1190,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	gui.close();
 }
 
-},{"../MultiviewControl/colorLegend.js":13,"../Utilities/other.js":19,"./HeatmapView.js":2}],6:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":14,"../Utilities/other.js":20,"./HeatmapView.js":2}],6:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1229,6 +1251,191 @@ function updateHeatmapTooltip(view) {
 }
 
 },{}],7:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.getMoleculeGeometryTest = getMoleculeGeometryTest;
+exports.getMoleculeGeometry = getMoleculeGeometry;
+exports.changeMoleculeGeometry = changeMoleculeGeometry;
+exports.removeMoleculeGeometry = removeMoleculeGeometry;
+
+function getMoleculeGeometryTest(view) {
+	console.log('re-calculating geometry');
+
+	var material = new THREE.MeshBasicMaterial({
+		color: 0xffffff,
+		vertexColors: THREE.FaceColors,
+		opacity: options.boxOpacity,
+		transparent: true
+	});
+	var mergedGeometry = new THREE.Geometry();
+
+	var particles = options.boxParticles;
+	var num_blocks = 1000000;
+	var points_in_block = new Float32Array(num_blocks);
+	var total = 100;
+	var count = 0;
+
+	for (var k = 0; k < num_blocks; k++) {
+		var num_points = Math.floor(n_test[k] / total * particles);
+		points_in_block[k] = num_points;
+		if (num_points > 0) {
+			count += 1;
+		}
+	}
+	var colors = new Array(count);
+
+	var n = 100;
+	var n2 = Math.pow(n, 2);
+	var n_inc = n / 2;
+
+	colorMap = options.colorMap;
+	numberOfColors = 512;
+
+	lut = new THREE.Lut(colorMap, numberOfColors);
+	lut.setMax(options.boxColorSetting);
+	lut.setMin(0);
+
+	var i = 0;
+	for (var k = 0; k < num_blocks; k++) {
+		if (points_in_block[k] > 0) {
+			var x_start = k % n;
+			var y_start = (k - k % n) / n % n;
+			var z_start = (k - k % n2) / n2;
+			var x_end = x_start + 1;
+			var y_end = y_start + 1;
+			var z_end = z_start + 1;
+
+			if (x_start >= options.x_low && x_end <= options.x_high && y_start >= options.y_low && y_end <= options.y_high && z_start >= options.z_low && z_end <= options.z_high) {
+
+				var tempColor = lut.getColor(target_test[k]);
+				var tempGeometry = new THREE.BoxGeometry(options.boxSize, options.boxSize, options.boxSize);
+
+				tempGeometry.translate((x_start - n_inc) * 10, (y_start - n_inc) * 10, (z_start - n_inc) * 10);
+				mergedGeometry.merge(tempGeometry);
+
+				for (var q = 0; q < 12; q++) {
+					colors[i] = tempColor.getHex();
+					i++;
+				}
+			}
+		}
+	}
+
+	for (var i = 0; i < mergedGeometry.faces.length; i++) {
+
+		var face = mergedGeometry.faces[i];
+		face.color.setHex(colors[i]);
+	}
+
+	var mesh = new THREE.Mesh(mergedGeometry, material);
+
+	console.log(' end re-calculating geometry');
+	return mesh;
+}
+
+function getMoleculeGeometry(view) {
+
+	view.molecule = {};
+	view.molecule.atoms = [];
+	view.molecule.bonds = [];
+
+	var colorSetup = { "C": 0x999999, "O": 0xFF0000, "N": 0x0000FF, "H": 0xFFFFFF };
+	var options = view.options;
+	var scene = view.scene;
+
+	for (var i = 0; i < view.coordinates.length; i++) {
+		console.log(view.coordinates[i]);
+		console.log(view.coordinates[i][1][0], view.coordinates[i][1][1], view.coordinates[i][1][2]);
+		console.log((view.coordinates[i][1][0] * 10 + 0.5) * 20, (view.coordinates[i][1][1] * 10 + 0.5) * 20, (view.coordinates[i][1][2] * 10 + 0.5) * 20);
+		//Do something
+		var geometry = new THREE.SphereGeometry(options.atomSize * 50, 50, 50);
+		geometry.translate((view.coordinates[i][1][0] * 10 + 0.5) * 20, (view.coordinates[i][1][1] * 10 + 0.5) * 20, (view.coordinates[i][1][2] * 10 + 0.5) * 20);
+
+		var material = new THREE.MeshBasicMaterial({ color: colorSetup[view.coordinates[i][0]] });
+		var atom = new THREE.Mesh(geometry, material);
+		//atom.material.color.setHex( colorSetup[view.coordinates[i][1]] )
+		//atom.material.color = new THREE.Color(colorSetup[view.coordinates[i][0]]);
+		//console.log(view.coordinates[i][0]);
+		//console.log(colorSetup[view.coordinates[i][0]]);
+		view.molecule.atoms.push(atom);
+		scene.add(atom);
+	}
+
+	for (var i = 0; i < view.coordinates.length; i++) {
+		var coordinates1 = new THREE.Vector3(view.coordinates[i][1][0], view.coordinates[i][1][1], view.coordinates[i][1][2]);
+		var point1 = new THREE.Vector3((view.coordinates[i][1][0] * 10 + 0.5) * 20, (view.coordinates[i][1][1] * 10 + 0.5) * 20, (view.coordinates[i][1][2] * 10 + 0.5) * 20);
+
+		for (var j = 0; j < view.coordinates.length; j++) {
+			var coordinates2 = new THREE.Vector3(view.coordinates[j][1][0], view.coordinates[j][1][1], view.coordinates[j][1][2]);
+			var point2 = new THREE.Vector3((view.coordinates[j][1][0] * 10 + 0.5) * 20, (view.coordinates[j][1][1] * 10 + 0.5) * 20, (view.coordinates[j][1][2] * 10 + 0.5) * 20);
+
+			//console.log(point1, point2)
+
+			/* edge from X to Y */
+
+			var bondlength = new THREE.Vector3().subVectors(coordinates2, coordinates1).length();
+			//console.log(direction.length());
+			if (bondlength < options.maxBondLength && bondlength > options.minBondLength) {
+				var direction = new THREE.Vector3().subVectors(point2, point1);
+				var orientation = new THREE.Matrix4();
+				/* THREE.Object3D().up (=Y) default orientation for all objects */
+				orientation.lookAt(point1, point2, new THREE.Object3D().up);
+				/* rotation around axis X by -90 degrees 
+     * matches the default orientation Y 
+     * with the orientation of looking Z */
+				orientation.multiply(new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1));
+
+				/* cylinder: radiusAtTop, radiusAtBottom, 
+        height, radiusSegments, heightSegments */
+				//console.log(direction, orientation)
+				var bondGeometry = new THREE.CylinderGeometry(options.bondSize * 10, options.bondSize * 10, direction.length(), 32, 1, true);
+				//bondGeometry.translate( point1 );
+
+				var bond = new THREE.Mesh(bondGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+
+				bond.applyMatrix(orientation);
+				//console.log(new THREE.Vector3().addVectors( point1, direction.multiplyScalar(0.5) ))
+				//bond.position = new THREE.Vector3().addVectors( point1, direction.multiplyScalar(0.5) );
+				//bond.position.set(new THREE.Vector3().addVectors(point1, direction.multiplyScalar(0.5)));
+				//bond.position.x = (view.coordinates[j][1][0]*10 + 0.5)*20;
+				//bond.position.y = (view.coordinates[j][1][1]*10 + 0.5)*20;
+				//bond.position.z = (view.coordinates[j][1][2]*10 + 0.5)*20;
+				bond.position.x = (point2.x + point1.x) / 2;
+				bond.position.y = (point2.y + point1.y) / 2;
+				bond.position.z = (point2.z + point1.z) / 2;
+				view.molecule.bonds.push(bond);
+				scene.add(bond);
+			}
+		}
+	}
+}
+
+function changeMoleculeGeometry(view) {
+
+	for (var i = 0; i < view.molecule.bonds.length; i++) {
+		view.scene.remove(view.molecule.bonds[i]);
+	}
+
+	for (var i = 0; i < view.molecule.atoms.length; i++) {
+		view.scene.remove(view.molecule.atoms[i]);
+	}
+
+	getMoleculeGeometry(view);
+}
+
+function removeMoleculeGeometry(view) {
+
+	for (var i = 0; i < view.molecule.bonds.length; i++) {
+		view.scene.remove(view.molecule.bonds[i]);
+	}
+
+	for (var i = 0; i < view.molecule.atoms.length; i++) {
+		view.scene.remove(view.molecule.atoms[i]);
+	}
+}
+
+},{}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1613,7 +1820,7 @@ function changePointCloudPeriodicReplicates(view) {
 	addPointCloudPeriodicReplicates(view);
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1644,12 +1851,15 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 	var zPlotMin = 0.0 - zSteps / 2.0,
 	    zPlotMax = 0.0 + zSteps / 2.0;
 
+	//plot gridspacing is 1
+
 	var defaultSetting = {
 		//left: 0,
 		//top: 0,
 		//width: 0.6,
 		//height: 0.5,
 		background: new THREE.Color(0, 0, 0),
+		backgroundAlpha: 1.0,
 		controllerEnabledBackground: new THREE.Color(0.1, 0.1, 0.1),
 		eye: [0, 0, 1200],
 		up: [0, 1, 0],
@@ -1679,6 +1889,13 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		zCoordMax: zCoordMax,
 		options: new function () {
 			this.backgroundColor = "#000000";
+			this.backgroundAlpha = 0.0;
+			this.showMolecule = true;
+			this.atomSize = 1.0;
+			this.bondSize = 1.0;
+			this.moleculeTransparency = 1.0;
+			this.maxBondLength = 1.5;
+			this.minBondLength = 0.3;
 			this.pointCloudParticles = 500;
 			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
@@ -1726,6 +1943,8 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 				viewSetup.controller.reset();
 			};
 			this.systemEdgeBoolean = true;
+			this.autoRotateSystem = false;
+			this.autoRotateSpeed = 2.0;
 			this.toggleSystemEdge = function () {
 				if (viewSetup.options.systemEdgeBoolean) {
 					_systemEdgeJs.addSystemEdge(viewSetup);
@@ -1774,13 +1993,15 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":12,"../MultiviewControl/colorLegend.js":13,"./systemEdge.js":10}],9:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":13,"../MultiviewControl/colorLegend.js":14,"./systemEdge.js":11}],10:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
 exports.setupOptionBox3DView = setupOptionBox3DView;
 
 var _PointCloud_selectionJs = require("./PointCloud_selection.js");
+
+var _MoleculeViewJs = require("./MoleculeView.js");
 
 var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
 
@@ -1813,6 +2034,30 @@ function setupOptionBox3DView(view, plotSetup) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 		gui.updateDisplay();
 	});
+
+	moleculeFolder.add(options, 'atomSize', 0.1, 10).step(0.1).name('Atom Size').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+	});
+	moleculeFolder.add(options, 'bondSize', 0.1, 5).step(0.1).name('Bond Size').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.add(options, 'maxBondLength', 0.1, 5).step(0.1).name('Bond Max').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.add(options, 'minBondLength', 0.1, 5).step(0.1).name('Bond Min').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.add(options, 'showMolecule').name('Show Molecule').onChange(function (value) {
+		if (value == true) {
+			_MoleculeViewJs.getMoleculeGeometry(view);
+		} else {
+			_MoleculeViewJs.removeMoleculeGeometry(view);
+		}
+	});
+
 	moleculeFolder.open();
 
 	/*
@@ -1834,6 +2079,13 @@ function setupOptionBox3DView(view, plotSetup) {
 		//updatePointCloudGeometry(view);
 		options.toggleSystemEdge.call();
 		gui.updateDisplay();
+	});
+	viewFolder.add(options, 'autoRotateSystem').name('Rotate System').onChange(function (value) {
+		//updatePointCloudGeometry(view);
+		//options.toggleSystemEdge.call();
+		//gui.updateDisplay();
+		//console.log(value)
+		view.controller.autoRotate = value;
 	});
 
 	var PBCFolder = viewFolder.addFolder('PBC');
@@ -1893,7 +2145,8 @@ function setupOptionBox3DView(view, plotSetup) {
 	pointCloudFolder.add(options, 'animate').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 	});
-	console.log(pointCloudFolder);
+
+	//console.log(pointCloudFolder);
 
 	pointCloudFolder.close();
 
@@ -1944,6 +2197,10 @@ function setupOptionBox3DView(view, plotSetup) {
 		gui.updateDisplay();
 	});
 
+	detailFolder.add(options, 'autoRotateSpeed', 0.1, 30.0).step(0.1).name('Rotate Speed').onChange(function (value) {
+		view.controller.autoRotateSpeed = value;
+	});
+
 	detailFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
@@ -1964,6 +2221,10 @@ function setupOptionBox3DView(view, plotSetup) {
 	});
 	detailFolder.add(options, 'toggleLegend');
 
+	detailFolder.add(options, 'backgroundAlpha', 0.0, 1.0).step(0.1).name('background transparency').onChange(function (value) {
+		view.backgroundAlpha = value;
+	});
+
 	detailFolder.addColor(options, 'backgroundColor').name('background').onChange(function (value) {
 		view.background = new THREE.Color(value);
 	});
@@ -1972,7 +2233,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":13,"../Utilities/colorScale.js":18,"../Utilities/other.js":19,"./PointCloud_selection.js":7}],10:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":14,"../Utilities/colorScale.js":19,"../Utilities/other.js":20,"./MoleculeView.js":7,"./PointCloud_selection.js":8}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2001,7 +2262,7 @@ function removeSystemEdge(view) {
 	view.scene.remove(view.systemEdge);
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2029,7 +2290,7 @@ function setupHUD(view) {
 	view.border = border;
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2183,7 +2444,7 @@ function deFullscreen(views) {
 	_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 }
 
-},{"../2DHeatmaps/Utilities.js":3,"./optionBoxControl.js":16}],13:[function(require,module,exports){
+},{"../2DHeatmaps/Utilities.js":3,"./optionBoxControl.js":17}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2226,7 +2487,7 @@ function changeLegend(view) {
 	insertLegend(view);
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2273,7 +2534,7 @@ function disableController(view, controller) {
 	view.border.material.needsUpdate = true;
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2299,7 +2560,7 @@ function initializeViewSetups(views, plotSetup) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":8,"../MultiviewControl/calculateViewportSizes.js":12}],16:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":4,"../3DViews/initialize3DViewSetup.js":9,"../MultiviewControl/calculateViewportSizes.js":13}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2353,7 +2614,7 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 	}
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2391,7 +2652,7 @@ function setupViewCameraSceneController(view, renderer) {
 	view.windowHeight = height;
 }
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2418,7 +2679,7 @@ function adjustColorScaleAccordingToDefault(view) {
 	view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max'];
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2432,7 +2693,7 @@ function arrayToIdenticalObject(array) {
 	return result;
 }
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2630,4 +2891,4 @@ function loadJSON(filename,callback) {
 	xobj.send(null);  
 }*/
 
-},{"../MultiviewControl/initializeViewSetups.js":15}]},{},[1]);
+},{"../MultiviewControl/initializeViewSetups.js":16}]},{},[1]);

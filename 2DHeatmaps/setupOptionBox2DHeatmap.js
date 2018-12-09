@@ -105,6 +105,12 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	});
 	detailFolder.add( options, 'toggleLegend');
 
+	detailFolder.add(options,'backgroundAlpha',0.0,1.0).step(0.1)
+	.name('background transparency')
+	.onChange( function( value ) {
+		view.backgroundAlpha = value;
+	});
+
 	detailFolder.addColor(options,'backgroundColor')
 	.name('background')
 	.onChange( function( value ) {

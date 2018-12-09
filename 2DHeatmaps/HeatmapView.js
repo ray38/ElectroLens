@@ -21,9 +21,9 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 
 	if (XTransform == 'symlog10') {var xValue = function(d) {
 		if (d[X]>0.0){
-			return Math.log10(d[X]) + 9.0;
+			return Math.log10(d[X]) + 3.0;
 		}else if (d[X]<0.0) {
-			return -1*Math.log10(-1*d[X]) - 9.0;
+			return -1*Math.log10(-1*d[X]) - 3.0;
 		}
 		else {
 			return 0.0;
@@ -31,9 +31,9 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 	}}
 	if (YTransform == 'symlog10') {var yValue = function(d) {
 		if (d[Y]>0.0){
-			return Math.log10(d[Y]) + 9.0;
+			return Math.log10(d[Y]) + 3.0;
 		}else if (d[Y]<0.0) {
-			return -1*Math.log10(-1*d[Y]) - 9.0;
+			return -1*Math.log10(-1*d[Y]) - 3.0;
 		}
 		else {
 			return 0.0;

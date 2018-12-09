@@ -1,4 +1,5 @@
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry, changePointCloudPeriodicReplicates} from "./PointCloud_selection.js";
+import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry} from "./MoleculeView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultColorScales, adjustColorScaleAccordingToDefault} from "../Utilities/colorScale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
@@ -32,6 +33,40 @@ export function setupOptionBox3DView(view,plotSetup){
 		changeLegend(view);	
 		gui.updateDisplay();
 	});
+
+	moleculeFolder.add( options, 'atomSize', 0.1, 10 ).step( 0.1 )
+	.name( 'Atom Size' )
+	.onChange( function( value ) {
+		changeMoleculeGeometry(view);
+	});
+	moleculeFolder.add( options, 'bondSize', 0.1, 5 ).step( 0.1 )
+	.name( 'Bond Size' )
+	.onChange( function( value ) {
+		changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.add( options, 'maxBondLength', 0.1, 5 ).step( 0.1 )
+	.name( 'Bond Max' )
+	.onChange( function( value ) {
+		changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.add( options, 'minBondLength', 0.1, 5 ).step( 0.1 )
+	.name( 'Bond Min' )
+	.onChange( function( value ) {
+		changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.add( options, 'showMolecule')
+	.name('Show Molecule')
+	.onChange( function( value ) {
+		if (value == true) {
+			getMoleculeGeometry(view);
+		} else {
+			removeMoleculeGeometry(view);
+		}
+	});
+
 	moleculeFolder.open();
 
 
@@ -58,6 +93,15 @@ export function setupOptionBox3DView(view,plotSetup){
 		//updatePointCloudGeometry(view);
 		options.toggleSystemEdge.call();
 		gui.updateDisplay();
+	});
+	viewFolder.add( options, 'autoRotateSystem')
+	.name('Rotate System')
+	.onChange( function( value ) {
+		//updatePointCloudGeometry(view);
+		//options.toggleSystemEdge.call();
+		//gui.updateDisplay();
+		//console.log(value)
+		view.controller.autoRotate = value;
 	});
 
 	var PBCFolder = viewFolder.addFolder('PBC')
@@ -138,7 +182,8 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ) {
 		updatePointCloudGeometry(view);
 	});
-	console.log(pointCloudFolder);
+
+	//console.log(pointCloudFolder);
 
 	pointCloudFolder.close();
 
@@ -203,6 +248,12 @@ export function setupOptionBox3DView(view,plotSetup){
 	    gui.updateDisplay();
 	});
 
+	detailFolder.add( options, 'autoRotateSpeed', 0.1, 30.0 ).step( 0.1 )
+	.name( 'Rotate Speed' )
+	.onChange( function( value ) {
+		view.controller.autoRotateSpeed = value;
+	});
+
 	detailFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {
 		changeLegend(view);	
 	});
@@ -222,6 +273,12 @@ export function setupOptionBox3DView(view,plotSetup){
 		changeLegend(view);	
 	});
 	detailFolder.add( options, 'toggleLegend');
+
+	detailFolder.add(options,'backgroundAlpha',0.0,1.0).step(0.1)
+	.name('background transparency')
+	.onChange( function( value ) {
+		view.backgroundAlpha = value;
+	});
 
 	detailFolder.addColor(options,'backgroundColor')
 	.name('background')

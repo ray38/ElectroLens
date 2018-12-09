@@ -4,6 +4,7 @@ import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
+import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {readCSV,readCSV2/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
@@ -97,7 +98,7 @@ function main(views,plotSetup) {
 		console.log(unfilteredData)
 		console.log('started initialization')
 		container = document.getElementById( 'container' );
-		renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1 } );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth , window.innerHeight);
 
@@ -120,11 +121,12 @@ function main(views,plotSetup) {
 			console.log(view.controller)
 
 			if (view.viewType == '3DView'){
-				
+				view.controller.autoRotate = false;
 				view.defaultColorScales = defaultColorScales;
 				adjustColorScaleAccordingToDefault(view);				
 
 				getPointCloudGeometry(view);
+				getMoleculeGeometry(view);
 				addSystemEdge(view);
 				setupOptionBox3DView(view,plotSetup);
 				insertLegend(view);
@@ -314,6 +316,14 @@ function main(views,plotSetup) {
 		render();
 		processClick();
 		stats.update();
+
+		for ( var ii = 0; ii < views.length; ++ii ) {
+			var view = views[ii];
+			if (view.viewType == '3DView') {
+				view.controller.update();
+			}
+		}
+
 		requestAnimationFrame( animate );
 	}
 
@@ -326,6 +336,11 @@ function main(views,plotSetup) {
 				animatePointCloudGeometry(view);
 				view.System.geometry.attributes.size.needsUpdate = true;
 			}
+
+			//if (view.viewType == '3DView' ) {
+			//	view.System.rotation.x += 0.05;
+			//	view.System.geometry.attributes.size.needsUpdate = true;
+			//}
 
 			//view.controller.update();
 			
@@ -345,7 +360,7 @@ function main(views,plotSetup) {
 			renderer.setScissorTest( true );
 			renderer.setClearColor( 0xffffff, 1 ); // border color
 			renderer.clearColor(); // clear color buffer
-			renderer.setClearColor( view.background );
+			renderer.setClearColor( view.background, view.backgroundAlpha);
 			//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
 			//else {renderer.setClearColor( view.background );}
 

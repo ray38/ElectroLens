@@ -1,0 +1,5 @@
+.git/
+.gitignore
+.idea/
+.DS_Store
+TODO.md
