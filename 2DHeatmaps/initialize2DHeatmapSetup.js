@@ -1,6 +1,7 @@
 import {replotHeatmap} from "./HeatmapView.js";
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
+import {deselectAll, selectAll, updateAllPlots} from "./Selection/Utilities.js";
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
@@ -62,10 +63,15 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 										viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
 									}
 								};
-			this.planeSelection = function(){
-									planeSelection = !planeSelection;
-									pointSelection = false;
-								};
+			//this.planeSelection = function(){
+			//						planeSelection = !planeSelection;
+			//						pointSelection = false;
+			//					};
+			this.planeSelection = false;
+			this.pointSelection = false;
+			this.selectAll   = function(){selectAll(views, viewSetup.unfilteredData); updateAllPlots(views);}; 
+			this.deselectAll = function(){deselectAll(views, viewSetup.unfilteredData);updateAllPlots(views);};
+
 		}
 	}
 

@@ -1,6 +1,7 @@
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./HeatmapView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
+
 export function setupOptionBox2DHeatmap(view,plotSetup){
 
 	var options = view.options;
@@ -13,6 +14,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	//var moleculeFolder 		= gui.addFolder( 'Molecule Selection' );
 	var plotFolder			= gui.addFolder( 'Plot Setting' );
 	var viewFolder 			= gui.addFolder( 'View Selection' );
+	var selectionFolder 	= gui.addFolder( 'Selection' );
 	var detailFolder		= gui.addFolder( 'Detailed Control' );
 	//var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
 
@@ -53,6 +55,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 
 	plotFolder.open()
 
+
 	viewFolder.add( options, 'colorMap',{'rainbow':'rainbow', 'cooltowarm':'cooltowarm', 'blackbody':'blackbody', 'grayscale':'grayscale'})
 	.name( 'Color Scheme' )
 	.onChange( function( value ){
@@ -84,6 +87,28 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	//pointCloudFolder.open();
 
 	//console.log(gui);
+
+	selectionFolder.add( options, 'selectAll').name('Select all');
+	selectionFolder.add( options, 'deselectAll').name('Deselect all');
+	selectionFolder.add(options, 'planeSelection')
+	.name('with plane')
+	.onChange( function( value ) {
+		if (value == true && options.pointSelection == true){
+			options.pointSelection = false;
+			gui.updateDisplay();
+		}
+	});
+
+	selectionFolder.add(options, 'pointSelection')
+	.name('by point')
+	.onChange( function( value ) {
+		if (value == true && options.planeSelection == true){
+			options.planeSelection = false;
+			gui.updateDisplay();
+		}
+	});
+
+
 
 	detailFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {
 		changeLegend(view);	
