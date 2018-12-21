@@ -99,8 +99,8 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		}
 	});
 
-	selectionFolder.add(options, 'pointSelection')
-	.name('by point')
+	selectionFolder.add(options, 'brushSelection')
+	.name('with brush')
 	.onChange( function( value ) {
 		if (value == true && options.planeSelection == true){
 			options.planeSelection = false;

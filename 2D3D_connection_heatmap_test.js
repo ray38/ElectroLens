@@ -180,6 +180,11 @@ function main(views, plotSetup) {
 					activeView.scene.remove(activeView.currentSelectionPlane);
 					activeView.currentSelectionPlane = null;
 				}
+				if (activeView.options.brushSelection) {
+					//updateBrushSelection(views,activeView);
+					activeView.scene.remove(activeView.currentSelectionBrush);
+					activeView.currentSelectionBrush = null;
+				}
 				//clickRequest = false;
 				/*if (planeSelection){
     	planeSelection = false;
@@ -396,7 +401,7 @@ function main(views, plotSetup) {
 	function processSelection() {
 		if (activeView != null) {
 			if (activeView.viewType == '2DHeatmap') {
-				_DHeatmapsSelectionJs.selectionControl(activeView, mouseHold);
+				_DHeatmapsSelectionJs.selectionControl(views, activeView, mouseHold);
 			}
 		}
 	}
@@ -1200,7 +1205,8 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 			//						pointSelection = false;
 			//					};
 			this.planeSelection = false;
-			this.pointSelection = false;
+			this.brushSelection = false;
+			this.selectionBrushSize = 5;
 			this.selectAll = function () {
 				_SelectionUtilitiesJs.selectAll(views, viewSetup.unfilteredData);_SelectionUtilitiesJs.updateAllPlots(views);
 			};
@@ -1226,6 +1232,7 @@ function extendObject(obj, src) {
 
 exports.__esModule = true;
 exports.updatePlaneSelection = updatePlaneSelection;
+exports.updateBrushSelection = updateBrushSelection;
 exports.selectionControl = selectionControl;
 
 var _SelectionUtilitiesJs = require("./Selection/Utilities.js");
@@ -1296,9 +1303,33 @@ function updatePlane(view, plane) {
 	//updateSelection();
 }
 
-function updatePlaneSelection(views, temp_view) {
+function spawnBrush(view) {
+
+	var selectionBrushMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide, needsUpdate: true });
+	var scene = view.scene;
+	var mousePosition = view.mousePosition;
+	var selectionBrush = new THREE.Mesh(new THREE.CircleGeometry(view.options.selectionBrushSize, 32), selectionBrushMaterial);
+	//selectionPlane.geometry.attributes.position.needsUpdate = true;
+	selectionBrush.position.set(mousePosition.x, mousePosition.y, mousePosition.z);
+
+	selectionBrush.name = 'selectionBrush';
+	view.currentSelectionBrush = selectionBrush;
+	scene.add(selectionBrush);
+	console.log("spawn brush");
+	//updateSelection();
+}
+
+function updateBrush(view, tempBrush) {
+
+	var mousePosition = view.mousePosition;
+	tempBrush.position.set(mousePosition.x, mousePosition.y, mousePosition.z);
+	console.log("update brush");
+	//updateSelection();
+}
+
+function updatePlaneSelection(views, view) {
 	//var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
-	var tempSelectionPlane = temp_view.currentSelectionPlane;
+	var tempSelectionPlane = view.currentSelectionPlane;
 	//console.log(tempSelectionPlane)
 	if (tempSelectionPlane != null) {
 		var p = tempSelectionPlane.geometry.attributes.position.array;
@@ -1310,9 +1341,9 @@ function updatePlaneSelection(views, temp_view) {
 
 		console.log('updating plane selection');
 
-		var data = temp_view.data;
-		var xPlotScale = temp_view.xPlotScale;
-		var yPlotScale = temp_view.yPlotScale;
+		var data = view.data;
+		var xPlotScale = view.xPlotScale;
+		var yPlotScale = view.yPlotScale;
 		for (var x in data) {
 			for (var y in data[x]) {
 				tempx = xPlotScale(parseFloat(x));
@@ -1324,7 +1355,40 @@ function updatePlaneSelection(views, temp_view) {
 				}
 			}
 		}
-		_SelectionUtilitiesJs.updateSelectionFromHeatmap(temp_view);
+		_SelectionUtilitiesJs.updateSelectionFromHeatmap(view);
+	}
+	_SelectionUtilitiesJs.updateAllPlots(views);
+}
+
+function updateBrushSelection(views, view) {
+	//var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
+	var tempSelectionBrush = view.currentSelectionBrush;
+	//console.log(tempSelectionPlane)
+	if (tempSelectionBrush != null) {
+		var location = tempSelectionBrush.position;
+		var radius2 = Math.pow(view.options.selectionBrushSize, 2);
+		//var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
+		//	ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
+		var tempx, tempy, temp_dist2;
+
+		console.log('updating plane selection');
+
+		var data = view.data;
+		var xPlotScale = view.xPlotScale;
+		var yPlotScale = view.yPlotScale;
+		for (var x in data) {
+			for (var y in data[x]) {
+				tempx = xPlotScale(parseFloat(x));
+				tempy = yPlotScale(parseFloat(y));
+				temp_dist2 = Math.pow(tempx - location.x, 2) + Math.pow(tempy - location.y, 2);
+				if (temp_dist2 < radius2) {
+					data[x][y].selected = true;
+				} else {
+					data[x][y].selected = false;
+				}
+			}
+		}
+		_SelectionUtilitiesJs.updateSelectionFromHeatmap(view);
 	}
 	_SelectionUtilitiesJs.updateAllPlots(views);
 }
@@ -1343,30 +1407,39 @@ function updatePointSelection(view) {
 }
 
 function applyPlaneSelection(view, mouseHold) {
-	var temp = view.currentSelectionPlane;
+	var tempPlane = view.currentSelectionPlane;
 	//var temp = view.scene.getObjectByName('selectionPlane');
-	console.log(mouseHold);
+	//console.log(mouseHold)
 	if (mouseHold) {
 		if (temp != null) {
-			updatePlane(view, temp);
+			updatePlane(view, tempPlane);
 		} else {
 			spawnPlane(view);
 		}
 	}
 }
 
-function applyPointSelection(view) {
-	updatePointSelection(view);
+function applyBrushSelection(view, mouseHold) {
+	//updateBrushSelection(view, mouseHold);
+	var tempBrush = view.currentSelectionBrush;
+	if (mouseHold) {
+		if (tempBrush != null) {
+			updateBrush(view, tempBrush);
+		} else {
+			spawnBrush(view);
+		}
+	}
 }
 
-function selectionControl(view, mouseHold) {
+function selectionControl(views, view, mouseHold) {
 
 	if (view.options.planeSelection) {
 		applyPlaneSelection(view, mouseHold);
 	}
 
-	if (view.options.pointSelection) {
-		applyPointSelection(view);
+	if (view.options.brushSelection) {
+		applyBrushSelection(view, mouseHold);
+		updateBrushSelection(views, view);
 	}
 }
 
@@ -1480,8 +1553,8 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 
 	//console.log(gui);
 
-	selectionFolder.add(options, 'selectAll');
-	selectionFolder.add(options, 'deselectAll');
+	selectionFolder.add(options, 'selectAll').name('Select all');
+	selectionFolder.add(options, 'deselectAll').name('Deselect all');
 	selectionFolder.add(options, 'planeSelection').name('with plane').onChange(function (value) {
 		if (value == true && options.pointSelection == true) {
 			options.pointSelection = false;
@@ -1489,7 +1562,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		}
 	});
 
-	selectionFolder.add(options, 'pointSelection').name('by point').onChange(function (value) {
+	selectionFolder.add(options, 'brushSelection').name('with brush').onChange(function (value) {
 		if (value == true && options.planeSelection == true) {
 			options.planeSelection = false;
 			gui.updateDisplay();

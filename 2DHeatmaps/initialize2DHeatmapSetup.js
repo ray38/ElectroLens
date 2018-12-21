@@ -68,7 +68,8 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			//						pointSelection = false;
 			//					};
 			this.planeSelection = false;
-			this.pointSelection = false;
+			this.brushSelection = false;
+			this.selectionBrushSize = 5;
 			this.selectAll   = function(){selectAll(views, viewSetup.unfilteredData); updateAllPlots(views);}; 
 			this.deselectAll = function(){deselectAll(views, viewSetup.unfilteredData);updateAllPlots(views);};
 
