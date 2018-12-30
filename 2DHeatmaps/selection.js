@@ -176,7 +176,7 @@ function applyPlaneSelection(view, mouseHold) {
 	//var temp = view.scene.getObjectByName('selectionPlane');
 	//console.log(mouseHold)
 	if (mouseHold) {
-		if (temp != null){
+		if (tempPlane != null){
 			updatePlane(view,tempPlane);
 		}
 		else {

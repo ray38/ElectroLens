@@ -67,11 +67,8 @@ function main(views,plotSetup) {
 	var windowWidth, windowHeight;
 	var clickRequest = false;
 	var mouseHold = false;
-	//var mouseUp = false;
 	
 	var continuousSelection = false;
-	//var planeSelection = false, pointSelection = false;
-
 
 	var activeView = null;
 
@@ -212,12 +209,15 @@ function main(views,plotSetup) {
 			//planeSelection = !planeSelection;
 			//pointSelection = false;
 			activeView.options.planeSelection = !activeView.options.planeSelection;
-			activeView.options.pointSelection = false;
+			activeView.options.brushSelection = false;
 			activeView.gui.updateDisplay();
 		}
 		if (e.keyCode == 50) {
 			//pointSelection = !pointSelection;
 			//planeSelection = false;
+			activeView.options.brushSelection = !activeView.options.brushSelection;
+			activeView.options.planeSelection = false;
+			activeView.gui.updateDisplay();
 		}
 		if (e.keyCode == 107) {
 			var temp_view = {
@@ -342,10 +342,6 @@ function main(views,plotSetup) {
 				view.System.geometry.attributes.size.needsUpdate = true;
 			}
 
-			//if (view.viewType == '3DView' ) {
-			//	view.System.rotation.x += 0.05;
-			//	view.System.geometry.attributes.size.needsUpdate = true;
-			//}
 
 			//view.controller.update();
 			

@@ -14,6 +14,10 @@ export function getMoleculeGeometry(view){
 	var options = view.options;
 	var scene = view.scene;
 
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	var zPlotScale = view.zPlotScale;
+
 	for (var i = 0; i < view.coordinates.length; i++) {
 	    //console.log(view.coordinates[i]);
 	    //console.log(view.coordinates[i][1][0] , view.coordinates[i][1][1] ,view.coordinates[i][1][2]);
@@ -26,19 +30,21 @@ export function getMoleculeGeometry(view){
 		var material = new THREE.MeshBasicMaterial( {color: colorSetup[view.coordinates[i][0]]} );
 		var atom = new THREE.Mesh(geometry, material);
 		atom.scale.set(options.atomSize*atomRadius[view.coordinates[i][0]], options.atomSize*atomRadius[view.coordinates[i][0]], options.atomSize*atomRadius[view.coordinates[i][0]])
-		atom.position.set((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20)
+		//atom.position.set((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20)
+		atom.position.set(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
 		view.molecule.atoms.push(atom);
 		scene.add(atom);
 	}
 	
 	for (var i = 0; i < view.coordinates.length; i++) {
 		var coordinates1 = new THREE.Vector3(view.coordinates[i][1][0], view.coordinates[i][1][1], view.coordinates[i][1][2]);
-		var point1 = new THREE.Vector3((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
+		//var point1 = new THREE.Vector3((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
+		var point1 = new THREE.Vector3(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
 
 	    for (var j = 0; j < view.coordinates.length; j++) {
 	    	var coordinates2 = new THREE.Vector3(view.coordinates[j][1][0], view.coordinates[j][1][1], view.coordinates[j][1][2]);
-	    	var point2 = new THREE.Vector3((view.coordinates[j][1][0]*10 + 0.5)*20, (view.coordinates[j][1][1]*10 + 0.5)*20,(view.coordinates[j][1][2]*10 + 0.5)*20);
-
+	    	//var point2 = new THREE.Vector3((view.coordinates[j][1][0]*10 + 0.5)*20, (view.coordinates[j][1][1]*10 + 0.5)*20,(view.coordinates[j][1][2]*10 + 0.5)*20);
+	    	var point2 = new THREE.Vector3(xPlotScale(view.coordinates[j][1][0])*20.0, yPlotScale(view.coordinates[j][1][1])*20.0,zPlotScale(view.coordinates[j][1][2])*20.0);
 	    	//console.log(point1, point2)
 
 	    	 /* edge from X to Y */

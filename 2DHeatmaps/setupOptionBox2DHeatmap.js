@@ -93,8 +93,8 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	selectionFolder.add(options, 'planeSelection')
 	.name('with plane')
 	.onChange( function( value ) {
-		if (value == true && options.pointSelection == true){
-			options.pointSelection = false;
+		if (value == true && options.brushSelection == true){
+			options.brushSelection = false;
 			gui.updateDisplay();
 		}
 	});
@@ -108,6 +108,13 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		}
 	});
 
+	selectionFolder.add(options,'selectionBrushSize',0.5,10).step(0.1)
+	.name('brush size')
+	.onChange( function( value ) {
+		options.brushSelection = false;
+		options.planeSelection = false;
+		gui.updateDisplay();
+	});
 
 
 	detailFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {

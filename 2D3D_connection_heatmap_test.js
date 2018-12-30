@@ -82,10 +82,8 @@ function main(views, plotSetup) {
 	var windowWidth, windowHeight;
 	var clickRequest = false;
 	var mouseHold = false;
-	//var mouseUp = false;
 
 	var continuousSelection = false;
-	//var planeSelection = false, pointSelection = false;
 
 	var activeView = null;
 
@@ -185,20 +183,6 @@ function main(views, plotSetup) {
 					activeView.scene.remove(activeView.currentSelectionBrush);
 					activeView.currentSelectionBrush = null;
 				}
-				//clickRequest = false;
-				/*if (planeSelection){
-    	planeSelection = false;
-    	var temp_view = activeView;
-    	if (temp_view.viewType == "2DHeatmap"){
-    		var temp = temp_view.scene.getObjectByName('selectionPlane');
-    		if (temp != null){
-    			//updateSelection();
-    			updatePlaneSelection(temp_view);
-    			temp_view.scene.remove(temp);
-    			
-    		} 
-    	}
-    		}*/
 			}
 		}, false);
 
@@ -236,12 +220,15 @@ function main(views, plotSetup) {
 			//planeSelection = !planeSelection;
 			//pointSelection = false;
 			activeView.options.planeSelection = !activeView.options.planeSelection;
-			activeView.options.pointSelection = false;
+			activeView.options.brushSelection = false;
 			activeView.gui.updateDisplay();
 		}
 		if (e.keyCode == 50) {
 			//pointSelection = !pointSelection;
 			//planeSelection = false;
+			activeView.options.brushSelection = !activeView.options.brushSelection;
+			activeView.options.planeSelection = false;
+			activeView.gui.updateDisplay();
 		}
 		if (e.keyCode == 107) {
 			var temp_view = {
@@ -363,11 +350,6 @@ function main(views, plotSetup) {
 				view.System.geometry.attributes.size.needsUpdate = true;
 			}
 
-			//if (view.viewType == '3DView' ) {
-			//	view.System.rotation.x += 0.05;
-			//	view.System.geometry.attributes.size.needsUpdate = true;
-			//}
-
 			//view.controller.update();
 
 			var camera = view.camera;
@@ -405,225 +387,6 @@ function main(views, plotSetup) {
 			}
 		}
 	}
-
-	/*
- 	function spawnPlane(view){
- 
- 
- 		var scene = view.scene;
- 		var mousePosition = view.mousePosition;
- 		var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
- 		selectionPlane.geometry.attributes.position.needsUpdate = true;
- 		var p = selectionPlane.geometry.attributes.position.array;
- 
- 		var i = 0;
- 		p[i++] = mousePosition.x-0.01;
- 		p[i++] = mousePosition.y+0.01;
- 		p[i++] = mousePosition.z;
- 		p[i++] = mousePosition.x;
- 		p[i++] = mousePosition.y+0.01;
- 		p[i++] = mousePosition.z;
- 		p[i++] = mousePosition.x-0.01;
- 		p[i++] = mousePosition.y;
- 		p[i++] = mousePosition.z;
- 		p[i++] = mousePosition.x;
- 		p[i++] = mousePosition.y;
- 		p[i]   = mousePosition.z;
- 		
- 		selectionPlane.name = 'selectionPlane';
- 		scene.add( selectionPlane );
- 		//updateSelection();
- 	}
- 
- 	function updatePlane(view, plane){
- 		var scene = view.scene;
- 
- 		var mousePosition = view.mousePosition;
- 		
- 		var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
- 		selectionPlane.geometry.attributes.position.needsUpdate = true;
- 		
- 		
- 		var pOriginal = plane.geometry.attributes.position.array;
- 		
- 		var originalFirstVerticesCoordx = pOriginal[0],
- 			originalFirstVerticesCoordy = pOriginal[1],
- 			originalFirstVerticesCoordz = pOriginal[2];
- 		
- 		var p = selectionPlane.geometry.attributes.position.array
- 		var i = 0;
- 		p[i++] = originalFirstVerticesCoordx;
- 		p[i++] = originalFirstVerticesCoordy;
- 		p[i++] = originalFirstVerticesCoordz;
- 		p[i++] = mousePosition.x;
- 		p[i++] = originalFirstVerticesCoordy;
- 		p[i++] = mousePosition.z;
- 		p[i++] = originalFirstVerticesCoordx;
- 		p[i++] = mousePosition.y;
- 		p[i++] = mousePosition.z;
- 		p[i++] = mousePosition.x;
- 		p[i++] = mousePosition.y;
- 		p[i]   = mousePosition.z;
- 		
- 		scene.remove(plane);
- 		selectionPlane.name = 'selectionPlane';
- 		scene.add( selectionPlane );
- 		//updateSelection();
- 		
- 	}
- */
-	/*
- 	function updateSelectionFromHeatmap(view){
- 		var data = view.data;
- 		for (var x in data){
- 			for (var y in data[x]){
- 				if (data[x][y].selected) {
- 					for (var i = 0; i < data[x][y]['list'].length; i++) {
- 						data[x][y]['list'][i].selected = true;
- 					}
- 				}
- 				//else {
- 				//	for (var i = 0; i < data[x][y]['list'].length; i++) {
- 				//		data[x][y]['list'][i].selected = false;
- 				//	}
- 				//}
- 			}
- 		}
- 	}
- */
-	/*
- 	function deselectAll(){
- 		for (var i=0; i<unfilteredData.length; i++){
- 				unfilteredData[i].selected = false;
- 			}
- 
- 
- 		for (var ii =  0; ii < views.length; ++ii ) {
- 			var view = views[ii];
- 			if (view.viewType == '2DHeatmap'){
- 				var data = view.data;
- 				for (var x in data){
- 					for (var y in data[x]){
- 						data[x][y].selected = false;
- 					}
- 				}
- 			}
- 		}
- 	}
- 
- 	function selectAll(){
- 		for (var i=0; i<unfilteredData.length; i++){
- 				unfilteredData[i].selected = true;
- 			}
- 
- 		for (var ii =  0; ii < views.length; ++ii ) {
- 			var view = views[ii];
- 			if (view.viewType == '2DHeatmap'){
- 				var data = view.data;
- 				for (var x in data){
- 					for (var y in data[x]){
- 						data[x][y].selected = true;
- 					}
- 				}
- 			}
- 		}
- 	}
- */
-	/*
- 
- 	function updateAllPlots(){
- 		for (var ii =  0; ii < views.length; ++ii ) {
- 			var view = views[ii];
- 			if (view.viewType == '2DHeatmap'){
- 				updateHeatmap(view);
- 			}
- 		}
- 		
- 		for (var ii =  0; ii < views.length; ++ii ) {
- 			var view = views[ii];
- 			if (view.viewType == '3DView'){
- 				updatePointCloudGeometry(view);
- 			}
- 		}
- 	}
- */
-	/*
- 	function updatePlaneSelection(temp_view) {
- 		var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
- 		if (tempSelectionPlane != null){
- 			var p = tempSelectionPlane.geometry.attributes.position.array;
- 			var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
- 				ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
- 			var tempx,tempy;
- 
- 			console.log('updating plane selection')
- 			
- 			var data = temp_view.data;
- 			var xPlotScale = temp_view.xPlotScale;
- 			var yPlotScale = temp_view.yPlotScale;
- 			for (var x in data){
- 				for (var y in data[x]){
- 					tempx = xPlotScale(parseFloat(x));
- 					tempy = yPlotScale(parseFloat(y));
- 					if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
- 						data[x][y].selected = true;
- 					}
- 					else { data[x][y].selected = false;}
- 				}
- 			}
- 			updateSelectionFromHeatmap(temp_view);							
- 		}	
- 		updateAllPlots();
- 	}
- 
- 	function updatePointSelection(view){
- 		console.log(view.INTERSECTED)
- 		if (view.INTERSECTED != null) {
- 			console.log('updatePointSelection')
- 			var x = view.heatmapInformation[view.INTERSECTED].heatmapX;
- 			var y = view.heatmapInformation[view.INTERSECTED].heatmapY;
- 			var data = view.data;
- 			data[x][y].selected = true;
- 			updateSelectionFromHeatmap(view);
- 		}
- 		updateAllPlots();
- 	}
- */
-	/*
- 	function processClick() {
- 		if ( clickRequest ) {
- 			var view = activeView;
- 			if (view.viewType == '2DHeatmap'){
- 				//console.log(continuousSelection, planeSelection, pointSelection)
- 
- 				if (continuousSelection == false ){
- 					if (planeSelection == true || pointSelection == true){
- 						console.log('deselect')
- 						deselectAll();
- 						updateAllPlots();
- 						continuousSelection = true;
- 					}
- 				}
- 				
- 
- 				if (planeSelection){
- 					var temp = view.scene.getObjectByName('selectionPlane');
- 					if (temp != null){
- 						updatePlane(view,temp);
- 					}
- 					else {
- 						spawnPlane(view);
- 					}
- 				}
- 
- 				if (pointSelection){
- 					updatePointSelection(view);
- 				}
- 			}
- 		}
- 
- 	}
- 	*/
 }
 
 },{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":3,"./2DHeatmaps/Utilities.js":4,"./2DHeatmaps/initialize2DHeatmapSetup.js":5,"./2DHeatmaps/selection.js":6,"./2DHeatmaps/setupOptionBox2DHeatmap.js":7,"./2DHeatmaps/tooltip.js":8,"./3DViews/MoleculeView.js":9,"./3DViews/PointCloud_selection.js":10,"./3DViews/setupOptionBox3DView.js":12,"./3DViews/systemEdge.js":13,"./MultiviewControl/HUDControl.js":14,"./MultiviewControl/calculateViewportSizes.js":15,"./MultiviewControl/colorLegend.js":16,"./MultiviewControl/controllerControl.js":17,"./MultiviewControl/initializeViewSetups.js":18,"./MultiviewControl/optionBoxControl.js":19,"./MultiviewControl/setupViewBasic.js":20,"./Utilities/colorScale.js":21,"./Utilities/readDataFile.js":23}],2:[function(require,module,exports){
@@ -1411,7 +1174,7 @@ function applyPlaneSelection(view, mouseHold) {
 	//var temp = view.scene.getObjectByName('selectionPlane');
 	//console.log(mouseHold)
 	if (mouseHold) {
-		if (temp != null) {
+		if (tempPlane != null) {
 			updatePlane(view, tempPlane);
 		} else {
 			spawnPlane(view);
@@ -1556,8 +1319,8 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	selectionFolder.add(options, 'selectAll').name('Select all');
 	selectionFolder.add(options, 'deselectAll').name('Deselect all');
 	selectionFolder.add(options, 'planeSelection').name('with plane').onChange(function (value) {
-		if (value == true && options.pointSelection == true) {
-			options.pointSelection = false;
+		if (value == true && options.brushSelection == true) {
+			options.brushSelection = false;
 			gui.updateDisplay();
 		}
 	});
@@ -1567,6 +1330,12 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 			options.planeSelection = false;
 			gui.updateDisplay();
 		}
+	});
+
+	selectionFolder.add(options, 'selectionBrushSize', 0.5, 10).step(0.1).name('brush size').onChange(function (value) {
+		options.brushSelection = false;
+		options.planeSelection = false;
+		gui.updateDisplay();
 	});
 
 	detailFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
@@ -1685,6 +1454,10 @@ function getMoleculeGeometry(view) {
 	var options = view.options;
 	var scene = view.scene;
 
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	var zPlotScale = view.zPlotScale;
+
 	for (var i = 0; i < view.coordinates.length; i++) {
 		//console.log(view.coordinates[i]);
 		//console.log(view.coordinates[i][1][0] , view.coordinates[i][1][1] ,view.coordinates[i][1][2]);
@@ -1697,19 +1470,21 @@ function getMoleculeGeometry(view) {
 		var material = new THREE.MeshBasicMaterial({ color: colorSetup[view.coordinates[i][0]] });
 		var atom = new THREE.Mesh(geometry, material);
 		atom.scale.set(options.atomSize * atomRadius[view.coordinates[i][0]], options.atomSize * atomRadius[view.coordinates[i][0]], options.atomSize * atomRadius[view.coordinates[i][0]]);
-		atom.position.set((view.coordinates[i][1][0] * 10 + 0.5) * 20, (view.coordinates[i][1][1] * 10 + 0.5) * 20, (view.coordinates[i][1][2] * 10 + 0.5) * 20);
+		//atom.position.set((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20)
+		atom.position.set(xPlotScale(view.coordinates[i][1][0]) * 20.0, yPlotScale(view.coordinates[i][1][1]) * 20.0, zPlotScale(view.coordinates[i][1][2]) * 20.0);
 		view.molecule.atoms.push(atom);
 		scene.add(atom);
 	}
 
 	for (var i = 0; i < view.coordinates.length; i++) {
 		var coordinates1 = new THREE.Vector3(view.coordinates[i][1][0], view.coordinates[i][1][1], view.coordinates[i][1][2]);
-		var point1 = new THREE.Vector3((view.coordinates[i][1][0] * 10 + 0.5) * 20, (view.coordinates[i][1][1] * 10 + 0.5) * 20, (view.coordinates[i][1][2] * 10 + 0.5) * 20);
+		//var point1 = new THREE.Vector3((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
+		var point1 = new THREE.Vector3(xPlotScale(view.coordinates[i][1][0]) * 20.0, yPlotScale(view.coordinates[i][1][1]) * 20.0, zPlotScale(view.coordinates[i][1][2]) * 20.0);
 
 		for (var j = 0; j < view.coordinates.length; j++) {
 			var coordinates2 = new THREE.Vector3(view.coordinates[j][1][0], view.coordinates[j][1][1], view.coordinates[j][1][2]);
-			var point2 = new THREE.Vector3((view.coordinates[j][1][0] * 10 + 0.5) * 20, (view.coordinates[j][1][1] * 10 + 0.5) * 20, (view.coordinates[j][1][2] * 10 + 0.5) * 20);
-
+			//var point2 = new THREE.Vector3((view.coordinates[j][1][0]*10 + 0.5)*20, (view.coordinates[j][1][1]*10 + 0.5)*20,(view.coordinates[j][1][2]*10 + 0.5)*20);
+			var point2 = new THREE.Vector3(xPlotScale(view.coordinates[j][1][0]) * 20.0, yPlotScale(view.coordinates[j][1][1]) * 20.0, zPlotScale(view.coordinates[j][1][2]) * 20.0);
 			//console.log(point1, point2)
 
 			/* edge from X to Y */
