@@ -55,6 +55,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		options: new function(){
 			this.backgroundColor = "#000000";
 			this.backgroundAlpha = 0.0;
+			this.showPointCloud = true;
 			this.showMolecule = true;
 			this.atomSize = 1.0;
 			this.bondSize = 1.0;

@@ -64,6 +64,12 @@ export function getPointCloudGeometry(view){
 			var x_end = x_start + 1;
 			var y_end = y_start + 1;
 			var z_end = z_start + 1;
+			/*var x_start = view.data[k]['xPlot']-0.5;
+			var y_start = view.data[k]['yPlot']-0.5;
+			var z_start = view.data[k]['zPlot']-0.5;
+			var x_end = x_start + 0.5;
+			var y_end = y_start + 0.5;
+			var z_end = z_start + 0.5;*/
 			
 			for (var j = 0; j < temp_num_points; j ++){
 
@@ -384,16 +390,30 @@ export function animatePointCloudGeometry(view){
 	}
 }
 
+export function removePointCloudGeometry(view){
+	view.scene.remove(view.System);
+	if (view.System != null ){
+		view.scene.remove(view.System);
+		delete view.System;
+	}
+}
 
 
+export function removePointCloudPeriodicReplicates(view){
+	if (view.periodicReplicateSystems != null ){
+		view.scene.remove(view.periodicReplicateSystems);
+		delete view.periodicReplicateSystems;
+	}
+}
 
 export function changePointCloudGeometry(view){
-	view.scene.remove(view.System);
+	removePointCloudGeometry(view);
 	getPointCloudGeometry(view);
 
 }
 
 export function changePointCloudPeriodicReplicates(view){
-	if (view.periodicReplicateSystems != null ){view.scene.remove(view.periodicReplicateSystems);}
+	//if (view.periodicReplicateSystems != null ){removePointCloudPeriodicReplicates(view)}
+	removePointCloudPeriodicReplicates(view);
 	addPointCloudPeriodicReplicates(view);
 }
