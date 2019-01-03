@@ -795,7 +795,9 @@ function updateAllPlots(views) {
 	for (var ii = 0; ii < views.length; ++ii) {
 		var view = views[ii];
 		if (view.viewType == '3DView') {
-			_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
+			if (view.System != null) {
+				_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
+			}
 		}
 	}
 }
@@ -1559,10 +1561,10 @@ function changeMoleculeGeometry(view) {
 }
 
 function removeMoleculeGeometry(view) {
-	console.log("delete molecule");
-	console.log(view.molecule);
+	//console.log("delete molecule");
+	//console.log(view.molecule);
 	if (view.molecule != null) {
-		console.log("delete molecule");
+		//console.log("delete molecule");
 		for (var i = 0; i < view.molecule.bonds.length; i++) {
 			view.scene.remove(view.molecule.bonds[i]);
 		}
@@ -1668,10 +1670,10 @@ function addMoleculePeriodicReplicates(view) {
 }
 
 function removeMoleculePeriodicReplicates(view) {
-	console.log("delete molecule replicate");
-	console.log(view.periodicReplicateMolecule);
+	//console.log("delete molecule replicate");
+	//console.log(view.periodicReplicateMolecule);
 	if (view.periodicReplicateMolecule != null) {
-		console.log(" start delete molecule replicate");
+		//console.log(" start delete molecule replicate");
 		for (var i = 0; i < view.periodicReplicateMolecule.bonds.length; i++) {
 			view.scene.remove(view.periodicReplicateMolecule.bonds[i]);
 		}

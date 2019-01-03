@@ -53,7 +53,8 @@ export function updateAllPlots(views){
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '3DView'){
-			updatePointCloudGeometry(view);
+			if (view.System != null){updatePointCloudGeometry(view);}
+			
 		}
 	}
 }
