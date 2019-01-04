@@ -1,17 +1,17 @@
-export function calcDefaultColorScales(plotSetup,unfilteredData){
+export function calcDefaultColorScalesSpatiallyResolvedData(plotSetup,spatiallyResolvedData){
 	var result = {};
-	var propertyList = plotSetup.propertyList;
+	var propertyList = plotSetup.spatiallyResolvedPropertyList;
 	for (var i = 0; i < propertyList.length; i++) {
 	    var property = propertyList[i];
 	    var xValue = function(d) {return d[property];}
-	    var xMin = d3.min(unfilteredData,xValue);
-		var xMax = d3.max(unfilteredData,xValue);
+	    var xMin = d3.min(spatiallyResolvedData,xValue);
+		var xMax = d3.max(spatiallyResolvedData,xValue);
 		result[property] = {'min':xMin, 'max':xMax};
 	}
 	return result;
 }
 
-export function adjustColorScaleAccordingToDefault(view){
-	view.options.pointCloudColorSettingMin = view.defaultColorScales[view.options.propertyOfInterest]['min'];
-	view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max'];
+export function adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view){
+	view.options.pointCloudColorSettingMin = view.defaultColorScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
+	view.options.pointCloudColorSettingMax = view.defaultColorScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
 }

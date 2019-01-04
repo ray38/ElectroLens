@@ -6,7 +6,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 
 	var options = view.options;
 	var gui = view.gui;
-	var propertyList = plotSetup["propertyList"];
+	var propertyList = plotSetup["spatiallyResolvedPropertyList"];
 	var propertyChoiceObject = arrayToIdenticalObject(propertyList);
 	gui.width = 200;
 	//gui.height = 10;

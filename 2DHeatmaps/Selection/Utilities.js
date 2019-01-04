@@ -6,9 +6,9 @@ export function heatmapsResetSelection(views){
 	updateAllPlots();
 }
 
-export function deselectAll(views,unfilteredData){
-	for (var i=0; i<unfilteredData.length; i++){
-			unfilteredData[i].selected = false;
+export function deselectAll(views,spatiallyResolvedData){
+	for (var i=0; i<spatiallyResolvedData.length; i++){
+			spatiallyResolvedData[i].selected = false;
 		}
 
 	/*for (var ii =  0; ii < views.length; ++ii ) {
@@ -24,9 +24,9 @@ export function deselectAll(views,unfilteredData){
 	}*/
 }
 
-export function selectAll(views,unfilteredData){
-	for (var i=0; i<unfilteredData.length; i++){
-			unfilteredData[i].selected = true;
+export function selectAll(views,spatiallyResolvedData){
+	for (var i=0; i<spatiallyResolvedData.length; i++){
+			spatiallyResolvedData[i].selected = true;
 		}
 
 	/*for (var ii =  0; ii < views.length; ++ii ) {

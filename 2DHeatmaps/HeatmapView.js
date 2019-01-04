@@ -1,4 +1,4 @@
-export function arrangeDataToHeatmap(view,unfilteredData){
+export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 
 	var X = view.options.plotX, Y = view.options.plotY;
 	var XTransform = view.options.plotXTransform, YTransform = view.options.plotYTransform;
@@ -61,15 +61,15 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 		}
 	}}
 	
-	var xMin = Math.floor(d3.min(unfilteredData,xValue));
-	var xMax = Math.ceil(d3.max(unfilteredData,xValue));
-	var yMin = Math.floor(d3.min(unfilteredData,yValue));
-	var yMax = Math.ceil(d3.max(unfilteredData,yValue));
+	var xMin = Math.floor(d3.min(spatiallyResolvedData,xValue));
+	var xMax = Math.ceil(d3.max(spatiallyResolvedData,xValue));
+	var yMin = Math.floor(d3.min(spatiallyResolvedData,yValue));
+	var yMax = Math.ceil(d3.max(spatiallyResolvedData,yValue));
 	
-	/*var xMin = d3.min(unfilteredData,xValue);
-	var xMax = d3.max(unfilteredData,xValue);
-	var yMin = d3.min(unfilteredData,yValue);
-	var yMax = d3.max(unfilteredData,yValue);*/
+	/*var xMin = d3.min(spatiallyResolvedData,xValue);
+	var xMax = d3.max(spatiallyResolvedData,xValue);
+	var yMin = d3.min(spatiallyResolvedData,yValue);
+	var yMax = d3.max(spatiallyResolvedData,yValue);*/
 
 	view.xMin = xMin;
 	view.xMax = xMax;
@@ -92,23 +92,23 @@ export function arrangeDataToHeatmap(view,unfilteredData){
 	var yMap = function(d) {return yScale(yValue(d));}; 
 	
 	view.data = {};
-	view.dataXMin = d3.min(unfilteredData,xValue);
-	view.dataXMax = d3.max(unfilteredData,xValue);
-	view.dataYMin = d3.min(unfilteredData,yValue);
-	view.dataYMax = d3.max(unfilteredData,yValue);
+	view.dataXMin = d3.min(spatiallyResolvedData,xValue);
+	view.dataXMax = d3.max(spatiallyResolvedData,xValue);
+	view.dataYMin = d3.min(spatiallyResolvedData,yValue);
+	view.dataYMax = d3.max(spatiallyResolvedData,yValue);
 
 	view.xScale = xScale;
 	view.yScale = yScale;
 
 	//console.log(xScale.invertExtent(""+50))
 	
-	for (var i=0; i<unfilteredData.length; i++){
-		var heatmapX = xMap(unfilteredData[i]);
-		var heatmapY = yMap(unfilteredData[i]);
+	for (var i=0; i<spatiallyResolvedData.length; i++){
+		var heatmapX = xMap(spatiallyResolvedData[i]);
+		var heatmapY = yMap(spatiallyResolvedData[i]);
 		
 		view.data[heatmapX] = view.data[heatmapX] || {};
 		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
-		view.data[heatmapX][heatmapY]['list'].push(unfilteredData[i]);
+		view.data[heatmapX][heatmapY]['list'].push(spatiallyResolvedData[i]);
 	}
 	
 	//console.log(view.data);
@@ -155,7 +155,7 @@ export function getHeatmap(view){
 	var alphas = new Float32Array(num);
 
 	var heatmapInformation = [];
-	//console.log(unfilteredData.length);
+	//console.log(spatiallyResolvedData.length);
 	//console.log(num);
 	
 	var lut = new THREE.Lut( options.colorMap, 500 );
@@ -286,7 +286,7 @@ export function updateHeatmap(view){
 export function replotHeatmap(view){
 	view.scene.remove(view.System);
 	//var options = view.options;
-	arrangeDataToHeatmap(view,view.unfilteredData);
+	arrangeDataToHeatmap(view,view.spatiallyResolvedData);
 	getHeatmap(view);
 
 }

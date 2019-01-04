@@ -91,15 +91,17 @@ function main(views, plotSetup) {
 
 	//initializeViewSetups(views,plotSetup);
 
-	var unfilteredData = [];
+	var spatiallyResolvedData = [];
+	var overallMoleculeData = [];
 	var queue = d3.queue();
 
 	for (var ii = 0; ii < views.length; ++ii) {
 		var view = views[ii];
 		if (view.viewType == '3DView') {
-			//queue.defer(readCSV,view,unfilteredData);
-			queue.defer(_UtilitiesReadDataFileJs.readCSV2, view, unfilteredData, plotSetup);
-			//queue.defer(readCSVPapaparse,view,unfilteredData,plotSetup);
+			//queue.defer(readCSV,view,spatiallyResolvedData);
+			queue.defer(_UtilitiesReadDataFileJs.readCSVSpatiallyResolvedData, view, spatiallyResolvedData, plotSetup);
+			queue.defer(_UtilitiesReadDataFileJs.readCSVMoleculeData, view, overallMoleculeData, plotSetup);
+			//queue.defer(readCSVPapaparse,view,spatiallyResolvedData,plotSetup);
 		}
 	}
 
@@ -110,7 +112,7 @@ function main(views, plotSetup) {
 	});
 
 	function init() {
-		console.log(unfilteredData);
+		console.log(spatiallyResolvedData);
 		console.log('started initialization');
 		container = document.getElementById('container');
 		renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, clearAlpha: 1 });
@@ -120,12 +122,15 @@ function main(views, plotSetup) {
 		renderer.autoClear = false;
 		container.appendChild(renderer.domElement);
 
-		var defaultColorScales = _UtilitiesColorScaleJs.calcDefaultColorScales(plotSetup, unfilteredData);
+		if (spatiallyResolvedData.length > 0) {
+			var defaultColorScalesSpatiallyResolvedData = _UtilitiesColorScaleJs.calcDefaultColorScalesSpatiallyResolvedData(plotSetup, spatiallyResolvedData);
+		}
 
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
 
-			view.unfilteredData = unfilteredData;
+			view.spatiallyResolvedData = spatiallyResolvedData;
+			view.overallMoleculeData = overallMoleculeData;
 
 			_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(view, renderer);
 			_MultiviewControlOptionBoxControlJs.addOptionBox(view);
@@ -137,16 +142,24 @@ function main(views, plotSetup) {
 
 			if (view.viewType == '3DView') {
 				view.controller.autoRotate = false;
-				view.defaultColorScales = defaultColorScales;
-				_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
 
-				_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
-				if ("coordinates" in view) {
+				if (view.data != null && view.data.length > 0) {
+					view.systemSpatiallyResolvedDataBoolean = true;
+					view.defaultColorScalesSpatiallyResolvedData = defaultColorScalesSpatiallyResolvedData;
+					_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
+					_DViewsPointCloud_selectionJs.getPointCloudGeometry(view);
+					_MultiviewControlColorLegendJs.insertLegend(view);
+				}
+				if (view.systemMoleculeData != null && view.systemMoleculeData.length > 0) {
+					view.systemMoleculeDataBoolean = true;
 					_DViewsMoleculeViewJs.getMoleculeGeometry(view);
 				}
+				//if ("coordinates" in view) {
+				//	getMoleculeGeometry(view);
+				//}
+
 				_DViewsSystemEdgeJs.addSystemEdge(view);
 				_DViewsSetupOptionBox3DViewJs.setupOptionBox3DView(view, plotSetup);
-				_MultiviewControlColorLegendJs.insertLegend(view);
 			}
 			if (view.viewType == '2DHeatmap') {
 				view.controller.enableRotate = false;
@@ -155,7 +168,7 @@ function main(views, plotSetup) {
 				_DHeatmapsUtilitiesJs.getAxis(view);
 				_DHeatmapsUtilitiesJs.addTitle(view);
 
-				_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view, unfilteredData);
+				_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view, spatiallyResolvedData);
 				_DHeatmapsHeatmapViewJs.getHeatmap(view);
 				_MultiviewControlColorLegendJs.insertLegend(view);
 			}
@@ -190,7 +203,7 @@ function main(views, plotSetup) {
   	//selectAll();
   	//updateAllPlots();
   	//continuousSelection = false;
-  	deselectAll(views, unfilteredData);
+  	deselectAll(views, spatiallyResolvedData);
   }, false );*/
 
 		window.addEventListener("keydown", onKeyDown, true);
@@ -242,7 +255,7 @@ function main(views, plotSetup) {
 			_DHeatmapsInitialize2DHeatmapSetupJs.initialize2DHeatmapSetup(temp_view, views, plotSetup);
 			_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 
-			temp_view.unfilteredData = unfilteredData;
+			temp_view.spatiallyResolvedData = spatiallyResolvedData;
 
 			_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(temp_view, renderer);
 			_MultiviewControlOptionBoxControlJs.addOptionBox(temp_view);
@@ -254,7 +267,7 @@ function main(views, plotSetup) {
 			_DHeatmapsUtilitiesJs.getAxis(temp_view);
 			_DHeatmapsUtilitiesJs.addTitle(temp_view);
 
-			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(temp_view, unfilteredData);
+			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(temp_view, spatiallyResolvedData);
 			_DHeatmapsHeatmapViewJs.getHeatmap(temp_view);
 			_MultiviewControlColorLegendJs.insertLegend(temp_view);
 			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
@@ -398,7 +411,7 @@ exports.getHeatmap = getHeatmap;
 exports.updateHeatmap = updateHeatmap;
 exports.replotHeatmap = replotHeatmap;
 
-function arrangeDataToHeatmap(view, unfilteredData) {
+function arrangeDataToHeatmap(view, spatiallyResolvedData) {
 
 	var X = view.options.plotX,
 	    Y = view.options.plotY;
@@ -491,15 +504,15 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 		};
 	}
 
-	var xMin = Math.floor(d3.min(unfilteredData, xValue));
-	var xMax = Math.ceil(d3.max(unfilteredData, xValue));
-	var yMin = Math.floor(d3.min(unfilteredData, yValue));
-	var yMax = Math.ceil(d3.max(unfilteredData, yValue));
+	var xMin = Math.floor(d3.min(spatiallyResolvedData, xValue));
+	var xMax = Math.ceil(d3.max(spatiallyResolvedData, xValue));
+	var yMin = Math.floor(d3.min(spatiallyResolvedData, yValue));
+	var yMax = Math.ceil(d3.max(spatiallyResolvedData, yValue));
 
-	/*var xMin = d3.min(unfilteredData,xValue);
- var xMax = d3.max(unfilteredData,xValue);
- var yMin = d3.min(unfilteredData,yValue);
- var yMax = d3.max(unfilteredData,yValue);*/
+	/*var xMin = d3.min(spatiallyResolvedData,xValue);
+ var xMax = d3.max(spatiallyResolvedData,xValue);
+ var yMin = d3.min(spatiallyResolvedData,yValue);
+ var yMax = d3.max(spatiallyResolvedData,yValue);*/
 
 	view.xMin = xMin;
 	view.xMax = xMax;
@@ -522,23 +535,23 @@ function arrangeDataToHeatmap(view, unfilteredData) {
 	};
 
 	view.data = {};
-	view.dataXMin = d3.min(unfilteredData, xValue);
-	view.dataXMax = d3.max(unfilteredData, xValue);
-	view.dataYMin = d3.min(unfilteredData, yValue);
-	view.dataYMax = d3.max(unfilteredData, yValue);
+	view.dataXMin = d3.min(spatiallyResolvedData, xValue);
+	view.dataXMax = d3.max(spatiallyResolvedData, xValue);
+	view.dataYMin = d3.min(spatiallyResolvedData, yValue);
+	view.dataYMax = d3.max(spatiallyResolvedData, yValue);
 
 	view.xScale = xScale;
 	view.yScale = yScale;
 
 	//console.log(xScale.invertExtent(""+50))
 
-	for (var i = 0; i < unfilteredData.length; i++) {
-		var heatmapX = xMap(unfilteredData[i]);
-		var heatmapY = yMap(unfilteredData[i]);
+	for (var i = 0; i < spatiallyResolvedData.length; i++) {
+		var heatmapX = xMap(spatiallyResolvedData[i]);
+		var heatmapY = yMap(spatiallyResolvedData[i]);
 
 		view.data[heatmapX] = view.data[heatmapX] || {};
 		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true };
-		view.data[heatmapX][heatmapY]['list'].push(unfilteredData[i]);
+		view.data[heatmapX][heatmapY]['list'].push(spatiallyResolvedData[i]);
 	}
 
 	//console.log(view.data);
@@ -580,7 +593,7 @@ function getHeatmap(view) {
 	var alphas = new Float32Array(num);
 
 	var heatmapInformation = [];
-	//console.log(unfilteredData.length);
+	//console.log(spatiallyResolvedData.length);
 	//console.log(num);
 
 	var lut = new THREE.Lut(options.colorMap, 500);
@@ -704,7 +717,7 @@ function updateHeatmap(view) {
 function replotHeatmap(view) {
 	view.scene.remove(view.System);
 	//var options = view.options;
-	arrangeDataToHeatmap(view, view.unfilteredData);
+	arrangeDataToHeatmap(view, view.spatiallyResolvedData);
 	getHeatmap(view);
 }
 
@@ -748,9 +761,9 @@ function heatmapsResetSelection(views) {
 	updateAllPlots();
 }
 
-function deselectAll(views, unfilteredData) {
-	for (var i = 0; i < unfilteredData.length; i++) {
-		unfilteredData[i].selected = false;
+function deselectAll(views, spatiallyResolvedData) {
+	for (var i = 0; i < spatiallyResolvedData.length; i++) {
+		spatiallyResolvedData[i].selected = false;
 	}
 
 	/*for (var ii =  0; ii < views.length; ++ii ) {
@@ -766,9 +779,9 @@ function deselectAll(views, unfilteredData) {
  }*/
 }
 
-function selectAll(views, unfilteredData) {
-	for (var i = 0; i < unfilteredData.length; i++) {
-		unfilteredData[i].selected = true;
+function selectAll(views, spatiallyResolvedData) {
+	for (var i = 0; i < spatiallyResolvedData.length; i++) {
+		spatiallyResolvedData[i].selected = true;
 	}
 
 	/*for (var ii =  0; ii < views.length; ++ii ) {
@@ -973,10 +986,10 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 			this.brushSelection = false;
 			this.selectionBrushSize = 5;
 			this.selectAll = function () {
-				_SelectionUtilitiesJs.selectAll(views, viewSetup.unfilteredData);_SelectionUtilitiesJs.updateAllPlots(views);
+				_SelectionUtilitiesJs.selectAll(views, viewSetup.spatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
 			};
 			this.deselectAll = function () {
-				_SelectionUtilitiesJs.deselectAll(views, viewSetup.unfilteredData);_SelectionUtilitiesJs.updateAllPlots(views);
+				_SelectionUtilitiesJs.deselectAll(views, viewSetup.spatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
 			};
 		}()
 	};
@@ -1258,7 +1271,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 
 	var options = view.options;
 	var gui = view.gui;
-	var propertyList = plotSetup["propertyList"];
+	var propertyList = plotSetup["spatiallyResolvedPropertyList"];
 	var propertyChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(propertyList);
 	gui.width = 200;
 	//gui.height = 10;
@@ -1449,6 +1462,8 @@ function getMoleculeGeometry(view) {
 	view.molecule.atoms = [];
 	view.molecule.bonds = [];
 
+	var moleculeData = view.systemMoleculeData;
+
 	var colorSetup = { "C": 0x777777, "O": 0xFF0000, "N": 0x0000FF, "H": 0xCCCCCC };
 	var atomRadius = {
 		"C": 0.77,
@@ -1463,39 +1478,28 @@ function getMoleculeGeometry(view) {
 	var yPlotScale = view.yPlotScale;
 	var zPlotScale = view.zPlotScale;
 
-	for (var i = 0; i < view.coordinates.length; i++) {
-		//console.log(view.coordinates[i]);
-		//console.log(view.coordinates[i][1][0] , view.coordinates[i][1][1] ,view.coordinates[i][1][2]);
-		//console.log((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
-		//Do something
+	for (var i = 0; i < moleculeData.length; i++) {
+		console.log(moleculeData[i]);
 		var geometry = new THREE.SphereGeometry(100, 24, 24);
-		//options.atomSize*atomRadius[view.coordinates[i][0]]*
-		//geometry.translate( (view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
 
-		var material = new THREE.MeshBasicMaterial({ color: colorSetup[view.coordinates[i][0]] });
+		var material = new THREE.MeshBasicMaterial({ color: colorSetup[moleculeData[i].atom] });
 		var atom = new THREE.Mesh(geometry, material);
-		atom.scale.set(options.atomSize * atomRadius[view.coordinates[i][0]], options.atomSize * atomRadius[view.coordinates[i][0]], options.atomSize * atomRadius[view.coordinates[i][0]]);
-		//atom.position.set((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20)
-		atom.position.set(xPlotScale(view.coordinates[i][1][0]) * 20.0, yPlotScale(view.coordinates[i][1][1]) * 20.0, zPlotScale(view.coordinates[i][1][2]) * 20.0);
+		atom.scale.set(options.atomSize * atomRadius[moleculeData[i].atom], options.atomSize * atomRadius[moleculeData[i].atom], options.atomSize * atomRadius[moleculeData[i].atom]);
+		//atom.position.set(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
+		atom.position.set(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
+
 		view.molecule.atoms.push(atom);
 		scene.add(atom);
 	}
 
-	for (var i = 0; i < view.coordinates.length; i++) {
-		var coordinates1 = new THREE.Vector3(view.coordinates[i][1][0], view.coordinates[i][1][1], view.coordinates[i][1][2]);
-		//var point1 = new THREE.Vector3((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
-		var point1 = new THREE.Vector3(xPlotScale(view.coordinates[i][1][0]) * 20.0, yPlotScale(view.coordinates[i][1][1]) * 20.0, zPlotScale(view.coordinates[i][1][2]) * 20.0);
+	for (var i = 0; i < moleculeData.length; i++) {
+		var coordinates1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
+		var point1 = new THREE.Vector3(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
 
-		for (var j = 0; j < view.coordinates.length; j++) {
-			var coordinates2 = new THREE.Vector3(view.coordinates[j][1][0], view.coordinates[j][1][1], view.coordinates[j][1][2]);
-			//var point2 = new THREE.Vector3((view.coordinates[j][1][0]*10 + 0.5)*20, (view.coordinates[j][1][1]*10 + 0.5)*20,(view.coordinates[j][1][2]*10 + 0.5)*20);
-			var point2 = new THREE.Vector3(xPlotScale(view.coordinates[j][1][0]) * 20.0, yPlotScale(view.coordinates[j][1][1]) * 20.0, zPlotScale(view.coordinates[j][1][2]) * 20.0);
-			//console.log(point1, point2)
-
-			/* edge from X to Y */
-
+		for (var j = 0; j < moleculeData.length; j++) {
+			var coordinates2 = new THREE.Vector3(moleculeData[j].x, moleculeData[j].y, moleculeData[j].z);
+			var point2 = new THREE.Vector3(moleculeData[j].xPlot * 20.0, moleculeData[j].yPlot * 20.0, moleculeData[j].zPlot * 20.0);
 			var bondlength = new THREE.Vector3().subVectors(coordinates2, coordinates1).length();
-			//console.log(direction.length());
 			if (bondlength < options.maxBondLength && bondlength > options.minBondLength) {
 				var direction = new THREE.Vector3().subVectors(point2, point1);
 				var orientation = new THREE.Matrix4();
@@ -1508,16 +1512,12 @@ function getMoleculeGeometry(view) {
 
 				/* cylinder: radiusAtTop, radiusAtBottom, 
         height, radiusSegments, heightSegments */
-				//console.log(direction, orientation)
 				var bondGeometry = new THREE.CylinderGeometry(options.bondSize * 10, options.bondSize * 10, direction.length(), 24, 1, true);
 				//bondGeometry.translate( point1 );
 
 				var bond = new THREE.Mesh(bondGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
 
 				bond.applyMatrix(orientation);
-				//console.log(new THREE.Vector3().addVectors( point1, direction.multiplyScalar(0.5) ))
-				//bond.position = new THREE.Vector3().addVectors( point1, direction.multiplyScalar(0.5) );
-				//bond.position.set(new THREE.Vector3().addVectors(point1, direction.multiplyScalar(0.5)));
 				bond.position.x = (point2.x + point1.x) / 2;
 				bond.position.y = (point2.y + point1.y) / 2;
 				bond.position.z = (point2.z + point1.z) / 2;
@@ -1549,13 +1549,6 @@ function updateMoleculeGeometry(view) {
 
 function changeMoleculeGeometry(view) {
 
-	/*for (var i = 0; i < view.molecule.bonds.length; i++) {
- 	view.scene.remove(view.molecule.bonds[i]);
- }
- 
- for (var i = 0; i < view.molecule.atoms.length; i++) {
- 	view.scene.remove(view.molecule.atoms[i]);
- }*/
 	removeMoleculeGeometry(view);
 	getMoleculeGeometry(view);
 }
@@ -1592,6 +1585,7 @@ function addMoleculePeriodicReplicates(view) {
 	};
 	var options = view.options;
 	var scene = view.scene;
+	var moleculeData = view.systemMoleculeData;
 
 	var xPlotScale = view.xPlotScale;
 	var yPlotScale = view.yPlotScale;
@@ -1612,15 +1606,18 @@ function addMoleculePeriodicReplicates(view) {
 		for (var j = y_start; j < y_end; j++) {
 			for (var k = z_start; k < z_end; k++) {
 				if ((i == 0 && j == 0 && k == 0) == false) {
-					for (var ii = 0; ii < view.coordinates.length; ii++) {
+					for (var ii = 0; ii < moleculeData.length; ii++) {
 
 						var geometry = new THREE.SphereGeometry(100, 24, 24);
 
-						var material = new THREE.MeshBasicMaterial({ color: colorSetup[view.coordinates[ii][0]] });
+						var material = new THREE.MeshBasicMaterial({ color: colorSetup[moleculeData[ii].atom] });
 						var atom = new THREE.Mesh(geometry, material);
-						atom.scale.set(options.atomSize * atomRadius[view.coordinates[ii][0]], options.atomSize * atomRadius[view.coordinates[ii][0]], options.atomSize * atomRadius[view.coordinates[ii][0]]);
-						//atom.position.set((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20)
-						atom.position.set(xPlotScale(view.coordinates[ii][1][0]) * 20.0 + i * xStep, yPlotScale(view.coordinates[ii][1][1]) * 20.0 + j * yStep, zPlotScale(view.coordinates[ii][1][2]) * 20.0 + k * zStep);
+						//atom.scale.set(options.atomSize*atomRadius[view.coordinates[ii][0]], options.atomSize*atomRadius[view.coordinates[ii][0]], options.atomSize*atomRadius[view.coordinates[ii][0]])
+						//atom.position.set(xPlotScale(view.coordinates[ii][1][0])*20.0 + i*xStep, yPlotScale(view.coordinates[ii][1][1])*20.0 + j*yStep,zPlotScale(view.coordinates[ii][1][2])*20.0 + k*zStep);
+
+						atom.scale.set(options.atomSize * atomRadius[moleculeData[ii].atom], options.atomSize * atomRadius[moleculeData[ii].atom], options.atomSize * atomRadius[moleculeData[ii].atom]);
+						atom.position.set(moleculeData[ii].xPlot * 20.0 + i * xStep, moleculeData[ii].yPlot * 20.0 + j * yStep, moleculeData[ii].zPlot * 20.0 + k * zStep);
+
 						view.periodicReplicateMolecule.atoms.push(atom);
 						scene.add(atom);
 					}
@@ -1633,13 +1630,13 @@ function addMoleculePeriodicReplicates(view) {
 		for (var j = y_start; j < y_end; j++) {
 			for (var k = z_start; k < z_end; k++) {
 				if ((i == 0 && j == 0 && k == 0) == false) {
-					for (var ii = 0; ii < view.coordinates.length; ii++) {
-						var coordinates1 = new THREE.Vector3(view.coordinates[ii][1][0], view.coordinates[ii][1][1], view.coordinates[ii][1][2]);
-						var point1 = new THREE.Vector3(xPlotScale(view.coordinates[ii][1][0]) * 20.0 + i * xStep, yPlotScale(view.coordinates[ii][1][1]) * 20.0 + j * yStep, zPlotScale(view.coordinates[ii][1][2]) * 20.0 + k * zStep);
+					for (var ii = 0; ii < moleculeData.length; ii++) {
+						var coordinates1 = new THREE.Vector3(moleculeData[ii].x, moleculeData[ii].y, moleculeData[ii].z);
+						var point1 = new THREE.Vector3(moleculeData[ii].xPlot * 20.0 + i * xStep, moleculeData[ii].yPlot * 20.0 + j * yStep, moleculeData[ii].zPlot * 20.0 + k * zStep);
 
-						for (var jj = 0; jj < view.coordinates.length; jj++) {
-							var coordinates2 = new THREE.Vector3(view.coordinates[jj][1][0], view.coordinates[jj][1][1], view.coordinates[jj][1][2]);
-							var point2 = new THREE.Vector3(xPlotScale(view.coordinates[jj][1][0]) * 20.0 + i * xStep, yPlotScale(view.coordinates[jj][1][1]) * 20.0 + j * yStep, zPlotScale(view.coordinates[jj][1][2]) * 20.0 + k * zStep);
+						for (var jj = 0; jj < moleculeData.length; jj++) {
+							var coordinates2 = new THREE.Vector3(moleculeData[jj].x, moleculeData[jj].y, moleculeData[jj].z);
+							var point2 = new THREE.Vector3(moleculeData[jj].xPlot * 20.0 + i * xStep, moleculeData[jj].yPlot * 20.0 + j * yStep, moleculeData[jj].zPlot * 20.0 + k * zStep);
 
 							var bondlength = new THREE.Vector3().subVectors(coordinates2, coordinates1).length();
 							//console.log(direction.length());
@@ -2111,8 +2108,19 @@ var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js
 var _systemEdgeJs = require("./systemEdge.js");
 
 function initialize3DViewSetup(viewSetup, views, plotSetup) {
-	var gridSpacing = viewSetup.gridSpacing;
+
 	var systemDimension = viewSetup.systemDimension;
+
+	if (viewSetup.spatiallyResolvedData != null) {
+		if (viewSetup.spatiallyResolvedData.gridSpacing != null) {
+			var gridSpacing = viewSetup.spatiallyResolvedData.gridSpacing;
+		} else {
+			var gridSpacing = { "x": 0.1, "y": 0.1, "z": 0.1 };
+		}
+	} else {
+		var gridSpacing = { "x": 0.1, "y": 0.1, "z": 0.1 };
+	}
+
 	var xCoordMin = systemDimension["x"][0],
 	    xCoordMax = systemDimension["x"][1];
 	var yCoordMin = systemDimension["y"][0],
@@ -2146,6 +2154,8 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		//viewType: '3Dview',
 		//moleculeName: 'CO2',
 		//dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv",
+		systemSpatiallyResolvedDataBoolean: false,
+		systemMoleculeDataBoolean: false,
 		controllerEnabled: false,
 		controllerZoom: true,
 		controllerRotate: true,
@@ -2291,45 +2301,24 @@ var _UtilitiesOtherJs = require("../Utilities/other.js");
 function setupOptionBox3DView(view, plotSetup) {
 
 	var options = view.options;
-	var propertyList = plotSetup["propertyList"];
+	var propertyList = plotSetup["spatiallyResolvedPropertyList"];
 	var propertyChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(propertyList);
 	var gui = view.gui;
 	gui.width = 200;
 
-	var moleculeFolder = gui.addFolder('Molecule Selection');
-	var viewFolder = gui.addFolder('View Selection');
-	var pointCloudFolder = gui.addFolder('point cloud control');
+	var systemInfoFolder = gui.addFolder('System Info');
+	var viewFolder = gui.addFolder('View Control');
+	var moleculeFolder = gui.addFolder('Molecule View Control');
+	var pointCloudFolder = gui.addFolder('Point Cloud Control');
 	var sliderFolder = gui.addFolder('Slider Control');
-	var detailFolder = gui.addFolder('Detailed Control');
+	var detailFolder = gui.addFolder('Additional Control');
 
-	moleculeFolder.add(options, 'moleculeName').name('Molecule').onChange(function (value) {
+	systemInfoFolder.add(options, 'moleculeName').name('Name').onChange(function (value) {
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();
 	});
-	moleculeFolder.add(options, 'propertyOfInterest', propertyChoiceObject).name('Color Basis').onChange(function (value) {
-		_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
-		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 
-		_MultiviewControlColorLegendJs.changeLegend(view);
-		gui.updateDisplay();
-	});
-
-	moleculeFolder.add(options, 'atomSize', 0.1, 10).step(0.1).name('Atom Size').onChange(function (value) {
-		_MoleculeViewJs.changeMoleculeGeometry(view);
-	});
-	moleculeFolder.add(options, 'bondSize', 0.1, 5).step(0.1).name('Bond Size').onChange(function (value) {
-		_MoleculeViewJs.changeMoleculeGeometry(view);
-	});
-
-	moleculeFolder.add(options, 'maxBondLength', 0.1, 5).step(0.1).name('Bond Max').onChange(function (value) {
-		_MoleculeViewJs.changeMoleculeGeometry(view);
-	});
-
-	moleculeFolder.add(options, 'minBondLength', 0.1, 5).step(0.1).name('Bond Min').onChange(function (value) {
-		_MoleculeViewJs.changeMoleculeGeometry(view);
-	});
-
-	moleculeFolder.add(options, 'showMolecule').name('Show Molecule').onChange(function (value) {
+	systemInfoFolder.add(options, 'showMolecule').name('Show Molecule').onChange(function (value) {
 		if (value == true) {
 			_MoleculeViewJs.getMoleculeGeometry(view);
 			_MoleculeViewJs.addMoleculePeriodicReplicates(view);
@@ -2339,7 +2328,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		}
 	});
 
-	moleculeFolder.add(options, 'showPointCloud').name('Show Point Cloud').onChange(function (value) {
+	systemInfoFolder.add(options, 'showPointCloud').name('Show Point Cloud').onChange(function (value) {
 		if (value == true) {
 			_PointCloud_selectionJs.getPointCloudGeometry(view);
 			_PointCloud_selectionJs.addPointCloudPeriodicReplicates(view);
@@ -2349,21 +2338,9 @@ function setupOptionBox3DView(view, plotSetup) {
 		}
 	});
 
-	moleculeFolder.open();
+	systemInfoFolder.open();
 
-	/*
- 	viewFolder.add( options, 'view',{'pointCloud':'pointCloud', 'box':'box', 'pointMatrix':'pointMatrix'}).onChange( function( value ){
- 		changeGeometry(options);
- 		updateControlPanel(options);
- 	});*/
-
-	viewFolder.add(options, 'colorMap', { 'rainbow': 'rainbow', 'cooltowarm': 'cooltowarm', 'blackbody': 'blackbody', 'grayscale': 'grayscale' }).name('Color Scheme').onChange(function (value) {
-		_PointCloud_selectionJs.updatePointCloudGeometry(view);
-		_MultiviewControlColorLegendJs.changeLegend(view);
-	});
 	viewFolder.add(options, 'resetCamera').name('Set Camera');
-	//viewFolder.add( options, 'fullscreen');
-	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.add(options, 'systemEdgeBoolean').name('System Edge').onChange(function (value) {
 		//updatePointCloudGeometry(view);
@@ -2371,21 +2348,19 @@ function setupOptionBox3DView(view, plotSetup) {
 		gui.updateDisplay();
 	});
 	viewFolder.add(options, 'autoRotateSystem').name('Rotate System').onChange(function (value) {
-		//updatePointCloudGeometry(view);
-		//options.toggleSystemEdge.call();
-		//gui.updateDisplay();
-		//console.log(value)
 		view.controller.autoRotate = value;
 	});
+
+	viewFolder.open();
 
 	var PBCFolder = viewFolder.addFolder('PBC');
 
 	PBCFolder.add(options, 'xPBC', { '1': 1, '3': 3, '5': 5 }).onChange(function (value) {
 		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
-			if (options.showPointCloud) {
+			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
 				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
 			}
-			if (options.showMolecule) {
+			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			}
 			options.PBCBoolean = true;
@@ -2398,10 +2373,10 @@ function setupOptionBox3DView(view, plotSetup) {
 
 	PBCFolder.add(options, 'yPBC', { '1': 1, '3': 3, '5': 5 }).onChange(function (value) {
 		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
-			if (options.showPointCloud) {
+			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
 				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
 			}
-			if (options.showMolecule) {
+			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			}
 			options.PBCBoolean = true;
@@ -2414,10 +2389,10 @@ function setupOptionBox3DView(view, plotSetup) {
 
 	PBCFolder.add(options, 'zPBC', { '1': 1, '3': 3, '5': 5 }).onChange(function (value) {
 		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
-			if (options.showPointCloud) {
+			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
 				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
 			}
-			if (options.showMolecule) {
+			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			}
 			options.PBCBoolean = true;
@@ -2428,7 +2403,43 @@ function setupOptionBox3DView(view, plotSetup) {
 		}
 	});
 	PBCFolder.close();
-	viewFolder.open();
+
+	moleculeFolder.add(options, 'atomSize', 0.1, 10).step(0.1).name('Atom Size').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+	});
+	moleculeFolder.add(options, 'bondSize', 0.1, 5).step(0.1).name('Bond Size').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+		_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
+	});
+
+	moleculeFolder.add(options, 'maxBondLength', 0.1, 5).step(0.1).name('Bond Max').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.add(options, 'minBondLength', 0.1, 5).step(0.1).name('Bond Min').onChange(function (value) {
+		_MoleculeViewJs.changeMoleculeGeometry(view);
+	});
+
+	moleculeFolder.close();
+
+	/*
+ 	viewFolder.add( options, 'view',{'pointCloud':'pointCloud', 'box':'box', 'pointMatrix':'pointMatrix'}).onChange( function( value ){
+ 		changeGeometry(options);
+ 		updateControlPanel(options);
+ 	});*/
+
+	pointCloudFolder.add(options, 'propertyOfInterest', propertyChoiceObject).name('Color Basis').onChange(function (value) {
+		_UtilitiesColorScaleJs.adjustColorScaleAccordingToDefault(view);
+		_PointCloud_selectionJs.updatePointCloudGeometry(view);
+
+		_MultiviewControlColorLegendJs.changeLegend(view);
+		gui.updateDisplay();
+	});
+
+	pointCloudFolder.add(options, 'colorMap', { 'rainbow': 'rainbow', 'cooltowarm': 'cooltowarm', 'blackbody': 'blackbody', 'grayscale': 'grayscale' }).name('Color Scheme').onChange(function (value) {
+		_PointCloud_selectionJs.updatePointCloudGeometry(view);
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
 
 	pointCloudFolder.add(options, 'pointCloudParticles', 10, 10000).step(10).name('Density').onChange(function (value) {
 		_PointCloud_selectionJs.changePointCloudGeometry(view);
@@ -2454,9 +2465,30 @@ function setupOptionBox3DView(view, plotSetup) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
 	});
 
-	//console.log(pointCloudFolder);
-
 	pointCloudFolder.close();
+
+	var pointCloudLegnedFolder = pointCloudFolder.addFolder('Legend');
+
+	pointCloudLegnedFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	pointCloudLegnedFolder.add(options, 'legendY', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	pointCloudLegnedFolder.add(options, 'legendWidth', 0, 1).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	pointCloudLegnedFolder.add(options, 'legendHeight', 0, 15).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	pointCloudLegnedFolder.add(options, 'legendTick', 1, 15).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	pointCloudLegnedFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	pointCloudLegnedFolder.add(options, 'toggleLegend');
+	pointCloudLegnedFolder.close();
 
 	sliderFolder.add(options, 'x_low', view.xPlotMin, view.xPlotMax).step(1).name('x low').onChange(function (value) {
 		_PointCloud_selectionJs.updatePointCloudGeometry(view);
@@ -2508,26 +2540,6 @@ function setupOptionBox3DView(view, plotSetup) {
 	detailFolder.add(options, 'autoRotateSpeed', 0.1, 30.0).step(0.1).name('Rotate Speed').onChange(function (value) {
 		view.controller.autoRotateSpeed = value;
 	});
-
-	detailFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
-		_MultiviewControlColorLegendJs.changeLegend(view);
-	});
-	detailFolder.add(options, 'legendY', -10, 10).step(0.1).onChange(function (value) {
-		_MultiviewControlColorLegendJs.changeLegend(view);
-	});
-	detailFolder.add(options, 'legendWidth', 0, 1).step(0.1).onChange(function (value) {
-		_MultiviewControlColorLegendJs.changeLegend(view);
-	});
-	detailFolder.add(options, 'legendHeight', 0, 15).step(0.1).onChange(function (value) {
-		_MultiviewControlColorLegendJs.changeLegend(view);
-	});
-	detailFolder.add(options, 'legendTick', 1, 15).step(1).onChange(function (value) {
-		_MultiviewControlColorLegendJs.changeLegend(view);
-	});
-	detailFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
-		_MultiviewControlColorLegendJs.changeLegend(view);
-	});
-	detailFolder.add(options, 'toggleLegend');
 
 	detailFolder.add(options, 'backgroundAlpha', 0.0, 1.0).step(0.1).name('background transparency').onChange(function (value) {
 		view.backgroundAlpha = value;
@@ -2964,27 +2976,27 @@ function setupViewCameraSceneController(view, renderer) {
 'use strict';
 
 exports.__esModule = true;
-exports.calcDefaultColorScales = calcDefaultColorScales;
-exports.adjustColorScaleAccordingToDefault = adjustColorScaleAccordingToDefault;
+exports.calcDefaultColorScalesSpatiallyResolvedData = calcDefaultColorScalesSpatiallyResolvedData;
+exports.adjustColorScaleAccordingToDefaultSpatiallyResolvedData = adjustColorScaleAccordingToDefaultSpatiallyResolvedData;
 
-function calcDefaultColorScales(plotSetup, unfilteredData) {
+function calcDefaultColorScalesSpatiallyResolvedData(plotSetup, spatiallyResolvedData) {
 	var result = {};
-	var propertyList = plotSetup.propertyList;
+	var propertyList = plotSetup.spatiallyResolvedPropertyList;
 	for (var i = 0; i < propertyList.length; i++) {
 		var property = propertyList[i];
 		var xValue = function xValue(d) {
 			return d[property];
 		};
-		var xMin = d3.min(unfilteredData, xValue);
-		var xMax = d3.max(unfilteredData, xValue);
+		var xMin = d3.min(spatiallyResolvedData, xValue);
+		var xMax = d3.max(spatiallyResolvedData, xValue);
 		result[property] = { 'min': xMin, 'max': xMax };
 	}
 	return result;
 }
 
-function adjustColorScaleAccordingToDefault(view) {
-	view.options.pointCloudColorSettingMin = view.defaultColorScales[view.options.propertyOfInterest]['min'];
-	view.options.pointCloudColorSettingMax = view.defaultColorScales[view.options.propertyOfInterest]['max'];
+function adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view) {
+	view.options.pointCloudColorSettingMin = view.defaultColorScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
+	view.options.pointCloudColorSettingMax = view.defaultColorScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
 }
 
 },{}],22:[function(require,module,exports){
@@ -3002,11 +3014,12 @@ function arrayToIdenticalObject(array) {
 }
 
 },{}],23:[function(require,module,exports){
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 exports.readCSV = readCSV;
-exports.readCSV2 = readCSV2;
+exports.readCSVSpatiallyResolvedData = readCSVSpatiallyResolvedData;
+exports.readCSVMoleculeData = readCSVMoleculeData;
 exports.readCSVPapaparse = readCSVPapaparse;
 
 var _MultiviewControlInitializeViewSetupsJs = require("../MultiviewControl/initializeViewSetups.js");
@@ -3044,52 +3057,131 @@ function readCSV(view, plotData, callback) {
 	});
 }
 
-function readCSV2(view, plotData, plotSetup, callback) {
-	console.log('started loading');
-	var filename = view.dataFilename;
-	console.log(filename);
-	var propertyList = plotSetup.propertyList;
-	var density = plotSetup.pointcloudDensity;
-	var densityCutoff = plotSetup.densityCutoff;
-	var systemName = view.moleculeName;
-
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	var zPlotScale = view.zPlotScale;
-
-	console.log(density, densityCutoff, propertyList);
+function readCSVSpatiallyResolvedData(view, plotData, plotSetup, callback) {
 	view.data = [];
 
-	d3.csv(filename, function (error, d) {
-		if (error && error.target.status === 404) {
-			console.log(error);
-			console.log("File not found");
-		}
-		if (d.length === 0) {
-			console.log("File empty");
-		}
-		console.log('end loading');
-		d.forEach(function (d, i) {
-			var n = +d[density];
-			if (n > densityCutoff) {
+	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null) {
+		console.log('no spatially resolved data loaded');
+		callback(null);
+	} else {
+		console.log('started loading');
+		var filename = view.spatiallyResolvedData.dataFilename;
+		console.log(filename);
+		var propertyList = plotSetup.spatiallyResolvedPropertyList;
+		var density = plotSetup.pointcloudDensity;
+		var densityCutoff = plotSetup.densityCutoff;
+		var systemName = view.moleculeName;
+
+		var xPlotScale = view.xPlotScale;
+		var yPlotScale = view.yPlotScale;
+		var zPlotScale = view.zPlotScale;
+
+		console.log(density, densityCutoff, propertyList);
+
+		d3.csv(filename, function (error, d) {
+			if (error && error.target.status === 404) {
+				console.log(error);
+				console.log("File not found");
+			}
+			if (d.length === 0) {
+				console.log("File empty");
+			}
+			console.log('end loading');
+			d.forEach(function (d, i) {
+				var n = +d[density];
+				if (n > densityCutoff) {
+					var temp = {
+						xPlot: xPlotScale(+d.x),
+						yPlot: yPlotScale(+d.y),
+						zPlot: zPlotScale(+d.z),
+						selected: true,
+						name: systemName
+					};
+					for (var i = 0; i < propertyList.length; i++) {
+						temp[propertyList[i]] = +d[propertyList[i]];
+					}
+
+					view.data.push(temp);
+					plotData.push(temp);
+				}
+			});
+			console.log('end parsing');
+			callback(null);
+		});
+	}
+}
+
+function readCSVMoleculeData(view, overallMoleculeData, plotSetup, callback) {
+
+	view.systemMoleculeData = [];
+
+	if (view.moleculeData == null || view.moleculeData.dataFilename == null) {
+		console.log('no molecule data loaded');
+		callback(null);
+	} else {
+
+		console.log('started loading');
+		var filename = view.moleculeData.dataFilename;
+		console.log(filename);
+		var propertyList = plotSetup.moleculePropertyList;
+		var systemName = view.moleculeName;
+
+		var xPlotScale = view.xPlotScale;
+		var yPlotScale = view.yPlotScale;
+		var zPlotScale = view.zPlotScale;
+
+		d3.csv(filename, function (error, d) {
+			if (error && error.target.status === 404) {
+				console.log(error);
+				console.log("File not found");
+			}
+			if (d.length === 0) {
+				console.log("File empty");
+			}
+			console.log('end loading');
+			d.forEach(function (d, i) {
+
 				var temp = {
+					atom: d.atom,
+					x: +d.x,
+					y: +d.y,
+					z: +d.z,
 					xPlot: xPlotScale(+d.x),
 					yPlot: yPlotScale(+d.y),
 					zPlot: zPlotScale(+d.z),
 					selected: true,
 					name: systemName
 				};
+
 				for (var i = 0; i < propertyList.length; i++) {
-					temp[propertyList[i]] = +d[propertyList[i]];
+					if (propertyList[i] != "atom") {
+						temp[propertyList[i]] = +d[propertyList[i]];
+					}
 				}
 
-				view.data.push(temp);
-				plotData.push(temp);
-			}
+				view.systemMoleculeData.push(temp);
+				overallMoleculeData.push(temp);
+
+				/*var n = +d[density];
+    if (n >densityCutoff){
+    	var temp = {
+    			xPlot: xPlotScale(+d.x),
+    			yPlot: yPlotScale(+d.y),
+    			zPlot: zPlotScale(+d.z),
+    			selected: true,
+    			name: systemName
+    		}
+    	for (var i = 0; i < propertyList.length; i++) {
+    	    temp[propertyList[i]] = +d[propertyList[i]];
+    	}
+    					view.data.push(temp);
+    	plotData.push(temp);
+    }*/
+			});
+			console.log('end parsing');
+			callback(null);
 		});
-		console.log('end parsing');
-		callback(null);
-	});
+	}
 }
 
 function readCSVPapaparse(view, plotData, plotSetup, callback) {

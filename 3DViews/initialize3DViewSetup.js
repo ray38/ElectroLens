@@ -2,8 +2,20 @@ import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateView
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {addSystemEdge, removeSystemEdge} from "./systemEdge.js";
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
-	var gridSpacing = viewSetup.gridSpacing;
+	
 	var systemDimension = viewSetup.systemDimension;
+
+	if (viewSetup.spatiallyResolvedData != null) {
+		if (viewSetup.spatiallyResolvedData.gridSpacing != null){
+			var gridSpacing = viewSetup.spatiallyResolvedData.gridSpacing;
+		} else{
+			var gridSpacing = {"x":0.1,"y":0.1,"z":0.1};
+		}
+		
+	} else{
+		var gridSpacing = {"x":0.1,"y":0.1,"z":0.1};
+	}
+	
 	var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
 	var yCoordMin = systemDimension["y"][0], yCoordMax = systemDimension["y"][1];
 	var zCoordMin = systemDimension["z"][0], zCoordMax = systemDimension["z"][1];
@@ -33,6 +45,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		//viewType: '3Dview',
 		//moleculeName: 'CO2',
 		//dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv",
+		systemSpatiallyResolvedDataBoolean : false,
+		systemMoleculeDataBoolean : false,
 		controllerEnabled: false,
 		controllerZoom : true,
 		controllerRotate : true,

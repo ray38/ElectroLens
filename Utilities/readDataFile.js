@@ -34,53 +34,141 @@ export function readCSV(view,plotData,callback){
 }
 
 
-export function readCSV2(view,plotData,plotSetup,callback){
-	console.log('started loading')
-	var filename = view.dataFilename;
-	console.log(filename)
-	var propertyList = plotSetup.propertyList;
-	var density = plotSetup.pointcloudDensity;
-	var densityCutoff = plotSetup.densityCutoff;
-	var systemName = view.moleculeName;
-
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	var zPlotScale = view.zPlotScale;
-
-	console.log(density,densityCutoff,propertyList)
+export function readCSVSpatiallyResolvedData(view,plotData,plotSetup,callback){
 	view.data = [];
 
-	d3.csv(filename, function (error,d) {
-		if (error && error.target.status === 404) {
-			console.log(error);
-			console.log("File not found");
-		}
-		if(d.length === 0){
-			console.log("File empty")
-		}
-		console.log('end loading')
-		d.forEach(function (d,i) {
-			var n = +d[density];
-			if (n >densityCutoff){
-				var temp = {
-						xPlot: xPlotScale(+d.x),
-						yPlot: yPlotScale(+d.y),
-						zPlot: zPlotScale(+d.z),
-						selected: true,
-						name: systemName
-					}
-				for (var i = 0; i < propertyList.length; i++) {
-				    temp[propertyList[i]] = +d[propertyList[i]];
-				}
+	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
+		console.log('no spatially resolved data loaded')
+		callback(null);
+	} else{
+		console.log('started loading')
+		var filename = view.spatiallyResolvedData.dataFilename;
+		console.log(filename)
+		var propertyList = plotSetup.spatiallyResolvedPropertyList;
+		var density = plotSetup.pointcloudDensity;
+		var densityCutoff = plotSetup.densityCutoff;
+		var systemName = view.moleculeName;
 
+		var xPlotScale = view.xPlotScale;
+		var yPlotScale = view.yPlotScale;
+		var zPlotScale = view.zPlotScale;
 
-				view.data.push(temp);
-				plotData.push(temp);
+		console.log(density,densityCutoff,propertyList)
+		
+
+		d3.csv(filename, function (error,d) {
+			if (error && error.target.status === 404) {
+				console.log(error);
+				console.log("File not found");
 			}
-		})
-		console.log('end parsing')
-	callback(null);
-	});
+			if(d.length === 0){
+				console.log("File empty")
+			}
+			console.log('end loading')
+			d.forEach(function (d,i) {
+				var n = +d[density];
+				if (n >densityCutoff){
+					var temp = {
+							xPlot: xPlotScale(+d.x),
+							yPlot: yPlotScale(+d.y),
+							zPlot: zPlotScale(+d.z),
+							selected: true,
+							name: systemName
+						}
+					for (var i = 0; i < propertyList.length; i++) {
+					    temp[propertyList[i]] = +d[propertyList[i]];
+					}
+
+
+					view.data.push(temp);
+					plotData.push(temp);
+				}
+			})
+			console.log('end parsing')
+			callback(null);
+		});
+
+	}
+
+}
+
+
+export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback){
+
+	view.systemMoleculeData = [];
+
+	if (view.moleculeData == null || view.moleculeData.dataFilename == null){
+		console.log('no molecule data loaded')
+		callback(null);
+	} else{
+
+		console.log('started loading')
+		var filename = view.moleculeData.dataFilename;
+		console.log(filename)
+		var propertyList = plotSetup.moleculePropertyList;
+		var systemName = view.moleculeName;
+
+		var xPlotScale = view.xPlotScale;
+		var yPlotScale = view.yPlotScale;
+		var zPlotScale = view.zPlotScale;
+
+		
+
+		d3.csv(filename, function (error,d) {
+			if (error && error.target.status === 404) {
+				console.log(error);
+				console.log("File not found");
+			}
+			if(d.length === 0){
+				console.log("File empty")
+			}
+			console.log('end loading')
+			d.forEach(function (d,i) {
+
+				var temp = {
+							atom:d.atom,
+							x:+d.x,
+							y:+d.y,
+							z:+d.z,
+							xPlot: xPlotScale(+d.x),
+							yPlot: yPlotScale(+d.y),
+							zPlot: zPlotScale(+d.z),
+							selected: true,
+							name: systemName
+						};
+
+				for (var i = 0; i < propertyList.length; i++) {
+						if (propertyList[i] != "atom"){
+					    	temp[propertyList[i]] = +d[propertyList[i]];
+						}
+					}
+
+				view.systemMoleculeData.push(temp);
+				overallMoleculeData.push(temp);
+
+				/*var n = +d[density];
+				if (n >densityCutoff){
+					var temp = {
+							xPlot: xPlotScale(+d.x),
+							yPlot: yPlotScale(+d.y),
+							zPlot: zPlotScale(+d.z),
+							selected: true,
+							name: systemName
+						}
+					for (var i = 0; i < propertyList.length; i++) {
+					    temp[propertyList[i]] = +d[propertyList[i]];
+					}
+
+
+					view.data.push(temp);
+					plotData.push(temp);
+				}*/
+			})
+			console.log('end parsing')
+			callback(null);
+		});
+
+	}
 
 }
 

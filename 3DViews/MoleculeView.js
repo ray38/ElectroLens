@@ -4,6 +4,8 @@ export function getMoleculeGeometry(view){
 	view.molecule.atoms = [];
 	view.molecule.bonds = [];
 
+	var moleculeData = view.systemMoleculeData;
+
 	var colorSetup = {"C":0x777777, "O":0xFF0000, "N":0x0000FF, "H":0xCCCCCC}
 	var atomRadius = {
 						"C":0.77,
@@ -18,39 +20,28 @@ export function getMoleculeGeometry(view){
 	var yPlotScale = view.yPlotScale;
 	var zPlotScale = view.zPlotScale;
 
-	for (var i = 0; i < view.coordinates.length; i++) {
-	    //console.log(view.coordinates[i]);
-	    //console.log(view.coordinates[i][1][0] , view.coordinates[i][1][1] ,view.coordinates[i][1][2]);
-	    //console.log((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
-	    //Do something
+	for (var i = 0; i < moleculeData.length; i++) {
+		console.log(moleculeData[i]);
 	    var geometry = new THREE.SphereGeometry(100, 24, 24);
-	    //options.atomSize*atomRadius[view.coordinates[i][0]]*
-		//geometry.translate( (view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
 			
-		var material = new THREE.MeshBasicMaterial( {color: colorSetup[view.coordinates[i][0]]} );
+		var material = new THREE.MeshBasicMaterial( {color: colorSetup[moleculeData[i].atom]} );
 		var atom = new THREE.Mesh(geometry, material);
-		atom.scale.set(options.atomSize*atomRadius[view.coordinates[i][0]], options.atomSize*atomRadius[view.coordinates[i][0]], options.atomSize*atomRadius[view.coordinates[i][0]])
-		//atom.position.set((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20)
-		atom.position.set(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
+		atom.scale.set(options.atomSize*atomRadius[moleculeData[i].atom], options.atomSize*atomRadius[moleculeData[i].atom], options.atomSize*atomRadius[moleculeData[i].atom])
+		//atom.position.set(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
+		atom.position.set(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
+		
 		view.molecule.atoms.push(atom);
 		scene.add(atom);
 	}
 	
-	for (var i = 0; i < view.coordinates.length; i++) {
-		var coordinates1 = new THREE.Vector3(view.coordinates[i][1][0], view.coordinates[i][1][1], view.coordinates[i][1][2]);
-		//var point1 = new THREE.Vector3((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20);
-		var point1 = new THREE.Vector3(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
+	for (var i = 0; i < moleculeData.length; i++) {
+		var coordinates1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
+		var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
 
-	    for (var j = 0; j < view.coordinates.length; j++) {
-	    	var coordinates2 = new THREE.Vector3(view.coordinates[j][1][0], view.coordinates[j][1][1], view.coordinates[j][1][2]);
-	    	//var point2 = new THREE.Vector3((view.coordinates[j][1][0]*10 + 0.5)*20, (view.coordinates[j][1][1]*10 + 0.5)*20,(view.coordinates[j][1][2]*10 + 0.5)*20);
-	    	var point2 = new THREE.Vector3(xPlotScale(view.coordinates[j][1][0])*20.0, yPlotScale(view.coordinates[j][1][1])*20.0,zPlotScale(view.coordinates[j][1][2])*20.0);
-	    	//console.log(point1, point2)
-
-	    	 /* edge from X to Y */
-		    
+	    for (var j = 0; j < moleculeData.length; j++) {
+	    	var coordinates2 = new THREE.Vector3(moleculeData[j].x, moleculeData[j].y, moleculeData[j].z);
+	    	var point2 = new THREE.Vector3(moleculeData[j].xPlot*20.0, moleculeData[j].yPlot*20.0,moleculeData[j].zPlot*20.0);
 		    var bondlength = new THREE.Vector3().subVectors( coordinates2, coordinates1 ).length();
-		    //console.log(direction.length());
 		    if (bondlength < options.maxBondLength && bondlength > options.minBondLength) {
 		    	var direction = new THREE.Vector3().subVectors( point2, point1 );
 		    	var orientation = new THREE.Matrix4();
@@ -66,7 +57,6 @@ export function getMoleculeGeometry(view){
 
 			    /* cylinder: radiusAtTop, radiusAtBottom, 
 			        height, radiusSegments, heightSegments */
-			    //console.log(direction, orientation)
 			    var bondGeometry = new THREE.CylinderGeometry( options.bondSize*10, options.bondSize*10, direction.length(), 24, 1, true);
 			    //bondGeometry.translate( point1 );
 
@@ -74,9 +64,6 @@ export function getMoleculeGeometry(view){
 			            new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 
 			    bond.applyMatrix(orientation)
-			    //console.log(new THREE.Vector3().addVectors( point1, direction.multiplyScalar(0.5) ))
-			    //bond.position = new THREE.Vector3().addVectors( point1, direction.multiplyScalar(0.5) );
-			    //bond.position.set(new THREE.Vector3().addVectors(point1, direction.multiplyScalar(0.5)));
 	            bond.position.x = (point2.x + point1.x) / 2;
 			    bond.position.y = (point2.y + point1.y) / 2;
 			    bond.position.z = (point2.z + point1.z) / 2;
@@ -113,14 +100,7 @@ export function updateMoleculeGeometry(view){
 
 
 export function changeMoleculeGeometry(view){
-	
-	/*for (var i = 0; i < view.molecule.bonds.length; i++) {
-		view.scene.remove(view.molecule.bonds[i]);
-	}
 
-	for (var i = 0; i < view.molecule.atoms.length; i++) {
-		view.scene.remove(view.molecule.atoms[i]);
-	}*/
 	removeMoleculeGeometry(view);
 	getMoleculeGeometry(view);
 
@@ -163,6 +143,7 @@ export function addMoleculePeriodicReplicates(view){
 					}
 	var options = view.options;
 	var scene = view.scene;
+	var moleculeData = view.systemMoleculeData;
 
 	var xPlotScale = view.xPlotScale;
 	var yPlotScale = view.yPlotScale;
@@ -185,15 +166,18 @@ export function addMoleculePeriodicReplicates(view){
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
 				if (((i == 0) && (j == 0) && (k == 0)) == false) {
-					for (var ii = 0; ii < view.coordinates.length; ii++) {
+					for (var ii = 0; ii < moleculeData.length; ii++) {
 					   
 					    var geometry = new THREE.SphereGeometry(100, 24, 24);
 							
-						var material = new THREE.MeshBasicMaterial( {color: colorSetup[view.coordinates[ii][0]]} );
+						var material = new THREE.MeshBasicMaterial( {color: colorSetup[moleculeData[ii].atom]} );
 						var atom = new THREE.Mesh(geometry, material);
-						atom.scale.set(options.atomSize*atomRadius[view.coordinates[ii][0]], options.atomSize*atomRadius[view.coordinates[ii][0]], options.atomSize*atomRadius[view.coordinates[ii][0]])
-						//atom.position.set((view.coordinates[i][1][0]*10 + 0.5)*20, (view.coordinates[i][1][1]*10 + 0.5)*20,(view.coordinates[i][1][2]*10 + 0.5)*20)
-						atom.position.set(xPlotScale(view.coordinates[ii][1][0])*20.0 + i*xStep, yPlotScale(view.coordinates[ii][1][1])*20.0 + j*yStep,zPlotScale(view.coordinates[ii][1][2])*20.0 + k*zStep);
+						//atom.scale.set(options.atomSize*atomRadius[view.coordinates[ii][0]], options.atomSize*atomRadius[view.coordinates[ii][0]], options.atomSize*atomRadius[view.coordinates[ii][0]])
+						//atom.position.set(xPlotScale(view.coordinates[ii][1][0])*20.0 + i*xStep, yPlotScale(view.coordinates[ii][1][1])*20.0 + j*yStep,zPlotScale(view.coordinates[ii][1][2])*20.0 + k*zStep);
+						
+						atom.scale.set(options.atomSize*atomRadius[moleculeData[ii].atom], options.atomSize*atomRadius[moleculeData[ii].atom], options.atomSize*atomRadius[moleculeData[ii].atom])
+						atom.position.set(moleculeData[ii].xPlot*20.0 + i*xStep, moleculeData[ii].yPlot*20.0 + j*yStep, moleculeData[ii].zPlot*20.0 + k*zStep);
+
 						view.periodicReplicateMolecule.atoms.push(atom);
 						scene.add(atom);
 					}
@@ -208,13 +192,13 @@ export function addMoleculePeriodicReplicates(view){
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
 				if (((i == 0) && (j == 0) && (k == 0)) == false) {
-					for (var ii = 0; ii < view.coordinates.length; ii++) {
-						var coordinates1 = new THREE.Vector3(view.coordinates[ii][1][0], view.coordinates[ii][1][1], view.coordinates[ii][1][2]);
-						var point1 = new THREE.Vector3(xPlotScale(view.coordinates[ii][1][0])*20.0 + i*xStep, yPlotScale(view.coordinates[ii][1][1])*20.0 + j*yStep,zPlotScale(view.coordinates[ii][1][2])*20.0 + k*zStep);
+					for (var ii = 0; ii < moleculeData.length; ii++) {
+						var coordinates1 = new THREE.Vector3(moleculeData[ii].x, moleculeData[ii].y, moleculeData[ii].z);
+						var point1 = new THREE.Vector3(moleculeData[ii].xPlot*20.0 + i*xStep, moleculeData[ii].yPlot*20.0 + j*yStep, moleculeData[ii].zPlot*20.0 + k*zStep);
 
-					    for (var jj = 0; jj < view.coordinates.length; jj++) {
-					    	var coordinates2 = new THREE.Vector3(view.coordinates[jj][1][0], view.coordinates[jj][1][1], view.coordinates[jj][1][2]);
-					    	var point2 = new THREE.Vector3(xPlotScale(view.coordinates[jj][1][0])*20.0 + i*xStep, yPlotScale(view.coordinates[jj][1][1])*20.0 + j*yStep,zPlotScale(view.coordinates[jj][1][2])*20.0 + k*zStep);
+					    for (var jj = 0; jj < moleculeData.length; jj++) {
+					    	var coordinates2 = new THREE.Vector3(moleculeData[jj].x, moleculeData[jj].y, moleculeData[jj].z);
+					    	var point2 = new THREE.Vector3(moleculeData[jj].xPlot*20.0 + i*xStep, moleculeData[jj].yPlot*20.0 + j*yStep, moleculeData[jj].zPlot*20.0 + k*zStep);
 
 						    var bondlength = new THREE.Vector3().subVectors( coordinates2, coordinates1 ).length();
 						    //console.log(direction.length());

@@ -6,7 +6,7 @@ import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
-import {readCSV,readCSV2/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
@@ -24,7 +24,7 @@ import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
 import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
 
-import {calcDefaultColorScales, adjustColorScaleAccordingToDefault} from "./Utilities/colorScale.js";
+import {calcDefaultColorScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData} from "./Utilities/colorScale.js";
 
 console.log('starting');
 var uploader = document.getElementById("uploader");
@@ -76,15 +76,17 @@ function main(views,plotSetup) {
 
 	//initializeViewSetups(views,plotSetup);
 
-	var unfilteredData = [];
+	var spatiallyResolvedData = [];
+	var overallMoleculeData = [];
 	var queue=d3.queue();
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '3DView'){
-			//queue.defer(readCSV,view,unfilteredData);
-			queue.defer(readCSV2,view,unfilteredData,plotSetup);
-			//queue.defer(readCSVPapaparse,view,unfilteredData,plotSetup);
+			//queue.defer(readCSV,view,spatiallyResolvedData);
+			queue.defer(readCSVSpatiallyResolvedData,view,spatiallyResolvedData,plotSetup);
+			queue.defer(readCSVMoleculeData,view,overallMoleculeData,plotSetup);
+			//queue.defer(readCSVPapaparse,view,spatiallyResolvedData,plotSetup);
 		}			
 	}
 
@@ -95,7 +97,7 @@ function main(views,plotSetup) {
 	});
 
 	function init() {
-		console.log(unfilteredData)
+		console.log(spatiallyResolvedData)
 		console.log('started initialization')
 		container = document.getElementById( 'container' );
 		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1 } );
@@ -105,12 +107,16 @@ function main(views,plotSetup) {
 		renderer.autoClear = false;
 		container.appendChild( renderer.domElement );
 
-		var defaultColorScales = calcDefaultColorScales(plotSetup,unfilteredData);
+		if (spatiallyResolvedData.length > 0){
+			var defaultColorScalesSpatiallyResolvedData = calcDefaultColorScalesSpatiallyResolvedData(plotSetup,spatiallyResolvedData);
+		}
+		
 
 		for (var ii =  0; ii < views.length; ++ii ) {
 			var view = views[ii];
 
-			view.unfilteredData = unfilteredData;
+			view.spatiallyResolvedData = spatiallyResolvedData;
+			view.overallMoleculeData = overallMoleculeData;
 
 			setupViewCameraSceneController(view,renderer);
 			addOptionBox(view);
@@ -122,16 +128,27 @@ function main(views,plotSetup) {
 
 			if (view.viewType == '3DView'){
 				view.controller.autoRotate = false;
-				view.defaultColorScales = defaultColorScales;
-				adjustColorScaleAccordingToDefault(view);				
+								
 
-				getPointCloudGeometry(view);
-				if ("coordinates" in view) {
+				if (view.data != null && view.data.length > 0){
+					view.systemSpatiallyResolvedDataBoolean = true;
+					view.defaultColorScalesSpatiallyResolvedData = defaultColorScalesSpatiallyResolvedData;
+					adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
+					getPointCloudGeometry(view);
+					insertLegend(view);
+				}
+				if (view.systemMoleculeData != null && view.systemMoleculeData.length > 0){
+					view.systemMoleculeDataBoolean = true;
 					getMoleculeGeometry(view);
 				}
+				//if ("coordinates" in view) {
+				//	getMoleculeGeometry(view);
+				//}
+				
+
 				addSystemEdge(view);
 				setupOptionBox3DView(view,plotSetup);
-				insertLegend(view);
+				
 			}
 			if (view.viewType == '2DHeatmap'){
 				view.controller.enableRotate=false;
@@ -140,7 +157,7 @@ function main(views,plotSetup) {
 				getAxis(view);
 				addTitle(view);
 
-				arrangeDataToHeatmap(view,unfilteredData)
+				arrangeDataToHeatmap(view,spatiallyResolvedData)
 				getHeatmap(view);
 				insertLegend(view);
 				
@@ -179,7 +196,7 @@ function main(views,plotSetup) {
 			//selectAll();
 			//updateAllPlots();
 			//continuousSelection = false;
-			deselectAll(views, unfilteredData);
+			deselectAll(views, spatiallyResolvedData);
 		}, false );*/
 
 		window.addEventListener( "keydown", onKeyDown, true);
@@ -231,7 +248,7 @@ function main(views,plotSetup) {
 			initialize2DHeatmapSetup(temp_view,views,plotSetup);
 			calculateViewportSizes(views);
 
-			temp_view.unfilteredData = unfilteredData;
+			temp_view.spatiallyResolvedData = spatiallyResolvedData;
 
 			setupViewCameraSceneController(temp_view,renderer);
 			addOptionBox(temp_view);
@@ -244,7 +261,7 @@ function main(views,plotSetup) {
 			getAxis(temp_view);
 			addTitle(temp_view);
 
-			arrangeDataToHeatmap(temp_view,unfilteredData)
+			arrangeDataToHeatmap(temp_view,spatiallyResolvedData)
 			getHeatmap(temp_view);
 			insertLegend(temp_view);
 			updateOptionBoxLocation(views);
