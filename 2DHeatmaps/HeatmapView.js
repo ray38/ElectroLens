@@ -1,4 +1,4 @@
-export function arrangeDataToHeatmap(view,spatiallyResolvedData){
+/*export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 
 	var X = view.options.plotX, Y = view.options.plotY;
 	var XTransform = view.options.plotXTransform, YTransform = view.options.plotYTransform;
@@ -65,11 +65,7 @@ export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 	var xMax = Math.ceil(d3.max(spatiallyResolvedData,xValue));
 	var yMin = Math.floor(d3.min(spatiallyResolvedData,yValue));
 	var yMax = Math.ceil(d3.max(spatiallyResolvedData,yValue));
-	
-	/*var xMin = d3.min(spatiallyResolvedData,xValue);
-	var xMax = d3.max(spatiallyResolvedData,xValue);
-	var yMin = d3.min(spatiallyResolvedData,yValue);
-	var yMax = d3.max(spatiallyResolvedData,yValue);*/
+
 
 	view.xMin = xMin;
 	view.xMax = xMax;
@@ -113,9 +109,143 @@ export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 	
 	//console.log(view.data);
 			
+}*/
+
+
+export function arrangeDataToHeatmap(view){
+
+	var options = view.options;
+	if (options.plotData == 'spatiallyResolvedData'){
+
+		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
+		var XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
+
+		var Data = view.spatiallyResolvedData;
+	}
+
+	if (options.plotData == 'moleculeData'){
+		var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
+		var XTransform = view.options.plotXTransformMoleculeData, YTransform = view.options.plotYTransformMoleculeData;
+
+		var Data = view.overallMoleculeData;
+	}
+
+	console.log(view.spatiallyResolvedData);
+	console.log(view.overallMoleculeData);
+	console.log(Data);
+
+
+
+
+	
+	var numPerSide = view.options.numPerSide;
+
+	var heatmapStep = [];
+
+	for (var i=1; i <= numPerSide; i++) {
+		heatmapStep.push(""+i);
+	}
+	
+	if (XTransform == 'linear') {var xValue = function(d) {return d[X];}}
+	if (YTransform == 'linear') {var yValue = function(d) {return d[Y];}}
+
+	if (XTransform == 'log10') {var xValue = function(d) {return Math.log10(d[X]);};}
+	if (YTransform == 'log10') {var yValue = function(d) {return Math.log10(d[Y]);};}
+
+	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
+	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
+
+	if (XTransform == 'symlog10') {var xValue = function(d) {
+		if (d[X]>0.0){
+			return Math.log10(d[X]) + 3.0;
+		}else if (d[X]<0.0) {
+			return -1*Math.log10(-1*d[X]) - 3.0;
+		}
+		else {
+			return 0.0;
+		}
+	}}
+	if (YTransform == 'symlog10') {var yValue = function(d) {
+		if (d[Y]>0.0){
+			return Math.log10(d[Y]) + 3.0;
+		}else if (d[Y]<0.0) {
+			return -1*Math.log10(-1*d[Y]) - 3.0;
+		}
+		else {
+			return 0.0;
+		}
+	}}
+
+	if (XTransform == 'symlogPC') {var xValue = function(d) {
+		if (d[X]>0.0){
+			return Math.log10(d[X]) -2.0;
+		}else if (d[X]<0.0) {
+			return -1*Math.log10(-1*d[X]) + 2.0;
+		}
+		else {
+			return 0.0;
+		}
+	}}
+	if (YTransform == 'symlogPC') {var yValue = function(d) {
+		if (d[Y]>0.0){
+			return Math.log10(d[Y]) + 4.5;
+		}else if (d[Y]<0.0) {
+			return -1*Math.log10(-1*d[Y]) - 4.5;
+		}
+		else {
+			return 0.0;
+		}
+	}}
+	
+	var xMin = Math.floor(d3.min(Data,xValue));
+	var xMax = Math.ceil(d3.max(Data,xValue));
+	var yMin = Math.floor(d3.min(Data,yValue));
+	var yMax = Math.ceil(d3.max(Data,yValue));
+	
+
+	view.xMin = xMin;
+	view.xMax = xMax;
+	view.yMin = yMin;
+	view.yMax = yMax;
+
+	var xScale = d3.scaleQuantize()
+	.domain([xMin, xMax])
+	.range(heatmapStep);
+	
+	var yScale = d3.scaleQuantize()
+	.domain([yMin, yMax])
+	.range(heatmapStep);
+
+	console.log(xMin,xMax,yMin,yMax)
+
+	console.log(xScale,yScale)
+	
+	var xMap = function(d) {return xScale(xValue(d));};
+	var yMap = function(d) {return yScale(yValue(d));}; 
+	
+	view.data = {};
+	view.dataXMin = d3.min(Data,xValue);
+	view.dataXMax = d3.max(Data,xValue);
+	view.dataYMin = d3.min(Data,yValue);
+	view.dataYMax = d3.max(Data,yValue);
+
+	view.xScale = xScale;
+	view.yScale = yScale;
+
+	//console.log(xScale.invertExtent(""+50))
+	
+	for (var i=0; i<Data.length; i++){
+		var heatmapX = xMap(Data[i]);
+		var heatmapY = yMap(Data[i]);
+		
+		view.data[heatmapX] = view.data[heatmapX] || {};
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
+		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
+	}
+	
+	//console.log(view.data);
+			
 }
-
-
 
 
 export function getHeatmap(view){
@@ -285,8 +415,17 @@ export function updateHeatmap(view){
 
 export function replotHeatmap(view){
 	view.scene.remove(view.System);
+	/*var options = view.options;
 	//var options = view.options;
-	arrangeDataToHeatmap(view,view.spatiallyResolvedData);
+	if (options.plotData == 'spatiallyResolvedData'){
+		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
+	}
+
+	if (options.plotData == 'spatiallyResolvedData'){
+		arrangeDataToHeatmap(view,view.overallMoleculeData);
+	}*/
+
+	arrangeDataToHeatmap(view);
 	getHeatmap(view);
 
 }

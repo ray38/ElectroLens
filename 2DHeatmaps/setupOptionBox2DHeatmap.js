@@ -6,22 +6,38 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 
 	var options = view.options;
 	var gui = view.gui;
-	var propertyList = plotSetup["spatiallyResolvedPropertyList"];
-	var propertyChoiceObject = arrayToIdenticalObject(propertyList);
+	//var propertyList = plotSetup["spatiallyResolvedPropertyList"];
+	//var propertyChoiceObject = arrayToIdenticalObject(propertyList);
+
+	if (view.overallSpatiallyResolvedDataBoolean) {
+		var propertyList = plotSetup["spatiallyResolvedPropertyList"];
+		var propertyChoiceObject = arrayToIdenticalObject(propertyList);
+	}
+
+	if (view.overallMoleculeDataBoolean) {
+		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
+		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
+	}
 	gui.width = 200;
 	//gui.height = 10;
 
-	//var moleculeFolder 		= gui.addFolder( 'Molecule Selection' );
 	var plotFolder			= gui.addFolder( 'Plot Setting' );
-	var viewFolder 			= gui.addFolder( 'View Selection' );
+	var viewFolder 			= gui.addFolder( 'View Control' );
 	var selectionFolder 	= gui.addFolder( 'Selection' );
-	var detailFolder		= gui.addFolder( 'Detailed Control' );
-	//var pointCloudFolder 	= gui.addFolder( 'point cloud control' );
+
+	if (view.overallMoleculeDataBoolean) {var moleculeFolder = gui.addFolder( 'Molecular Data' );}
+	if (view.overallSpatiallyResolvedDataBoolean) {var spatiallyResolvedFolder = gui.addFolder( 'Spatially Resolved Data' );}
+	
+	var detailFolder		= gui.addFolder( 'Additional Control' );
 
 	
+	plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})
+	.name( 'Plot Data' )
+	.onChange( function( value ) {
+		//updatePointCloudGeometry(view);
+	});
 
-
-	plotFolder.add( options, 'plotX', propertyChoiceObject/*{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/)
+	/*plotFolder.add( options, 'plotX', propertyChoiceObject)
 	.name( 'X' )
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
@@ -33,7 +49,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		//updatePointCloudGeometry(view);
 	});
 
-	plotFolder.add( options, 'plotY', propertyChoiceObject/*{'n':'n','epxc':'epxc', 'gamma':'gamma','ad0p2':'ad0p2','deriv1':'deriv1','deriv2':'deriv2'}*/)
+	plotFolder.add( options, 'plotY', propertyChoiceObject)
 	.name( 'Y' )
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
@@ -50,7 +66,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
 		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
 		//options.replotHeatmap.call();
-	});
+	});*/
 	plotFolder.add(options, 'replotHeatmap');
 
 	plotFolder.open()
@@ -63,9 +79,6 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		changeLegend(view);
 	});
 	viewFolder.add( options, 'resetCamera');
-	//viewFolder.add( options, 'planeSelection');
-	//viewFolder.add( options, 'fullscreen');
-	//viewFolder.add( options, 'defullscreen');
 	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
 	//viewFolder.open();
 
@@ -88,8 +101,8 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 
 	//console.log(gui);
 
-	selectionFolder.add( options, 'selectAll').name('Select all');
-	selectionFolder.add( options, 'deselectAll').name('Deselect all');
+	/*selectionFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
+	selectionFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');*/
 	selectionFolder.add(options, 'planeSelection')
 	.name('with plane')
 	.onChange( function( value ) {
@@ -115,6 +128,72 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		options.planeSelection = false;
 		gui.updateDisplay();
 	});
+
+
+	if (view.overallMoleculeDataBoolean){
+		moleculeFolder.add( options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject)
+		.name( 'X' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add( options, 'plotXTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'X scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add( options, 'plotYMoleculeData', moleculeDataFeatureChoiceObject)
+		.name( 'Y' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add( options, 'plotYTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'Y scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add( options, 'selectAllMoleculeData').name('Select all');
+		moleculeFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+
+		moleculeFolder.close();
+
+	}
+
+	if (view.overallMoleculeDataBoolean){
+		spatiallyResolvedFolder.add( options, 'plotXSpatiallyResolvedData', moleculeDataFeatureChoiceObject)
+		.name( 'X' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add( options, 'plotXTransformSpatiallyResolvedData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'X scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add( options, 'plotYSpatiallyResolvedData', moleculeDataFeatureChoiceObject)
+		.name( 'Y' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add( options, 'plotYTransformSpatiallyResolvedData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'Y scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
+		spatiallyResolvedFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.close();
+
+	}
+
 
 
 	detailFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {

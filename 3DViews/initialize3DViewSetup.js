@@ -87,15 +87,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.yPBC = 1;
 			this.zPBC = 1;
 			this.PBCBoolean = false;
-			/*this.boxParticles = 200;
-			this.boxColorSetting = 10.0;
-			this.boxSize = 10;
-			this.boxOpacity = 1;
-			this.pointMatrixParticles = 100;
-			this.pointMatrixColorSettingMax = 1.2;
-			this.pointMatrixColorSettingMin = 0.0;
-			this.pointMatrixAlpha = 1;
-			this.pointMatrixSize = 10;*/
 			this.x_low =  xPlotMin;
 			this.x_high = xPlotMax;
 			this.y_low =  yPlotMin;
@@ -111,7 +102,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.propertyOfInterest = plotSetup["pointcloudDensity"];
 			this.density = plotSetup["pointcloudDensity"];
 			this.colorMap = 'rainbow';
-			//this.dataFilename = "data/CO2_B3LYP_0_0_0_all_descriptors.csv";
 			this.planeVisibilityU = false;
 			this.planeVisibilityD = false;
 			this.planeVisibilityR = false;
@@ -161,6 +151,14 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 										viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
 									}
 								};
+			
+			this.moleculeColorCodeBasis = "atom";
+			this.moleculeColorMap = 'rainbow';
+			this.moleculeColorSettingMax = 2;
+			this.moleculeColorSettingMin = -2;
+			this.moleculeSizeCodeBasis = "atom";
+			this.moleculeSizeSettingMax = 2;
+			this.moleculeSizeSettingMin = -2;
 
 		}
 	}

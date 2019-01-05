@@ -97,7 +97,6 @@ function main(views,plotSetup) {
 	});
 
 	function init() {
-		console.log(spatiallyResolvedData)
 		console.log('started initialization')
 		container = document.getElementById( 'container' );
 		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1 } );
@@ -124,8 +123,6 @@ function main(views,plotSetup) {
 
 			view.controller.addEventListener( 'change', render );
 
-			console.log(view.controller)
-
 			if (view.viewType == '3DView'){
 				view.controller.autoRotate = false;
 								
@@ -151,13 +148,22 @@ function main(views,plotSetup) {
 				
 			}
 			if (view.viewType == '2DHeatmap'){
+
 				view.controller.enableRotate=false;
+
+				if (spatiallyResolvedData.length > 0){
+					view.overallSpatiallyResolvedDataBoolean = true;
+				}
+				if (overallMoleculeData.length > 0){
+					view.overallMoleculeDataBoolean = true;
+				}
+
 				initializeHeatmapToolTip(view);
 				setupOptionBox2DHeatmap(view,plotSetup);
 				getAxis(view);
 				addTitle(view);
 
-				arrangeDataToHeatmap(view,spatiallyResolvedData)
+				arrangeDataToHeatmap(view)
 				getHeatmap(view);
 				insertLegend(view);
 				
@@ -237,18 +243,34 @@ function main(views,plotSetup) {
 			activeView.gui.updateDisplay();
 		}
 		if (e.keyCode == 107) {
+
+			
 			var temp_view = {
 								"viewType": "2DHeatmap",
-								"plotX": plotSetup.propertyList[0],
-								"plotY": plotSetup.propertyList[0],
-								"plotXTransform": "linear",
-								"plotYTransform": "linear"
+								"plotXSpatiallyResolvedData": plotSetup.spatiallyResolvedPropertyList[0],
+								"plotYSpatiallyResolvedData": plotSetup.spatiallyResolvedPropertyList[0],
+								"plotXTransformSpatiallyResolvedData": "linear",
+								"plotYTransformSpatiallyResolvedData": "linear",
+
+								"plotXMoleculeData": plotSetup.moleculePropertyList[0],
+								"plotYMoleculeData": plotSetup.moleculePropertyList[0],
+								"plotXTransformMoleculeData": "linear",
+								"plotYTransformMoleculeData": "linear"
 							}
 			views.push(temp_view);
 			initialize2DHeatmapSetup(temp_view,views,plotSetup);
 			calculateViewportSizes(views);
 
 			temp_view.spatiallyResolvedData = spatiallyResolvedData;
+			temp_view.overallMoleculeData = overallMoleculeData;
+			console.log(temp_view.spatiallyResolvedData);
+			console.log(temp_view.overallMoleculeData);
+			if (spatiallyResolvedData.length > 0){
+				temp_view.overallSpatiallyResolvedDataBoolean = true;
+			}
+			if (overallMoleculeData.length > 0){
+				temp_view.overallMoleculeDataBoolean = true;
+			}
 
 			setupViewCameraSceneController(temp_view,renderer);
 			addOptionBox(temp_view);
@@ -261,7 +283,7 @@ function main(views,plotSetup) {
 			getAxis(temp_view);
 			addTitle(temp_view);
 
-			arrangeDataToHeatmap(temp_view,spatiallyResolvedData)
+			arrangeDataToHeatmap(temp_view)
 			getHeatmap(temp_view);
 			insertLegend(temp_view);
 			updateOptionBoxLocation(views);
