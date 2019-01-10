@@ -85,7 +85,7 @@ function main(views, plotSetup) {
 
 	var continuousSelection = false;
 
-	var activeView = null;
+	var activeView = views[0];
 
 	var showOptionBoxesBool = true;
 
@@ -192,15 +192,17 @@ function main(views, plotSetup) {
 		window.addEventListener('mouseup', function (event) {
 			mouseHold = false;
 			if (event.button == 0) {
-				if (activeView.options.planeSelection) {
-					_DHeatmapsSelectionJs.updatePlaneSelection(views, activeView);
-					activeView.scene.remove(activeView.currentSelectionPlane);
-					activeView.currentSelectionPlane = null;
-				}
-				if (activeView.options.brushSelection) {
-					//updateBrushSelection(views,activeView);
-					activeView.scene.remove(activeView.currentSelectionBrush);
-					activeView.currentSelectionBrush = null;
+				if (activeView.viewType == '2DHeatmap') {
+					if (activeView.options.planeSelection) {
+						_DHeatmapsSelectionJs.updatePlaneSelection(views, activeView);
+						activeView.scene.remove(activeView.currentSelectionPlane);
+						activeView.currentSelectionPlane = null;
+					}
+					if (activeView.options.brushSelection) {
+						//updateBrushSelection(views,activeView);
+						activeView.scene.remove(activeView.currentSelectionBrush);
+						activeView.currentSelectionBrush = null;
+					}
 				}
 			}
 		}, false);
@@ -269,13 +271,17 @@ function main(views, plotSetup) {
 
 			temp_view.spatiallyResolvedData = spatiallyResolvedData;
 			temp_view.overallMoleculeData = overallMoleculeData;
-			console.log(temp_view.spatiallyResolvedData);
-			console.log(temp_view.overallMoleculeData);
+			//console.log(temp_view.spatiallyResolvedData);
+			//console.log(temp_view.overallMoleculeData);
 			if (spatiallyResolvedData.length > 0) {
 				temp_view.overallSpatiallyResolvedDataBoolean = true;
 			}
 			if (overallMoleculeData.length > 0) {
 				temp_view.overallMoleculeDataBoolean = true;
+			}
+
+			if (temp_view.overallSpatiallyResolvedDataBoolean == false) {
+				temp_view.options.plotData = "moleculeData";
 			}
 
 			_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(temp_view, renderer);
@@ -424,6 +430,16 @@ function main(views, plotSetup) {
 }
 
 },{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":3,"./2DHeatmaps/Utilities.js":4,"./2DHeatmaps/initialize2DHeatmapSetup.js":5,"./2DHeatmaps/selection.js":6,"./2DHeatmaps/setupOptionBox2DHeatmap.js":7,"./2DHeatmaps/tooltip.js":8,"./3DViews/MoleculeView.js":9,"./3DViews/PointCloud_selection.js":10,"./3DViews/setupOptionBox3DView.js":12,"./3DViews/systemEdge.js":13,"./MultiviewControl/HUDControl.js":14,"./MultiviewControl/calculateViewportSizes.js":15,"./MultiviewControl/colorLegend.js":16,"./MultiviewControl/controllerControl.js":17,"./MultiviewControl/initializeViewSetups.js":18,"./MultiviewControl/optionBoxControl.js":19,"./MultiviewControl/setupViewBasic.js":20,"./Utilities/colorScale.js":21,"./Utilities/readDataFile.js":23}],2:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.arrangeDataToHeatmap = arrangeDataToHeatmap;
+exports.getHeatmap = getHeatmap;
+exports.updateHeatmap = updateHeatmap;
+exports.replotHeatmap = replotHeatmap;
+
+var _UtilitiesJs = require("./Utilities.js");
+
 /*export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 
 	var X = view.options.plotX, Y = view.options.plotY;
@@ -537,14 +553,6 @@ function main(views, plotSetup) {
 			
 }*/
 
-'use strict';
-
-exports.__esModule = true;
-exports.arrangeDataToHeatmap = arrangeDataToHeatmap;
-exports.getHeatmap = getHeatmap;
-exports.updateHeatmap = updateHeatmap;
-exports.replotHeatmap = replotHeatmap;
-
 function arrangeDataToHeatmap(view) {
 
 	var options = view.options;
@@ -567,9 +575,9 @@ function arrangeDataToHeatmap(view) {
 		var Data = view.overallMoleculeData;
 	}
 
-	console.log(view.spatiallyResolvedData);
-	console.log(view.overallMoleculeData);
-	console.log(Data);
+	//console.log(view.spatiallyResolvedData);
+	//console.log(view.overallMoleculeData);
+	//console.log(Data);
 
 	var numPerSide = view.options.numPerSide;
 
@@ -726,10 +734,18 @@ function getHeatmap(view) {
 
 	});
 
-	var X = view.options.plotX;
-	var Y = view.options.plotY;
 	var options = view.options;
 	var scene = view.scene;
+
+	if (options.plotData == 'spatiallyResolvedData') {
+		var X = view.options.plotXSpatiallyResolvedData,
+		    Y = view.options.plotYSpatiallyResolvedData;
+	}
+
+	if (options.plotData == 'moleculeData') {
+		var X = view.options.plotXMoleculeData,
+		    Y = view.options.plotYMoleculeData;
+	}
 
 	var data = view.data;
 
@@ -877,6 +893,7 @@ function replotHeatmap(view) {
 
 	arrangeDataToHeatmap(view);
 	getHeatmap(view);
+	_UtilitiesJs.changeTitle(view);
 }
 
 function countListSelected(list) {
@@ -900,7 +917,7 @@ function heatmapPointCount(data) {
 	return count;
 }
 
-},{}],3:[function(require,module,exports){
+},{"./Utilities.js":4}],3:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1019,11 +1036,12 @@ function updateSelectionFromHeatmap(view) {
 }
 
 },{"../../3DViews/MoleculeView.js":9,"../../3DViews/PointCloud_selection.js":10,"../HeatmapView.js":2}],4:[function(require,module,exports){
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 exports.getAxis = getAxis;
 exports.addTitle = addTitle;
+exports.changeTitle = changeTitle;
 exports.update2DHeatmapTitlesLocation = update2DHeatmapTitlesLocation;
 
 function getAxis(view) {
@@ -1039,7 +1057,26 @@ function getAxis(view) {
 }
 
 function addTitle(view) {
-	var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
+	//var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
+
+	var options = view.options;
+
+	if (options.plotData == 'spatiallyResolvedData') {
+		var X = view.options.plotXSpatiallyResolvedData,
+		    Y = view.options.plotYSpatiallyResolvedData;
+		var XTransform = view.options.plotXTransformSpatiallyResolvedData,
+		    YTransform = view.options.plotYTransformSpatiallyResolvedData;
+	}
+
+	if (options.plotData == 'moleculeData') {
+		var X = view.options.plotXMoleculeData,
+		    Y = view.options.plotYMoleculeData;
+		var XTransform = view.options.plotXTransformMoleculeData,
+		    YTransform = view.options.plotYTransformMoleculeData;
+	}
+
+	var titleText = YTransform + " " + Y + " v.s. " + XTransform + " " + X;
+
 	//var titleText = " v.s. ";
 	var tempTitle = document.createElement('div');
 	tempTitle.style.position = 'absolute';
@@ -1058,6 +1095,13 @@ function addTitle(view) {
 	console.log(view.windowWidth, tempWidth, tempMargin, tempTitle.style.left);
 	view.title = tempTitle;
 	document.body.appendChild(tempTitle);
+}
+
+function changeTitle(view) {
+	//var old_title = document.getElementById("uploader");
+	//document.removeChild(view.title);
+	view.title.parentNode.removeChild(view.title);
+	addTitle(view);
 }
 
 function update2DHeatmapTitlesLocation(views) {
@@ -1473,18 +1517,33 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 
 	var options = view.options;
 	var gui = view.gui;
+	//gui.remember(options);
+	console.log("data test");
+	console.log(view.overallMoleculeDataBoolean);
+	console.log(view.overallSpatiallyResolvedDataBoolean);
 	//var propertyList = plotSetup["spatiallyResolvedPropertyList"];
 	//var propertyChoiceObject = arrayToIdenticalObject(propertyList);
 
 	if (view.overallSpatiallyResolvedDataBoolean) {
-		var propertyList = plotSetup["spatiallyResolvedPropertyList"];
-		var propertyChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(propertyList);
+		var spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
+		var spatiallyResolvedFeatureChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(spatiallyResolvedFeatureList);
 	}
 
 	if (view.overallMoleculeDataBoolean) {
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
 		var moleculeDataFeatureChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(moleculeDataFeatureList);
 	}
+
+	/*if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+ 	var plotDataChoice = {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'};
+ }
+ if (view.overallSpatiallyResolvedDataBoolean && view.overallSpatiallyResolvedDataBoolean==false) {
+ 	var plotDataChoice = {'spatially resolved': 'spatiallyResolvedData'};
+ }
+ if (view.overallMoleculeDataBoolean==false && view.overallSpatiallyResolvedDataBoolean) {
+ 	var plotDataChoice = {'molecular': 'moleculeData'};
+ }*/
+
 	gui.width = 200;
 	//gui.height = 10;
 
@@ -1492,18 +1551,32 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	var viewFolder = gui.addFolder('View Control');
 	var selectionFolder = gui.addFolder('Selection');
 
-	if (view.overallMoleculeDataBoolean) {
+	//if (view.overallMoleculeDataBoolean) {var moleculeFolder = gui.addFolder( 'Molecular Data' );}
+	//if (view.overallSpatiallyResolvedDataBoolean) {var spatiallyResolvedFolder = gui.addFolder( 'Spatially Resolved Data' );}
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
 		var moleculeFolder = gui.addFolder('Molecular Data');
-	}
-	if (view.overallSpatiallyResolvedDataBoolean) {
 		var spatiallyResolvedFolder = gui.addFolder('Spatially Resolved Data');
 	}
 
 	var detailFolder = gui.addFolder('Additional Control');
 
-	plotFolder.add(options, 'plotData', { 'spatially resolved': 'spatiallyResolvedData', 'molecular': 'moleculeData' }).name('Plot Data').onChange(function (value) {
-		//updatePointCloudGeometry(view);
-	});
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add(options, 'plotData', { 'spatially resolved': 'spatiallyResolvedData', 'molecular': 'moleculeData' }).name('Plot Data').onChange(function (value) {
+			if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+				if (value == 'spatiallyResolvedData') {
+					moleculeFolder.close();
+					spatiallyResolvedFolder.open();
+				}
+				if (value == 'moleculeData') {
+					moleculeFolder.open();
+					spatiallyResolvedFolder.close();
+				}
+			}
+		});
+	} else {
+		plotFolder.add(options, 'plotData').name('Plot Data');
+	}
 
 	/*plotFolder.add( options, 'plotX', propertyChoiceObject)
  .name( 'X' )
@@ -1536,6 +1609,48 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
  	//options.replotHeatmap.call();
  });*/
 	plotFolder.add(options, 'replotHeatmap');
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
+		plotFolder.add(options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotXTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('X scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotYMoleculeData', moleculeDataFeatureChoiceObject).name('Y').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotYTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('Y scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'selectAllMoleculeData').name('Select all');
+		plotFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
+	}
+
+	if (view.overallMoleculeDataBoolean == false && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add(options, 'plotXSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotXTransformSpatiallyResolvedData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('X scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotYSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject).name('Y').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotYTransformSpatiallyResolvedData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('Y scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
+		plotFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+	}
 
 	plotFolder.open();
 
@@ -1582,7 +1697,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		gui.updateDisplay();
 	});
 
-	if (view.overallMoleculeDataBoolean) {
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
 		moleculeFolder.add(options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
@@ -1603,10 +1718,8 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		moleculeFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
 
 		moleculeFolder.close();
-	}
 
-	if (view.overallMoleculeDataBoolean) {
-		spatiallyResolvedFolder.add(options, 'plotXSpatiallyResolvedData', moleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
+		spatiallyResolvedFolder.add(options, 'plotXSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
 
@@ -1614,7 +1727,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 			//updatePointCloudGeometry(view);
 		});
 
-		spatiallyResolvedFolder.add(options, 'plotYSpatiallyResolvedData', moleculeDataFeatureChoiceObject).name('Y').onChange(function (value) {
+		spatiallyResolvedFolder.add(options, 'plotYSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject).name('Y').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
 
@@ -1625,7 +1738,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		spatiallyResolvedFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
 
-		spatiallyResolvedFolder.close();
+		spatiallyResolvedFolder.open();
 	}
 
 	detailFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
@@ -2490,6 +2603,8 @@ var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js
 
 var _systemEdgeJs = require("./systemEdge.js");
 
+var _UtilitiesSaveDataJs = require("../Utilities/saveData.js");
+
 function initialize3DViewSetup(viewSetup, views, plotSetup) {
 
 	var systemDimension = viewSetup.systemDimension;
@@ -2650,6 +2765,13 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.moleculeSizeCodeBasis = "atom";
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
+
+			this.saveMoleculeData = function () {
+				_UtilitiesSaveDataJs.saveMoleculeData(viewSetup, plotSetup);
+			};
+			this.saveSpatiallyResolvedData = function () {
+				_UtilitiesSaveDataJs.saveSpatiallyResolvedData(viewSetup, plotSetup);
+			};
 		}()
 	};
 
@@ -2663,7 +2785,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":15,"../MultiviewControl/colorLegend.js":16,"./systemEdge.js":13}],12:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":15,"../MultiviewControl/colorLegend.js":16,"../Utilities/saveData.js":24,"./systemEdge.js":13}],12:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2690,9 +2812,15 @@ function setupOptionBox3DView(view, plotSetup) {
 
 	if (view.systemMoleculeDataBoolean) {
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
+		//if (moleculeDataFeatureList.includes('atom') == false){
+		console.log(moleculeDataFeatureList.indexOf("atom"));
+		if (moleculeDataFeatureList.indexOf("atom") < 0) {
+			moleculeDataFeatureList.push("atom");
+		}
 		var moleculeDataFeatureChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(moleculeDataFeatureList);
 	}
 	var gui = view.gui;
+	//gui.remember(options);
 	gui.width = 200;
 
 	var systemInfoFolder = gui.addFolder('System Info');
@@ -2710,6 +2838,13 @@ function setupOptionBox3DView(view, plotSetup) {
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();
 	});
+
+	if (view.systemMoleculeDataBoolean) {
+		systemInfoFolder.add(options, 'saveMoleculeData').name('Save Molecule');
+	}
+	if (view.systemSpatiallyResolvedDataBoolean) {
+		systemInfoFolder.add(options, 'saveSpatiallyResolvedData').name('Save Spatially Resolved');
+	}
 
 	systemInfoFolder.add(options, 'showMolecule').name('Show Molecule').onChange(function (value) {
 		if (value == true) {
@@ -3556,6 +3691,9 @@ function readCSVSpatiallyResolvedData(view, plotData, plotSetup, callback) {
 				var n = +d[density];
 				if (n > densityCutoff) {
 					var temp = {
+						x: +d.x,
+						y: +d.y,
+						z: +d.z,
 						xPlot: xPlotScale(+d.x),
 						yPlot: yPlotScale(+d.y),
 						zPlot: zPlotScale(+d.z),
@@ -3756,4 +3894,126 @@ function loadJSON(filename,callback) {
 	xobj.send(null);  
 }*/
 
-},{"../MultiviewControl/initializeViewSetups.js":18}]},{},[1]);
+},{"../MultiviewControl/initializeViewSetups.js":18}],24:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+exports.saveMoleculeData = saveMoleculeData;
+exports.saveSpatiallyResolvedData = saveSpatiallyResolvedData;
+
+function saveMoleculeData(view, plotSetup) {
+	var data;
+	console.log("save MoleculeData");
+	var csv = convertArrayOfObjectsToCSV(view.systemMoleculeData, plotSetup["moleculePropertyList"].slice());
+	/*if (csv == null) return;
+ 
+ var filename = 'export.csv';
+ 
+ if (!csv.match(/^data:text\/csv/i)) {
+     csv = 'data:text/csv;charset=utf-8,' + csv;
+ }
+ data = encodeURI(csv);
+ 
+ var link = document.createElement('a');
+ link.setAttribute('href', data);
+ link.setAttribute('download', filename);
+ link.click();*/
+}
+
+function saveSpatiallyResolvedData(view, plotSetup) {
+	var data;
+	console.log("save SpatiallyResolvedData");
+	var csv = convertArrayOfObjectsToCSV(view.data, plotSetup["spatiallyResolvedPropertyList"].slice());
+	/*console.log("end processing csv");
+ 
+ var filename = 'export.csv';
+ 
+ if (!csv.match(/^data:text\/csv/i)) {
+     csv = 'data:text/csv;charset=utf-8,' + csv;
+ }
+ data = encodeURI(csv);
+ 
+ //console.log(data);
+ 
+ var link = document.createElement('a');
+ link.setAttribute('href', data);
+ link.setAttribute('download', filename);
+ link.click();*/
+}
+
+function convertArrayOfObjectsToCSV(data, keys) {
+	var result, ctr, columnDelimiter, lineDelimiter;
+
+	/*if (data == null || !data.length) {
+     return null;
+ }*/
+	//console.log(data);
+
+	if (keys.indexOf("z") < 0) {
+		keys.unshift("z");
+	}
+	if (keys.indexOf("y") < 0) {
+		keys.unshift("y");
+	}
+	if (keys.indexOf("x") < 0) {
+		keys.unshift("x");
+	}
+
+	if (keys.indexOf("selected") < 0) {
+		keys.push("selected");
+	}
+
+	columnDelimiter = ',';
+	lineDelimiter = '\n';
+
+	//keys = Object.keys(data[0]);
+
+	result = '';
+	result += keys.join(columnDelimiter);
+	result += lineDelimiter;
+
+	data.forEach(function (item) {
+		ctr = 0;
+		keys.forEach(function (key) {
+			if (ctr > 0) result += columnDelimiter;
+
+			result += item[key];
+			ctr++;
+		});
+		result += lineDelimiter;
+	});
+
+	var filename = 'export.csv';
+
+	/*if (!result.match(/^data:text\/csv/i)) {
+     result = 'data:text/csv;charset=utf-8,' + result;
+ }
+ var result_data = encodeURI(result);
+ 
+ //console.log(data);
+ 
+ var link = document.createElement('a');
+ link.setAttribute('href', result_data);
+ link.setAttribute('download', filename);
+ link.click();*/
+
+	var blob = new Blob([result], { type: "text/csv;charset=utf-8;" });
+	if (navigator.msSaveBlob) {
+		// IE 10+
+		navigator.msSaveBlob(blob, filename);
+	} else {
+		var link = document.createElement("a");
+		if (link.download !== undefined) {
+			// feature detection, Browsers that support HTML5 download attribute
+			var url = URL.createObjectURL(blob);
+			link.setAttribute("href", url);
+			link.setAttribute("download", filename);
+			link.style = "visibility:hidden";
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		}
+	}
+}
+
+},{}]},{},[1]);

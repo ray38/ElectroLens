@@ -1,3 +1,5 @@
+import {addTitle,changeTitle} from "./Utilities.js";
+
 /*export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 
 	var X = view.options.plotX, Y = view.options.plotY;
@@ -130,9 +132,9 @@ export function arrangeDataToHeatmap(view){
 		var Data = view.overallMoleculeData;
 	}
 
-	console.log(view.spatiallyResolvedData);
-	console.log(view.overallMoleculeData);
-	console.log(Data);
+	//console.log(view.spatiallyResolvedData);
+	//console.log(view.overallMoleculeData);
+	//console.log(Data);
 
 
 
@@ -268,10 +270,18 @@ export function getHeatmap(view){
 
 	});
 
-	var X = view.options.plotX;
-	var Y = view.options.plotY;
 	var options = view.options;
 	var scene = view.scene;
+
+	if (options.plotData == 'spatiallyResolvedData'){
+		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
+	}
+
+	if (options.plotData == 'moleculeData'){
+		var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
+	}
+
+	
 	
 	var data = view.data;
 	
@@ -427,6 +437,7 @@ export function replotHeatmap(view){
 
 	arrangeDataToHeatmap(view);
 	getHeatmap(view);
+	changeTitle(view);
 
 }
 

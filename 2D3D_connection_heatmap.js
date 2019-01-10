@@ -70,7 +70,7 @@ function main(views,plotSetup) {
 	
 	var continuousSelection = false;
 
-	var activeView = null;
+	var activeView = views[0];
 
 	var showOptionBoxesBool = true;
 
@@ -184,15 +184,17 @@ function main(views,plotSetup) {
 		window.addEventListener( 'mouseup', function( event ) {
 			mouseHold = false;
 			if (event.button == 0){
-				if (activeView.options.planeSelection){
-					updatePlaneSelection(views,activeView);
-					activeView.scene.remove(activeView.currentSelectionPlane);
-					activeView.currentSelectionPlane = null;
-				}
-				if (activeView.options.brushSelection){
-					//updateBrushSelection(views,activeView);
-					activeView.scene.remove(activeView.currentSelectionBrush);
-					activeView.currentSelectionBrush = null;
+				if (activeView.viewType == '2DHeatmap') {
+					if (activeView.options.planeSelection){
+						updatePlaneSelection(views,activeView);
+						activeView.scene.remove(activeView.currentSelectionPlane);
+						activeView.currentSelectionPlane = null;
+					}
+					if (activeView.options.brushSelection){
+						//updateBrushSelection(views,activeView);
+						activeView.scene.remove(activeView.currentSelectionBrush);
+						activeView.currentSelectionBrush = null;
+					}
 				}
 			}
 		}, false );
@@ -263,13 +265,17 @@ function main(views,plotSetup) {
 
 			temp_view.spatiallyResolvedData = spatiallyResolvedData;
 			temp_view.overallMoleculeData = overallMoleculeData;
-			console.log(temp_view.spatiallyResolvedData);
-			console.log(temp_view.overallMoleculeData);
+			//console.log(temp_view.spatiallyResolvedData);
+			//console.log(temp_view.overallMoleculeData);
 			if (spatiallyResolvedData.length > 0){
 				temp_view.overallSpatiallyResolvedDataBoolean = true;
 			}
 			if (overallMoleculeData.length > 0){
 				temp_view.overallMoleculeDataBoolean = true;
+			}
+
+			if (temp_view.overallSpatiallyResolvedDataBoolean==false){
+				temp_view.options.plotData = "moleculeData";
 			}
 
 			setupViewCameraSceneController(temp_view,renderer);

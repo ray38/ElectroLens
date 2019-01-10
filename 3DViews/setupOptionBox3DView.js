@@ -14,9 +14,15 @@ export function setupOptionBox3DView(view,plotSetup){
 
 	if (view.systemMoleculeDataBoolean) {
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
+		//if (moleculeDataFeatureList.includes('atom') == false){
+		console.log(moleculeDataFeatureList.indexOf("atom"))
+		if (moleculeDataFeatureList.indexOf("atom") < 0){
+			moleculeDataFeatureList.push("atom");
+		}
 		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
 	var gui = view.gui;
+	//gui.remember(options);
 	gui.width = 200;
 
 	var systemInfoFolder	= gui.addFolder( 'System Info' );
@@ -34,6 +40,9 @@ export function setupOptionBox3DView(view,plotSetup){
 		options.moleculeName = view.moleculeName;
 		gui.updateDisplay();		
 	});
+
+	if (view.systemMoleculeDataBoolean) { systemInfoFolder.add( options, 'saveMoleculeData').name('Save Molecule');}
+	if (view.systemSpatiallyResolvedDataBoolean) {systemInfoFolder.add( options, 'saveSpatiallyResolvedData').name('Save Spatially Resolved');}
 
 	systemInfoFolder.add( options, 'showMolecule')
 	.name('Show Molecule')

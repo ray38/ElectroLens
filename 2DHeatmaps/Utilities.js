@@ -14,7 +14,22 @@ export function getAxis(view){
 }
 
 export function addTitle(view) {
-	var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
+	//var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
+
+	var options = view.options;
+
+	if (options.plotData == 'spatiallyResolvedData'){
+		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
+		var XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
+	}
+
+	if (options.plotData == 'moleculeData'){
+		var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
+		var XTransform = view.options.plotXTransformMoleculeData, YTransform = view.options.plotYTransformMoleculeData;
+	}
+
+	var titleText = YTransform + " " + Y + " v.s. " + XTransform + " " + X;
+
 	//var titleText = " v.s. ";
 	var tempTitle = document.createElement('div');
 	tempTitle.style.position = 'absolute';
@@ -34,6 +49,13 @@ export function addTitle(view) {
 	view.title = tempTitle;
 	document.body.appendChild(tempTitle);
 	
+}
+
+export function changeTitle(view) {
+	//var old_title = document.getElementById("uploader");
+	//document.removeChild(view.title);
+	view.title.parentNode.removeChild(view.title);
+	addTitle(view);
 }
 
 export function update2DHeatmapTitlesLocation(views){

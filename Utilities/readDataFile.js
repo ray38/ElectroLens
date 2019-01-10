@@ -69,6 +69,9 @@ export function readCSVSpatiallyResolvedData(view,plotData,plotSetup,callback){
 				var n = +d[density];
 				if (n >densityCutoff){
 					var temp = {
+							x:+d.x,
+							y:+d.y,
+							z:+d.z,
 							xPlot: xPlotScale(+d.x),
 							yPlot: yPlotScale(+d.y),
 							zPlot: zPlotScale(+d.z),

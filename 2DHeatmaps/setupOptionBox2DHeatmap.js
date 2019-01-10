@@ -6,18 +6,33 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 
 	var options = view.options;
 	var gui = view.gui;
+	//gui.remember(options);
+	console.log("data test");
+	console.log(view.overallMoleculeDataBoolean);
+	console.log(view.overallSpatiallyResolvedDataBoolean);
 	//var propertyList = plotSetup["spatiallyResolvedPropertyList"];
 	//var propertyChoiceObject = arrayToIdenticalObject(propertyList);
 
 	if (view.overallSpatiallyResolvedDataBoolean) {
-		var propertyList = plotSetup["spatiallyResolvedPropertyList"];
-		var propertyChoiceObject = arrayToIdenticalObject(propertyList);
+		var spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
+		var spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
 	}
 
 	if (view.overallMoleculeDataBoolean) {
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
 		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
+
+	/*if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		var plotDataChoice = {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'};
+	}
+	if (view.overallSpatiallyResolvedDataBoolean && view.overallSpatiallyResolvedDataBoolean==false) {
+		var plotDataChoice = {'spatially resolved': 'spatiallyResolvedData'};
+	}
+	if (view.overallMoleculeDataBoolean==false && view.overallSpatiallyResolvedDataBoolean) {
+		var plotDataChoice = {'molecular': 'moleculeData'};
+	}*/
+
 	gui.width = 200;
 	//gui.height = 10;
 
@@ -25,17 +40,36 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	var viewFolder 			= gui.addFolder( 'View Control' );
 	var selectionFolder 	= gui.addFolder( 'Selection' );
 
-	if (view.overallMoleculeDataBoolean) {var moleculeFolder = gui.addFolder( 'Molecular Data' );}
-	if (view.overallSpatiallyResolvedDataBoolean) {var spatiallyResolvedFolder = gui.addFolder( 'Spatially Resolved Data' );}
+	//if (view.overallMoleculeDataBoolean) {var moleculeFolder = gui.addFolder( 'Molecular Data' );}
+	//if (view.overallSpatiallyResolvedDataBoolean) {var spatiallyResolvedFolder = gui.addFolder( 'Spatially Resolved Data' );}
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		var moleculeFolder = gui.addFolder( 'Molecular Data' );
+		var spatiallyResolvedFolder = gui.addFolder( 'Spatially Resolved Data' );
+	}
 	
 	var detailFolder		= gui.addFolder( 'Additional Control' );
 
-	
-	plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})
-	.name( 'Plot Data' )
-	.onChange( function( value ) {
-		//updatePointCloudGeometry(view);
-	});
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})
+		.name( 'Plot Data' )
+		.onChange( function( value ) {
+			if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+				if (value == 'spatiallyResolvedData') {
+					moleculeFolder.close();
+					spatiallyResolvedFolder.open();
+				}
+				if (value == 'moleculeData') {
+					moleculeFolder.open();
+					spatiallyResolvedFolder.close();
+				}
+			}
+		});
+	}
+	else {
+		plotFolder.add( options, 'plotData')
+		.name( 'Plot Data' );
+	}
 
 	/*plotFolder.add( options, 'plotX', propertyChoiceObject)
 	.name( 'X' )
@@ -68,6 +102,65 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		//options.replotHeatmap.call();
 	});*/
 	plotFolder.add(options, 'replotHeatmap');
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
+		plotFolder.add( options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject)
+		.name( 'X' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'plotXTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'X scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'plotYMoleculeData', moleculeDataFeatureChoiceObject)
+		.name( 'Y' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'plotYTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'Y scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'selectAllMoleculeData').name('Select all');
+		plotFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+	}
+
+	if (view.overallMoleculeDataBoolean  == false && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add( options, 'plotXSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject)
+		.name( 'X' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'plotXTransformSpatiallyResolvedData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'X scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'plotYSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject)
+		.name( 'Y' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'plotYTransformSpatiallyResolvedData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		.name( 'Y scale' )
+		.onChange( function( value ) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
+		plotFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+	}
+
 
 	plotFolder.open()
 
@@ -130,7 +223,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	});
 
 
-	if (view.overallMoleculeDataBoolean){
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean){
 		moleculeFolder.add( options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
@@ -160,10 +253,8 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 
 		moleculeFolder.close();
 
-	}
 
-	if (view.overallMoleculeDataBoolean){
-		spatiallyResolvedFolder.add( options, 'plotXSpatiallyResolvedData', moleculeDataFeatureChoiceObject)
+		spatiallyResolvedFolder.add( options, 'plotXSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
 			//updatePointCloudGeometry(view);
@@ -175,7 +266,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 			//updatePointCloudGeometry(view);
 		});
 
-		spatiallyResolvedFolder.add( options, 'plotYSpatiallyResolvedData', moleculeDataFeatureChoiceObject)
+		spatiallyResolvedFolder.add( options, 'plotYSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject)
 		.name( 'Y' )
 		.onChange( function( value ) {
 			//updatePointCloudGeometry(view);
@@ -190,7 +281,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		spatiallyResolvedFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
 
-		spatiallyResolvedFolder.close();
+		spatiallyResolvedFolder.open();
 
 	}
 
