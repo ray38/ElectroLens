@@ -1,9 +1,10 @@
-export function initializeHeatmapToolTip(view){
+export function initializeHeatmapTooltip(view){
 	var tempRaycaster = new THREE.Raycaster();
 	view.raycaster = tempRaycaster;
 	view.INTERSECTED = null;
 
 	var tempTooltip = document.createElement('div');
+	tempTooltip.setAttribute('style', 'cursor: pointer; text-align: left; display:block;');
 	tempTooltip.style.position = 'absolute';
 	tempTooltip.innerHTML = "";
 	//tempTooltip.style.width = 100;
@@ -38,13 +39,15 @@ export function updateHeatmapTooltip(view){
 									"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 									"# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
 
-		view.System.geometry.attributes.size.array[ interesctIndex ]  = 2 * view.options.pointCloudSize;
-		view.System.geometry.attributes.size.needsUpdate = true;
+		//view.System.geometry.attributes.size.array[ interesctIndex ]  = 2 * view.options.pointCloudSize;
+		//view.System.geometry.attributes.size.needsUpdate = true;
 
 
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-			view.System.geometry.attributes.size.needsUpdate = true;
+			if (view.INTERSECTED != null){
+				view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
+				view.System.geometry.attributes.size.needsUpdate = true;
+			}
 			view.INTERSECTED = intersects[ 0 ].index;
 			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 2 * view.options.pointCloudSize;
 			view.System.geometry.attributes.size.needsUpdate = true;
@@ -52,8 +55,10 @@ export function updateHeatmapTooltip(view){
 
 	}
 	else {	view.tooltip.innerHTML = '';
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-			view.System.geometry.attributes.size.needsUpdate = true;
+			if (view.INTERSECTED != null){
+				view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
+				view.System.geometry.attributes.size.needsUpdate = true;
+			}
 			view.INTERSECTED = null;
 	}
 }

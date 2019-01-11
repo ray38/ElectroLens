@@ -41,8 +41,8 @@ export function setupOptionBox3DView(view,plotSetup){
 		gui.updateDisplay();		
 	});
 
-	if (view.systemMoleculeDataBoolean) { systemInfoFolder.add( options, 'saveMoleculeData').name('Save Molecule');}
-	if (view.systemSpatiallyResolvedDataBoolean) {systemInfoFolder.add( options, 'saveSpatiallyResolvedData').name('Save Spatially Resolved');}
+	if (view.systemMoleculeDataBoolean) { systemInfoFolder.add( options, 'saveSystemMoleculeData').name('Save Molecule');}
+	if (view.systemSpatiallyResolvedDataBoolean) {systemInfoFolder.add( options, 'saveSystemSpatiallyResolvedData').name('Save Spatially Resolved');}
 
 	systemInfoFolder.add( options, 'showMolecule')
 	.name('Show Molecule')

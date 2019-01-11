@@ -6,6 +6,7 @@ import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
+import {initialize3DViewTooltip,update3DViewTooltip} from "./3DViews/tooltip.js";
 import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
@@ -16,7 +17,7 @@ import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./
 import {setupHUD} from "./MultiviewControl/HUDControl.js";
 import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis, addTitle, update2DHeatmapTitlesLocation} from "./2DHeatmaps/Utilities.js";
-import {initializeHeatmapToolTip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
+import {initializeHeatmapTooltip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
 import {selectionControl, updatePlaneSelection} from "./2DHeatmaps/selection.js";
 import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap} from "./2DHeatmaps/Selection/Utilities.js";
 
@@ -141,7 +142,7 @@ function main(views,plotSetup) {
 				//if ("coordinates" in view) {
 				//	getMoleculeGeometry(view);
 				//}
-				
+				initialize3DViewTooltip(view);
 
 				addSystemEdge(view);
 				setupOptionBox3DView(view,plotSetup);
@@ -158,7 +159,7 @@ function main(views,plotSetup) {
 					view.overallMoleculeDataBoolean = true;
 				}
 
-				initializeHeatmapToolTip(view);
+				initializeHeatmapTooltip(view);
 				setupOptionBox2DHeatmap(view,plotSetup);
 				getAxis(view);
 				addTitle(view);
@@ -284,7 +285,7 @@ function main(views,plotSetup) {
 
 			
 			temp_view.controller.enableRotate=false;
-			initializeHeatmapToolTip(temp_view);
+			initializeHeatmapTooltip(temp_view);
 			setupOptionBox2DHeatmap(temp_view,plotSetup);
 			getAxis(temp_view);
 			addTitle(temp_view);
@@ -333,6 +334,7 @@ function main(views,plotSetup) {
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
 				if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
+				if (view.viewType == "3DView"){update3DViewTooltip(view);}
 			}
 		}
 	}

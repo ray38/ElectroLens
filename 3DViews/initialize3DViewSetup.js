@@ -1,7 +1,7 @@
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {addSystemEdge, removeSystemEdge} from "./systemEdge.js";
-import {saveMoleculeData, saveSpatiallyResolvedData} from "../Utilities/saveData.js";
+import {saveSystemMoleculeData, saveSystemSpatiallyResolvedData} from "../Utilities/saveData.js";
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	
 	var systemDimension = viewSetup.systemDimension;
@@ -162,8 +162,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.moleculeSizeSettingMin = -2;
 
 
-			this.saveMoleculeData = function(){saveMoleculeData(viewSetup,plotSetup)};
-			this.saveSpatiallyResolvedData = function(){saveSpatiallyResolvedData(viewSetup,plotSetup)};
+			this.saveSystemMoleculeData = function(){saveSystemMoleculeData(viewSetup,plotSetup)};
+			this.saveSystemSpatiallyResolvedData = function(){saveSystemSpatiallyResolvedData(viewSetup,plotSetup)};
 		}
 	}
 

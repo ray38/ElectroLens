@@ -101,6 +101,9 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
 		//options.replotHeatmap.call();
 	});*/
+	if (view.overallMoleculeDataBoolean) { plotFolder.add( options, 'saveOverallMoleculeData').name('Save Molecule');}
+	if (view.overallSpatiallyResolvedDataBoolean) {plotFolder.add( options, 'saveOverallSpatiallyResolvedData').name('Save Spatially Resolved');}
+
 	plotFolder.add(options, 'replotHeatmap');
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {

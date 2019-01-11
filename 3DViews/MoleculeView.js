@@ -79,6 +79,7 @@ export function getMoleculeGeometry(view){
 
 			if (sizeCode == "atom") {
 		    	//console.log("atom color basis");
+		    	//console.log(atom);
 				atom.scale.set(options.atomSize*atomRadius[moleculeData[i].atom], options.atomSize*atomRadius[moleculeData[i].atom], options.atomSize*atomRadius[moleculeData[i].atom]);
 			}
 			else {
@@ -89,6 +90,7 @@ export function getMoleculeGeometry(view){
 			//atom.position.set(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
 			atom.position.set(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
 			
+			atom.dataIndex = i;
 			view.molecule.atoms.push(atom);
 			scene.add(atom);
 		}
