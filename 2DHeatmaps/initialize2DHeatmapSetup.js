@@ -81,8 +81,8 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.plotXTransformMoleculeData = viewSetup.plotXTransformMoleculeData;
 			this.plotYTransformMoleculeData = viewSetup.plotYTransformMoleculeData;
 
-			this.selectAllSpatiallyResolvedData   = function(){selectAllSpatiallyResolvedData(views, viewSetup.spatiallyResolvedData); updateAllPlots(views);}; 
-			this.deselectAllSpatiallyResolvedData = function(){deselectAllSpatiallyResolvedData(views, viewSetup.spatiallyResolvedData);updateAllPlots(views);};
+			this.selectAllSpatiallyResolvedData   = function(){selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData); updateAllPlots(views);}; 
+			this.deselectAllSpatiallyResolvedData = function(){deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);updateAllPlots(views);};
 
 			this.selectAllMoleculeData   = function(){selectAllMoleculeData(views, viewSetup.overallMoleculeData); updateAllPlots(views);}; 
 			this.deselectAllMoleculeData = function(){deselectAllMoleculeData(views, viewSetup.overallMoleculeData);updateAllPlots(views);};

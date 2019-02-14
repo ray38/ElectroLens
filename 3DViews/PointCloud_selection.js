@@ -24,13 +24,13 @@ export function getPointCloudGeometry(view){
 
 
 	var particles = options.pointCloudParticles;
-	var num_blocks = view.data.length;
+	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
 	var total = 100;
 	var count = 0;
 
 	for ( var k = 0; k < num_blocks; k ++) {
-		var num_points  = Math.min(Math.floor((view.data[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
+		var num_points  = Math.min(Math.floor((view.systemSpatiallyResolvedData[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -58,15 +58,15 @@ export function getPointCloudGeometry(view){
 		temp_num_points  =  points_in_block[k];
 		if (temp_num_points > 0){
 
-			var x_start = view.data[k]['xPlot'];
-			var y_start = view.data[k]['yPlot'];
-			var z_start = view.data[k]['zPlot'];
+			var x_start = view.systemSpatiallyResolvedData[k]['xPlot'];
+			var y_start = view.systemSpatiallyResolvedData[k]['yPlot'];
+			var z_start = view.systemSpatiallyResolvedData[k]['zPlot'];
 			var x_end = x_start + 1;
 			var y_end = y_start + 1;
 			var z_end = z_start + 1;
-			/*var x_start = view.data[k]['xPlot']-0.5;
-			var y_start = view.data[k]['yPlot']-0.5;
-			var z_start = view.data[k]['zPlot']-0.5;
+			/*var x_start = view.systemSpatiallyResolvedData[k]['xPlot']-0.5;
+			var y_start = view.systemSpatiallyResolvedData[k]['yPlot']-0.5;
+			var z_start = view.systemSpatiallyResolvedData[k]['zPlot']-0.5;
 			var x_end = x_start + 0.5;
 			var y_end = y_start + 0.5;
 			var z_end = z_start + 0.5;*/
@@ -81,7 +81,7 @@ export function getPointCloudGeometry(view){
 				positions[ i3 + 1 ] = y*10;
 				positions[ i3 + 2 ] = z*10;
 
-				var color = lut.getColor( view.data[k][options.propertyOfInterest] );
+				var color = lut.getColor( view.systemSpatiallyResolvedData[k][options.propertyOfInterest] );
 				
 				colors[ i3 + 0 ] = color.r;
 				colors[ i3 + 1 ] = color.g;
@@ -89,7 +89,7 @@ export function getPointCloudGeometry(view){
 				
 				if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
 					(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
-					(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& view.data[k].selected)
+					(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& view.systemSpatiallyResolvedData[k].selected)
 					{
 						alphas[ i ] = options.pointCloudAlpha;
 						//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
@@ -293,7 +293,7 @@ export function updatePointCloudGeometry(view){
 
 
 	var particles = options.pointCloudParticles;
-	var num_blocks = view.data.length;
+	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
 	var count = view.System.geometry.attributes.size.array.length;
 
@@ -316,7 +316,7 @@ export function updatePointCloudGeometry(view){
 		var z = positionArray[ i3 + 2 ]/10;
 		var k = parentBlock[i];
 
-		var color = lut.getColor( view.data[k][options.propertyOfInterest] );
+		var color = lut.getColor( view.systemSpatiallyResolvedData[k][options.propertyOfInterest] );
 				
 		colors[ i3 + 0 ] = color.r;
 		colors[ i3 + 1 ] = color.g;
@@ -324,7 +324,7 @@ export function updatePointCloudGeometry(view){
 		
 		if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
 				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.data[k].selected)
+				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.systemSpatiallyResolvedData[k].selected)
 		{
 			alphas[ i ] = options.pointCloudAlpha;
 			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
@@ -360,7 +360,7 @@ export function animatePointCloudGeometry(view){
 
 
 	var particles = options.pointCloudParticles;
-	var num_blocks = view.data.length;
+	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
 	var count = view.System.geometry.attributes.size.array.length;
 
@@ -376,7 +376,7 @@ export function animatePointCloudGeometry(view){
 		
 		if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
 				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.data[k].selected)
+				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.systemSpatiallyResolvedData[k].selected)
 		{
 			var temp = sizeArray[i]-0.1;
 			if (temp >= 0.0) {sizeArray[i] = temp;}

@@ -34,8 +34,86 @@ export function readCSV(view,plotData,callback){
 }
 
 
+export function processSpatiallyResolvedData(view,plotData,plotSetup,callback){
+	view.systemSpatiallyResolvedData = [];
+	console.log('started processing data');
+	var d = view.spatiallyResolvedData.data;
+	var propertyList = plotSetup.spatiallyResolvedPropertyList;
+	var density = plotSetup.pointcloudDensity;
+	var densityCutoff = plotSetup.densityCutoff;
+	var systemName = view.moleculeName;
+
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	var zPlotScale = view.zPlotScale;
+	d.forEach(function (d,i) {
+		var n = +d[density];
+		if (n >densityCutoff){
+			var temp = {
+					x:+d.x,
+					y:+d.y,
+					z:+d.z,
+					xPlot: xPlotScale(+d.x),
+					yPlot: yPlotScale(+d.y),
+					zPlot: zPlotScale(+d.z),
+					selected: true,
+					name: systemName
+				}
+			for (var i = 0; i < propertyList.length; i++) {
+			    temp[propertyList[i]] = +d[propertyList[i]];
+			}
+
+
+			view.data.push(temp);
+			plotData.push(temp);
+		}
+	})
+	console.log('end processing data')
+	callback(null);
+}
+
+export function processMoleculeData(view,overallMoleculeData,plotSetup,callback){
+	view.systemMoleculeData = [];
+	console.log('started processing molecule data')
+	var d = view.moleculeData.data;
+	var propertyList = plotSetup.moleculePropertyList;
+	var systemName = view.moleculeName;
+
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	var zPlotScale = view.zPlotScale;
+
+	
+	d.forEach(function (d,i) {
+
+		var temp = {
+					atom:d.atom,
+					x:+d.x,
+					y:+d.y,
+					z:+d.z,
+					xPlot: xPlotScale(+d.x),
+					yPlot: yPlotScale(+d.y),
+					zPlot: zPlotScale(+d.z),
+					selected: true,
+					name: systemName
+				};
+
+		for (var i = 0; i < propertyList.length; i++) {
+				if (propertyList[i] != "atom"){
+			    	temp[propertyList[i]] = +d[propertyList[i]];
+				}
+			}
+
+		view.systemMoleculeData.push(temp);
+		overallMoleculeData.push(temp);
+
+	})
+	console.log('end processing molecule data')
+	callback(null);
+}
+
 export function readCSVSpatiallyResolvedData(view,plotData,plotSetup,callback){
-	view.data = [];
+	view.systemSpatiallyResolvedData = [];
 
 	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
 		console.log('no spatially resolved data loaded')
@@ -83,7 +161,7 @@ export function readCSVSpatiallyResolvedData(view,plotData,plotSetup,callback){
 					}
 
 
-					view.data.push(temp);
+					view.systemSpatiallyResolvedData.push(temp);
 					plotData.push(temp);
 				}
 			})

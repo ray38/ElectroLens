@@ -1,7 +1,7 @@
 import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, updatePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "./PointCloud_selection.js";
 import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, addMoleculePeriodicReplicates, removeMoleculePeriodicReplicates, changeMoleculePeriodicReplicates} from "./MoleculeView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
-import {calcDefaultColorScales, adjustColorScaleAccordingToDefaultSpatiallyResolvedData} from "../Utilities/colorScale.js";
+import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
 export function setupOptionBox3DView(view,plotSetup){
 
@@ -148,6 +148,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Color Basis' )
 		.onChange( function( value ) {
 			//adjustColorScaleAccordingToDefault(view);
+			adjustScaleAccordingToDefaultMoleculeData(view);
 			changeMoleculeGeometry(view);
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			gui.updateDisplay();
@@ -170,6 +171,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Size Basis' )
 		.onChange( function( value ) {
 			//adjustColorScaleAccordingToDefault(view);
+			adjustScaleAccordingToDefaultMoleculeData(view);
 			changeMoleculeGeometry(view);
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			gui.updateDisplay();
@@ -261,14 +263,14 @@ export function setupOptionBox3DView(view,plotSetup){
 			updatePointCloudGeometry(view);
 			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
 		});
-		pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.1 )
+		pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Min' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
 			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 		});
-		pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.1 )
+		pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);

@@ -122,7 +122,7 @@ export function arrangeDataToHeatmap(view){
 		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
 		var XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
 
-		var Data = view.spatiallyResolvedData;
+		var Data = view.overallSpatiallyResolvedData;
 	}
 
 	if (options.plotData == 'moleculeData'){

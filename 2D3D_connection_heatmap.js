@@ -7,7 +7,7 @@ import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometr
 import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip} from "./3DViews/tooltip.js";
-import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
@@ -25,39 +25,55 @@ import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
 import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
 
-import {calcDefaultColorScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData} from "./Utilities/colorScale.js";
+import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "./Utilities/scale.js";
 
-console.log('starting');
-var uploader = document.getElementById("uploader");
-console.log(uploader);
-var uploader_wrapper = document.getElementById("uploader_wrapper");
+if(typeof data !== 'undefined'){
+	console.log(data);
+    handleViewSetup(data);
+}
+else{
+	if (document.getElementById("uploader_wrapper") != null){
+		console.log('starting');
+		var uploader = document.getElementById("uploader");
+		console.log(uploader);
+		var uploader_wrapper = document.getElementById("uploader_wrapper");
 
-uploader.addEventListener("change", handleFiles, false);
-
+		uploader.addEventListener("change", handleFiles, false);
+	}
+	else{
+		console.log("error");
+	}
+}
 function handleFiles() {
-    var file = this.files[0];
-    console.log(file);
-    console.log(this);
-    $.ajax({
-    	url: file.path,
-    	dataType: 'json',
-    	type: 'get',
-    	cache: false,
-    	success: function(data) {
-    		var views = data.views;
-    		var plotSetup = data.plotSetup;
-    		uploader.parentNode.removeChild(uploader);
-    		uploader_wrapper.parentNode.removeChild(uploader_wrapper);
-    		initializeViewSetups(views,plotSetup);
-    		main(views,plotSetup);
-    	},
-    	error: function(requestObject, error, errorThrown) {
-            alert(error);
-            alert(errorThrown);
-        }
-    })
+
+	var file = this.files[0];
+	console.log(file);
+	console.log(this);
+	$.ajax({
+		url: file.path,
+		dataType: 'json',
+		type: 'get',
+		cache: false,
+		success: function(data) {
+			uploader.parentNode.removeChild(uploader);
+			uploader_wrapper.parentNode.removeChild(uploader_wrapper);
+			handleViewSetup(data);
+		},
+		error: function(requestObject, error, errorThrown) {
+	        alert(error);
+	        alert(errorThrown);
+	    }
+	})
 }
 
+
+function handleViewSetup(data){
+	var views = data.views;
+	var plotSetup = data.plotSetup;
+	initializeViewSetups(views,plotSetup);
+	main(views,plotSetup);
+
+}
 
 function main(views,plotSetup) {
 
@@ -77,17 +93,22 @@ function main(views,plotSetup) {
 
 	//initializeViewSetups(views,plotSetup);
 
-	var spatiallyResolvedData = [];
+	var overallSpatiallyResolvedData = [];
 	var overallMoleculeData = [];
 	var queue=d3.queue();
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '3DView'){
-			//queue.defer(readCSV,view,spatiallyResolvedData);
-			queue.defer(readCSVSpatiallyResolvedData,view,spatiallyResolvedData,plotSetup);
-			queue.defer(readCSVMoleculeData,view,overallMoleculeData,plotSetup);
-			//queue.defer(readCSVPapaparse,view,spatiallyResolvedData,plotSetup);
+
+			queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+			if(view.moleculeData.data != null){
+				queue.defer(processMoleculeData,view,overallMoleculeData,plotSetup);
+			}
+			else{
+				queue.defer(readCSVMoleculeData,view,overallMoleculeData,plotSetup);
+			}
+			
 		}			
 	}
 
@@ -107,15 +128,19 @@ function main(views,plotSetup) {
 		renderer.autoClear = false;
 		container.appendChild( renderer.domElement );
 
-		if (spatiallyResolvedData.length > 0){
-			var defaultColorScalesSpatiallyResolvedData = calcDefaultColorScalesSpatiallyResolvedData(plotSetup,spatiallyResolvedData);
+		if (overallSpatiallyResolvedData.length > 0){
+			var defaultScalesSpatiallyResolvedData = calcDefaultScalesSpatiallyResolvedData(plotSetup,overallSpatiallyResolvedData);
+		}
+
+		if (overallMoleculeData.length > 0){
+			var defaultScalesMoleculeData = calcDefaultScalesMoleculeData(plotSetup,overallMoleculeData);
 		}
 		
 
 		for (var ii =  0; ii < views.length; ++ii ) {
 			var view = views[ii];
 
-			view.spatiallyResolvedData = spatiallyResolvedData;
+			view.overallSpatiallyResolvedData = overallSpatiallyResolvedData;
 			view.overallMoleculeData = overallMoleculeData;
 
 			setupViewCameraSceneController(view,renderer);
@@ -128,21 +153,24 @@ function main(views,plotSetup) {
 				view.controller.autoRotate = false;
 								
 
-				if (view.data != null && view.data.length > 0){
+				if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0){
 					view.systemSpatiallyResolvedDataBoolean = true;
-					view.defaultColorScalesSpatiallyResolvedData = defaultColorScalesSpatiallyResolvedData;
+					view.defaultScalesSpatiallyResolvedData = defaultScalesSpatiallyResolvedData;
 					adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
 					getPointCloudGeometry(view);
 					insertLegend(view);
 				}
 				if (view.systemMoleculeData != null && view.systemMoleculeData.length > 0){
 					view.systemMoleculeDataBoolean = true;
+					view.defaultScalesMoleculeData = defaultScalesMoleculeData;
+					adjustScaleAccordingToDefaultMoleculeData(view);
 					getMoleculeGeometry(view);
+					initialize3DViewTooltip(view);
 				}
 				//if ("coordinates" in view) {
 				//	getMoleculeGeometry(view);
 				//}
-				initialize3DViewTooltip(view);
+				
 
 				addSystemEdge(view);
 				setupOptionBox3DView(view,plotSetup);
@@ -152,7 +180,7 @@ function main(views,plotSetup) {
 
 				view.controller.enableRotate=false;
 
-				if (spatiallyResolvedData.length > 0){
+				if (overallSpatiallyResolvedData.length > 0){
 					view.overallSpatiallyResolvedDataBoolean = true;
 				}
 				if (overallMoleculeData.length > 0){
@@ -264,11 +292,11 @@ function main(views,plotSetup) {
 			initialize2DHeatmapSetup(temp_view,views,plotSetup);
 			calculateViewportSizes(views);
 
-			temp_view.spatiallyResolvedData = spatiallyResolvedData;
+			temp_view.overallSpatiallyResolvedData = overallSpatiallyResolvedData;
 			temp_view.overallMoleculeData = overallMoleculeData;
 			//console.log(temp_view.spatiallyResolvedData);
 			//console.log(temp_view.overallMoleculeData);
-			if (spatiallyResolvedData.length > 0){
+			if (overallSpatiallyResolvedData.length > 0){
 				temp_view.overallSpatiallyResolvedDataBoolean = true;
 			}
 			if (overallMoleculeData.length > 0){
@@ -334,7 +362,7 @@ function main(views,plotSetup) {
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
 				if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
-				if (view.viewType == "3DView"){update3DViewTooltip(view);}
+				if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
 	}

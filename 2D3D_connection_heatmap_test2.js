@@ -44,6 +44,7 @@ var _MultiviewControlColorLegendJs = require("./MultiviewControl/colorLegend.js"
 
 var _UtilitiesScaleJs = require("./Utilities/scale.js");
 
+
 if (typeof data !== 'undefined') {
 	console.log(data);
 	handleViewSetup(data);
@@ -114,13 +115,8 @@ function main(views, plotSetup) {
 	for (var ii = 0; ii < views.length; ++ii) {
 		var view = views[ii];
 		if (view.viewType == '3DView') {
-
 			queue.defer(_UtilitiesReadDataFileJs.readCSVSpatiallyResolvedData, view, overallSpatiallyResolvedData, plotSetup);
-			if (view.moleculeData.data != null) {
-				queue.defer(_UtilitiesReadDataFileJs.processMoleculeData, view, overallMoleculeData, plotSetup);
-			} else {
-				queue.defer(_UtilitiesReadDataFileJs.readCSVMoleculeData, view, overallMoleculeData, plotSetup);
-			}
+			queue.defer(_UtilitiesReadDataFileJs.readCSVMoleculeData, view, overallMoleculeData, plotSetup);
 		}
 	}
 
@@ -138,7 +134,6 @@ function main(views, plotSetup) {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
 		renderer.autoClear = false;
-		console.log(container);
 		container.appendChild(renderer.domElement);
 
 		if (overallSpatiallyResolvedData.length > 0) {
@@ -3780,7 +3775,6 @@ function readCSV(view, plotData, callback) {
 }
 
 function processSpatiallyResolvedData(view, plotData, plotSetup, callback) {
-	view.systemSpatiallyResolvedData = [];
 	console.log('started processing data');
 	var d = view.spatiallyResolvedData.data;
 	var propertyList = plotSetup.spatiallyResolvedPropertyList;
@@ -3817,9 +3811,9 @@ function processSpatiallyResolvedData(view, plotData, plotSetup, callback) {
 }
 
 function processMoleculeData(view, overallMoleculeData, plotSetup, callback) {
-	view.systemMoleculeData = [];
 	console.log('started processing molecule data');
 	var d = view.moleculeData.data;
+	console.log(filename);
 	var propertyList = plotSetup.moleculePropertyList;
 	var systemName = view.moleculeName;
 
@@ -4313,5 +4307,4 @@ function adjustScaleAccordingToDefaultMoleculeData(view) {
 	}
 }
 
-},{}]},{},[1]);
-}
+},{}]},{},[1]);}
