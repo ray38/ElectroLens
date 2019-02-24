@@ -64,7 +64,7 @@ export function processSpatiallyResolvedData(view,plotData,plotSetup,callback){
 			}
 
 
-			view.data.push(temp);
+			view.systemSpatiallyResolvedData.push(temp);
 			plotData.push(temp);
 		}
 	})
@@ -253,15 +253,15 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 
 }
 
-export function readCSVPapaparse(view,plotData,plotSetup,callback){
-	console.log('started using papa')
-	var filename = view.dataFilename;
-	var propertyList = plotSetup.propertyList;
-	var density = plotSetup.pointcloudDensity;
-	var densityCutoff = plotSetup.densityCutoff;
-	var systemName = view.moleculeName;
-	console.log(density,densityCutoff,propertyList)
-	view.data = [];
+//export function readCSVPapaparse(view,plotData,plotSetup,callback){
+//	console.log('started using papa')
+//	var filename = view.dataFilename;
+//	var propertyList = plotSetup.propertyList;
+//	var density = plotSetup.pointcloudDensity;
+//	var densityCutoff = plotSetup.densityCutoff;
+//	var systemName = view.moleculeName;
+//	console.log(density,densityCutoff,propertyList)
+//	view.data = [];
 	/*Papa.parse(filename, {
 		complete: function(results) {
 			console.log('successfully used papa')
@@ -269,26 +269,26 @@ export function readCSVPapaparse(view,plotData,plotSetup,callback){
 			callback(null);
 		}
 	});*/
-	$.ajax({
-    	url: filename,
-    	//dataType: 'json',
-    	type: 'get',
-    	cache: false,
-    	success: function(data) {
-    		console.log('loading setup');
-    		Papa.parse(data, {
-				complete: function(results) {
-					console.log('successfully used papa')
-					console.log(results);
-					callback(null);
-				}
-			});
-    	},
-    	error: function(requestObject, error, errorThrown) {
-            alert(error);
-            alert(errorThrown);
-        }
-    })
+//	$.ajax({
+//    	url: filename,
+//    	//dataType: 'json',
+//    	type: 'get',
+//    	cache: false,
+//    	success: function(data) {
+//    		console.log('loading setup');
+//    		Papa.parse(data, {
+//				complete: function(results) {
+//					console.log('successfully used papa')
+//					console.log(results);
+//					callback(null);
+//				}
+//			});
+//    	},
+//    	error: function(requestObject, error, errorThrown) {
+//            alert(error);
+//            alert(errorThrown);
+//        }
+//    })
 	/*d3.csv(filename, function (d) {
 		d.forEach(function (d,i) {
 			var n = +d[density];
@@ -310,7 +310,7 @@ export function readCSVPapaparse(view,plotData,plotSetup,callback){
 	callback(null);
 	});*/
 
-}
+//}
 
 function getCoordinateScales(data){
 	var xValue = function(d) {return d.x;}

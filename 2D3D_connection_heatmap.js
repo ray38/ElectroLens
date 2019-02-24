@@ -99,10 +99,29 @@ function main(views,plotSetup) {
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
+		
+		if (plotSetup.frameProperty != null){
+			console.log("use MD mode");
+			view.frameBool = true;
+			view.frameProperty = plotSetup.frameProperty;
+		}
+		else{
+			console.log("use normal mode");
+			view.frameBool = false;
+		}
+		
 		if (view.viewType == '3DView'){
 
-			queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
-			if(view.moleculeData.data != null){
+			//queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+
+			if(view.spatiallyResolvedData != null && view.spatiallyResolvedData.data != null){
+				queue.defer(processSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+			}
+			else{
+				queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+			}
+
+			if(view.moleculeData != null && view.moleculeData.data != null){
 				queue.defer(processMoleculeData,view,overallMoleculeData,plotSetup);
 			}
 			else{
@@ -142,6 +161,33 @@ function main(views,plotSetup) {
 
 			view.overallSpatiallyResolvedData = overallSpatiallyResolvedData;
 			view.overallMoleculeData = overallMoleculeData;
+
+			if (view.frameBool){
+				if ( view.systemMoleculeData != null && view.systemMoleculeData.length > 0){
+					var frameValue = function(d) {return d[view.frameProperty];}
+					view.frameMin = d3.min(view.systemMoleculeData,frameValue);
+					view.frameMax = d3.max(view.systemMoleculeData,frameValue);
+					view.options.currentFrame = view.frameMin;
+					console.log("starting frame, from molecule data ",view.options.currentFrame);
+				}
+				else{
+					if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0){
+						var frameValue = function(d) {return d[view.frameProperty];}
+						view.frameMin = d3.min(view.systemSpatiallyResolvedData,frameValue);
+						view.frameMax = d3.max(view.systemSpatiallyResolvedData,frameValue);
+						view.options.currentFrame = view.frameMin;
+						console.log(view.systemSpatiallyResolvedData)
+						console.log(d3.min(view.systemSpatiallyResolvedData,frameValue))
+						console.log("starting frame, from sp data ",view.options.currentFrame);
+					}
+					else{
+						alert("error when calculating frame min and max, double check your input")
+					}
+				}
+
+			}
+
+
 
 			setupViewCameraSceneController(view,renderer);
 			addOptionBox(view);

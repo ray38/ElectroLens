@@ -84,6 +84,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.pointCloudAlpha = 1;
 			this.pointCloudSize = 5;
 			this.animate = false;
+			this.currentFrame = 1;
 			this.xPBC = 1;
 			this.yPBC = 1;
 			this.zPBC = 1;
@@ -160,6 +161,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.moleculeSizeCodeBasis = "atom";
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
+			this.atomModelSegments = 12;
+			this.bondModelSegments = 12;
 
 
 			this.saveSystemMoleculeData = function(){saveSystemMoleculeData(viewSetup,plotSetup)};

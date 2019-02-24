@@ -88,6 +88,22 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ) {
 		view.controller.autoRotate = value;
 	});
+	if (view.frameBool){
+		viewFolder.add( options, 'currentFrame', view.frameMin, view.frameMax).step(1)
+		.name('Current Frame')
+		.onChange( function( value ) {
+			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){
+				updatePointCloudGeometry(view);
+				if (options.PBCBoolean == true) {updatePointCloudPeriodicReplicates(view);}
+				
+			}
+			if (options.showMolecule && view.systemMoleculeDataBoolean){
+				changeMoleculeGeometry(view);
+				if (options.PBCBoolean == true) {changeMoleculePeriodicReplicates(view);}
+				
+			}
+		});
+	}
 
 	viewFolder.open();
 
@@ -194,6 +210,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Atom Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			changeMoleculePeriodicReplicates(view);
 		});
 		moleculeFolder.add( options, 'bondSize', 0.1, 5 ).step( 0.1 )
 		.name( 'Bond Size' )
