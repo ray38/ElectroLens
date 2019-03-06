@@ -36,26 +36,6 @@ export function update3DViewTooltip(view){
 		view.tooltip.style.top = event.clientY + 5  + 'px';
 		view.tooltip.style.left = event.clientX + 5  + 'px';
 
-		//var interesctIndex = intersects[ 0 ].index;
-		/*view.tooltip.innerHTML = 	"x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
-									"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
-									"# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;*/
-
-		/*view.System.geometry.attributes.size.array[ interesctIndex ]  = 2 * view.options.pointCloudSize;
-		view.System.geometry.attributes.size.needsUpdate = true;
-
-
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-			view.System.geometry.attributes.size.needsUpdate = true;
-			view.INTERSECTED = intersects[ 0 ].index;
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 2 * view.options.pointCloudSize;
-			view.System.geometry.attributes.size.needsUpdate = true;
-		}*/
-
-		//var interesctAtom = intersects[ 0 ].object;
-		//console.log(interesctAtom);
-
 		var data = view.systemMoleculeData[ intersects[ 0 ].object.dataIndex ];
 
 		var tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
