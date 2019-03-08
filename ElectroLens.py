@@ -25,8 +25,11 @@ def view(data):
         os.chdir("ElectroLens-python")
     except:
         pass
+    browser_setting = { "file_access_from_file_urls_allowed":True,\
+                    "universal_access_from_file_urls_allowed": True,\
+                    "web_security_disabled":True}
     browser = cef.CreateBrowserSync(url='file://' + os.path.realpath("index_cefpython.html"),
-                                    window_title="Javascript Bindings")
+                                    window_title="Javascript Bindings", settings = browser_setting)
     os.chdir(cwd)
     browser.SetClientHandler(LoadHandler(config))
     bindings = cef.JavascriptBindings()

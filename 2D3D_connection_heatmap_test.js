@@ -2870,14 +2870,12 @@ function addPointCloudPeriodicReplicates(view) {
 	var periodicReplicateSystemGroup = new THREE.Group();
 
 	console.log('create replicates');
-	console.log(replicatePositions instanceof Float32Array);
-	console.log(positions instanceof Float32Array);
 
 	for (var i = x_start; i < x_end; i++) {
 		for (var j = y_start; j < y_end; j++) {
 			for (var k = z_start; k < z_end; k++) {
 				if ((i == 0 && j == 0 && k == 0) == false) {
-					var tempSystemReplica = System.clone();
+					var tempSystemReplica = system.clone();
 					tempSystemReplica.position.set(i * xStep, j * yStep, k * zStep);
 					periodicReplicateSystemGroup.add(tempSystemReplica);
 				}
