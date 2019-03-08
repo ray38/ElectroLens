@@ -176,8 +176,6 @@ function main(views,plotSetup) {
 						view.frameMin = d3.min(view.systemSpatiallyResolvedData,frameValue);
 						view.frameMax = d3.max(view.systemSpatiallyResolvedData,frameValue);
 						view.options.currentFrame = view.frameMin;
-						console.log(view.systemSpatiallyResolvedData)
-						console.log(d3.min(view.systemSpatiallyResolvedData,frameValue))
 						console.log("starting frame, from sp data ",view.options.currentFrame);
 					}
 					else{

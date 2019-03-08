@@ -91,7 +91,9 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 	view.systemMoleculeDataFramed = {};
 	console.log('started processing molecule data')
 	if (view.frameBool && !(plotSetup.moleculePropertyList.includes(plotSetup.frameProperty))){
-
+		console.log(moleculePropertyList);
+		console.log(plotSetup.frameProperty);
+		console.log((plotSetup.moleculePropertyList.includes(plotSetup.frameProperty)));
 		alert("The frame property Not in moleculePropertyList");
 	}
 	var d = view.moleculeData.data;

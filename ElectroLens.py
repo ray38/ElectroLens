@@ -17,7 +17,7 @@ def view(data):
         config = trajToConfig(data)
     else:
         config = data
-    with open('temp_data2.json', 'w') as fp:
+    with open('temp_data3.json', 'w') as fp:
         json.dump(config , fp)
     cef.Initialize()
     cwd = os.getcwd()
@@ -95,7 +95,7 @@ def trajToConfig(a):
     temp["systemDimension"] = systemDimension
     config["views"].append(temp)
     config["plotSetup"] = {}
-    config["plotSetup"]["frameProperty"] = "frame",
+    config["plotSetup"]["frameProperty"] = "frame"
     config["plotSetup"]["moleculePropertyList"] = ["atom","frame"]
     return config
 

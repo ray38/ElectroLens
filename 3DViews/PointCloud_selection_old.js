@@ -23,8 +23,7 @@ export function getPointCloudGeometry(view){
 
 	var options = view.options;
 	var scene = view.scene;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+	
 
 	var particles = options.pointCloudParticles;
 	var num_blocks = view.systemSpatiallyResolvedData.length;
@@ -33,7 +32,7 @@ export function getPointCloudGeometry(view){
 	var count = 0;
 
 	for ( var k = 0; k < num_blocks; k ++) {
-		var num_points  = Math.min(Math.floor((spatiallyResolvedData[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
+		var num_points  = Math.min(Math.floor((view.systemSpatiallyResolvedData[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -61,9 +60,9 @@ export function getPointCloudGeometry(view){
 		temp_num_points  =  points_in_block[k];
 		if (temp_num_points > 0){
 
-			var x_start = spatiallyResolvedData[k]['xPlot'];
-			var y_start = spatiallyResolvedData[k]['yPlot'];
-			var z_start = spatiallyResolvedData[k]['zPlot'];
+			var x_start = view.systemSpatiallyResolvedData[k]['xPlot'];
+			var y_start = view.systemSpatiallyResolvedData[k]['yPlot'];
+			var z_start = view.systemSpatiallyResolvedData[k]['zPlot'];
 			var x_end = x_start + 1;
 			var y_end = y_start + 1;
 			var z_end = z_start + 1;
@@ -84,28 +83,50 @@ export function getPointCloudGeometry(view){
 				positions[ i3 + 1 ] = y*10;
 				positions[ i3 + 2 ] = z*10;
 
-				var color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
+				var color = lut.getColor( view.systemSpatiallyResolvedData[k][options.propertyOfInterest] );
 				
 				colors[ i3 + 0 ] = color.r;
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
-				
-				if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
-					(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
-					(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& spatiallyResolvedData[k].selected)
-					{
-						alphas[ i ] = options.pointCloudAlpha;
-						//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
-						if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
-						else { sizes[ i ] = options.pointCloudSize; }
-						
-					}
-				else {
-					alphas[ i ] = 0;
-					sizes[ i ] = 0;
-				}
 
-				parentBlock[i] = k;
+				if (view.frameBool){
+					if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
+						(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
+						(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& 
+						view.systemSpatiallyResolvedData[k].selected && view.systemSpatiallyResolvedData[k][view.frameProperty] == options.currentFrame)
+						{
+							alphas[ i ] = options.pointCloudAlpha;
+							//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
+							if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
+							else { sizes[ i ] = options.pointCloudSize; }
+							
+						}
+					else {
+						alphas[ i ] = 0;
+						sizes[ i ] = 0;
+					}
+
+					parentBlock[i] = k;
+				}
+				else{
+				
+					if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
+						(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
+						(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& view.systemSpatiallyResolvedData[k].selected)
+						{
+							alphas[ i ] = options.pointCloudAlpha;
+							//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
+							if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
+							else { sizes[ i ] = options.pointCloudSize; }
+							
+						}
+					else {
+						alphas[ i ] = 0;
+						sizes[ i ] = 0;
+					}
+
+					parentBlock[i] = k;
+				}
 				
 				i++;
 				i3+=3;
@@ -183,12 +204,15 @@ export function addPointCloudPeriodicReplicates(view){
 
 	var options = view.options;
 	var scene = view.scene;
-	var system = view.System;
-
+	var positions = view.System.geometry.attributes.position.array;
+	var count = view.System.geometry.attributes.size.array.length;
+	var colors = view.System.geometry.attributes.customColor.array;
+	var sizes = view.System.geometry.attributes.size.array;
+	var alphas = view.System.geometry.attributes.alpha.array;
 	var shaderMaterial = view.System.material;
 
 
-	//var geometry = new THREE.BufferGeometry();
+	var geometry = new THREE.BufferGeometry();
 	var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
 	var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
 	var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
@@ -202,9 +226,10 @@ export function addPointCloudPeriodicReplicates(view){
 	var z_end = ((options.zPBC-1)/2) + 1;
 
 
-	var periodicReplicateSystemGroup = new THREE.Group();
-
-	
+	var replicatePositions = new Float32Array();
+	var replicateColors = new Float32Array();
+	var replicateSizes = new Float32Array();
+	var replicateAlphas = new Float32Array();
 	console.log('create replicates')
 	console.log(replicatePositions instanceof Float32Array)
 	console.log(positions instanceof Float32Array)
@@ -213,20 +238,28 @@ export function addPointCloudPeriodicReplicates(view){
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
 				if (((i == 0) && (j == 0) && (k == 0)) == false) {
-					var tempSystemReplica = System.clone();
-					tempSystemReplica.position.set(i*xStep, j*yStep, k*zStep); 
-					periodicReplicateSystemGroup.add(tempSystemReplica);
+					var tempPositions = getPositionArrayAfterTranslation(positions, count, i*xStep, j*yStep, k*zStep);
+					replicatePositions = replicatePositions.concat(tempPositions);
+					replicateSizes = replicateSizes.concat(sizes);
+					replicateAlphas = replicateAlphas.concat(alphas);
+					replicateColors = replicateColors.concat(colors);
 				}
 			}
 		}
 	}
-	view.periodicReplicateSystems = periodicReplicateSystemGroup;
-	scene.add(periodicReplicateSystemGroup);
 
+	geometry.addAttribute( 'position', new THREE.BufferAttribute( replicatePositions, 3 ) );
+	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( replicateColors, 3 ) );
+	geometry.addAttribute( 'size', new THREE.BufferAttribute( replicateSizes, 1 ) );
+	geometry.addAttribute( 'alpha', new THREE.BufferAttribute( replicateAlphas, 1 ) );
+
+	var System = new THREE.Points( geometry, shaderMaterial );
+	view.periodicReplicateSystems = System;
+	scene.add( System );
 }
 
 export function updatePointCloudPeriodicReplicates(view){
-	/*var replicateSystems = view.periodicReplicateSystems;
+	var replicateSystems = view.periodicReplicateSystems;
 
 	var options = view.options;
 	var scene = view.scene;
@@ -267,10 +300,9 @@ export function updatePointCloudPeriodicReplicates(view){
 
 	view.periodicReplicateSystems.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( replicateColors, 3 ) );
 	view.periodicReplicateSystems.geometry.addAttribute( 'size', new THREE.BufferAttribute( replicateSizes, 1 ) );
-	view.periodicReplicateSystems.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( replicateAlphas, 1 ) );*/
+	view.periodicReplicateSystems.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( replicateAlphas, 1 ) );
 
-	removePointCloudPeriodicReplicates(view);
-	addPointCloudPeriodicReplicates(view);
+
 }
 
 
@@ -281,8 +313,7 @@ export function updatePointCloudGeometry(view){
 	var options = view.options;
 	var positionArray = view.System.geometry.attributes.position.array;
 	var parentBlock = view.System.geometry.parentBlockMap;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+
 
 	var particles = options.pointCloudParticles;
 	var num_blocks = view.systemSpatiallyResolvedData.length;
@@ -308,26 +339,44 @@ export function updatePointCloudGeometry(view){
 		var z = positionArray[ i3 + 2 ]/10;
 		var k = parentBlock[i];
 
-		var color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
+		var color = lut.getColor( view.systemSpatiallyResolvedData[k][options.propertyOfInterest] );
 				
 		colors[ i3 + 0 ] = color.r;
 		colors[ i3 + 1 ] = color.g;
 		colors[ i3 + 2 ] = color.b;
 
-		
-		
-		if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	spatiallyResolvedData[k].selected)
-		{
-			alphas[ i ] = options.pointCloudAlpha;
+		if (view.frameBool){
+			if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
+					(y >= options.y_low) 	&& (y <= options.y_high)	&&
+					(z >= options.z_low) 	&& (z <= options.z_high)	&&  
+				view.systemSpatiallyResolvedData[k].selected && view.systemSpatiallyResolvedData[k][view.frameProperty] == options.currentFrame)
+			{
+				alphas[ i ] = options.pointCloudAlpha;
 			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
-			if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
-			else { sizes[ i ] = options.pointCloudSize; }
+				if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
+				else { sizes[ i ] = options.pointCloudSize; }
+				
+			}
+			else {
+				alphas[ i ] = 0;
+				sizes[ i ] = 0;
+			}
 		}
-		else {
-			alphas[ i ] = 0;
-			sizes[ i ] = 0;
+		else{
+		
+			if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
+					(y >= options.y_low) 	&& (y <= options.y_high)	&&
+					(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.systemSpatiallyResolvedData[k].selected)
+			{
+				alphas[ i ] = options.pointCloudAlpha;
+				//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
+				if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
+				else { sizes[ i ] = options.pointCloudSize; }
+			}
+			else {
+				alphas[ i ] = 0;
+				sizes[ i ] = 0;
+			}
 		}
 		i3 += 3;
 
@@ -348,9 +397,6 @@ export function animatePointCloudGeometry(view){
 	//console.log('updated')
 
 	var options = view.options;
-
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 	var positionArray = view.System.geometry.attributes.position.array;
 	var sizeArray = view.System.geometry.attributes.size.array;
 	var parentBlock = view.System.geometry.parentBlockMap;
@@ -370,23 +416,41 @@ export function animatePointCloudGeometry(view){
 		var y = positionArray[ i3 + 1 ]/10;
 		var z = positionArray[ i3 + 2 ]/10;
 		var k = parentBlock[i];
-	
-		if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	spatiallyResolvedData[k].selected)
-		{
-			var temp = sizeArray[i]-0.1;
-			if (temp >= 0.0) {sizeArray[i] = temp;}
-			else {sizeArray[i] = options.pointCloudSize;}
+
+		if (view.frameBool){
+			if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
+				(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
+				(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& 
+				view.systemSpatiallyResolvedData[k].selected && view.systemSpatiallyResolvedData[k][view.frameProperty] == options.currentFrame)
+			{
+				var temp = sizeArray[i]-0.1;
+				if (temp >= 0.0) {sizeArray[i] = temp;}
+				else {sizeArray[i] = options.pointCloudSize;}
+			}
+			else {
+				sizes[ i ] = 0;
+			}
+
+			parentBlock[i] = k;
 		}
-		else {
-			sizes[ i ] = 0;
+		else{
+		
+			if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
+					(y >= options.y_low) 	&& (y <= options.y_high)	&&
+					(z >= options.z_low) 	&& (z <= options.z_high)	&& 	view.systemSpatiallyResolvedData[k].selected)
+			{
+				var temp = sizeArray[i]-0.1;
+				if (temp >= 0.0) {sizeArray[i] = temp;}
+				else {sizeArray[i] = options.pointCloudSize;}
+			}
+			else {
+				sizes[ i ] = 0;
+			}
+
 		}
+		i3 += 3;
 
 	}
-	i3 += 3;
-
-	
 }
 
 export function removePointCloudGeometry(view){
