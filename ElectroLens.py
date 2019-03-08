@@ -17,7 +17,7 @@ def view(data):
         config = trajToConfig(data)
     else:
         config = data
-    with open('temp_data.json', 'w') as fp:
+    with open('temp_data2.json', 'w') as fp:
         json.dump(config , fp)
     cef.Initialize()
     cwd = os.getcwd()
@@ -105,35 +105,3 @@ class LoadHandler(object):
         self.config = config
     def OnLoadEnd(self, browser, **_):
         browser.ExecuteFunction("defineData", self.config)
-
-
-if __name__ == '__main__':
-    data = {
-        "views": [
-            {
-                "viewType": "3DView",
-                "moleculeName": "CO2",
-                "moleculeData":{
-                    "data":[
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0,
-                            "atom":"C",
-                            "p1":0,
-                            "p2":1
-                        }
-                    ]
-                },
-                "systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
-            }
-        ],
-
-        "plotSetup" : {
-            "spatiallyResolvedPropertyList": ["rho","Vxc","epxc","gamma","tau","LDA_residual","deriv_1","deriv_2","deriv_3", "ad_0-06","ad_0-10","ad_0-14","PC1","PC2"],
-            "pointcloudDensity": "rho",
-            "densityCutoff": 1e-2,
-            "moleculePropertyList":["p1","p2"]
-        }
-    }
-    view(data)

@@ -76,7 +76,7 @@ function handleViewSetup(data){
 }
 
 function main(views,plotSetup) {
-
+	console.log(plotSetup);
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 	var container, stats, renderer;
 	//var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
@@ -99,7 +99,7 @@ function main(views,plotSetup) {
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
-		
+
 		if (plotSetup.frameProperty != null){
 			console.log("use MD mode");
 			view.frameBool = true;
@@ -108,6 +108,7 @@ function main(views,plotSetup) {
 		else{
 			console.log("use normal mode");
 			view.frameBool = false;
+			view.frameProperty = "__frame__";
 		}
 		
 		if (view.viewType == '3DView'){
@@ -126,8 +127,7 @@ function main(views,plotSetup) {
 			}
 			else{
 				queue.defer(readCSVMoleculeData,view,overallMoleculeData,plotSetup);
-			}
-			
+			}	
 		}			
 	}
 
@@ -211,7 +211,7 @@ function main(views,plotSetup) {
 					view.defaultScalesMoleculeData = defaultScalesMoleculeData;
 					adjustScaleAccordingToDefaultMoleculeData(view);
 					getMoleculeGeometry(view);
-					initialize3DViewTooltip(view);
+					//initialize3DViewTooltip(view);
 				}
 				//if ("coordinates" in view) {
 				//	getMoleculeGeometry(view);
@@ -408,7 +408,7 @@ function main(views,plotSetup) {
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
 				if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
-				if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
+				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
 	}

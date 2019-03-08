@@ -34,9 +34,12 @@ export function readCSV(view,plotData,callback){
 }
 
 
-export function processSpatiallyResolvedData(view,plotData,plotSetup,callback){
+export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
 	console.log('started processing data');
+	if (view.frameBool && !(plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty))){
+		alert("The frame property Not in spatiallyResolvedPropertyList");
+	}
 	var d = view.spatiallyResolvedData.data;
 	var propertyList = plotSetup.spatiallyResolvedPropertyList;
 	var density = plotSetup.pointcloudDensity;
@@ -63,9 +66,20 @@ export function processSpatiallyResolvedData(view,plotData,plotSetup,callback){
 			    temp[propertyList[i]] = +d[propertyList[i]];
 			}
 
+			if (view.frameBool){
+				var currentFrame = (+d[plotSetup.frameProperty]).toString();
+			}
+			else{
+				temp["__frame__"] = 1;
+				var currentFrame = (1).toString();
+			}
+
+			!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
 
 			view.systemSpatiallyResolvedData.push(temp);
-			plotData.push(temp);
+			view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
+			overallSpatiallyResolvedData.push(temp);
+
 		}
 	})
 	console.log('end processing data')
@@ -74,7 +88,12 @@ export function processSpatiallyResolvedData(view,plotData,plotSetup,callback){
 
 export function processMoleculeData(view,overallMoleculeData,plotSetup,callback){
 	view.systemMoleculeData = [];
+	view.systemMoleculeDataFramed = {};
 	console.log('started processing molecule data')
+	if (view.frameBool && !(plotSetup.moleculePropertyList.includes(plotSetup.frameProperty))){
+
+		alert("The frame property Not in moleculePropertyList");
+	}
 	var d = view.moleculeData.data;
 	var propertyList = plotSetup.moleculePropertyList;
 	var systemName = view.moleculeName;
@@ -104,21 +123,37 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 				}
 			}
 
+		if (view.frameBool){
+			var currentFrame = (+d[plotSetup.frameProperty]).toString();
+		}
+		else{
+			temp["__frame__"] = 1;
+			var currentFrame = (1).toString();
+		}
+
+		!(currentFrame in view.systemMoleculeDataFramed) && (view.systemMoleculeDataFramed[currentFrame] = []);
+
 		view.systemMoleculeData.push(temp);
+		view.systemMoleculeDataFramed[currentFrame].push(temp);
 		overallMoleculeData.push(temp);
 
 	})
-	console.log('end processing molecule data')
+	console.log(view.systemMoleculeDataFramed);
+	console.log('end processing molecule data');
 	callback(null);
 }
 
-export function readCSVSpatiallyResolvedData(view,plotData,plotSetup,callback){
+export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
+	view.systemSpatiallyResolvedDataFramed = {};
 
 	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
 		console.log('no spatially resolved data loaded')
 		callback(null);
 	} else{
+		if (view.frameBool && !(plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty))){
+			alert("The frame property Not in spatiallyResolvedPropertyList");
+		}
 		console.log('started loading')
 		var filename = view.spatiallyResolvedData.dataFilename;
 		console.log(filename)
@@ -160,9 +195,20 @@ export function readCSVSpatiallyResolvedData(view,plotData,plotSetup,callback){
 					    temp[propertyList[i]] = +d[propertyList[i]];
 					}
 
+					if (view.frameBool){
+						var currentFrame = (+d[plotSetup.frameProperty]).toString();
+					}
+					else{
+						temp["__frame__"] = 1;
+						var currentFrame = (1).toString();
+					}
+
+					!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
 
 					view.systemSpatiallyResolvedData.push(temp);
-					plotData.push(temp);
+					view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
+					overallSpatiallyResolvedData.push(temp);
+
 				}
 			})
 			console.log('end parsing')
@@ -177,12 +223,15 @@ export function readCSVSpatiallyResolvedData(view,plotData,plotSetup,callback){
 export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback){
 
 	view.systemMoleculeData = [];
+	view.systemMoleculeDataFramed = {};
 
 	if (view.moleculeData == null || view.moleculeData.dataFilename == null){
 		console.log('no molecule data loaded')
 		callback(null);
 	} else{
-
+		if (view.frameBool && !(plotSetup.moleculePropertyList.includes(plotSetup.frameProperty))){
+			alert("The frame property Not in moleculePropertyList");
+		}
 		console.log('started loading')
 		var filename = view.moleculeData.dataFilename;
 		console.log(filename)
@@ -224,7 +273,18 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 						}
 					}
 
+				if (view.frameBool){
+					var currentFrame = (+d[plotSetup.frameProperty]).toString();
+				}
+				else{
+					temp["__frame__"] = 1;
+					var currentFrame = (1).toString();
+				}
+
+				!(currentFrame in view.systemMoleculeDataFramed) && (view.systemMoleculeDataFramed[currentFrame] = []);
+
 				view.systemMoleculeData.push(temp);
+				view.systemMoleculeDataFramed[currentFrame].push(temp);
 				overallMoleculeData.push(temp);
 
 				/*var n = +d[density];

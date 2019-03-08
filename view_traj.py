@@ -1,7 +1,7 @@
-#from ElectroLens import view
+from ElectroLens import view
 from ase import Atoms
 import sys
-from ase.visualize import view
+#from ase.visualize import view
 from ase.build import bulk
 from ase.build import graphene_nanoribbon
 from ase.build import nanotube
