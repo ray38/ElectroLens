@@ -4,7 +4,7 @@ import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.
 
 import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
-import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
+import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip} from "./3DViews/tooltip.js";
 import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
@@ -458,9 +458,15 @@ function main(views,plotSetup) {
 		for ( var ii = 0; ii < views.length; ++ii ) {
 
 			var view = views[ii];
-			if (view.viewType == '3DView' && view.options.animate ) {
-				animatePointCloudGeometry(view);
-				view.System.geometry.attributes.size.needsUpdate = true;
+			if (view.viewType == '3DView' ) {
+				if (view.options.animate){
+					animatePointCloudGeometry(view);
+					view.System.geometry.attributes.size.needsUpdate = true;
+				}
+				//if (view.systemMoleculeDataBoolean) {
+				//	updateLineBond(view);
+				//}
+				
 			}
 
 
@@ -479,6 +485,7 @@ function main(views,plotSetup) {
 
 			renderer.setViewport( left, top, width, height );
 			renderer.setScissor( left, top, width, height );
+			renderer.clearDepth(); // important for draw fat line
 			renderer.setScissorTest( true );
 			renderer.setClearColor( 0xffffff, 1 ); // border color
 			renderer.clearColor(); // clear color buffer

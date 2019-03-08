@@ -161,8 +161,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.moleculeSizeCodeBasis = "atom";
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
-			this.atomModelSegments = 12;
-			this.bondModelSegments = 12;
+			this.atomModelSegments = 6;
+			this.bondModelSegments = 4;
 
 
 			this.saveSystemMoleculeData = function(){saveSystemMoleculeData(viewSetup,plotSetup)};

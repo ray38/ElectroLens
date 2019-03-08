@@ -20,6 +20,7 @@ function createWindow () {
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
+    //pathname: path.join(__dirname, 'line_test.html'/*'three_2D3D_connection'*/),
     pathname: path.join(__dirname, 'index.html'/*'three_2D3D_connection'*/),
     protocol: 'file:',
     slashes: true

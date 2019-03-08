@@ -5,9 +5,9 @@ inter-process messaging with the use of Javascript Bindings.
 
 from cefpython3 import cefpython as cef
 import os
+import json
 from ase import Atoms
 from ase.io.trajectory import TrajectoryReader
-
 
 def view(data):
     #print type(data)
@@ -17,6 +17,8 @@ def view(data):
         config = trajToConfig(data)
     else:
         config = data
+    with open('temp_data.json', 'w') as fp:
+        json.dump(config , fp)
     cef.Initialize()
     cwd = os.getcwd()
     try:

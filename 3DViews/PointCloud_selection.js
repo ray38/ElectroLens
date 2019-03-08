@@ -1,6 +1,8 @@
+import {uniforms, shaderMaterial} from "./PointCloudMaterials.js";
+
 export function getPointCloudGeometry(view){
 
-	var uniforms = {
+	/*var uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
 		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
@@ -17,7 +19,7 @@ export function getPointCloudGeometry(view){
 		depthTest:      false,
 		transparent:    true
 
-	});
+	});*/
 
 	var options = view.options;
 	var scene = view.scene;
