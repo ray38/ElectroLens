@@ -9,6 +9,9 @@ import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip} from "./3DViews/tooltip.js";
 import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
+import {arrangeMoleculeDataToFrame} from "./Utilities/arrangeData.js";
+
+
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
 
@@ -208,6 +211,7 @@ function main(views,plotSetup) {
 					view.systemMoleculeDataBoolean = true;
 					view.defaultScalesMoleculeData = defaultScalesMoleculeData;
 					adjustScaleAccordingToDefaultMoleculeData(view);
+					arrangeMoleculeDataToFrame(view);
 					getMoleculeGeometry(view);
 					//initialize3DViewTooltip(view);
 				}
@@ -318,9 +322,23 @@ function main(views,plotSetup) {
 			activeView.gui.updateDisplay();
 		}
 		if (e.keyCode == 107) {
+			var temp_view = {"viewType": "2DHeatmap"}
+
+			if (overallSpatiallyResolvedData.length > 0){
+				temp_view["plotXSpatiallyResolvedData"] = plotSetup.spatiallyResolvedPropertyList[0]
+				temp_view["plotYSpatiallyResolvedData"] = plotSetup.spatiallyResolvedPropertyList[0]
+				temp_view["plotXTransformSpatiallyResolvedData"] = "linear"
+				temp_view["plotYTransformSpatiallyResolvedData"] = "linear"
+			}
+			if (overallMoleculeData.length > 0){
+				temp_view["plotXMoleculeData"] = plotSetup.moleculePropertyList[0]
+				temp_view["plotYMoleculeData"] = plotSetup.moleculePropertyList[0]
+				temp_view["plotXTransformMoleculeData"] = "linear"
+				temp_view["plotYTransformMoleculeData"] = "linear"
+			}
 
 			
-			var temp_view = {
+			/*var temp_view = {
 								"viewType": "2DHeatmap",
 								"plotXSpatiallyResolvedData": plotSetup.spatiallyResolvedPropertyList[0],
 								"plotYSpatiallyResolvedData": plotSetup.spatiallyResolvedPropertyList[0],
@@ -331,7 +349,7 @@ function main(views,plotSetup) {
 								"plotYMoleculeData": plotSetup.moleculePropertyList[0],
 								"plotXTransformMoleculeData": "linear",
 								"plotYTransformMoleculeData": "linear"
-							}
+							}*/
 			views.push(temp_view);
 			initialize2DHeatmapSetup(temp_view,views,plotSetup);
 			calculateViewportSizes(views);
@@ -483,7 +501,7 @@ function main(views,plotSetup) {
 
 			renderer.setViewport( left, top, width, height );
 			renderer.setScissor( left, top, width, height );
-			renderer.clearDepth(); // important for draw fat line
+			//renderer.clearDepth(); // important for draw fat line
 			renderer.setScissorTest( true );
 			renderer.setClearColor( 0xffffff, 1 ); // border color
 			renderer.clearColor(); // clear color buffer

@@ -160,6 +160,27 @@ export function setupOptionBox3DView(view,plotSetup){
 
 	if (view.systemMoleculeDataBoolean) {
 
+		moleculeFolder.add( options, 'showAtoms')
+		.name( 'Show Atoms' )
+		.onChange( function( value ) {
+			changeMoleculeGeometry(view);
+			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
+		});
+
+		moleculeFolder.add( options, 'showBonds')
+		.name( 'Show Bonds' )
+		.onChange( function( value ) {
+			changeMoleculeGeometry(view);
+			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
+		});
+
+		moleculeFolder.add( options, 'bondsStyle',{"line":"line", "tube":"tube", "fatline": "fatline"})
+		.name( 'Bond Style' )
+		.onChange( function( value ) {
+			changeMoleculeGeometry(view);
+			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
+		});
+
 		moleculeFolder.add( options, 'moleculeColorCodeBasis', moleculeDataFeatureChoiceObject)
 		.name( 'Color Basis' )
 		.onChange( function( value ) {

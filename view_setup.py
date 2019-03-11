@@ -12,5 +12,5 @@ filename = sys.argv[1]
 
 with open(filename) as f:
     data = json.load(f)
-print(data)
+#print(data)
 view(data)

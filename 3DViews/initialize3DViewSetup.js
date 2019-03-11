@@ -165,6 +165,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.bondModelSegments = 3;
 			this.showAtoms = true;
 			this.showBonds = false;
+			this.bondsStyle = "line";
 
 
 			this.saveSystemMoleculeData = function(){saveSystemMoleculeData(viewSetup,plotSetup)};

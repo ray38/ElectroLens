@@ -113,7 +113,8 @@ export var colorSetup = {
 
 // radious, http://periodictable.com/Properties/A/AtomicRadius.an.html
 export var atomRadius = {
-						"H":  0.53,
+						//"H":  0.53,
+						"H":  0.2,
 						"He": 0.31,
 						"Li": 1.67,
 						"Be": 1.12,

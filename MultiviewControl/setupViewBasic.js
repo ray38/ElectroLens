@@ -1,6 +1,6 @@
 export function setupViewCameraSceneController(view,renderer){
 
-	var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 50000 );
+	var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 35000 );
 	camera.position.fromArray( view.eye );
 	view.camera = camera;
 	var tempController = new THREE.OrbitControls( camera, renderer.domElement );
