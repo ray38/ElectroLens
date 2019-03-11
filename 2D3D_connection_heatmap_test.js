@@ -109,6 +109,30 @@ function main(views, plotSetup) {
 
 	//initializeViewSetups(views,plotSetup);
 
+	var opts = {
+		lines: 13, // The number of lines to draw
+		length: 38, // The length of each line
+		width: 17, // The line thickness
+		radius: 45, // The radius of the inner circle
+		scale: 1, // Scales overall size of the spinner
+		corners: 1, // Corner roundness (0..1)
+		color: '#ffffff', // CSS color or array of colors
+		fadeColor: 'transparent', // CSS color or array of colors
+		speed: 1, // Rounds per second
+		rotate: 0, // The rotation offset
+		animation: 'spinner-line-fade-quick', // The CSS animation name for the lines
+		direction: 1, // 1: clockwise, -1: counterclockwise
+		zIndex: 2e9, // The z-index (defaults to 2000000000)
+		className: 'spinner', // The CSS class to assign to the spinner
+		top: '50%', // Top position relative to parent
+		left: '50%', // Left position relative to parent
+		shadow: '0 0 1px transparent', // Box-shadow for the lines
+		position: 'absolute' // Element positioning
+	};
+
+	var spinnerContainer = document.getElementById("spinner");
+	var spinner = new Spinner(opts).spin(spinnerContainer);
+
 	var overallSpatiallyResolvedData = [];
 	var overallMoleculeData = [];
 	var queue = d3.queue();
@@ -147,6 +171,8 @@ function main(views, plotSetup) {
 	queue.awaitAll(function (error) {
 		if (error) throw error;
 		init();
+		spinner.stop();
+		spinnerContainer.parentNode.removeChild(spinnerContainer);
 		animate();
 	});
 
@@ -218,7 +244,7 @@ function main(views, plotSetup) {
 					view.systemMoleculeDataBoolean = true;
 					view.defaultScalesMoleculeData = defaultScalesMoleculeData;
 					_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
-					_UtilitiesArrangeDataJs.arrangeMoleculeDataToFrame(view);
+					_UtilitiesArrangeDataJs.arrangeMoleculeDataToFrame2(view);
 					_DViewsMoleculeViewJs.getMoleculeGeometry(view);
 					//initialize3DViewTooltip(view);
 				}
@@ -2272,7 +2298,7 @@ function addBonds_backup(view, moleculeData, neighborsData) {
  var basicLineBond = new THREE.LineSegments( basicLineBondGeometry, new THREE.LineBasicMaterial( ) );*/
 
 	var basicLineBondGeometry = new THREE.BufferGeometry();
-	var material = new THREE.LineBasicMaterial({ color: 0xffffff });
+	var material = new THREE.LineBasicMaterial({ color: 0xffffff, vertexColors: THREE.VertexColors });
 	var vertices = [];
 	var indices = [];
 	var indicesColors = [];
@@ -2453,7 +2479,7 @@ function addBonds(view, moleculeData, neighborsData) {
 		material.resolution.set(view.windowWidth, view.windowHeight);
 		var vertices = [];
 		var indices = [];
-		var indicesColors = [];
+		var verticesColors = [];
 		var index_counter = 0;
 
 		for (var i = 0; i < moleculeData.length; i++) {
@@ -2474,7 +2500,7 @@ function addBonds(view, moleculeData, neighborsData) {
 
 						vertices.push(point1, point2);
 						indices.push(index_counter, index_counter + 1);
-						indicesColors.push(_UtilitiesOtherJs.colorToRgb(color), _UtilitiesOtherJs.colorToRgb(color));
+						verticesColors.push(_UtilitiesOtherJs.colorToRgb(color), _UtilitiesOtherJs.colorToRgb(color));
 						index_counter += 2;
 					}
 				}
@@ -2490,15 +2516,15 @@ function addBonds(view, moleculeData, neighborsData) {
 			positions[i * 3 + 1] = vertices[i].y;
 			positions[i * 3 + 2] = vertices[i].z;
 
-			colors[i * 3] = indicesColors[i].r;
-			colors[i * 3 + 1] = indicesColors[i].g;
-			colors[i * 3 + 2] = indicesColors[i].b;
+			colors[i * 3] = verticesColors[i].r;
+			colors[i * 3 + 1] = verticesColors[i].g;
+			colors[i * 3 + 2] = verticesColors[i].b;
 		}
 		basicLineBondGeometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 		basicLineBondGeometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 		basicLineBondGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
 
-		var bonds = new THREE.Line2(basicLineBondGeometry, material);
+		var bonds = new THREE.LineSegments2(basicLineBondGeometry, material);
 	}
 
 	view.molecule.bonds = bonds;
@@ -4464,6 +4490,7 @@ function setupViewCameraSceneController(view, renderer) {
 
 exports.__esModule = true;
 exports.arrangeMoleculeDataToFrame = arrangeMoleculeDataToFrame;
+exports.arrangeMoleculeDataToFrame2 = arrangeMoleculeDataToFrame2;
 
 function arrangeMoleculeDataToFrame(view) {
 	var moleculeDataFramed = view.systemMoleculeDataFramed;
@@ -4504,6 +4531,62 @@ function arrangeMoleculeDataToFrame(view) {
 	}
 
 	//console.log(view.systemMoleculeDataFramedBondsDict)
+}
+
+function arrangeMoleculeDataToFrame2(view) {
+	var moleculeDataFramed = view.systemMoleculeDataFramed;
+	view.systemMoleculeDataFramedBondsDict = {};
+
+	for (var frame in moleculeDataFramed) {
+
+		console.log("arrange frame: ", frame);
+
+		if (moleculeDataFramed.hasOwnProperty(frame)) {
+			var moleculeData = moleculeDataFramed[frame];
+			view.systemMoleculeDataFramedBondsDict[frame] = [];
+
+			var pointsList = [];
+
+			//construct tree
+			for (var i = 0; i < moleculeData.length; i++) {
+				pointsList.push(moleculeData[i]);
+			}
+
+			var tree = new kdTree(pointsList, euclideanDistnace, ["x", "y", "z"]);
+
+			for (var i = 0; i < moleculeData.length; i++) {
+				var tempNeighborObject = {};
+				tempNeighborObject.neighborsList = [];
+				tempNeighborObject.distancesList = [];
+				tempNeighborObject.coordinatesList = [];
+				//var coordinates1 =  {"x":moleculeData[i].x, "y": moleculeData[i].y, "z":moleculeData[i].z};
+				var point1 = new THREE.Vector3(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
+
+				var nearest = tree.nearest(moleculeData[i], 10, 4);
+
+				for (var j = 0; j < nearest.length; j++) {
+					var neighbor = nearest[j][0];
+					var distance = nearest[j][1];
+
+					if (distance > 0) {
+						var point2 = new THREE.Vector3(neighbor.xPlot * 20.0, neighbor.yPlot * 20.0, neighbor.zPlot * 20.0);
+						var bondlength = Math.sqrt(distance);
+						var midPoint = new THREE.Vector3().addVectors(point2, point1).divideScalar(2);
+						tempNeighborObject.neighborsList.push(neighbor);
+						tempNeighborObject.distancesList.push(bondlength);
+						tempNeighborObject.coordinatesList.push(midPoint);
+					}
+				}
+
+				view.systemMoleculeDataFramedBondsDict[frame].push(tempNeighborObject);
+			}
+		}
+		console.log("end frame: ", frame);
+	}
+}
+
+function euclideanDistnace(a, b) {
+	return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2);
 }
 
 },{}],25:[function(require,module,exports){

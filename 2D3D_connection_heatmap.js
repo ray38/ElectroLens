@@ -9,7 +9,7 @@ import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip} from "./3DViews/tooltip.js";
 import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
-import {arrangeMoleculeDataToFrame} from "./Utilities/arrangeData.js";
+import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
 
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
@@ -96,6 +96,30 @@ function main(views,plotSetup) {
 
 	//initializeViewSetups(views,plotSetup);
 
+	var opts = {
+		lines: 13, // The number of lines to draw
+		length: 38, // The length of each line
+		width: 17, // The line thickness
+		radius: 45, // The radius of the inner circle
+		scale: 1, // Scales overall size of the spinner
+		corners: 1, // Corner roundness (0..1)
+		color: '#ffffff', // CSS color or array of colors
+		fadeColor: 'transparent', // CSS color or array of colors
+		speed: 1, // Rounds per second
+		rotate: 0, // The rotation offset
+		animation: 'spinner-line-fade-quick', // The CSS animation name for the lines
+		direction: 1, // 1: clockwise, -1: counterclockwise
+		zIndex: 2e9, // The z-index (defaults to 2000000000)
+		className: 'spinner', // The CSS class to assign to the spinner
+		top: '50%', // Top position relative to parent
+		left: '50%', // Left position relative to parent
+		shadow: '0 0 1px transparent', // Box-shadow for the lines
+		position: 'absolute' // Element positioning
+	};
+
+	var spinnerContainer = document.getElementById("spinner");
+	var spinner = new Spinner(opts).spin(spinnerContainer);
+
 	var overallSpatiallyResolvedData = [];
 	var overallMoleculeData = [];
 	var queue=d3.queue();
@@ -137,6 +161,8 @@ function main(views,plotSetup) {
 	queue.awaitAll(function(error) {
 		if (error) throw error;
 		init();
+		spinner.stop();
+		spinnerContainer.parentNode.removeChild(spinnerContainer);
 		animate();
 	});
 
@@ -211,7 +237,7 @@ function main(views,plotSetup) {
 					view.systemMoleculeDataBoolean = true;
 					view.defaultScalesMoleculeData = defaultScalesMoleculeData;
 					adjustScaleAccordingToDefaultMoleculeData(view);
-					arrangeMoleculeDataToFrame(view);
+					arrangeMoleculeDataToFrame2(view);
 					getMoleculeGeometry(view);
 					//initialize3DViewTooltip(view);
 				}
