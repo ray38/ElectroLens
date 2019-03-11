@@ -17,7 +17,7 @@ def view(data):
         config = trajToConfig(data)
     else:
         config = data
-    with open('temp_data3.json', 'w') as fp:
+    with open('temp_data.json', 'w') as fp:
         json.dump(config , fp)
     cef.Initialize()
     cwd = os.getcwd()
