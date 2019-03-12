@@ -6,6 +6,7 @@ inter-process messaging with the use of Javascript Bindings.
 from cefpython3 import cefpython as cef
 import os
 import json
+import csv
 from ase import Atoms
 from ase.io.trajectory import TrajectoryReader
 
@@ -81,30 +82,69 @@ def trajToConfig(a):
     systemDimension["y"] = [0,a[0].cell[1][1]]
     systemDimension["z"] = [0,a[0].cell[2][2]]
 
-    config = {}
+    length = len(a) * len(a[0])
 
-    config["views"] = []
-    temp = {}
-    temp["viewType"] = "3DView"
-    temp["moleculeName"] = "test"
-    temp["moleculeData"] = {}
-    temp["moleculeData"]["data"] = []
-    for i in range(len(a)):
-        atoms = a[i]
-        for atom in atoms:
-            temp_atom = {}
-            temp_atom["x"] = atom.position[0]
-            temp_atom["y"] = atom.position[1]
-            temp_atom["z"] = atom.position[2]
-            temp_atom["atom"] = atom.symbol
-            temp_atom["frame"] = i
-            temp["moleculeData"]["data"].append(temp_atom)
-    temp["moleculeData"]["gridSpacing"] = {"x":0.1,"y":0.1,"z":0.1}
-    temp["systemDimension"] = systemDimension
-    config["views"].append(temp)
-    config["plotSetup"] = {}
-    config["plotSetup"]["frameProperty"] = "frame"
-    config["plotSetup"]["moleculePropertyList"] = ["atom","frame"]
+    if length < 100000:
+        config = {}
+
+        config["views"] = []
+        temp = {}
+        temp["viewType"] = "3DView"
+        temp["moleculeName"] = "test"
+        temp["moleculeData"] = {}
+        temp["moleculeData"]["data"] = []
+        for i in range(len(a)):
+            atoms = a[i]
+            for atom in atoms:
+                temp_atom = {}
+                temp_atom["x"] = atom.position[0]
+                temp_atom["y"] = atom.position[1]
+                temp_atom["z"] = atom.position[2]
+                temp_atom["atom"] = atom.symbol
+                temp_atom["frame"] = i
+                temp["moleculeData"]["data"].append(temp_atom)
+        temp["moleculeData"]["gridSpacing"] = {"x":0.1,"y":0.1,"z":0.1}
+        temp["systemDimension"] = systemDimension
+        config["views"].append(temp)
+        config["plotSetup"] = {}
+        config["plotSetup"]["frameProperty"] = "frame"
+        config["plotSetup"]["moleculePropertyList"] = ["atom","frame"]
+
+    else:
+        config = {}
+
+        config["views"] = []
+        temp = {}
+        temp["viewType"] = "3DView"
+        temp["moleculeName"] = "test"
+        temp["moleculeData"] = {}
+        temp["moleculeData"]["dataFilename"] = os.getcwd() + "/__ElectroLens_View_Intermediate__.csv"
+
+        with open('__ElectroLens_View_Intermediate__.csv', mode='w') as file:
+            writer = csv.writer(file, delimiter=',')
+
+            writer.writerow(['x', 'y','z','atom','frame'])
+
+            for i in range(len(a)):
+                atoms = a[i]
+                for atom in atoms:
+                    temp_row = []
+                    temp_row.append(atom.position[0])
+                    temp_row.append(atom.position[1])
+                    temp_row.append(atom.position[2])
+                    temp_row.append(atom.symbol)
+                    temp_row.append(i)
+                    writer.writerow(temp_row)
+
+        temp["moleculeData"]["gridSpacing"] = {"x":0.1,"y":0.1,"z":0.1}
+        temp["systemDimension"] = systemDimension
+        config["views"].append(temp)
+        config["plotSetup"] = {}
+        config["plotSetup"]["frameProperty"] = "frame"
+        config["plotSetup"]["moleculePropertyList"] = ["atom","frame"]
+
+
+
     return config
 
 class LoadHandler(object):

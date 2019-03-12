@@ -28,3 +28,12 @@ export function colorToRgb(color) {
         b: parseInt(result[3], 16) / 255
     } : null;
 }
+
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+export function rgbToHex(color) {
+    return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
+}

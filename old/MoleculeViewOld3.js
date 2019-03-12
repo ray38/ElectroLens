@@ -104,6 +104,111 @@ function addAtoms(view, moleculeData, lut){
 	view.scene.add(atoms);
 }
 
+function addBonds_backup(view, moleculeData, neighborsData){
+	var options = view.options;
+	var bonds = new THREE.Group();
+
+	/*var basicBondGeometry = new THREE.CylinderGeometry( options.bondSize*10, options.bondSize*10, 1, options.bondModelSegments, 0, true);
+	var basicBond = new THREE.Mesh( basicBondGeometry, new THREE.MeshBasicMaterial( ) );*/
+
+	/*var basicLineBondGeometry = new THREE.BufferGeometry();
+	var positions = new Float32Array(6);
+	var i = 0;
+	positions[i++] = 0;
+	positions[i++] = 0;
+	positions[i++] = 0;
+	positions[i++] = 0;
+	positions[i++] = 0;
+	positions[i] = 100;
+	basicLineBondGeometry.addAttribute('position', new THREE.BufferAttribute( positions, 3 ));
+	
+	var basicLineBond = new THREE.LineSegments( basicLineBondGeometry, new THREE.LineBasicMaterial( ) );*/
+
+	var basicLineBondGeometry = new THREE.BufferGeometry();
+	var material = new THREE.LineBasicMaterial({color: 0xffffff, vertexColors: THREE.VertexColors });
+	var vertices = [];
+	var indices = [];
+	var indicesColors = [];
+	var index_counter = 0;
+
+	/*for (var i = 0; i < moleculeData.length; i++) {
+		if (moleculeData[i].selected) {
+			var coordinates1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
+			var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
+
+		    for (var j = 0; j < moleculeData.length; j++) {
+		    	var coordinates2 = new THREE.Vector3(moleculeData[j].x, moleculeData[j].y, moleculeData[j].z);
+		    	var point2 = new THREE.Vector3(moleculeData[j].xPlot*20.0, moleculeData[j].yPlot*20.0,moleculeData[j].zPlot*20.0);
+			    var bondlength = new THREE.Vector3().subVectors( coordinates2, coordinates1 ).length();
+			    if (bondlength < options.maxBondLength && bondlength > options.minBondLength &&  moleculeData[j].selected ) {
+			    	addBond(view, point1, point2, bonds);
+			    }
+			}
+		}
+	}*/
+	
+	for (var i = 0; i < moleculeData.length; i++) {
+		if (moleculeData[i].selected) {
+			var tempNeighborObject = neighborsData[i];
+			var neighborsList = tempNeighborObject.neighborsList;
+			var distancesList = tempNeighborObject.distancesList;
+			var coordinatesList = tempNeighborObject.coordinatesList;
+
+			var color = colorSetup[moleculeData[i].atom];
+
+			var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
+
+		    for (var j = 0; j < neighborsList.length; j++) {
+		    	//var point2 = new THREE.Vector3(neighborsList[j].xPlot*20.0, neighborsList[j].yPlot*20.0,neighborsList[j].zPlot*20.0);
+		    	var point2 = coordinatesList[j];
+			    if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength &&  neighborsList[j].selected ) {
+			    	/*var bond = basicBond.clone();
+			    	bond.material = basicBond.material.clone();
+			    	bond.material.color.set( color );
+			    	addBond(view, point1, point2, bonds, bond);*/
+
+
+			    	/*var bond = basicLineBond.clone();
+			    	bond.geometry = basicLineBond.geometry.clone();
+			    	bond.material = basicLineBond.material.clone();
+			    	bond.material.color.set( color );
+			    	addLineBond(view, point1, point2, bonds, bond);*/
+
+			    	vertices.push(point1, point2);
+			    	indices.push(index_counter, index_counter + 1);
+			    	indicesColors.push(colorToRgb(color), colorToRgb(color));
+			    	index_counter += 2;
+
+			    	
+			    }
+			}
+		}
+	}
+
+	var positions = new Float32Array(vertices.length * 3);
+	var colors = new Float32Array(vertices.length * 3);
+
+	for (var i = 0; i < vertices.length; i++) {
+
+	    positions[i * 3] = vertices[i].x;
+	    positions[i * 3 + 1] = vertices[i].y;
+	    positions[i * 3 + 2] = vertices[i].z;
+
+	    colors[i * 3] = indicesColors[i].r;
+	    colors[i * 3 + 1] = indicesColors[i].g;
+	    colors[i * 3 + 2] = indicesColors[i].b;
+
+	}
+	basicLineBondGeometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+	basicLineBondGeometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+	basicLineBondGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
+
+	var bonds = new THREE.LineSegments(basicLineBondGeometry, material);
+
+	view.molecule.bonds = bonds;
+	view.scene.add(bonds);
+
+}
 
 
 function addBonds(view, moleculeData, neighborsData){
@@ -272,6 +377,181 @@ function addBonds(view, moleculeData, neighborsData){
 }
 
 
+
+
+function addAtom(view, atomGeometry, index, atomData, atomGroup, lut, moleculeObject){
+	
+	var options = view.options;
+	var sizeCode = options.moleculeSizeCodeBasis;
+	var colorCode = options.moleculeColorCodeBasis;
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	var zPlotScale = view.zPlotScale;
+/*
+	if (sizeCode != "atom") {
+		var sizeMax = options.moleculeSizeSettingMax;
+		var sizeMin = options.moleculeSizeSettingMin;
+	}
+	
+	//var atomGeometry = new THREE.SphereGeometry(100, options.atomModelSegments, options.atomModelSegments);
+
+    //console.log(colorCode);
+    if (colorCode == "atom") {
+    	//console.log("atom color basis");
+		var material = new THREE.MeshBasicMaterial( {color: colorSetup[atomData.atom]} );
+	}
+	else {
+		//console.log("other color basis");
+		var tempColor = lut.getColor( atomData[colorCode] );
+		var material = new THREE.MeshBasicMaterial( {color: tempColor } );
+	}
+		
+	
+	var atom = new THREE.Mesh(atomGeometry, material);
+
+	if (sizeCode == "atom") {
+    	//console.log("atom color basis");
+    	//console.log(atom);
+		atom.scale.set(options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom]);
+	}
+	else {
+		//console.log("other color basis");
+		var tempSize = (atomData[sizeCode] - sizeMin)/(sizeMax - sizeMin);
+		atom.scale.set(options.atomSize*tempSize, options.atomSize*tempSize, options.atomSize*tempSize);
+	}
+	//atom.position.set(xPlotScale(view.coordinates[i][1][0])*20.0, yPlotScale(view.coordinates[i][1][1])*20.0,zPlotScale(view.coordinates[i][1][2])*20.0);
+	atom.position.set(atomData.xPlot*20.0, atomData.yPlot*20.0,atomData.zPlot*20.0);
+	
+	//atom.position.set(atomData.xPlot*20.0 + i*xStep, atomData.yPlot*20.0 + j*yStep, atomData.zPlot*20.0 + k*zStep);
+	atom.dataIndex = index;
+	view[moleculeObject].atoms.push(atom);
+	atomGroup.add( atom );
+	//scene.add(atom);*/
+	
+
+
+	var geometry = new THREE.BufferGeometry();
+	var positions = new Float32Array(3);
+	var colors = new Float32Array(3);
+	var sizes = new Float32Array( 1);
+	var alphas = new Float32Array( 1);
+
+
+	positions[0] = atomData.xPlot*20.0;
+	positions[1] = atomData.yPlot*20.0;
+	positions[2] = atomData.zPlot*20.0;
+
+
+	if (colorCode == "atom") {
+    	//console.log("atom color basis");
+		//var material = new THREE.MeshBasicMaterial( {color: colorSetup[atomData.atom]} );
+		var color = colorToRgb(colorSetup[atomData.atom]);
+	}
+	else {
+		//console.log("other color basis");
+		var color = lut.getColor( atomData[colorCode] );
+		//var material = new THREE.MeshBasicMaterial( {color: tempColor } );
+	}
+	
+
+	colors[ 0 ] = color.r;
+	colors[ 1 ] = color.g;
+	colors[ 2 ] = color.b;
+	//console.log(colors);
+
+	if (sizeCode == "atom") {
+		sizes[0] = options.atomSize*atomRadius[atomData.atom]*500;
+		//atom.scale.set(options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom]);
+	}
+	else {
+		var tempSize = (atomData[sizeCode] - sizeMin)/(sizeMax - sizeMin);
+		sizes[0] = options.atomSize*tempSize*500;
+		//atom.scale.set(options.atomSize*tempSize, options.atomSize*tempSize, options.atomSize*tempSize);
+	}
+
+	alphas[0] = 1;
+
+	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+	var atom = new THREE.Points( geometry, shaderMaterial2 );
+
+	//console.log(atom);
+	atom.dataIndex = index;
+	view[moleculeObject].atoms.push(atom);
+	atomGroup.add( atom );
+	//scene.add(atom);
+
+}
+
+
+function addBond(view, point1, point2, bondGroup, bond){
+	var options = view.options;
+
+	var direction = new THREE.Vector3().subVectors( point2, point1 );
+	//bond.scale.set(1, 1, direction.length());
+	var orientation = new THREE.Matrix4();
+    // THREE.Object3D().up (=Y) default orientation for all objects 
+    orientation.lookAt(point1, point2, new THREE.Object3D().up);
+    // rotation around axis X by -90 degrees 
+    // matches the default orientation Y 
+    // with the orientation of looking Z 
+    orientation.multiply(new THREE.Matrix4().set(1,0,0,0,
+                                            0,0,1,0, 
+                                            0,-1,0,0,
+                                            0,0,0,1));
+
+    // cylinder: radiusAtTop, radiusAtBottom, 
+    //  height, radiusSegments, heightSegments 
+    //var bondGeometry = new THREE.CylinderGeometry( options.bondSize*10, options.bondSize*10, direction.length(), options.bondModelSegments, 1, true);
+    //bondGeometry.translate( point1 );
+
+    //var bond = new THREE.Mesh( bondGeometry, new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
+
+    bond.applyMatrix(orientation);
+    bond.position.x = (point2.x + point1.x) / 2;
+    bond.position.y = (point2.y + point1.y) / 2;
+    bond.position.z = (point2.z + point1.z) / 2;
+    bond.scale.set(1, direction.length(), 1);
+    //view[moleculeObject].bonds.push(bond);
+    bondGroup.add(bond);
+    //scene.add(bond);*/
+
+
+/*
+
+	var geometry = new THREE.LineGeometry();
+	var positions = [];
+	//var colors = [0, 0, 0, 0, 0, 0];
+	var colors = [1,1,1,1,1,1];
+	positions.push(point1.x, point1.y, point1.z);
+	positions.push(point2.x, point2.y, point2.z);
+	geometry.setPositions( positions );
+	geometry.setColors( colors );
+
+	var bondMat = new THREE.LineMaterial( {
+
+		color: 0xffffff,
+		linewidth: 5, // in pixels
+		vertexColors: THREE.VertexColors,
+		//resolution:  // to be set by renderer, eventually
+		dashed: false
+
+	} );
+
+	bondMat.resolution.set( view.windowWidth, view.windowHeight );
+
+	var bond = new THREE.Line2( geometry, bondMat );
+	bond.computeLineDistances();
+	bond.scale.set( 1, 1, 1 );
+	view[moleculeObject].bonds.push(bond);
+	bondGroup.add(bond);
+	//view.scene.add( line );*/
+
+
+}
 
 
 export function getMoleculeGeometry(view){

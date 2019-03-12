@@ -234,7 +234,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
-		moleculeFolder.add( options, 'atomSize', 0.1, 10 ).step( 0.1 )
+		moleculeFolder.add( options, 'atomSize', 0.1, 20 ).step( 0.1 )
 		.name( 'Atom Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);

@@ -180,7 +180,7 @@ function main(views, plotSetup) {
 	function init() {
 		console.log('started initialization');
 		container = document.getElementById('container');
-		renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, clearAlpha: 1 });
+		renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, clearAlpha: 1 });
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -2253,10 +2253,10 @@ function addAtoms(view, moleculeData, lut) {
 
 			if (moleculeData[i].selected) {
 				if (sizeCode == "atom") {
-					sizes[i] = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 200;
+					sizes[i] = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 400;
 				} else {
 					var tempSize = (atomData[sizeCode] - sizeMin) / (sizeMax - sizeMin);
-					sizes[i] = options.atomSize * tempSize * 200;
+					sizes[i] = options.atomSize * tempSize * 400;
 				}
 
 				alphas[i] = 1;
@@ -2289,9 +2289,12 @@ function addAtoms(view, moleculeData, lut) {
 
 			if (moleculeData[i].selected) {
 				if (colorCode == "atom") {
-					var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[atomData.atom]);
+					//var color = colorToRgb(colorSetup[atomData.atom]);
+					var color = _AtomSetupJs.colorSetup[atomData.atom];
 				} else {
 					var color = lut.getColor(atomData[colorCode]);
+					console.log(color);
+					console.log(_UtilitiesOtherJs.rgbToHex(color));
 				}
 				var atom = basicAtom.clone();
 				atom.material = basicAtom.material.clone();
@@ -3812,7 +3815,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			};
 		});
 
-		moleculeFolder.add(options, 'atomSize', 0.1, 10).step(0.1).name('Atom Size').onChange(function (value) {
+		moleculeFolder.add(options, 'atomSize', 0.1, 20).step(0.1).name('Atom Size').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 			_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 		});
@@ -4640,6 +4643,7 @@ exports.arrayToIdenticalObject = arrayToIdenticalObject;
 exports.hexToRgb = hexToRgb;
 exports.getHexColor = getHexColor;
 exports.colorToRgb = colorToRgb;
+exports.rgbToHex = rgbToHex;
 
 function arrayToIdenticalObject(array) {
     var result = {};
@@ -4670,6 +4674,15 @@ function colorToRgb(color) {
         g: parseInt(result[2], 16) / 255,
         b: parseInt(result[3], 16) / 255
     } : null;
+}
+
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(color) {
+    return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
 }
 
 },{}],26:[function(require,module,exports){
