@@ -7,57 +7,97 @@ function addAtoms(view, moleculeData, lut){
 	var options = view.options;
 	var sizeCode = options.moleculeSizeCodeBasis;
 	var colorCode = options.moleculeColorCodeBasis;
-	var geometry = new THREE.BufferGeometry();
-	var positions = new Float32Array(moleculeData.length * 3);
-	var colors = new Float32Array( moleculeData.length* 3);
-	var sizes = new Float32Array( moleculeData.length );
-	var alphas = new Float32Array( moleculeData.length );
 
-	var i3 = 0;
-	for (var i = 0; i < moleculeData.length; i++) {
-		var atomData = moleculeData[i];
-		positions[i3+0] = atomData.xPlot*20.0;
-		positions[i3+1] = atomData.yPlot*20.0;
-		positions[i3+2] = atomData.zPlot*20.0;
+	if (options.atomsStyle == "sprite"){
+		var geometry = new THREE.BufferGeometry();
+		var positions = new Float32Array(moleculeData.length * 3);
+		var colors = new Float32Array( moleculeData.length* 3);
+		var sizes = new Float32Array( moleculeData.length );
+		var alphas = new Float32Array( moleculeData.length );
 
-		if (colorCode == "atom") {
-			var color = colorToRgb(colorSetup[atomData.atom]);
-		}
-		else {
-			var color = lut.getColor( atomData[colorCode] );
-		}
-		
+		var i3 = 0;
+		for (var i = 0; i < moleculeData.length; i++) {
+			var atomData = moleculeData[i];
+			positions[i3+0] = atomData.xPlot*20.0;
+			positions[i3+1] = atomData.yPlot*20.0;
+			positions[i3+2] = atomData.zPlot*20.0;
 
-		colors[ i3+0 ] = color.r;
-		colors[ i3+1 ] = color.g;
-		colors[ i3+2 ] = color.b;
-
-		if (moleculeData[i].selected) {
-			if (sizeCode == "atom") {
-				sizes[i] = options.atomSize*atomRadius[atomData.atom]*200;
+			if (colorCode == "atom") {
+				var color = colorToRgb(colorSetup[atomData.atom]);
 			}
 			else {
-				var tempSize = (atomData[sizeCode] - sizeMin)/(sizeMax - sizeMin);
-				sizes[i] = options.atomSize*tempSize*200;
+				var color = lut.getColor( atomData[colorCode] );
+			}
+			
+
+			colors[ i3+0 ] = color.r;
+			colors[ i3+1 ] = color.g;
+			colors[ i3+2 ] = color.b;
+
+			if (moleculeData[i].selected) {
+				if (sizeCode == "atom") {
+					sizes[i] = options.atomSize*atomRadius[atomData.atom]*200;
+				}
+				else {
+					var tempSize = (atomData[sizeCode] - sizeMin)/(sizeMax - sizeMin);
+					sizes[i] = options.atomSize*tempSize*200;
+				}
+
+				alphas[i] = 1;
+			}
+			else{
+				size[i] = 0;
+				alphas[i] = 0;
 			}
 
-			alphas[i] = 1;
-		}
-		else{
-			size[i] = 0;
-			alphas[i] = 0;
+			i3 +=3;
 		}
 
-		i3 +=3;
+		geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+		geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+		geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+		geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+		var atoms = new THREE.Points( geometry, shaderMaterial2 );
+		atoms.frustumCulled = false;
+
 	}
 
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	if (options.atomsStyle == "ball"){
+		var atomGeometry = new THREE.SphereGeometry(100, options.atomModelSegments, options.atomModelSegments);
+		var material = new THREE.MeshBasicMaterial();
+		var atoms = new THREE.Group();
 
-	var atoms = new THREE.Points( geometry, shaderMaterial2 );
-	atoms.frustumCulled = false;
+		var basicAtom = new THREE.Mesh(atomGeometry, material);
+
+		for (var i = 0; i < moleculeData.length; i++) {
+			var atomData = moleculeData[i];
+
+			if (moleculeData[i].selected) {
+				if (colorCode == "atom") {
+					var color = colorToRgb(colorSetup[atomData.atom]);
+				}
+				else {
+					var color = lut.getColor( atomData[colorCode] );
+				}
+				var atom = basicAtom.clone();
+				atom.material = basicAtom.material.clone();
+				atom.material.color.set( color );
+				if (sizeCode == "atom") {
+					atom.scale.set(options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom]);
+				}
+				else {
+					var tempSize = (atomData[sizeCode] - sizeMin)/(sizeMax - sizeMin);
+					atom.scale.set(options.atomSize*tempSize, options.atomSize*tempSize, options.atomSize*tempSize);
+				}
+				atom.position.set(atomData.xPlot*20.0, atomData.yPlot*20.0,atomData.zPlot*20.0);
+				atoms.add(atom);
+			}
+			
+		}
+
+	}
+	
 
 	view.molecule.atoms = atoms;
 	view.scene.add(atoms);

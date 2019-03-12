@@ -19,7 +19,12 @@ def view(data):
         config = data
     with open('temp_data.json', 'w') as fp:
         json.dump(config , fp)
-    cef.Initialize()
+    settings = {
+        "debug": True,
+        "log_severity": cef.LOGSEVERITY_INFO,
+        "log_file": "debug.log",
+    }
+    cef.Initialize(settings=settings)
     cwd = os.getcwd()
     try:
         os.chdir("ElectroLens-python")

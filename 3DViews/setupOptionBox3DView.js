@@ -174,6 +174,13 @@ export function setupOptionBox3DView(view,plotSetup){
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
+		moleculeFolder.add( options, 'atomsStyle',{"sprite":"sprite", "ball":"ball"})
+		.name( 'Atom Style' )
+		.onChange( function( value ) {
+			changeMoleculeGeometry(view);
+			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
+		});
+
 		moleculeFolder.add( options, 'bondsStyle',{"line":"line", "tube":"tube", "fatline": "fatline"})
 		.name( 'Bond Style' )
 		.onChange( function( value ) {
