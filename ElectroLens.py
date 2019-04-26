@@ -12,6 +12,7 @@ from ase.io.trajectory import TrajectoryReader
 
 def view(data):
     #print type(data)
+    #config = trajToConfig2(data)
     if isinstance(data, Atoms):
         config = atomsToConfig(data)
     elif isinstance(data, TrajectoryReader):
@@ -84,7 +85,7 @@ def trajToConfig(a):
 
     length = len(a) * len(a[0])
 
-    if length < 100000:
+    if length < 10000000:
         config = {}
 
         config["views"] = []
@@ -142,6 +143,44 @@ def trajToConfig(a):
         config["plotSetup"] = {}
         config["plotSetup"]["frameProperty"] = "frame"
         config["plotSetup"]["moleculePropertyList"] = ["atom","frame"]
+
+
+
+    return config
+
+def trajToConfig2(data):
+    a, fingerprint = data
+    #print "converting traj to config"
+    systemDimension = {}
+    systemDimension["x"] = [0,a.cell[0][0]]
+    systemDimension["y"] = [0,a.cell[1][1]]
+    systemDimension["z"] = [0,a.cell[2][2]]
+
+
+    config = {}
+
+    config["views"] = []
+    temp = {}
+    temp["viewType"] = "3DView"
+    temp["moleculeName"] = "test"
+    temp["moleculeData"] = {}
+    temp["moleculeData"]["data"] = []
+    atoms = a
+    for i, atom in enumerate(atoms):
+        temp_atom = {}
+        temp_atom["x"] = atom.position[0]
+        temp_atom["y"] = atom.position[1]
+        temp_atom["z"] = atom.position[2]
+        temp_atom["atom"] = atom.symbol
+        temp_atom["p1"] = fingerprint[i][1][0]
+        temp_atom["p2"] = fingerprint[i][1][1]
+        temp_atom["p3"] = fingerprint[i][1][2]
+        temp["moleculeData"]["data"].append(temp_atom)
+    temp["moleculeData"]["gridSpacing"] = {"x":0.1,"y":0.1,"z":0.1}
+    temp["systemDimension"] = systemDimension
+    config["views"].append(temp)
+    config["plotSetup"] = {}
+    config["plotSetup"]["moleculePropertyList"] = ["atom","p1","p2","p3"]
 
 
 

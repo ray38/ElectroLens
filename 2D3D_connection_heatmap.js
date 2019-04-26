@@ -29,42 +29,29 @@ import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
 
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "./Utilities/scale.js";
-/*
-var opts = {
-		lines: 13, // The number of lines to draw
-		length: 38, // The length of each line
-		width: 17, // The line thickness
-		radius: 45, // The radius of the inner circle
-		scale: 1, // Scales overall size of the spinner
-		corners: 1, // Corner roundness (0..1)
-		color: '#ffffff', // CSS color or array of colors
-		fadeColor: 'transparent', // CSS color or array of colors
-		speed: 1, // Rounds per second
-		rotate: 0, // The rotation offset
-		animation: 'spinner-line-fade-quick', // The CSS animation name for the lines
-		direction: 1, // 1: clockwise, -1: counterclockwise
-		zIndex: 2e9, // The z-index (defaults to 2000000000)
-		className: 'spinner', // The CSS class to assign to the spinner
-		top: '50%', // Top position relative to parent
-		left: '50%', // Left position relative to parent
-		shadow: '0 0 1px transparent', // Box-shadow for the lines
-		position: 'absolute' // Element positioning
-	};
 
-var spinnerContainer = document.getElementById("spinner");
-var spinner = new Spinner(opts).spin(spinnerContainer);*/
+//import {addingProgressBar, updateProgressBar} from "./Utilities/progressBar.js";
+//var progressBar = new ldBar("#progressbar");
+
+var loadingStatus = new function(){
+	this.progress = 0;
+	this.message=  "init";
+}
+
+//var progressBar = addingProgressBar(loadingStatus);
+
 
 if(typeof data !== 'undefined'){
 	console.log(data);
     handleViewSetup(data);
-}
+    }
 else{
+
 	if (document.getElementById("uploader_wrapper") != null){
 		console.log('starting');
 		var uploader = document.getElementById("uploader");
 		console.log(uploader);
 		var uploader_wrapper = document.getElementById("uploader_wrapper");
-
 		uploader.addEventListener("change", handleFiles, false);
 	}
 	else{
@@ -76,6 +63,7 @@ function handleFiles() {
 	var file = this.files[0];
 	console.log(file);
 	console.log(this);
+
 	$.ajax({
 		url: file.path,
 		dataType: 'json',
@@ -83,7 +71,7 @@ function handleFiles() {
 		cache: false,
 		success: function(data) {
 			uploader.parentNode.removeChild(uploader);
-			uploader_wrapper.parentNode.removeChild(uploader_wrapper);
+			uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
 			handleViewSetup(data);
 		},
 		error: function(requestObject, error, errorThrown) {
@@ -95,6 +83,10 @@ function handleFiles() {
 
 
 function handleViewSetup(data){
+	/*console.log(progressBar);
+	console.log("updating progress bar");
+	progressBar.set(30);*/
+	//updateProgressBar(progressBar, loadingStatus, 30, "finish reading config");
 	var views = data.views;
 	var plotSetup = data.plotSetup;
 	initializeViewSetups(views,plotSetup);
@@ -105,7 +97,12 @@ function handleViewSetup(data){
 function main(views,plotSetup) {
 	console.log(plotSetup);
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-	var container, stats, renderer;
+
+	
+
+
+
+	var container, stats, renderer, effect;
 	//var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 	var mouseX = 0, mouseY = 0;
 	var windowWidth, windowHeight;
@@ -162,9 +159,14 @@ function main(views,plotSetup) {
 
 	queue.awaitAll(function(error) {
 		if (error) throw error;
+		/*console.log("updating progress bar");
+		progressBar.animate(80);*/
+
 		init();
-		//spinner.stop();
-		//spinnerContainer.parentNode.removeChild(spinnerContainer);
+		/*console.log("updating progress bar");
+		progressBar.animate(100);*/
+		var htmlUI = document.getElementById("UI");
+		htmlUI.parentNode.removeChild(htmlUI);
 		animate();
 	});
 
@@ -174,6 +176,8 @@ function main(views,plotSetup) {
 		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1 } );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth , window.innerHeight);
+		//effect = new THREE.AnaglyphEffect( renderer );
+		//effect.setSize( window.innerWidth , window.innerHeight);
 
 		renderer.autoClear = false;
 		container.appendChild( renderer.domElement );
@@ -243,10 +247,6 @@ function main(views,plotSetup) {
 					getMoleculeGeometry(view);
 					//initialize3DViewTooltip(view);
 				}
-				//if ("coordinates" in view) {
-				//	getMoleculeGeometry(view);
-				//}
-				
 
 				addSystemEdge(view);
 				setupOptionBox3DView(view,plotSetup);
@@ -277,7 +277,7 @@ function main(views,plotSetup) {
 		}
 		
 		
-		stats = new Stats();
+		//stats = new Stats();
 		//container.appendChild( stats.dom );
 		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 		window.addEventListener( 'mousedown', function( event ) {
@@ -366,18 +366,6 @@ function main(views,plotSetup) {
 			}
 
 			
-			/*var temp_view = {
-								"viewType": "2DHeatmap",
-								"plotXSpatiallyResolvedData": plotSetup.spatiallyResolvedPropertyList[0],
-								"plotYSpatiallyResolvedData": plotSetup.spatiallyResolvedPropertyList[0],
-								"plotXTransformSpatiallyResolvedData": "linear",
-								"plotYTransformSpatiallyResolvedData": "linear",
-
-								"plotXMoleculeData": plotSetup.moleculePropertyList[0],
-								"plotYMoleculeData": plotSetup.moleculePropertyList[0],
-								"plotXTransformMoleculeData": "linear",
-								"plotYTransformMoleculeData": "linear"
-							}*/
 			views.push(temp_view);
 			initialize2DHeatmapSetup(temp_view,views,plotSetup);
 			calculateViewportSizes(views);
@@ -485,7 +473,7 @@ function main(views,plotSetup) {
 		render();
 		//processClick();
 		processSelection( );
-		stats.update();
+		//stats.update();
 
 		for ( var ii = 0; ii < views.length; ++ii ) {
 			var view = views[ii];
@@ -541,6 +529,7 @@ function main(views,plotSetup) {
 			camera.updateProjectionMatrix();
 			renderer.clear();
 			renderer.render( view.scene, camera );
+			//effect.render( view.scene, camera  );
 			renderer.render( view.sceneHUD, view.cameraHUD );
 		}
 	}

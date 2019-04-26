@@ -46,7 +46,7 @@ function addAtoms(view, moleculeData, lut){
 				alphas[i] = 1;
 			}
 			else{
-				size[i] = 0;
+				sizes[i] = 0;
 				alphas[i] = 0;
 			}
 
@@ -272,7 +272,35 @@ function addBonds(view, moleculeData, neighborsData){
 }
 
 
+function addBond(view, point1, point2, bondGroup, bond){
+	var options = view.options;
 
+	var direction = new THREE.Vector3().subVectors( point2, point1 );
+	//bond.scale.set(1, 1, direction.length());
+	var orientation = new THREE.Matrix4();
+    // THREE.Object3D().up (=Y) default orientation for all objects 
+    orientation.lookAt(point1, point2, new THREE.Object3D().up);
+    // rotation around axis X by -90 degrees 
+    // matches the default orientation Y 
+    // with the orientation of looking Z 
+    orientation.multiply(new THREE.Matrix4().set(1,0,0,0,
+                                            0,0,1,0, 
+                                            0,-1,0,0,
+                                            0,0,0,1));
+
+
+    bond.applyMatrix(orientation);
+    bond.position.x = (point2.x + point1.x) / 2;
+    bond.position.y = (point2.y + point1.y) / 2;
+    bond.position.z = (point2.z + point1.z) / 2;
+    bond.scale.set(1, direction.length(), 1);
+    //view[moleculeObject].bonds.push(bond);
+    bondGroup.add(bond);
+    //scene.add(bond);*/
+
+
+
+}
 
 export function getMoleculeGeometry(view){
 
@@ -316,20 +344,7 @@ export function getMoleculeGeometry(view){
 
 
 export function updateMoleculeGeometry(view){
-	
-	/*for (var i = 0; i < view.molecule.bonds.length; i++) {
-		view.scene.remove(view.molecule.bonds[i]);
-	}
 
-	for (var i = 0; i < view.molecule.atoms.length; i++) {
-		var colorSetup = {"C":0x777777, "O":0xFF0000, "N":0x0000FF, "H":0xCCCCCC}
-		var atomRadius = {
-							"C":0.77,
-							"O":0.73,
-							"N":0.75,
-							"H":0.37
-						}
-	}*/
 	removeMoleculeGeometry(view);
 	getMoleculeGeometry(view);
 
@@ -344,20 +359,7 @@ export function changeMoleculeGeometry(view){
 }
 
 export function removeMoleculeGeometry(view){
-	//console.log("delete molecule");
-	//console.log(view.molecule);
-	/*if (view.molecule != null ){
-		//console.log("delete molecule");
-		for (var i = 0; i < view.molecule.bonds.length; i++) {
-			view.scene.remove(view.molecule.bonds[i]);
-		}
 
-		for (var i = 0; i < view.molecule.atoms.length; i++) {
-			view.scene.remove(view.molecule.atoms[i]);
-		}
-
-		delete view.Molecule;
-	}*/
 	if (view.molecule != null ){
 		view.scene.remove(view.molecule.atoms);
 		view.scene.remove(view.molecule.bonds);
@@ -468,25 +470,7 @@ export function addMoleculePeriodicReplicates(view){
 
 
 export function removeMoleculePeriodicReplicates(view){
-	//console.log("delete molecule replicate");
-	//console.log(view.periodicReplicateMolecule);
-	/*if (view.periodicReplicateMolecule != null ) {
-		//console.log(" start delete molecule replicate");
-		for (var i = 0; i < view.periodicReplicateMolecule.bonds.length; i++) {
-			view.scene.remove(view.periodicReplicateMolecule.bonds[i]);
-		}
 
-		for (var i = 0; i < view.periodicReplicateMolecule.atoms.length; i++) {
-			view.scene.remove(view.periodicReplicateMolecule.atoms[i]);
-		}
-
-		delete view.periodicReplicateMolecule;
-	}*/
-	/*view.scene.remove(view.periodicReplicateAtomGroup);
-	view.scene.remove(view.periodicReplicateBondGroup);
-	delete view.periodicReplicateAtomGroup;
-	delete view.periodicReplicateBondGroup;
-	delete view.periodicReplicateMolecule;*/
 	if (view.periodicReplicateMolecule != null ) {
 		view.scene.remove(view.periodicReplicateMolecule.atoms);
 		view.scene.remove(view.periodicReplicateMolecule.bonds);

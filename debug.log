@@ -1,0 +1,330 @@
+[0408/143448.052:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=gpu-process --no-sandbox --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US --disable-gpu-shader-disk-cache /prefetch:2
+
+[0408/143448.061:INFO:cef_log.cpp(8)] [Browser process] Switch already set, ignoring: disable-gpu-shader-disk-cache
+
+[0408/143448.072:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=gpu-process --no-sandbox --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US --disable-gpu-shader-disk-cache --gpu-preferences=KAAAAAAAAACAA4CAAQAAAAAAAAAAAGAAEAAAAAAAAAAAAAAAAAAAACgAAAAEAAAAIAAAAAAAAAAoAAAAAAAAADAAAAAAAAAAOAAAAAAAAAAQAAAAAAAAAAAAAAAKAAAAEAAAAAAAAAAAAAAACwAAABAAAAAAAAAAAQAAAAoAAAAQAAAAAAAAAAEAAAALAAAA --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US /prefetch:2
+
+[0408/143448.212:INFO:cef_log.cpp(8)] [Browser process] CreateBrowserSync() called
+
+[0408/143448.215:INFO:cef_log.cpp(8)] [Browser process] navigateUrl: file://///D:/ElectroLens/index_cefpython.html
+
+[0408/143448.215:INFO:cef_log.cpp(8)] [Browser process] CefBrowser::CreateBrowserSync()
+
+[0408/143448.318:INFO:cef_log.cpp(8)] [Browser process] GetPyBrowser(): create new PyBrowser, browserId=1
+
+[0408/143448.392:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=renderer --no-sandbox --service-pipe-token=ECAF9A5ABB5E0E48A549FA0800EFE400 --lang=en-US --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --disable-gpu-shader-disk-cache /prefetch:1
+
+[0408/143448.436:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/143448.469:INFO:cef_log.cpp(8)] [Browser process] CefBrowser::CreateBrowserSync() succeeded
+
+[0408/143448.471:INFO:cef_log.cpp(8)] [Browser process] CefBrowser window handle = 660178
+
+[0408/143448.479:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/143448.482:INFO:cef_log.cpp(8)] [Browser process] SendProcessMessage(): message=DoJavascriptBindings, arguments size=1
+
+[0408/143448.482:INFO:cef_log.cpp(8)] [Browser process] MessageLoop()
+
+[0408/143448.483:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/143448.857:INFO:cefpython_app.cpp(368)] [Renderer process] OnProcessMessageReceived(): DoJavascriptBindings
+
+[0408/143448.887:INFO:cefpython_app.cpp(270)] [Renderer process] OnContextCreated()
+
+[0408/143448.887:INFO:cefpython_app.cpp(561)] [Renderer process] DoJavascriptBindingsForFrame(): bindings are set
+
+[0408/143448.888:INFO:client_handler.cpp(40)] [Browser process] OnProcessMessageReceived(): OnContextCreated
+
+[0408/143448.888:INFO:cef_log.cpp(8)] [Browser process] V8ContextHandler_OnContextCreated()
+
+[0408/143448.890:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): create new PyFrame, frameId=2
+
+[0408/143449.119:INFO:cefpython_app.cpp(561)] [Renderer process] DoJavascriptBindingsForFrame(): bindings are set
+
+[0408/143450.400:INFO:CONSOLE(111)] "start", source: file:///D:/ElectroLens/index_cefpython.html (111)
+[0408/143450.401:INFO:CONSOLE(114)] "[object Object]", source: file:///D:/ElectroLens/index_cefpython.html (114)
+[0408/143450.411:INFO:CONSOLE(61)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (61)
+[0408/143450.412:INFO:CONSOLE(4394)] "update progress", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4394)
+[0408/143450.412:INFO:CONSOLE(4398)] "update progress2", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4398)
+[0408/143450.414:INFO:CONSOLE(110)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (110)
+[0408/143450.414:INFO:CONSOLE(141)] "use normal mode", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (141)
+[0408/143450.415:INFO:CONSOLE(4554)] "no spatially resolved data loaded", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4554)
+[0408/143450.415:INFO:CONSOLE(4499)] "started processing molecule data", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4499)
+[0408/143450.416:INFO:CONSOLE(4544)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4544)
+[0408/143450.417:INFO:CONSOLE(4545)] "end processing molecule data", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4545)
+[0408/143450.417:INFO:CONSOLE(178)] "started initialization", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (178)
+[0408/143450.422:INFO:CONSOLE(20919)] "THREE.WebGLRenderer", source: file:///D:/ElectroLens/js/three.js (20919)
+[0408/143450.464:INFO:CONSOLE(4230)] "arrange frame: ", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4230)
+[0408/143450.468:INFO:CONSOLE(4282)] "end frame: ", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4282)
+[0408/143450.479:INFO:CONSOLE(3249)] "0", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (3249)
+[0408/143453.379:INFO:CONSOLE(1634)] "data test", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1634)
+[0408/143453.380:INFO:CONSOLE(1635)] "true", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1635)
+[0408/143453.381:INFO:CONSOLE(1636)] "false", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1636)
+[0408/143453.395:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/143453.396:INFO:CONSOLE(787)] "NaN", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/143453.396:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/143453.477:INFO:CONSOLE(18479)] "THREE.WebGLRenderer: image is not power of two (1x500). Resized to 1x512", source: file:///D:/ElectroLens/js/three.js (18479)
+[0408/143503.801:INFO:CONSOLE(787)] "1", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/143503.801:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/143503.804:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/143516.618:INFO:CONSOLE(1634)] "data test", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1634)
+[0408/143516.618:INFO:CONSOLE(1635)] "true", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1635)
+[0408/143516.622:INFO:CONSOLE(1636)] "false", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1636)
+[0408/143516.627:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/143516.627:INFO:CONSOLE(787)] "NaN", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/143516.628:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/143516.641:INFO:CONSOLE(18479)] "THREE.WebGLRenderer: image is not power of two (1x500). Resized to 1x512", source: file:///D:/ElectroLens/js/three.js (18479)
+[0408/143524.667:INFO:CONSOLE(787)] "0", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/143524.668:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/143524.669:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/143907.202:INFO:cef_log.cpp(8)] [Browser process] LifespanHandler_OnBeforeClose
+
+[0408/143907.203:INFO:cef_log.cpp(8)] [Browser process] del g_pyFrames[1#2]
+
+[0408/143907.207:INFO:cef_log.cpp(8)] [Browser process] del g_pyBrowsers[1]
+
+[0408/143907.217:INFO:cef_log.cpp(8)] [Browser process] PyTaskRunnable: taskId=1, func=QuitMessageLoop
+
+[0408/143907.219:INFO:cefpython_app.cpp(318)] [Renderer process] OnContextReleased()
+
+[0408/143907.218:INFO:cef_log.cpp(8)] [Browser process] QuitMessageLoop()
+
+[0408/143907.221:INFO:cef_log.cpp(8)] [Browser process] Shutdown()
+
+[0408/143907.446:INFO:cef_log.cpp(8)] [Browser process] CefShutdown()
+
+[0408/144350.439:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=gpu-process --no-sandbox --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US --disable-gpu-shader-disk-cache /prefetch:2
+
+[0408/144350.440:INFO:cef_log.cpp(8)] [Browser process] Switch already set, ignoring: disable-gpu-shader-disk-cache
+
+[0408/144350.442:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=gpu-process --no-sandbox --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US --disable-gpu-shader-disk-cache --gpu-preferences=KAAAAAAAAACAA4CAAQAAAAAAAAAAAGAAEAAAAAAAAAAAAAAAAAAAACgAAAAEAAAAIAAAAAAAAAAoAAAAAAAAADAAAAAAAAAAOAAAAAAAAAAQAAAAAAAAAAAAAAAKAAAAEAAAAAAAAAAAAAAACwAAABAAAAAAAAAAAQAAAAoAAAAQAAAAAAAAAAEAAAALAAAA --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US /prefetch:2
+
+[0408/144350.483:INFO:cef_log.cpp(8)] [Browser process] CreateBrowserSync() called
+
+[0408/144350.484:INFO:cef_log.cpp(8)] [Browser process] navigateUrl: file://///D:/ElectroLens/index_cefpython.html
+
+[0408/144350.485:INFO:cef_log.cpp(8)] [Browser process] CefBrowser::CreateBrowserSync()
+
+[0408/144350.523:INFO:cef_log.cpp(8)] [Browser process] GetPyBrowser(): create new PyBrowser, browserId=1
+
+[0408/144350.552:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=renderer --no-sandbox --service-pipe-token=ED46F80980E702E295EF3FB88D353AF8 --lang=en-US --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --disable-gpu-shader-disk-cache /prefetch:1
+
+[0408/144350.568:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/144350.572:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/144350.584:INFO:cef_log.cpp(8)] [Browser process] CefBrowser::CreateBrowserSync() succeeded
+
+[0408/144350.586:INFO:cef_log.cpp(8)] [Browser process] CefBrowser window handle = 399364
+
+[0408/144350.588:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/144350.589:INFO:cef_log.cpp(8)] [Browser process] SendProcessMessage(): message=DoJavascriptBindings, arguments size=1
+
+[0408/144350.590:INFO:cef_log.cpp(8)] [Browser process] MessageLoop()
+
+[0408/144350.697:INFO:cefpython_app.cpp(368)] [Renderer process] OnProcessMessageReceived(): DoJavascriptBindings
+
+[0408/144350.704:INFO:cefpython_app.cpp(270)] [Renderer process] OnContextCreated()
+
+[0408/144350.704:INFO:cefpython_app.cpp(561)] [Renderer process] DoJavascriptBindingsForFrame(): bindings are set
+
+[0408/144350.705:INFO:client_handler.cpp(40)] [Browser process] OnProcessMessageReceived(): OnContextCreated
+
+[0408/144350.705:INFO:cef_log.cpp(8)] [Browser process] V8ContextHandler_OnContextCreated()
+
+[0408/144350.707:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): create new PyFrame, frameId=2
+
+[0408/144351.080:INFO:cefpython_app.cpp(561)] [Renderer process] DoJavascriptBindingsForFrame(): bindings are set
+
+[0408/144352.284:INFO:CONSOLE(111)] "start", source: file:///D:/ElectroLens/index_cefpython.html (111)
+[0408/144352.284:INFO:CONSOLE(114)] "[object Object]", source: file:///D:/ElectroLens/index_cefpython.html (114)
+[0408/144352.298:INFO:CONSOLE(61)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (61)
+[0408/144352.300:INFO:CONSOLE(4394)] "update progress", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4394)
+[0408/144352.302:INFO:CONSOLE(4398)] "update progress2", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4398)
+[0408/144352.304:INFO:CONSOLE(110)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (110)
+[0408/144352.308:INFO:CONSOLE(141)] "use normal mode", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (141)
+[0408/144352.309:INFO:CONSOLE(4554)] "no spatially resolved data loaded", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4554)
+[0408/144352.310:INFO:CONSOLE(4499)] "started processing molecule data", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4499)
+[0408/144352.311:INFO:CONSOLE(4544)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4544)
+[0408/144352.312:INFO:CONSOLE(4545)] "end processing molecule data", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4545)
+[0408/144352.312:INFO:CONSOLE(178)] "started initialization", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (178)
+[0408/144352.319:INFO:CONSOLE(20919)] "THREE.WebGLRenderer", source: file:///D:/ElectroLens/js/three.js (20919)
+[0408/144352.364:INFO:CONSOLE(4230)] "arrange frame: ", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4230)
+[0408/144352.366:INFO:CONSOLE(4282)] "end frame: ", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4282)
+[0408/144352.381:INFO:CONSOLE(3249)] "0", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (3249)
+[0408/144354.210:INFO:CONSOLE(1634)] "data test", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1634)
+[0408/144354.211:INFO:CONSOLE(1635)] "true", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1635)
+[0408/144354.212:INFO:CONSOLE(1636)] "false", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1636)
+[0408/144354.223:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144354.224:INFO:CONSOLE(787)] "NaN", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144354.224:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144354.313:INFO:CONSOLE(18479)] "THREE.WebGLRenderer: image is not power of two (1x500). Resized to 1x512", source: file:///D:/ElectroLens/js/three.js (18479)
+[0408/144354.663:INFO:CONSOLE(1634)] "data test", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1634)
+[0408/144354.664:INFO:CONSOLE(1635)] "true", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1635)
+[0408/144354.666:INFO:CONSOLE(1636)] "false", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1636)
+[0408/144354.683:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144354.683:INFO:CONSOLE(787)] "NaN", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144354.685:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144354.727:INFO:CONSOLE(18479)] "THREE.WebGLRenderer: image is not power of two (1x500). Resized to 1x512", source: file:///D:/ElectroLens/js/three.js (18479)
+[0408/144403.116:INFO:CONSOLE(787)] "1", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144403.117:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144403.119:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144414.478:INFO:CONSOLE(787)] "0", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144414.479:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144414.480:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144428.147:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144429.478:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144429.479:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144432.801:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144432.803:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144433.870:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144433.871:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144434.829:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144434.831:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144435.286:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144435.287:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144435.528:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144435.528:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144435.741:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144435.742:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144437.709:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144437.710:INFO:CONSOLE(2250)] "Uncaught ReferenceError: size is not defined", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (2250)
+[0408/144442.321:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=renderer --no-sandbox --service-pipe-token=99DD1CF14B220699D5F63E6B2F4112BD --lang=en-US --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --disable-gpu-shader-disk-cache /prefetch:1
+
+[0408/144442.477:INFO:cefpython_app.cpp(270)] [Renderer process] OnContextCreated()
+
+[0408/144535.934:INFO:cef_log.cpp(8)] [Browser process] LifespanHandler_OnBeforeClose
+
+[0408/144535.935:INFO:cef_log.cpp(8)] [Browser process] del g_pyFrames[1#2]
+
+[0408/144535.941:INFO:cef_log.cpp(8)] [Browser process] del g_pyBrowsers[1]
+
+[0408/144535.957:INFO:cefpython_app.cpp(318)] [Renderer process] OnContextReleased()
+
+[0408/144535.959:INFO:cef_log.cpp(8)] [Browser process] PyTaskRunnable: taskId=1, func=QuitMessageLoop
+
+[0408/144535.960:INFO:cef_log.cpp(8)] [Browser process] QuitMessageLoop()
+
+[0408/144535.970:INFO:cefpython_app.cpp(263)] [Renderer process] OnBrowserDestroyed()
+
+[0408/144536.007:INFO:cef_log.cpp(8)] [Browser process] Shutdown()
+
+[0408/144536.014:INFO:cefpython_app.cpp(318)] [Renderer process] OnContextReleased()
+
+[0408/144536.035:INFO:cefpython_app.cpp(263)] [Renderer process] OnBrowserDestroyed()
+
+[0408/144536.230:INFO:cef_log.cpp(8)] [Browser process] CefShutdown()
+
+[0408/144546.574:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=gpu-process --no-sandbox --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US --disable-gpu-shader-disk-cache /prefetch:2
+
+[0408/144546.575:INFO:cef_log.cpp(8)] [Browser process] Switch already set, ignoring: disable-gpu-shader-disk-cache
+
+[0408/144546.577:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=gpu-process --no-sandbox --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US --disable-gpu-shader-disk-cache --gpu-preferences=KAAAAAAAAACAA4CAAQAAAAAAAAAAAGAAEAAAAAAAAAAAAAAAAAAAACgAAAAEAAAAIAAAAAAAAAAoAAAAAAAAADAAAAAAAAAAOAAAAAAAAAAQAAAAAAAAAAAAAAAKAAAAEAAAAAAAAAAAAAAACwAAABAAAAAAAAAAAQAAAAoAAAAQAAAAAAAAAAEAAAALAAAA --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --lang=en-US /prefetch:2
+
+[0408/144546.625:INFO:cef_log.cpp(8)] [Browser process] CreateBrowserSync() called
+
+[0408/144546.626:INFO:cef_log.cpp(8)] [Browser process] navigateUrl: file://///D:/ElectroLens/index_cefpython.html
+
+[0408/144546.628:INFO:cef_log.cpp(8)] [Browser process] CefBrowser::CreateBrowserSync()
+
+[0408/144546.676:INFO:cef_log.cpp(8)] [Browser process] GetPyBrowser(): create new PyBrowser, browserId=1
+
+[0408/144546.710:INFO:cefpython_app.cpp(199)] [Browser process] OnBeforeChildProcessLaunch() command line: "C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\subprocess" --type=renderer --no-sandbox --service-pipe-token=B5D559797CB81AB5D31758BB6E3D889F --lang=en-US --locales-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3\locales" --log-file=debug.log --log-severity=info --resources-dir-path="C:\Users\Xiangyun\Anaconda3\lib\site-packages\cefpython3" --disable-gpu-shader-disk-cache /prefetch:1
+
+[0408/144546.727:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/144546.728:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/144546.732:INFO:cef_log.cpp(8)] [Browser process] CefBrowser::CreateBrowserSync() succeeded
+
+[0408/144546.735:INFO:cef_log.cpp(8)] [Browser process] CefBrowser window handle = 2889432
+
+[0408/144546.736:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): underlying frame does not yet exist: browserId = 1, frameId = -4
+
+[0408/144546.738:INFO:cef_log.cpp(8)] [Browser process] SendProcessMessage(): message=DoJavascriptBindings, arguments size=1
+
+[0408/144546.738:INFO:cef_log.cpp(8)] [Browser process] MessageLoop()
+
+[0408/144546.844:INFO:cefpython_app.cpp(368)] [Renderer process] OnProcessMessageReceived(): DoJavascriptBindings
+
+[0408/144546.851:INFO:cefpython_app.cpp(270)] [Renderer process] OnContextCreated()
+
+[0408/144546.851:INFO:cefpython_app.cpp(561)] [Renderer process] DoJavascriptBindingsForFrame(): bindings are set
+
+[0408/144546.851:INFO:client_handler.cpp(40)] [Browser process] OnProcessMessageReceived(): OnContextCreated
+
+[0408/144546.853:INFO:cef_log.cpp(8)] [Browser process] V8ContextHandler_OnContextCreated()
+
+[0408/144546.854:INFO:cef_log.cpp(8)] [Browser process] GetPyFrame(): create new PyFrame, frameId=2
+
+[0408/144547.252:INFO:cefpython_app.cpp(561)] [Renderer process] DoJavascriptBindingsForFrame(): bindings are set
+
+[0408/144548.482:INFO:CONSOLE(111)] "start", source: file:///D:/ElectroLens/index_cefpython.html (111)
+[0408/144548.483:INFO:CONSOLE(114)] "[object Object]", source: file:///D:/ElectroLens/index_cefpython.html (114)
+[0408/144548.493:INFO:CONSOLE(61)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (61)
+[0408/144548.494:INFO:CONSOLE(4394)] "update progress", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4394)
+[0408/144548.494:INFO:CONSOLE(4398)] "update progress2", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4398)
+[0408/144548.495:INFO:CONSOLE(110)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (110)
+[0408/144548.497:INFO:CONSOLE(141)] "use normal mode", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (141)
+[0408/144548.497:INFO:CONSOLE(4554)] "no spatially resolved data loaded", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4554)
+[0408/144548.498:INFO:CONSOLE(4499)] "started processing molecule data", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4499)
+[0408/144548.499:INFO:CONSOLE(4544)] "[object Object]", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4544)
+[0408/144548.499:INFO:CONSOLE(4545)] "end processing molecule data", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4545)
+[0408/144548.500:INFO:CONSOLE(178)] "started initialization", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (178)
+[0408/144548.503:INFO:CONSOLE(20919)] "THREE.WebGLRenderer", source: file:///D:/ElectroLens/js/three.js (20919)
+[0408/144548.544:INFO:CONSOLE(4230)] "arrange frame: ", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4230)
+[0408/144548.547:INFO:CONSOLE(4282)] "end frame: ", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (4282)
+[0408/144548.559:INFO:CONSOLE(3249)] "0", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (3249)
+[0408/144549.277:INFO:CONSOLE(1634)] "data test", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1634)
+[0408/144549.277:INFO:CONSOLE(1635)] "true", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1635)
+[0408/144549.278:INFO:CONSOLE(1636)] "false", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1636)
+[0408/144549.291:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144549.292:INFO:CONSOLE(787)] "NaN", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144549.292:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144549.365:INFO:CONSOLE(18479)] "THREE.WebGLRenderer: image is not power of two (1x500). Resized to 1x512", source: file:///D:/ElectroLens/js/three.js (18479)
+[0408/144550.022:INFO:CONSOLE(1634)] "data test", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1634)
+[0408/144550.022:INFO:CONSOLE(1635)] "true", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1635)
+[0408/144550.023:INFO:CONSOLE(1636)] "false", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1636)
+[0408/144550.030:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144550.031:INFO:CONSOLE(787)] "NaN", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144550.031:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144550.070:INFO:CONSOLE(18479)] "THREE.WebGLRenderer: image is not power of two (1x500). Resized to 1x512", source: file:///D:/ElectroLens/js/three.js (18479)
+[0408/144555.563:INFO:CONSOLE(787)] "1", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144555.563:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144555.565:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144555.635:INFO:CONSOLE(787)] "1", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144555.635:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144555.638:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144605.762:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144609.578:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144612.484:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144613.431:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144616.551:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144627.087:INFO:CONSOLE(787)] "0", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (787)
+[0408/144627.087:INFO:CONSOLE(789)] "function t(t){if(t<=t)return u[hs(o,t,0,i)]}", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (789)
+[0408/144627.088:INFO:CONSOLE(1199)] "569", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1199)
+[0408/144638.438:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144638.511:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144639.350:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144640.718:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144800.432:INFO:CONSOLE(1479)] "updating plane selection", source: file:///D:/ElectroLens/2D3D_connection_heatmap_test.js (1479)
+[0408/144826.786:INFO:cef_log.cpp(8)] [Browser process] LifespanHandler_OnBeforeClose
+
+[0408/144826.787:INFO:cef_log.cpp(8)] [Browser process] del g_pyFrames[1#2]
+
+[0408/144826.788:INFO:cef_log.cpp(8)] [Browser process] del g_pyBrowsers[1]
+
+[0408/144826.793:INFO:cefpython_app.cpp(318)] [Renderer process] OnContextReleased()
+
+[0408/144826.799:INFO:cefpython_app.cpp(263)] [Renderer process] OnBrowserDestroyed()
+
+[0408/144826.807:INFO:cef_log.cpp(8)] [Browser process] PyTaskRunnable: taskId=1, func=QuitMessageLoop
+
+[0408/144826.808:INFO:cef_log.cpp(8)] [Browser process] QuitMessageLoop()
+
+[0408/144826.810:INFO:cef_log.cpp(8)] [Browser process] Shutdown()
+
+[0408/144827.032:INFO:cef_log.cpp(8)] [Browser process] CefShutdown()
+

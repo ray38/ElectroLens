@@ -57,12 +57,21 @@ export function arrangeMoleculeDataToFrame2(view){
 
 			var pointsList = [];
 
+			//var t0 = performance.now();
+
+
 			//construct tree
 			for (var i = 0; i < moleculeData.length; i++) {
 				pointsList.push(moleculeData[i]);
 			}
 
+			//var t1 = performance.now();
+			//console.log("arrange pointlist took " + (t1 - t0) + " milliseconds.");
+
 			var tree = new kdTree(pointsList, euclideanDistnace, ["x", "y", "z"]);
+
+			//var t1 = performance.now();
+			//console.log("construct tree took " + (t1 - t0) + " milliseconds.");
 
 			for (var i = 0; i < moleculeData.length; i++) {
 				var tempNeighborObject = {};
@@ -90,6 +99,8 @@ export function arrangeMoleculeDataToFrame2(view){
 
 				view.systemMoleculeDataFramedBondsDict[frame].push(tempNeighborObject);
 			}
+			//var t1 = performance.now();
+			//console.log("query took " + (t1 - t0) + " milliseconds.");
 		}
 		console.log("end frame: ", frame)
 	}

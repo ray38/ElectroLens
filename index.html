@@ -7,17 +7,31 @@
 	</head>
 	<body>
 
-		<p id="uploader_wrapper">
-	        <input id="uploader" name="uploader" type="file" />
-	    </p>
+		
+	    <div class="outer" id="UI">
+		  <div class="middle">
+		  	<p id="uploader_wrapper" >
+       			<input id="uploader" name="uploader" type="file" />
+    		</p>
+		    <div class="inner" id="midUI">
+		    </div>
+		  </div>
+		</div>
+
+		
 	    <div id="container"></div>
+
 
 	    <section id='spinner'></section>
 		
 		<script src="node_modules/es6/ES6.js"></script>
 		
 		<script src="js/kdtree.js"></script>
+		<script src="js/progressbar.js"></script>
 		<script src="js/three.js"></script>
+		<script src="js/effects/AnaglyphEffect.js"></script>
+		<link rel="stylesheet" type="text/css" href="js/loading-bar.css"/>
+		<script src="js/loading-bar.js"></script>
 
 		<script src='js/LineSegmentsGeometry.js'></script>
 		<script src='js/LineGeometry.js'></script>

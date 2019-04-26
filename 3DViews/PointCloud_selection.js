@@ -2,24 +2,7 @@ import {uniforms, shaderMaterial} from "./PointCloudMaterials.js";
 
 export function getPointCloudGeometry(view){
 
-	/*var uniforms = {
 
-		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
-
-	};
-
-	var shaderMaterial = new THREE.ShaderMaterial( {
-
-		uniforms:       uniforms,
-		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-		blending:       THREE.AdditiveBlending,
-		depthTest:      false,
-		transparent:    true
-
-	});*/
 
 	var options = view.options;
 	var scene = view.scene;
@@ -224,48 +207,6 @@ export function addPointCloudPeriodicReplicates(view){
 }
 
 export function updatePointCloudPeriodicReplicates(view){
-	/*var replicateSystems = view.periodicReplicateSystems;
-
-	var options = view.options;
-	var scene = view.scene;
-	var count = view.System.geometry.attributes.size.array.length;
-	var colors = view.System.geometry.attributes.customColor.array;
-	var sizes = view.System.geometry.attributes.size.array;
-	var alphas = view.System.geometry.attributes.alpha.array;
-	var shaderMaterial = view.System.material;
-
-
-	var geometry = new THREE.BufferGeometry();
-	var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
-	var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
-	var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
-
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.xPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.xPBC-1)/2) + 1;
-
-	var replicateColors = new Float32Array();
-	var replicateSizes = new Float32Array();
-	var replicateAlphas = new Float32Array();
-
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
-				if (((i == 0) && (j == 0) && (k == 0)) == false) {
-					replicateSizes = replicateSizes.concat(sizes);
-					replicateAlphas = replicateAlphas.concat(alphas);
-					replicateColors = replicateColors.concat(colors);
-				}
-			}
-		}
-	}
-
-	view.periodicReplicateSystems.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( replicateColors, 3 ) );
-	view.periodicReplicateSystems.geometry.addAttribute( 'size', new THREE.BufferAttribute( replicateSizes, 1 ) );
-	view.periodicReplicateSystems.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( replicateAlphas, 1 ) );*/
 
 	removePointCloudPeriodicReplicates(view);
 	addPointCloudPeriodicReplicates(view);
