@@ -16,7 +16,7 @@
     "appId": "ray38.medfordgroup.ElectroLens",
     "productName": "ElectroLens",
     "icon": "screenshots/icon.ico",
-    "win":{
+    "win": {
       "icon": "screenshots/icon.ico",
       "publisherName": "Xiangyun Lei"
     }
@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "babel-plugin-transform-es2015-modules-systemjs": "^6.24.1",
+    "electron": "^5.0.1",
     "es6": "0.0.7",
     "grunt-cli": "^1.2.0",
     "papaparse": "^4.3.6"

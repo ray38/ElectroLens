@@ -48,11 +48,11 @@ var _UtilitiesScaleJs = require("./Utilities/scale.js");
 
 //import {addingProgressBar, updateProgressBar} from "./Utilities/progressBar.js";
 //var progressBar = new ldBar("#progressbar");
-
-var loadingStatus = new function () {
+/*
+var loadingStatus = new function(){
 	this.progress = 0;
-	this.message = "init";
-}();
+	this.message=  "init";
+}*/
 
 //var progressBar = addingProgressBar(loadingStatus);
 
@@ -60,13 +60,76 @@ if (typeof data !== 'undefined') {
 	console.log(data);
 	handleViewSetup(data);
 } else {
-
+	console.log('starting');
 	if (document.getElementById("uploader_wrapper") != null) {
-		console.log('starting');
+
 		var uploader = document.getElementById("uploader");
-		console.log(uploader);
 		var uploader_wrapper = document.getElementById("uploader_wrapper");
 		uploader.addEventListener("change", handleFiles, false);
+
+		var configForm = document.getElementById("configForm");
+
+		$("form").submit(function (event) {
+			var tempFormResult = {};
+			var CONFIG = { "views": [], "plotSetup": {} };
+			$.each($('form').serializeArray(), function () {
+				tempFormResult[this.name] = this.value;
+			});
+
+			var boolSpatiallyResolved = false;
+			var boolMolecular = false;
+
+			var boolFormFilledCorrectly = false;
+
+			if (tempFormResult["propertyListSpatiallyResolved"] === "") {
+				console.log("No Spatially Resolved Data");
+			} else {
+				CONFIG["plotSetup"]["spatiallyResolvedPropertyList"] = tempFormResult["propertyListSpatiallyResolved"].split(",").map(function (item) {
+					return item.trim();
+				});
+				boolSpatiallyResolved = true;
+				CONFIG["plotSetup"]["pointcloudDensity"] = tempFormResult["densityProperty"];
+				CONFIG["plotSetup"]["densityCutoff"] = Number(tempFormResult["densityCutoff"]);
+			}
+
+			if (tempFormResult["propertyListMolecular"] === "") {
+				console.log("No Molecular Data");
+			} else {
+				CONFIG["plotSetup"]["moleculePropertyList"] = tempFormResult["propertyListMolecular"].split(",").map(function (item) {
+					return item.trim();
+				});
+				boolMolecular = true;
+			}
+
+			for (var i = 1; i < NUMBER3DVIEWS + 1; i++) {
+				var tempViewSetup = { "viewType": "3DView" };
+				tempViewSetup["moleculeName"] = tempFormResult["view" + i + "Name"];
+				tempViewSetup["systemDimension"] = { "x": [Number(tempFormResult["view" + i + "XMin"]), Number(tempFormResult["view" + i + "XMax"])],
+					"y": [Number(tempFormResult["view" + i + "YMin"]), Number(tempFormResult["view" + i + "YMax"])],
+					"z": [Number(tempFormResult["view" + i + "ZMin"]), Number(tempFormResult["view" + i + "ZMax"])] };
+				if (boolSpatiallyResolved) {
+					tempViewSetup["spatiallyResolvedData"] = {};
+					tempViewSetup["spatiallyResolvedData"]["dataFilename"] = tempFormResult["view" + i + "SpatiallyResolvedDataFilename"];
+					tempViewSetup["spatiallyResolvedData"]["gridSpacing"] = { "x": Number(tempFormResult["view" + i + "XSpacing"]), "y": Number(tempFormResult["view" + i + "YSpacing"]), "z": Number(tempFormResult["view" + i + "ZSpacing"]) };
+				}
+
+				if (boolMolecular) {
+					tempViewSetup["moleculeData"] = {};
+					tempViewSetup["moleculeData"]["dataFilename"] = tempFormResult["view" + i + "MolecularDataFilename"];
+				}
+				CONFIG["views"].push(tempViewSetup);
+			}
+
+			/*console.log(tempFormResult);
+   console.log( CONFIG );
+   console.log(NUMBER3DVIEWS);*/
+			console.log("read input form");
+			event.preventDefault();
+			uploader.parentNode.removeChild(uploader);
+			uploader_wrapper.parentNode.removeChild(uploader_wrapper);
+			configForm.parentNode.removeChild(configForm);
+			handleViewSetup(CONFIG);
+		});
 	} else {
 		console.log("error");
 	}
@@ -83,8 +146,10 @@ function handleFiles() {
 		type: 'get',
 		cache: false,
 		success: function success(data) {
+			console.log("read pre defined config");
 			uploader.parentNode.removeChild(uploader);
 			uploader_wrapper.parentNode.removeChild(uploader_wrapper);
+			configForm.parentNode.removeChild(configForm);
 			handleViewSetup(data);
 		},
 		error: function error(requestObject, _error, errorThrown) {
