@@ -56,68 +56,81 @@ else{
 		var configForm = document.getElementById("configForm");
 
 		$( "form" ).submit(function( event ) {
-	    var tempFormResult = { };
-	    var CONFIG = {"views":[],"plotSetup":{}};
-	    $.each($('form').serializeArray(), function() {
-	        tempFormResult[this.name] = this.value;
-	    });
 
-	    
-	    var boolSpatiallyResolved = false;
-	    var boolMolecular = false;
+		    var tempFormResult = { };
+		    var CONFIG = {"views":[],"plotSetup":{}};
+		    $.each($('form').serializeArray(), function() {
+		        tempFormResult[this.name] = this.value;
+		    });
 
-	    var boolFormFilledCorrectly = false;
+		    if (tempFormResult["boolSpatiallyResolvedData"] == "yes") {var boolSpatiallyResolved = true;}
+		    else {var boolSpatiallyResolved = false;}
 
+		    if (tempFormResult["boolMolecularData"] == "yes") {var boolMolecular = true;}
+		    else {var boolMolecular = false;}
 
-	    if (tempFormResult["propertyListSpatiallyResolved"] === "") {
-	      console.log("No Spatially Resolved Data");
-	    }
-	    else{
-	      CONFIG["plotSetup"]["spatiallyResolvedPropertyList"] = tempFormResult["propertyListSpatiallyResolved"].split(",").map(function(item) { return item.trim();});
-	      boolSpatiallyResolved = true;
-	      CONFIG["plotSetup"]["pointcloudDensity"] = tempFormResult["densityProperty"];
-	      CONFIG["plotSetup"]["densityCutoff"] = Number(tempFormResult["densityCutoff"]);
-	    }
+		    if (tempFormResult["boolFramedData"] == "yes") {var boolFramed = true;}
+		    else {var boolFramed = false;}
+		    
 
-	    if (tempFormResult["propertyListMolecular"] === "") {
-	      console.log("No Molecular Data");
-	    }
-	    else{
-	      CONFIG["plotSetup"]["moleculePropertyList"] = tempFormResult["propertyListMolecular"].split(",").map(function(item) { return item.trim();});
-	      boolMolecular = true
-	    }
-
-	    for (var i = 1; i < NUMBER3DVIEWS+1; i++) {
-	      var tempViewSetup = {"viewType": "3DView"};
-	      tempViewSetup["moleculeName"] = tempFormResult["view" + i + "Name"];
-	      tempViewSetup["systemDimension"] = {"x":[Number(tempFormResult["view"+i+"XMin"]), Number(tempFormResult["view"+i+"XMax"])],
-	                                          "y":[Number(tempFormResult["view"+i+"YMin"]), Number(tempFormResult["view"+i+"YMax"])],
-	                                          "z":[Number(tempFormResult["view"+i+"ZMin"]), Number(tempFormResult["view"+i+"ZMax"])]};
-	      if (boolSpatiallyResolved){
-	        tempViewSetup["spatiallyResolvedData"] = {};
-	        tempViewSetup["spatiallyResolvedData"]["dataFilename"] = tempFormResult["view"+i+"SpatiallyResolvedDataFilename"];
-	        tempViewSetup["spatiallyResolvedData"]["gridSpacing"] = {"x":Number(tempFormResult["view"+i+"XSpacing"]), "y":Number(tempFormResult["view"+i+"YSpacing"]),"z":Number(tempFormResult["view"+i+"ZSpacing"])}
-	      }
-
-	      if (boolMolecular){
-	        tempViewSetup["moleculeData"] = {};
-	        tempViewSetup["moleculeData"]["dataFilename"] = tempFormResult["view"+i+"MolecularDataFilename"];
-	      }
-	      CONFIG["views"].push(tempViewSetup);
+		    var boolFormFilledCorrectly = false;
 
 
-	    }
+		    if (boolSpatiallyResolved) {
+		    	CONFIG["plotSetup"]["spatiallyResolvedPropertyList"] = tempFormResult["propertyListSpatiallyResolved"].split(",").map(function(item) { return item.trim();});
+		      CONFIG["plotSetup"]["pointcloudDensity"] = tempFormResult["densityProperty"];
+		      CONFIG["plotSetup"]["densityCutoff"] = Number(tempFormResult["densityCutoff"]);
+		    }
+		    else{
+		      console.log("No Spatially Resolved Data");
+		    }
 
-	    /*console.log(tempFormResult);
-	    console.log( CONFIG );
-	    console.log(NUMBER3DVIEWS);*/
-	    console.log("read input form");
-	    event.preventDefault();
-	    uploader.parentNode.removeChild(uploader);
-		uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
-		configForm.parentNode.removeChild(configForm);
-		handleViewSetup(CONFIG);
-	  });
+		    if (boolMolecular) {
+		    	CONFIG["plotSetup"]["moleculePropertyList"] = tempFormResult["propertyListMolecular"].split(",").map(function(item) { return item.trim();});
+		      
+		    }
+		    else{
+		    	console.log("No Molecular Data");
+		    }
+
+		    if (boolFramed) {
+		    	CONFIG["plotSetup"]["frameProperty"] = tempFormResult["frameProperty"];
+		    }
+		    else{
+		    	console.log("Data not framed");
+		    }
+
+		    for (var i = 1; i < NUMBER3DVIEWS+1; i++) {
+		      var tempViewSetup = {"viewType": "3DView"};
+		      tempViewSetup["moleculeName"] = tempFormResult["view" + i + "Name"];
+		      tempViewSetup["systemDimension"] = {"x":[Number(tempFormResult["view"+i+"XMin"]), Number(tempFormResult["view"+i+"XMax"])],
+		                                          "y":[Number(tempFormResult["view"+i+"YMin"]), Number(tempFormResult["view"+i+"YMax"])],
+		                                          "z":[Number(tempFormResult["view"+i+"ZMin"]), Number(tempFormResult["view"+i+"ZMax"])]};
+		      if (boolSpatiallyResolved){
+		        tempViewSetup["spatiallyResolvedData"] = {};
+		        tempViewSetup["spatiallyResolvedData"]["dataFilename"] = document.getElementById("view"+i+"SpatiallyResolvedDataFilename").files[0].path;
+		        tempViewSetup["spatiallyResolvedData"]["gridSpacing"] = {"x":Number(tempFormResult["view"+i+"XSpacing"]), "y":Number(tempFormResult["view"+i+"YSpacing"]),"z":Number(tempFormResult["view"+i+"ZSpacing"])}
+		      }
+
+		      if (boolMolecular){
+		        tempViewSetup["moleculeData"] = {};
+		        tempViewSetup["moleculeData"]["dataFilename"] = document.getElementById("view"+i+"MolecularDataFilename").files[0].path;
+		      }
+		      CONFIG["views"].push(tempViewSetup);
+
+
+		    }
+
+		    console.log(tempFormResult);
+		    console.log( CONFIG );
+		    /*console.log(NUMBER3DVIEWS);*/
+		    console.log("read input form");
+		    event.preventDefault();
+		    uploader.parentNode.removeChild(uploader);
+			uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
+			configForm.parentNode.removeChild(configForm);
+			handleViewSetup(CONFIG);
+		});
 
 
 	}
