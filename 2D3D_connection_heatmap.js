@@ -53,7 +53,8 @@ else{
 		var uploader_wrapper = document.getElementById("uploader_wrapper");
 		uploader.addEventListener("change", handleFiles, false);
 
-		var configForm = document.getElementById("configForm");
+		var configForm = document.getElementById("form_wrapper");
+		var divider = document.getElementById("divider");
 
 		$( "form" ).submit(function( event ) {
 
@@ -129,6 +130,7 @@ else{
 		    uploader.parentNode.removeChild(uploader);
 			uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
 			configForm.parentNode.removeChild(configForm);
+			divider.parentNode.removeChild(divider);
 			handleViewSetup(CONFIG);
 		});
 
@@ -154,6 +156,7 @@ function handleFiles() {
 			uploader.parentNode.removeChild(uploader);
 			uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
 			configForm.parentNode.removeChild(configForm);
+			divider.parentNode.removeChild(divider);
 			handleViewSetup(data);
 		},
 		error: function(requestObject, error, errorThrown) {

@@ -19,7 +19,7 @@ export function initialize3DViewTooltip(view){
 
 }
 
-/*
+
 export function update3DViewTooltip(view){
 
 	var mouse = new THREE.Vector2();
@@ -67,8 +67,8 @@ export function update3DViewTooltip(view){
 			view.INTERSECTED = null;
 	}
 }
-*/
 
+/*
 export function update3DViewTooltip(view){
 
 	var mouse = new THREE.Vector2();
@@ -116,4 +116,4 @@ export function update3DViewTooltip(view){
 			}
 			view.INTERSECTED = null;
 	}
-}
+}*/

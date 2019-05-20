@@ -51,8 +51,18 @@ div.dg li:not(.folder){
 .inner {
   margin-left: auto;
   margin-right: auto;
-  height: 90%;
-  width: 800px;
+  height: 120px;
+  width: 70%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  /*whatever width you want*/
+}
+
+.inner2 {
+  margin-left: auto;
+  margin-right: auto;
+  height: 70%;
+  width: 70%;
   overflow-x:hidden;
   overflow-y:auto;
   /*whatever width you want*/
