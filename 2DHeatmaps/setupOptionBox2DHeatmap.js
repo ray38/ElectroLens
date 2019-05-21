@@ -93,18 +93,18 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	.name( 'Y scale' )
 	.onChange( function( value ) {
 		//updatePointCloudGeometry(view);
-	});
-	plotFolder.add( options, 'numPerSide', 10, 50000)
-	.name('# Points')
+	});*/
+	plotFolder.add( options, 'numPerSide', 10, 10000).step( 1 )
+	.name('Resolution')
 	.onChange( function( value ) {
 		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
 		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
 		//options.replotHeatmap.call();
-	});*/
+	});
 	if (view.overallMoleculeDataBoolean) { plotFolder.add( options, 'saveOverallMoleculeData').name('Save Molecule');}
 	if (view.overallSpatiallyResolvedDataBoolean) {plotFolder.add( options, 'saveOverallSpatiallyResolvedData').name('Save Spatially Resolved');}
 
-	plotFolder.add(options, 'replotHeatmap');
+	plotFolder.add(options, 'replotHeatmap').name("Update Plot");
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
 		plotFolder.add( options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject)
@@ -174,7 +174,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		updateHeatmap(view);
 		changeLegend(view);
 	});
-	viewFolder.add( options, 'resetCamera');
+	viewFolder.add( options, 'resetCamera').name("Reset camera");
 	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
 	//viewFolder.open();
 

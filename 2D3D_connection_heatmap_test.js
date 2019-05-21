@@ -333,7 +333,7 @@ function main(views, plotSetup) {
 					_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
 					_UtilitiesArrangeDataJs.arrangeMoleculeDataToFrame2(view);
 					_DViewsMoleculeViewJs.getMoleculeGeometry(view);
-					_DViewsTooltipJs.initialize3DViewTooltip(view);
+					//initialize3DViewTooltip(view);
 				}
 
 				_DViewsSystemEdgeJs.addSystemEdge(view);
@@ -519,9 +519,7 @@ function main(views, plotSetup) {
 				if (view.viewType == "2DHeatmap") {
 					_DHeatmapsTooltipJs.updateHeatmapTooltip(view);
 				}
-				if (view.viewType == "3DView" && view.systemMoleculeDataBoolean) {
-					_DViewsTooltipJs.update3DViewTooltip(view);
-				}
+				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
 	}
@@ -873,7 +871,7 @@ function arrangeDataToHeatmap(view) {
 
 	var yScale = d3.scaleQuantize().domain([yMin, yMax]).range(heatmapStep);
 
-	console.log(xMin, xMax, yMin, yMax);
+	console.log(xMin, xMax, yMin, yMax, numPerSide);
 
 	console.log(xScale, yScale);
 
@@ -1802,14 +1800,12 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
  .name( 'Y scale' )
  .onChange( function( value ) {
  	//updatePointCloudGeometry(view);
- });
- plotFolder.add( options, 'numPerSide', 10, 50000)
- .name('# Points')
- .onChange( function( value ) {
- 	view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
- 	view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50,50]);
- 	//options.replotHeatmap.call();
  });*/
+	plotFolder.add(options, 'numPerSide', 10, 10000).step(1).name('Resolution').onChange(function (value) {
+		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
+		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
+		//options.replotHeatmap.call();
+	});
 	if (view.overallMoleculeDataBoolean) {
 		plotFolder.add(options, 'saveOverallMoleculeData').name('Save Molecule');
 	}
@@ -1817,7 +1813,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		plotFolder.add(options, 'saveOverallSpatiallyResolvedData').name('Save Spatially Resolved');
 	}
 
-	plotFolder.add(options, 'replotHeatmap');
+	plotFolder.add(options, 'replotHeatmap').name("Update Plot");
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
 		plotFolder.add(options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
@@ -1867,7 +1863,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		_HeatmapViewJs.updateHeatmap(view);
 		_MultiviewControlColorLegendJs.changeLegend(view);
 	});
-	viewFolder.add(options, 'resetCamera');
+	viewFolder.add(options, 'resetCamera').name("Reset camera");
 	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
 	//viewFolder.open();
 

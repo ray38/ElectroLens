@@ -218,7 +218,7 @@ export function arrangeDataToHeatmap(view){
 	.domain([yMin, yMax])
 	.range(heatmapStep);
 
-	console.log(xMin,xMax,yMin,yMax)
+	console.log(xMin,xMax,yMin,yMax, numPerSide)
 
 	console.log(xScale,yScale)
 	
