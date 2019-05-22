@@ -55,7 +55,7 @@
 
             <div class="form-group" id="propertyListSpatiallyResolvedForm">
               <label for="propertyListSpatiallyResolved">List of Properties for Spatially Resolved Data</label>
-              <textarea class="form-control" id="propertyListSpatiallyResolved" name="propertyListSpatiallyResolved" rows="1">x, y, z, rho, property_1, property_2</textarea>
+              <textarea class="form-control" id="propertyListSpatiallyResolved" name="propertyListSpatiallyResolved" rows="1" disabled>x, y, z, rho, property_1, property_2</textarea>
               <small id="propertyListSpatiallyResolvedHelp" class="form-text text-muted">  *The list of properties for spatially resolved data, leave blank if not visualizing spatially resolved data</small>
             </div>
 
@@ -63,27 +63,27 @@
               <div class="col">
                 <div class="form-group" id="densityPropertyForm">
                   <label for="densityProperty">Density Property: </label>
-                  <input autocomplete="off" class="input" id="densityProperty" name="densityProperty" type="text" data-items="8" value="rho">
+                  <input autocomplete="off" class="input" id="densityProperty" name="densityProperty" type="text" data-items="8" value="rho" disabled>
                   <small id="densityPropertyHelp" class="form-text text-muted">  *The property denotes the density of electron.</small>
                 </div>
               </div>
               <div class="col">
                 <div class="form-group" id="densityCutoffForm">
                   <label for="densityCutoff">Density Cutoff: </label>
-                  <input autocomplete="off" class="input" id="densityCutoff" name="densityCutoff" type="number" step=any data-items="8" value=1e-3>
+                  <input autocomplete="off" class="input" id="densityCutoff" name="densityCutoff" type="number" step=any data-items="8" value=1e-3 disabled>
                 </div>
               </div>
             </div>
 
             <div class="form-group" id="propertyListMolecularForm">
               <label for="propertyListMolecular">List of Properties for Molecular Data</label>
-              <textarea class="form-control" id="propertyListMolecular" name="propertyListMolecular" rows="1">x, y, z, atom, property_1, property_2</textarea>
+              <textarea class="form-control" id="propertyListMolecular" name="propertyListMolecular" rows="1" disabled>x, y, z, atom, property_1, property_2</textarea>
               <small id="propertyListMolecularHelp" class="form-text text-muted">  *The list of properties for molecular data, leave blank if not visualizing molecular data</small>
             </div>
 
             <div class="form-group" id="framePropertyForm">
               <label for="propertyListMolecular">Property Labeling frame</label>
-              <input autocomplete="off" class="input" id="frameProperty" name="frameProperty" type="text" data-items="8" value="frame">
+              <input autocomplete="off" class="input" id="frameProperty" name="frameProperty" type="text" data-items="8" value="frame" disabled>
               <small id="framePropertyrHelp" class="form-text text-muted">  *The property labeling frame, leave blank if the data is not framed</small>
             </div>
 
@@ -171,7 +171,21 @@
       </div>
     </div>
 
- 
+    <script>
+    document.getElementById('boolSpatiallyResolvedData').onchange = function() {
+      document.getElementById('propertyListSpatiallyResolved').disabled = !this.checked;
+      document.getElementById('densityProperty').disabled = !this.checked;
+      document.getElementById('densityCutoff').disabled = !this.checked;
+    };
+
+    document.getElementById('boolMolecularData').onchange = function() {
+      document.getElementById('propertyListMolecular').disabled = !this.checked;
+    };
+
+    document.getElementById('boolFramedData').onchange = function() {
+      document.getElementById('frameProperty').disabled = !this.checked;
+    };
+    </script>
 
     <script>
       $(document).ready(function(){
