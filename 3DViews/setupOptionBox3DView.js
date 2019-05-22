@@ -1,6 +1,6 @@
 import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, updatePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "./PointCloud_selection.js";
 import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, addMoleculePeriodicReplicates, removeMoleculePeriodicReplicates, changeMoleculePeriodicReplicates} from "./MoleculeView.js";
-import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
+import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
 export function setupOptionBox3DView(view,plotSetup){
@@ -192,8 +192,10 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Color Basis' )
 		.onChange( function( value ) {
 			//adjustColorScaleAccordingToDefault(view);
+			if (value == "atom"){removeLegendMolecule(view);}
 			adjustScaleAccordingToDefaultMoleculeData(view);
 			changeMoleculeGeometry(view);
+			if (value != "atom"){changeLegendMolecule(view);}
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			gui.updateDisplay();
 		});
@@ -203,12 +205,14 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
+			changeLegendMolecule(view);	
 		});
 		moleculeFolder.add( options, 'moleculeColorSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
+			changeLegendMolecule(view);	
 		});
 
 		moleculeFolder.add( options, 'moleculeSizeCodeBasis', moleculeDataFeatureChoiceObject)
@@ -225,7 +229,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Size Scale Min' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
+			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};	
 		});
 		moleculeFolder.add( options, 'moleculeSizeSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Size Scale Max' )
@@ -260,6 +264,31 @@ export function setupOptionBox3DView(view,plotSetup){
 		});
 
 		moleculeFolder.close();
+
+		var moleculeLegendFolder 	= moleculeFolder.addFolder( 'Molecule Legend' );
+
+		moleculeLegendFolder.add(options,'legendXMolecule',-10,10).name("Position X").step(0.1).onChange( function( value ) {
+			changeLegend(view);	
+		});
+		moleculeLegendFolder.add(options,'legendYMolecule',-10,10).name("Position Y").step(0.1).onChange( function( value ) {
+			changeLegend(view);	
+		});
+		moleculeLegendFolder.add(options,'legendWidthMolecule',0,1).name("Width").step(0.1).onChange( function( value ) {
+			changeLegend(view);	
+		});
+		moleculeLegendFolder.add(options,'legendHeightMolecule',0,15).name("Height").step(0.1).onChange( function( value ) {
+			changeLegend(view);	
+		});
+		moleculeLegendFolder.add(options,'legendTickMolecule',1,15).name("Tick").step(1).onChange( function( value ) {
+			changeLegend(view);	
+		});
+		moleculeLegendFolder.add(options,'legendFontsizeMolecule',10,75).name("Fontsize").step(1).onChange( function( value ) {
+			changeLegend(view);	
+		});
+		moleculeLegendFolder.add( options, 'toggleLegendMolecule').name("Toggle legend");
+		moleculeLegendFolder.close();
+
+
 	}
 
 /*
@@ -335,28 +364,28 @@ export function setupOptionBox3DView(view,plotSetup){
 
 		pointCloudFolder.close();
 
-		var pointCloudLegnedFolder 	= pointCloudFolder.addFolder( 'Point Cloud Legend' );
+		var pointCloudLegendFolder 	= pointCloudFolder.addFolder( 'Point Cloud Legend' );
 
-		pointCloudLegnedFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {
+		pointCloudLegendFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {
 			changeLegend(view);	
 		});
-		pointCloudLegnedFolder.add(options,'legendY',-10,10).step(0.1).onChange( function( value ) {
+		pointCloudLegendFolder.add(options,'legendY',-10,10).step(0.1).onChange( function( value ) {
 			changeLegend(view);	
 		});
-		pointCloudLegnedFolder.add(options,'legendWidth',0,1).step(0.1).onChange( function( value ) {
+		pointCloudLegendFolder.add(options,'legendWidth',0,1).step(0.1).onChange( function( value ) {
 			changeLegend(view);	
 		});
-		pointCloudLegnedFolder.add(options,'legendHeight',0,15).step(0.1).onChange( function( value ) {
+		pointCloudLegendFolder.add(options,'legendHeight',0,15).step(0.1).onChange( function( value ) {
 			changeLegend(view);	
 		});
-		pointCloudLegnedFolder.add(options,'legendTick',1,15).step(1).onChange( function( value ) {
+		pointCloudLegendFolder.add(options,'legendTick',1,15).step(1).onChange( function( value ) {
 			changeLegend(view);	
 		});
-		pointCloudLegnedFolder.add(options,'legendFontsize',10,75).step(1).onChange( function( value ) {
+		pointCloudLegendFolder.add(options,'legendFontsize',10,75).step(1).onChange( function( value ) {
 			changeLegend(view);	
 		});
-		pointCloudLegnedFolder.add( options, 'toggleLegend');
-		pointCloudLegnedFolder.close();
+		pointCloudLegendFolder.add( options, 'toggleLegend').name("Toggle legend");
+		pointCloudLegendFolder.close();
 
 	}
 

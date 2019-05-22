@@ -26,7 +26,7 @@ import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSe
 
 import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
-import {insertLegend, removeLegend, changeLegend} from "./MultiviewControl/colorLegend.js";
+import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "./MultiviewControl/colorLegend.js";
 
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "./Utilities/scale.js";
 
@@ -330,6 +330,7 @@ function main(views,plotSetup) {
 					adjustScaleAccordingToDefaultMoleculeData(view);
 					arrangeMoleculeDataToFrame2(view);
 					getMoleculeGeometry(view);
+					//insertLegend(view);
 					//initialize3DViewTooltip(view);
 				}
 

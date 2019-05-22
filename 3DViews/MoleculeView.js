@@ -39,7 +39,7 @@ function addAtoms(view, moleculeData, lut){
 					sizes[i] = options.atomSize*atomRadius[atomData.atom]*400;
 				}
 				else {
-					var tempSize = (atomData[sizeCode] - sizeMin)/(sizeMax - sizeMin);
+					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
 					sizes[i] = options.atomSize*tempSize*400;
 				}
 
@@ -88,7 +88,7 @@ function addAtoms(view, moleculeData, lut){
 					atom.scale.set(options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom], options.atomSize*atomRadius[atomData.atom]);
 				}
 				else {
-					var tempSize = (atomData[sizeCode] - sizeMin)/(sizeMax - sizeMin);
+					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
 					atom.scale.set(options.atomSize*tempSize, options.atomSize*tempSize, options.atomSize*tempSize);
 				}
 				atom.position.set(atomData.xPlot*20.0, atomData.yPlot*20.0,atomData.zPlot*20.0);
@@ -108,7 +108,8 @@ function addAtoms(view, moleculeData, lut){
 
 function addBonds(view, moleculeData, neighborsData){
 	var options = view.options;
-	
+	var colorCode = options.moleculeColorCodeBasis;
+	var lut = view.moleculeLut;
 
 	if (options.bondsStyle == "tube"){
 		var bonds = new THREE.Group();
@@ -122,7 +123,9 @@ function addBonds(view, moleculeData, neighborsData){
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
-				var color = colorSetup[moleculeData[i].atom];
+				if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
+				else {var color = lut.getColor( moleculeData[i][colorCode] );}
+				//var color = colorSetup[moleculeData[i].atom];
 
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
 
@@ -156,7 +159,9 @@ function addBonds(view, moleculeData, neighborsData){
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
-				var color = colorSetup[moleculeData[i].atom];
+				if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
+				else {var color = lut.getColor( moleculeData[i][colorCode] );}
+				//var color = colorSetup[moleculeData[i].atom];
 
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
 
@@ -167,7 +172,7 @@ function addBonds(view, moleculeData, neighborsData){
 
 				    	vertices.push(point1, point2);
 				    	indices.push(index_counter, index_counter + 1);
-				    	verticesColors.push(colorToRgb(color), colorToRgb(color));
+				    	verticesColors.push(color, color);
 				    	index_counter += 2;
 
 				    	
@@ -222,7 +227,9 @@ function addBonds(view, moleculeData, neighborsData){
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
-				var color = colorSetup[moleculeData[i].atom];
+				if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
+				else {var color = lut.getColor( moleculeData[i][colorCode] );}
+				//var color = colorSetup[moleculeData[i].atom];
 
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
 
@@ -233,7 +240,7 @@ function addBonds(view, moleculeData, neighborsData){
 
 				    	vertices.push(point1, point2);
 				    	indices.push(index_counter, index_counter + 1);
-				    	verticesColors.push(colorToRgb(color), colorToRgb(color));
+				    	verticesColors.push(color, color);
 				    	index_counter += 2;
 
 				    	
@@ -324,6 +331,7 @@ export function getMoleculeGeometry(view){
 		var lut = new THREE.Lut( colorMap, numberOfColors );
 		lut.setMax( options.moleculeColorSettingMax );
 		lut.setMin( options.moleculeColorSettingMin );
+		//view.lut = lut;
 		view.moleculeLut = lut;
 	}
 	
@@ -390,8 +398,8 @@ export function addMoleculePeriodicReplicates(view){
 	var colorCode = options.moleculeColorCodeBasis;
 
 	if (colorCode != "atom") {
-
 		var lut = view.moleculeLut;
+		//var lut = view.lut;
 	}
 	
 	if (sizeCode != "atom") {

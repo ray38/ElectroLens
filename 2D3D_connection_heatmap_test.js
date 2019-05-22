@@ -333,6 +333,7 @@ function main(views, plotSetup) {
 					_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
 					_UtilitiesArrangeDataJs.arrangeMoleculeDataToFrame2(view);
 					_DViewsMoleculeViewJs.getMoleculeGeometry(view);
+					//insertLegend(view);
 					//initialize3DViewTooltip(view);
 				}
 
@@ -2326,7 +2327,10 @@ function addAtoms(view, moleculeData, lut) {
 				if (sizeCode == "atom") {
 					sizes[i] = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 400;
 				} else {
-					var tempSize = (atomData[sizeCode] - sizeMin) / (sizeMax - sizeMin);
+					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+					console.log(options.moleculeSizeSettingMax, options.moleculeSizeSettingMin);
+					console.log(tempSize);
+					console.log(options.atomSize * tempSize * 400);
 					sizes[i] = options.atomSize * tempSize * 400;
 				}
 
@@ -2386,6 +2390,8 @@ function addAtoms(view, moleculeData, lut) {
 
 function addBonds(view, moleculeData, neighborsData) {
 	var options = view.options;
+	var colorCode = options.moleculeColorCodeBasis;
+	var lut = view.moleculeLut;
 
 	if (options.bondsStyle == "tube") {
 		var bonds = new THREE.Group();
@@ -2399,7 +2405,12 @@ function addBonds(view, moleculeData, neighborsData) {
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
-				var color = _AtomSetupJs.colorSetup[moleculeData[i].atom];
+				if (colorCode == "atom") {
+					var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[moleculeData[i].atom]);
+				} else {
+					var color = lut.getColor(moleculeData[i][colorCode]);
+				}
+				//var color = colorSetup[moleculeData[i].atom];
 
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
 
@@ -2432,7 +2443,12 @@ function addBonds(view, moleculeData, neighborsData) {
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
-				var color = _AtomSetupJs.colorSetup[moleculeData[i].atom];
+				if (colorCode == "atom") {
+					var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[moleculeData[i].atom]);
+				} else {
+					var color = lut.getColor(moleculeData[i][colorCode]);
+				}
+				//var color = colorSetup[moleculeData[i].atom];
 
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
 
@@ -2443,7 +2459,7 @@ function addBonds(view, moleculeData, neighborsData) {
 
 						vertices.push(point1, point2);
 						indices.push(index_counter, index_counter + 1);
-						verticesColors.push(_UtilitiesOtherJs.colorToRgb(color), _UtilitiesOtherJs.colorToRgb(color));
+						verticesColors.push(color, color);
 						index_counter += 2;
 					}
 				}
@@ -2495,7 +2511,12 @@ function addBonds(view, moleculeData, neighborsData) {
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
-				var color = _AtomSetupJs.colorSetup[moleculeData[i].atom];
+				if (colorCode == "atom") {
+					var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[moleculeData[i].atom]);
+				} else {
+					var color = lut.getColor(moleculeData[i][colorCode]);
+				}
+				//var color = colorSetup[moleculeData[i].atom];
 
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
 
@@ -2506,7 +2527,7 @@ function addBonds(view, moleculeData, neighborsData) {
 
 						vertices.push(point1, point2);
 						indices.push(index_counter, index_counter + 1);
-						verticesColors.push(_UtilitiesOtherJs.colorToRgb(color), _UtilitiesOtherJs.colorToRgb(color));
+						verticesColors.push(color, color);
 						index_counter += 2;
 					}
 				}
@@ -2582,6 +2603,7 @@ function getMoleculeGeometry(view) {
 		var lut = new THREE.Lut(colorMap, numberOfColors);
 		lut.setMax(options.moleculeColorSettingMax);
 		lut.setMin(options.moleculeColorSettingMin);
+		//view.lut = lut;
 		view.moleculeLut = lut;
 	}
 
@@ -2631,8 +2653,8 @@ function addMoleculePeriodicReplicates(view) {
 	var colorCode = options.moleculeColorCodeBasis;
 
 	if (colorCode != "atom") {
-
 		var lut = view.moleculeLut;
+		//var lut = view.lut;
 	}
 
 	if (sizeCode != "atom") {
@@ -3284,6 +3306,23 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.atomsStyle = "sprite";
 			this.bondsStyle = "line";
 
+			this.legendXMolecule = 6;
+			this.legendYMolecule = -4;
+			this.legendWidthMolecule = 0.5;
+			this.legendHeightMolecule = 6;
+			this.legendTickMolecule = 5;
+			this.legendFontsizeMolecule = 55;
+			this.legendShownBooleanMolecule = true;
+			this.toggleLegendMolecule = function () {
+				if (!viewSetup.options.legendShownBooleanMolecule) {
+					_MultiviewControlColorLegendJs.insertLegendMolecule(viewSetup);
+					viewSetup.options.legendShownBooleanMolecule = !viewSetup.options.legendShownBooleanMolecule;
+				} else {
+					_MultiviewControlColorLegendJs.removeLegendMolecule(viewSetup);
+					viewSetup.options.legendShownBooleanMolecule = !viewSetup.options.legendShownBooleanMolecule;
+				}
+			};
+
 			this.saveSystemMoleculeData = function () {
 				_UtilitiesSaveDataJs.saveSystemMoleculeData(viewSetup, plotSetup);
 			};
@@ -3498,8 +3537,14 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		moleculeFolder.add(options, 'moleculeColorCodeBasis', moleculeDataFeatureChoiceObject).name('Color Basis').onChange(function (value) {
 			//adjustColorScaleAccordingToDefault(view);
+			if (value == "atom") {
+				_MultiviewControlColorLegendJs.removeLegendMolecule(view);
+			}
 			_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			if (value != "atom") {
+				_MultiviewControlColorLegendJs.changeLegendMolecule(view);
+			}
 			if (options.PBCBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			};
@@ -3511,12 +3556,14 @@ function setupOptionBox3DView(view, plotSetup) {
 			if (options.PBCBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			};
+			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 		});
 		moleculeFolder.add(options, 'moleculeColorSettingMax', -100, 100).step(0.1).name('Color Scale Max').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 			if (options.PBCBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			};
+			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 		});
 
 		moleculeFolder.add(options, 'moleculeSizeCodeBasis', moleculeDataFeatureChoiceObject).name('Size Basis').onChange(function (value) {
@@ -3560,6 +3607,29 @@ function setupOptionBox3DView(view, plotSetup) {
 		});
 
 		moleculeFolder.close();
+
+		var moleculeLegendFolder = moleculeFolder.addFolder('Molecule Legend');
+
+		moleculeLegendFolder.add(options, 'legendXMolecule', -10, 10).name("Position X").step(0.1).onChange(function (value) {
+			_MultiviewControlColorLegendJs.changeLegend(view);
+		});
+		moleculeLegendFolder.add(options, 'legendYMolecule', -10, 10).name("Position Y").step(0.1).onChange(function (value) {
+			_MultiviewControlColorLegendJs.changeLegend(view);
+		});
+		moleculeLegendFolder.add(options, 'legendWidthMolecule', 0, 1).name("Width").step(0.1).onChange(function (value) {
+			_MultiviewControlColorLegendJs.changeLegend(view);
+		});
+		moleculeLegendFolder.add(options, 'legendHeightMolecule', 0, 15).name("Height").step(0.1).onChange(function (value) {
+			_MultiviewControlColorLegendJs.changeLegend(view);
+		});
+		moleculeLegendFolder.add(options, 'legendTickMolecule', 1, 15).name("Tick").step(1).onChange(function (value) {
+			_MultiviewControlColorLegendJs.changeLegend(view);
+		});
+		moleculeLegendFolder.add(options, 'legendFontsizeMolecule', 10, 75).name("Fontsize").step(1).onChange(function (value) {
+			_MultiviewControlColorLegendJs.changeLegend(view);
+		});
+		moleculeLegendFolder.add(options, 'toggleLegendMolecule').name("Toggle legend");
+		moleculeLegendFolder.close();
 	}
 
 	/*
@@ -3631,28 +3701,28 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		pointCloudFolder.close();
 
-		var pointCloudLegnedFolder = pointCloudFolder.addFolder('Point Cloud Legend');
+		var pointCloudLegendFolder = pointCloudFolder.addFolder('Point Cloud Legend');
 
-		pointCloudLegnedFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
+		pointCloudLegendFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
-		pointCloudLegnedFolder.add(options, 'legendY', -10, 10).step(0.1).onChange(function (value) {
+		pointCloudLegendFolder.add(options, 'legendY', -10, 10).step(0.1).onChange(function (value) {
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
-		pointCloudLegnedFolder.add(options, 'legendWidth', 0, 1).step(0.1).onChange(function (value) {
+		pointCloudLegendFolder.add(options, 'legendWidth', 0, 1).step(0.1).onChange(function (value) {
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
-		pointCloudLegnedFolder.add(options, 'legendHeight', 0, 15).step(0.1).onChange(function (value) {
+		pointCloudLegendFolder.add(options, 'legendHeight', 0, 15).step(0.1).onChange(function (value) {
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
-		pointCloudLegnedFolder.add(options, 'legendTick', 1, 15).step(1).onChange(function (value) {
+		pointCloudLegendFolder.add(options, 'legendTick', 1, 15).step(1).onChange(function (value) {
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
-		pointCloudLegnedFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
+		pointCloudLegendFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
-		pointCloudLegnedFolder.add(options, 'toggleLegend');
-		pointCloudLegnedFolder.close();
+		pointCloudLegendFolder.add(options, 'toggleLegend').name("Toggle legend");
+		pointCloudLegendFolder.close();
 	}
 
 	sliderFolder.add(options, 'x_low', view.xPlotMin, view.xPlotMax).step(1).name('x low').onChange(function (value) {
@@ -4059,6 +4129,9 @@ exports.__esModule = true;
 exports.insertLegend = insertLegend;
 exports.removeLegend = removeLegend;
 exports.changeLegend = changeLegend;
+exports.insertLegendMolecule = insertLegendMolecule;
+exports.removeLegendMolecule = removeLegendMolecule;
+exports.changeLegendMolecule = changeLegendMolecule;
 
 function insertLegend(view) {
 	var lut = view.lut;
@@ -4093,6 +4166,42 @@ function removeLegend(view) {
 function changeLegend(view) {
 	removeLegend(view);
 	insertLegend(view);
+}
+
+function insertLegendMolecule(view) {
+	var lut = view.moleculeLut;
+	var options = view.options;
+	var legend = lut.setLegendOn({ 'position': { 'x': options.legendXMolecule, 'y': options.legendYMolecule, 'z': 0 }, 'dimensions': { 'width': options.legendWidthMolecule, 'height': options.legendHeightMolecule } });
+	view.sceneHUD.add(legend);
+	view.legendMolecule = legend;
+	var labels = lut.setLegendLabels({ /*'title': title,*/'ticks': options.legendTickMolecule, 'fontsize': options.legendFontsizeMolecule });
+
+	//view.sceneHUD.add ( labels['title'] );
+
+	for (var i = 0; i < options.legendTickMolecule; i++) {
+		view.sceneHUD.add(labels['ticks'][i]);
+		view.sceneHUD.add(labels['lines'][i]);
+	}
+}
+
+function removeLegendMolecule(view) {
+	var sceneHUD = view.sceneHUD;
+	var elementsInTheScene = sceneHUD.children.length;
+
+	for (var i = elementsInTheScene - 1; i > 0; i--) {
+
+		if (sceneHUD.children[i].name != 'camera' && sceneHUD.children[i].name != 'ambientLight' && sceneHUD.children[i].name != 'border' && sceneHUD.children[i].name != 'directionalLight') {
+
+			//console.log(sceneHUD.children [ i ].name);
+			sceneHUD.remove(sceneHUD.children[i]);
+		}
+	}
+}
+
+function changeLegendMolecule(view) {
+	removeLegendMolecule(view);
+	insertLegendMolecule(view);
+	//if (view.options.moleculeColorCodeBasis != "atom"){insertLegendMolecule(view);}
 }
 
 },{}],20:[function(require,module,exports){

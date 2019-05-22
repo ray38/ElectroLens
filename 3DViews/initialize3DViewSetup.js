@@ -1,5 +1,5 @@
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
-import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
+import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {addSystemEdge, removeSystemEdge} from "./systemEdge.js";
 import {saveSystemMoleculeData, saveSystemSpatiallyResolvedData} from "../Utilities/saveData.js";
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
@@ -167,6 +167,24 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.showBonds = false;
 			this.atomsStyle = "sprite";
 			this.bondsStyle = "line";
+
+			this.legendXMolecule = 6;
+			this.legendYMolecule = -4;
+			this.legendWidthMolecule  = 0.5;
+			this.legendHeightMolecule = 6;
+			this.legendTickMolecule = 5;
+			this.legendFontsizeMolecule = 55;
+			this.legendShownBooleanMolecule = true;
+			this.toggleLegendMolecule = function(){
+									if (!viewSetup.options.legendShownBooleanMolecule){
+										insertLegendMolecule(viewSetup);
+										viewSetup.options.legendShownBooleanMolecule = !viewSetup.options.legendShownBooleanMolecule;
+									}
+									else {
+										removeLegendMolecule(viewSetup);
+										viewSetup.options.legendShownBooleanMolecule = !viewSetup.options.legendShownBooleanMolecule;
+									}
+								};
 
 
 			this.saveSystemMoleculeData = function(){saveSystemMoleculeData(viewSetup,plotSetup)};
