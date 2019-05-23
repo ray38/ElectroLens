@@ -1,0 +1,4 @@
+node_modules/
+repo
+npm-debug.log
+specs/browser/bundle.*
