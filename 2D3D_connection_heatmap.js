@@ -58,6 +58,13 @@ else{
 
 		$( "form" ).submit(function( event ) {
 
+			for (var i = 0; i < NUMBER3DVIEWS; i++) { 
+              document.getElementById('view'+ (i+1) +'YMax').disabled = false;
+		      document.getElementById('view'+ (i+1) +'ZMax').disabled = false;
+		      document.getElementById('view'+ (i+1) +'YMin').disabled = false;
+		      document.getElementById('view'+ (i+1) +'ZMin').disabled = false;
+            } 
+
 		    var tempFormResult = { };
 		    var CONFIG = {"views":[],"plotSetup":{}};
 		    $.each($('form').serializeArray(), function() {
