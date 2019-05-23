@@ -72,6 +72,13 @@ if (typeof data !== 'undefined') {
 
 		$("form").submit(function (event) {
 
+			for (var i = 0; i < NUMBER3DVIEWS; i++) {
+				document.getElementById('view' + (i + 1) + 'YMax').disabled = false;
+				document.getElementById('view' + (i + 1) + 'ZMax').disabled = false;
+				document.getElementById('view' + (i + 1) + 'YMin').disabled = false;
+				document.getElementById('view' + (i + 1) + 'ZMin').disabled = false;
+			}
+
 			var tempFormResult = {};
 			var CONFIG = { "views": [], "plotSetup": {} };
 			$.each($('form').serializeArray(), function () {
@@ -2328,9 +2335,6 @@ function addAtoms(view, moleculeData, lut) {
 					sizes[i] = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 400;
 				} else {
 					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-					console.log(options.moleculeSizeSettingMax, options.moleculeSizeSettingMin);
-					console.log(tempSize);
-					console.log(options.atomSize * tempSize * 400);
 					sizes[i] = options.atomSize * tempSize * 400;
 				}
 
@@ -2375,7 +2379,7 @@ function addAtoms(view, moleculeData, lut) {
 				if (sizeCode == "atom") {
 					atom.scale.set(options.atomSize * _AtomSetupJs.atomRadius[atomData.atom], options.atomSize * _AtomSetupJs.atomRadius[atomData.atom], options.atomSize * _AtomSetupJs.atomRadius[atomData.atom]);
 				} else {
-					var tempSize = (atomData[sizeCode] - sizeMin) / (sizeMax - sizeMin);
+					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
 					atom.scale.set(options.atomSize * tempSize, options.atomSize * tempSize, options.atomSize * tempSize);
 				}
 				atom.position.set(atomData.xPlot * 20.0, atomData.yPlot * 20.0, atomData.zPlot * 20.0);
