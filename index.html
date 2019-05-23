@@ -99,16 +99,22 @@
                 <label>System Dimensions: </label>
                 <div class="form-row">
                   <div class="col">
+                    <input class="form-check-input" type="checkbox" value="yes" name="boolView1CubicCell" id="boolView1CubicCell" checked>
+                    <label for="boolView1CubicCell">Cubic Cell? </label>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="col">
                     <label for="view1XMin">x min: </label>
                     <input type="number" step=any class="input" id="view1XMin" name="view1XMin" value="-5.0">
                   </div>
                   <div class="col">
                     <label for="view1YMin">y min: </label>
-                    <input type="number" step=any class="input" id="view1YMin" name="view1YMin" value="-5.0">
+                    <input type="number" step=any class="input" id="view1YMin" name="view1YMin" value="-5.0" disabled>
                   </div>
                   <div class="col">
                     <label for="view1ZMin">z min: </label>
-                    <input type="number" step=any class="input" id="view1ZMin" name="view1ZMin" value="-5.0">
+                    <input type="number" step=any class="input" id="view1ZMin" name="view1ZMin" value="-5.0" disabled>
                   </div>
                   
                 </div>
@@ -119,11 +125,11 @@
                   </div>
                   <div class="col">
                     <label for="view1YMax">y max: </label>
-                    <input type="number" step=any class="input" id="view1YMax" name="view1YMax" value="4.9">
+                    <input type="number" step=any class="input" id="view1YMax" name="view1YMax" value="4.9" disabled>
                   </div>
                   <div class="col">
                     <label for="view1ZMax">z max: </label>
-                    <input type="number" step=any class="input" id="view1ZMax" name="view1ZMax" value="4.9">
+                    <input type="number" step=any class="input" id="view1ZMax" name="view1ZMax" value="4.9" disabled>
                   </div>
                 </div>
               </div>
@@ -195,16 +201,22 @@
                         <label>System Dimensions: </label>\
                         <div class="form-row">\
                           <div class="col">\
+                            <input class="form-check-input" type="checkbox" value="yes" name="boolView' + next + 'CubicCell" id="boolView' + next + 'CubicCell" checked>\
+                            <label for="boolView' + next + 'CubicCell">Cubic Cell? </label>\
+                          </div>\
+                        </div>\
+                        <div class="form-row">\
+                          <div class="col">\
                             <label for="view' + next + 'XMin">x min: </label>\
                             <input type="number" step=any class="input" id="view' + next + 'XMin" name="view' + next + 'XMin" value="-5.0">\
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'YMin">y min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YMin" name="view' + next + 'YMin" value="-5.0">\
+                            <input type="number" step=any class="input" id="view' + next + 'YMin" name="view' + next + 'YMin" value="-5.0" disabled>\
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'ZMin">z min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZMin" name="view' + next + 'ZMin" value="-5.0">\
+                            <input type="number" step=any class="input" id="view' + next + 'ZMin" name="view' + next + 'ZMin" value="-5.0" disabled>\
                           </div>\
                         </div>\
                         <div class="form-row">\
@@ -214,11 +226,11 @@
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'YMax">y max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YMax" name="view' + next + 'YMax" value="4.9">\
+                            <input type="number" step=any class="input" id="view' + next + 'YMax" name="view' + next + 'YMax" value="4.9" disabled>\
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'ZMax">z max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZMax" name="view' + next + 'ZMax" value="4.9">\
+                            <input type="number" step=any class="input" id="view' + next + 'ZMax" name="view' + next + 'ZMax" value="4.9" disabled>\
                           </div>\
                         </div>\
                       </div>\
@@ -258,6 +270,28 @@
             //$(addRemove).after(removeButton);
             //$("#field" + next).attr('data-source',$(addto).attr('data-source'));
             $("#count").val(next);  
+
+            document.getElementById('boolView' + next + 'CubicCell').onchange = function() {
+              document.getElementById('view' + next + 'YMax').disabled = this.checked;
+              document.getElementById('view' + next + 'ZMax').disabled = this.checked;
+              document.getElementById('view' + next + 'YMin').disabled = this.checked;
+              document.getElementById('view' + next + 'ZMin').disabled = this.checked;
+            };
+
+            document.getElementById('view' + next + 'XMin').onchange = function(){
+              if (document.getElementById('boolView' + next + 'CubicCell').checked){
+                document.getElementById('view' + next + 'YMin').value = document.getElementById('view' + next + 'XMin').value;
+                document.getElementById('view' + next + 'ZMin').value = document.getElementById('view' + next + 'XMin').value;
+              }
+            }
+            document.getElementById('view' + next + 'XMax').onchange = function(){
+              if (document.getElementById('boolView' + next + 'CubicCell').checked){
+                document.getElementById('view' + next + 'YMax').value = document.getElementById('view' + next + 'XMax').value;
+                document.getElementById('view' + next + 'ZMax').value = document.getElementById('view' + next + 'XMax').value;
+              }
+            }
+
+            
 
             for (var i = 0; i < NUMBER3DVIEWS; i++) { 
               var tempSpatiallyResolvedFormID = "view" + (i+1) + "SpatiallyResolvedForm";
@@ -365,6 +399,35 @@
           document.getElementById('framePropertyForm').style.display = "none";
         }
       };
+
+      document.getElementById('boolView1CubicCell').onchange = function() {
+        document.getElementById('view1YMax').disabled = this.checked;
+        document.getElementById('view1ZMax').disabled = this.checked;
+        document.getElementById('view1YMin').disabled = this.checked;
+        document.getElementById('view1ZMin').disabled = this.checked;
+      };
+
+      document.getElementById('view1XMin').onchange = function(){
+        if (document.getElementById('boolView1CubicCell').checked){
+          document.getElementById('view1YMin').value = document.getElementById('view1XMin').value;
+          document.getElementById('view1ZMin').value = document.getElementById('view1XMin').value;
+        }
+      }
+      document.getElementById('view1XMax').onchange = function(){
+        if (document.getElementById('boolView1CubicCell').checked){
+          document.getElementById('view1YMax').value = document.getElementById('view1XMax').value;
+          document.getElementById('view1ZMax').value = document.getElementById('view1XMax').value;
+        }
+      }
+/*
+
+      $("#textBoxA").keyup(function(){
+   $("#textBoxB").val($("#textBoxA").val());
+});
+
+$("#textBoxB").keyup(function(){
+   $("#textBoxA").val($("#textBoxB").val());
+});*/
     </script>
 
     <div id="container"></div>
