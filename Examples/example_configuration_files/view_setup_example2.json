@@ -1,0 +1,28 @@
+{
+	"views": [
+		{
+			"viewType": "3DView",
+			"moleculeName": "CO2",
+			"spatiallyResolvedData":{
+				"dataFilename": "ElectroLens/Examples/example_data/CO2_electron_desnity_with_descriptors.csv",
+				"gridSpacing": {"x":0.1,"y":0.1,"z":0.1}
+			},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
+		},
+		{
+			"viewType": "3DView",
+			"moleculeName": "H2O",
+			"spatiallyResolvedData":{
+				"dataFilename": "ElectroLens/Examples/example_data/H2O_electron_desnity_with_descriptors.csv",
+				"gridSpacing": {"x":0.1,"y":0.1,"z":0.1}
+			},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
+		}
+	],
+
+	"plotSetup" : {
+		"spatiallyResolvedPropertyList": ["rho","gamma","epxc","deriv1","deriv2"],
+		"pointcloudDensity": "rho",
+		"densityCutoff": 1e-3
+	}
+}
