@@ -440,7 +440,7 @@ function main(views, plotSetup) {
 			activeView.options.planeSelection = false;
 			activeView.gui.updateDisplay();
 		}
-		if (e.keyCode == 107) {
+		if (e.keyCode == 107 || e.keyCode == 65) {
 			var temp_view = { "viewType": "2DHeatmap" };
 
 			if (overallSpatiallyResolvedData.length > 0) {
