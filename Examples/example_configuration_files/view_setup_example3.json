@@ -2,25 +2,16 @@
 	"views": [
 		{
 			"viewType": "3DView",
-			"moleculeName": "C6H6",
-			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]},
-			"spatiallyResolvedData":{
-				"dataFilename": "ElectroLens/Examples/example_data/C6H6_electron_desnity_with_descriptors.csv",
-				"gridSpacing": {"x":0.1,"y":0.1,"z":0.1}
-			}
-		},
-		{
-			"viewType": "2DHeatmap",
-			"plotXSpatiallyResolvedData": "gamma",
-			"plotYSpatiallyResolvedData": "epxc",
-			"plotXTransformSpatiallyResolvedData": "linear",
-			"plotYTransformSpatiallyResolvedData": "linear"
+			"moleculeName": "H2O MD",
+			"moleculeData":{
+				"dataFilename": "D:/ElectroLens/Examples/example_data/15_water_MD_with_Gaussian_fingerprints.csv"
+			},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
 		}
 	],
 
 	"plotSetup" : {
-		"spatiallyResolvedPropertyList": ["rho","gamma","epxc","deriv1","deriv2"],
-		"pointcloudDensity": "rho",
-		"densityCutoff": 1e-5
+		"moleculePropertyList":["x","y","z","atom","G1","G2","G3","G4","G5","G6","frame"],
+		"frameProperty":"frame"
 	}
 }
