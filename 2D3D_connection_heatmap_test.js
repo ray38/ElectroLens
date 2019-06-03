@@ -865,10 +865,14 @@ function arrangeDataToHeatmap(view) {
 		};
 	}
 
-	var xMin = Math.floor(d3.min(Data, xValue));
-	var xMax = Math.ceil(d3.max(Data, xValue));
-	var yMin = Math.floor(d3.min(Data, yValue));
-	var yMax = Math.ceil(d3.max(Data, yValue));
+	/*var xMin = Math.floor(d3.min(Data,xValue));
+ var xMax = Math.ceil(d3.max(Data,xValue));
+ var yMin = Math.floor(d3.min(Data,yValue));
+ var yMax = Math.ceil(d3.max(Data,yValue));*/
+	var xMin = d3.min(Data, xValue);
+	var xMax = d3.max(Data, xValue);
+	var yMin = d3.min(Data, yValue);
+	var yMax = d3.max(Data, yValue);
 
 	view.xMin = xMin;
 	view.xMax = xMax;
@@ -4458,7 +4462,7 @@ function arrangeMoleculeDataToFrame2(view) {
 				//var coordinates1 =  {"x":moleculeData[i].x, "y": moleculeData[i].y, "z":moleculeData[i].z};
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
 
-				var nearest = tree.nearest(moleculeData[i], 6, 4);
+				var nearest = tree.nearest(moleculeData[i], 10, 10);
 
 				for (var j = 0; j < nearest.length; j++) {
 					var neighbor = nearest[j][0];
