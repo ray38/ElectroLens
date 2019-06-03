@@ -1,0 +1,17 @@
+{
+	"views": [
+		{
+			"viewType": "3DView",
+			"moleculeName": "H2O MD",
+			"moleculeData":{
+				"dataFilename": "D:/ElectroLens/Examples/example_data/15_water_MD_with_Gaussian_fingerprints.csv"
+			},
+			"systemDimension": {"x":[-5,4.9],"y":[-5,4.9],"z":[-5,4.9]}
+		}
+	],
+
+	"plotSetup" : {
+		"moleculePropertyList":["x","y","z","atom","G1","G2","G3","G4","G5","G6","frame"],
+		"frameProperty":"frame"
+	}
+}

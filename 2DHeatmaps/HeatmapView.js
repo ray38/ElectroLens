@@ -199,11 +199,14 @@ export function arrangeDataToHeatmap(view){
 		}
 	}}
 	
-	var xMin = Math.floor(d3.min(Data,xValue));
+	/*var xMin = Math.floor(d3.min(Data,xValue));
 	var xMax = Math.ceil(d3.max(Data,xValue));
 	var yMin = Math.floor(d3.min(Data,yValue));
-	var yMax = Math.ceil(d3.max(Data,yValue));
-	
+	var yMax = Math.ceil(d3.max(Data,yValue));*/
+	var xMin = d3.min(Data, xValue);
+	var xMax = d3.max(Data, xValue);
+	var yMin = d3.min(Data, yValue);
+	var yMax = d3.max(Data, yValue);
 
 	view.xMin = xMin;
 	view.xMax = xMax;
