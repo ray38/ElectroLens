@@ -81,7 +81,7 @@ export function arrangeMoleculeDataToFrame2(view){
 				//var coordinates1 =  {"x":moleculeData[i].x, "y": moleculeData[i].y, "z":moleculeData[i].z};
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
 
-				var nearest = tree.nearest(moleculeData[i], 10, 10);
+				var nearest = tree.nearest(moleculeData[i], 6, 6);
 
 				for (var j = 0; j < nearest.length; j++){
 					var neighbor = nearest[j][0];

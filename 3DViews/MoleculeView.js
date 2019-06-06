@@ -43,7 +43,7 @@ function addAtoms(view, moleculeData, lut){
 					sizes[i] = options.atomSize*tempSize*400;
 				}
 
-				alphas[i] = 1;
+				alphas[i] = options.moleculeAlpha;
 			}
 			else{
 				sizes[i] = 0;
@@ -65,7 +65,7 @@ function addAtoms(view, moleculeData, lut){
 
 	if (options.atomsStyle == "ball"){
 		var atomGeometry = new THREE.SphereGeometry(100, options.atomModelSegments, options.atomModelSegments);
-		var material = new THREE.MeshBasicMaterial();
+		var material = new THREE.MeshBasicMaterial({ transparent: true, opacity: options.moleculeAlpha});
 		var atoms = new THREE.Group();
 
 		var basicAtom = new THREE.Mesh(atomGeometry, material);
@@ -114,7 +114,7 @@ function addBonds(view, moleculeData, neighborsData){
 	if (options.bondsStyle == "tube"){
 		var bonds = new THREE.Group();
 		var basicBondGeometry = new THREE.CylinderGeometry( options.bondSize*10, options.bondSize*10, 1, options.bondModelSegments, 0, true);
-		var basicBond = new THREE.Mesh( basicBondGeometry, new THREE.MeshBasicMaterial( ) );
+		var basicBond = new THREE.Mesh( basicBondGeometry, new THREE.MeshBasicMaterial( { transparent: true, opacity: options.moleculeAlpha} ) );
 
 		for (var i = 0; i < moleculeData.length; i++) {
 			if (moleculeData[i].selected) {
@@ -123,8 +123,14 @@ function addBonds(view, moleculeData, neighborsData){
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
-				if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
-				else {var color = lut.getColor( moleculeData[i][colorCode] );}
+				//if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
+				//else {var color = lut.getColor( moleculeData[i][colorCode] );}
+				if (colorCode == "atom") {
+					var color = colorSetup[moleculeData[i].atom];
+				}
+				else {
+					var color = lut.getColor( moleculeData[i][colorCode] );
+				}
 				//var color = colorSetup[moleculeData[i].atom];
 
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);

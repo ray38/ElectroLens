@@ -166,6 +166,10 @@ if (typeof data !== 'undefined') {
 function handleFiles() {
 
 	var file = this.files[0];
+	uploader.parentNode.removeChild(uploader);
+	uploader_wrapper.parentNode.removeChild(uploader_wrapper);
+	configForm.parentNode.removeChild(configForm);
+	divider.parentNode.removeChild(divider);
 	console.log(file);
 	console.log(this);
 
@@ -176,10 +180,7 @@ function handleFiles() {
 		cache: false,
 		success: function success(data) {
 			console.log("read pre defined config");
-			uploader.parentNode.removeChild(uploader);
-			uploader_wrapper.parentNode.removeChild(uploader_wrapper);
-			configForm.parentNode.removeChild(configForm);
-			divider.parentNode.removeChild(divider);
+
 			handleViewSetup(data);
 		},
 		error: function error(requestObject, _error, errorThrown) {
@@ -2342,7 +2343,7 @@ function addAtoms(view, moleculeData, lut) {
 					sizes[i] = options.atomSize * tempSize * 400;
 				}
 
-				alphas[i] = 1;
+				alphas[i] = options.moleculeAlpha;
 			} else {
 				sizes[i] = 0;
 				alphas[i] = 0;
@@ -2362,7 +2363,7 @@ function addAtoms(view, moleculeData, lut) {
 
 	if (options.atomsStyle == "ball") {
 		var atomGeometry = new THREE.SphereGeometry(100, options.atomModelSegments, options.atomModelSegments);
-		var material = new THREE.MeshBasicMaterial();
+		var material = new THREE.MeshBasicMaterial({ transparent: true, opacity: options.moleculeAlpha });
 		var atoms = new THREE.Group();
 
 		var basicAtom = new THREE.Mesh(atomGeometry, material);
@@ -2404,7 +2405,7 @@ function addBonds(view, moleculeData, neighborsData) {
 	if (options.bondsStyle == "tube") {
 		var bonds = new THREE.Group();
 		var basicBondGeometry = new THREE.CylinderGeometry(options.bondSize * 10, options.bondSize * 10, 1, options.bondModelSegments, 0, true);
-		var basicBond = new THREE.Mesh(basicBondGeometry, new THREE.MeshBasicMaterial());
+		var basicBond = new THREE.Mesh(basicBondGeometry, new THREE.MeshBasicMaterial({ transparent: true, opacity: options.moleculeAlpha }));
 
 		for (var i = 0; i < moleculeData.length; i++) {
 			if (moleculeData[i].selected) {
@@ -2413,8 +2414,10 @@ function addBonds(view, moleculeData, neighborsData) {
 				var distancesList = tempNeighborObject.distancesList;
 				var coordinatesList = tempNeighborObject.coordinatesList;
 
+				//if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
+				//else {var color = lut.getColor( moleculeData[i][colorCode] );}
 				if (colorCode == "atom") {
-					var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[moleculeData[i].atom]);
+					var color = _AtomSetupJs.colorSetup[moleculeData[i].atom];
 				} else {
 					var color = lut.getColor(moleculeData[i][colorCode]);
 				}
@@ -3307,6 +3310,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.moleculeSizeCodeBasis = "atom";
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
+			this.moleculeAlpha = 1.0;
 			this.atomModelSegments = 6;
 			this.bondModelSegments = 3;
 			this.showAtoms = true;
@@ -3602,6 +3606,10 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 		});
 		moleculeFolder.add(options, 'bondSize', 0.1, 5).step(0.1).name('Bond Size').onChange(function (value) {
+			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
+		});
+		moleculeFolder.add(options, 'moleculeAlpha', 0.1, 1.0).step(0.1).name('Molecule Opacity').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 			_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 		});
@@ -4347,7 +4355,7 @@ exports.setupViewCameraSceneController = setupViewCameraSceneController;
 
 function setupViewCameraSceneController(view, renderer) {
 
-	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 35000);
+	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 60000);
 	camera.position.fromArray(view.eye);
 	view.camera = camera;
 	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
@@ -4462,7 +4470,7 @@ function arrangeMoleculeDataToFrame2(view) {
 				//var coordinates1 =  {"x":moleculeData[i].x, "y": moleculeData[i].y, "z":moleculeData[i].z};
 				var point1 = new THREE.Vector3(moleculeData[i].xPlot * 20.0, moleculeData[i].yPlot * 20.0, moleculeData[i].zPlot * 20.0);
 
-				var nearest = tree.nearest(moleculeData[i], 10, 10);
+				var nearest = tree.nearest(moleculeData[i], 6, 6);
 
 				for (var j = 0; j < nearest.length; j++) {
 					var neighbor = nearest[j][0];

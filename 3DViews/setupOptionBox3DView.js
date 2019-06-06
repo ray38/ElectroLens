@@ -250,6 +250,13 @@ export function setupOptionBox3DView(view,plotSetup){
 			changeMoleculeGeometry(view);
 			changeMoleculePeriodicReplicates(view);
 		});
+		moleculeFolder.add( options, 'moleculeAlpha', 0.1, 1.0 ).step( 0.1 )
+		.name( 'Molecule Opacity' )
+		.onChange( function( value ) {
+			changeMoleculeGeometry(view);
+			changeMoleculePeriodicReplicates(view);
+		});
+
 
 		moleculeFolder.add( options, 'maxBondLength', 0.1, 5 ).step( 0.1 )
 		.name( 'Bond Max' )
