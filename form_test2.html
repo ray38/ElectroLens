@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>serializeArray demo</title>
+  <style type="text/css">
+    * {
+        .border-radius(0) !important;
+      }
+  </style>
+  <script src="vendor/jquery/jquery-3.4.1.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.js"></script>
+  <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+  <link href="css/main.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="outer" id="UI">
+  <div id="uploader_wrapper" >
+      <input id="uploader" name="uploader" type="file" />
+      <h5>*******************************</h5>
+  </div>
+
+  
+
+ 
+  <form id="configForm" class="inner">
+    <h5>Plot Setup</h5>
+
+    <div class="form-group" id="propertyListSpatiallyResolvedForm">
+      <label for="propertyListSpatiallyResolved">List of Properties for Spatially Resolved Data</label>
+      <textarea class="form-control" id="propertyListSpatiallyResolved" name="propertyListSpatiallyResolved" rows="1" placeholder="x, y, z, rho, property_1, property_2"></textarea>
+      <small id="propertyListSpatiallyResolvedHelp" class="form-text text-muted">  *The list of properties for spatially resolved data, leave blank if not visualizing spatially resolved data</small>
+    </div>
+
+    <div class="form-row">
+      <div class="col">
+        <div class="form-group" id="densityPropertyForm">
+          <label for="densityProperty">Density Property: </label>
+          <input autocomplete="off" class="input" id="densityProperty" name="densityProperty" type="text" data-items="8" placeholder="rho">
+          <small id="densityPropertyHelp" class="form-text text-muted">  *The property denotes the density of electron.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group" id="densityCutoffForm">
+          <label for="densityCutoff">Density Cutoff: </label>
+          <input autocomplete="off" class="input" id="densityCutoff" name="densityCutoff" type="number" step=any data-items="8" placeholder="1e-2">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" id="propertyListMolecularForm">
+      <label for="propertyListMolecular">List of Properties for Molecular Data</label>
+      <textarea class="form-control" id="propertyListMolecular" name="propertyListMolecular" rows="1" placeholder="x, y, z, property_1, property_2"></textarea>
+      <small id="propertyListMolecularHelp" class="form-text text-muted">  *The list of properties for molecular data, leave blank if not visualizing molecular data</small>
+    </div>
+
+    
+    <div class="form-group" id="view1Form">
+      <h5>-----------------------------</h5>
+      <h5>View 1</h5>
+      <div class="form-group" id="view1NameForm">
+        <label for="view1Name">System Name: </label>
+        <input autocomplete="off" class="input" id="view1Name" name="view1Name" type="text" data-items="8"/>
+      </div>
+
+      <div class="form-group" id="view1DimensionForm">
+        <label>System Dimensions: </label>
+        <div class="form-row">
+          <div class="col">
+            <label for="view1XMin">x min: </label>
+            <input type="number" step=any class="input" id="view1XMin" name="view1XMin" placeholder="-5.5">
+          </div>
+          <div class="col">
+            <label for="view1YMin">y min: </label>
+            <input type="number" step=any class="input" id="view1YMin" name="view1YMin" placeholder="-5.5">
+          </div>
+          <div class="col">
+            <label for="view1ZMin">z min: </label>
+            <input type="number" step=any class="input" id="view1ZMin" name="view1ZMin" placeholder="-5.5">
+          </div>
+          
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <label for="view1XMax">x max: </label>
+            <input type="number" step=any class="input" id="view1XMax" name="view1XMax" placeholder="5.5">
+          </div>
+          <div class="col">
+            <label for="view1YMax">y max: </label>
+            <input type="number" step=any class="input" id="view1YMax" name="view1YMax" placeholder="5.5">
+          </div>
+          <div class="col">
+            <label for="view1ZMax">z max: </label>
+            <input type="number" step=any class="input" id="view1ZMax" name="view1ZMax" placeholder="5.5">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" id="view1SpatiallyResolvedForm">
+        <h6>Spatially Resolved Data: </h6>
+
+        <div>
+          <label for="view1SpatiallyResolvedDataFilename">Full path for spatially resolved data: </label>
+          <input autocomplete="off" class="input" id="view1SpatiallyResolvedDataFilename" name="view1SpatiallyResolvedDataFilename" type="text" data-items="8"/>
+        </div>
+
+        <label>Grid spacing: </label>
+        <div class="form-row">
+          <div class="col">
+            <label for="view1XSpacing">x: </label>
+            <input type="number" step=any class="input" id="view1XSpacing" name="view1XSpacing" placeholder="0.1">
+          </div>
+          <div class="col">
+            <label for="view1YSpacing">y: </label>
+            <input type="number" step=any class="input" id="view1YSpacing" name="view1YSpacing" placeholder="0.1">
+          </div>
+          <div class="col">
+            <label for="view1ZSpacing">z: </label>
+            <input type="number" step=any class="input" id="view1ZSpacing" name="view1ZSpacing" placeholder="0.1">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" id="view1MolecularForm">
+        <h6>Molecular Data: </h6>
+        <div>
+          <label for="view1MolecularDataFilename">Full path for molecular data: </label>
+          <input autocomplete="off" class="input" id="view1MolecularDataFilename" name="view1MolecularDataFilename" type="text" data-items="8"/>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="addButton">
+      <button id="b1" class="btn add-more" type="button">+ Add view</button>
+    </div>
+    
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+
+ 
+
+<script>
+  $(document).ready(function(){
+    var next = 1;
+    NUMBER3DVIEWS = 1;
+    $(".add-more").click(function(e){
+        e.preventDefault();
+        var addto = "#view" + next + "Form";
+        var addRemove = "#view" +( next) + "Form";
+        next = next + 1;
+        NUMBER3DVIEWS += 1;
+        
+        var newIn = ''
+        newIn += '<div class="form-group" id="view' + next + 'Form">\
+                  <h5>-----------------------------</h5><h5>View ' + next + '</h5>\
+                  <div class="form-group" id="view' + next + 'NameForm">\
+                    <label for="view' + next + 'Name">System Name: </label>\
+                    <input autocomplete="off" class="input" id="view' + next + 'Name" name="view' + next + 'Name" type="text" data-items="8"/>\
+                  </div>\
+                  <div class="form-group" id="view' + next + 'DimensionForm">\
+                    <label>System Dimensions: </label>\
+                    <div class="form-row">\
+                      <div class="col">\
+                        <label for="view' + next + 'XMin">x min: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'XMin" name="view' + next + 'XMin" placeholder="-5.5">\
+                      </div>\
+                      <div class="col">\
+                        <label for="view' + next + 'YMin">y min: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'YMin" name="view' + next + 'YMin" placeholder="-5.5">\
+                      </div>\
+                      <div class="col">\
+                        <label for="view' + next + 'ZMin">z min: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'ZMin" name="view' + next + 'ZMin" placeholder="-5.5">\
+                      </div>\
+                    </div>\
+                    <div class="form-row">\
+                      <div class="col">\
+                        <label for="view' + next + 'XMax">x max: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'XMax" name="view' + next + 'XMax" placeholder="5.5">\
+                      </div>\
+                      <div class="col">\
+                        <label for="view' + next + 'YMax">y max: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'YMax" name="view' + next + 'YMax" placeholder="5.5">\
+                      </div>\
+                      <div class="col">\
+                        <label for="view' + next + 'ZMax">z max: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'ZMax" name="view' + next + 'ZMax" placeholder="5.5">\
+                      </div>\
+                    </div>\
+                  </div>\
+                  <div class="form-group" id="view' + next + 'SpatiallyResolvedForm">\
+                    <h6>Spatially Resolved Data: </h6>\
+                    <div>\
+                      <label for="view' + next + 'SpatiallyResolvedDataFilename">Full path for spatially resolved data: </label>\
+                      <input autocomplete="off" class="input" id="view' + next + 'SpatiallyResolvedDataFilename" name="view' + next + 'SpatiallyResolvedDataFilename" type="text" data-items="8"/>\
+                    </div>\
+                    <label>Grid spacing: </label>\
+                    <div class="form-row">\
+                      <div class="col">\
+                        <label for="view' + next + 'XSpacing">x: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'XSpacing" name="view' + next + 'XSpacing" placeholder="0.1">\
+                      </div>\
+                      <div class="col">\
+                        <label for="view' + next + 'YSpacing">y: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'YSpacing" name="view' + next + 'YSpacing" placeholder="0.1">\
+                      </div>\
+                      <div class="col">\
+                        <label for="view' + next + 'ZSpacing">z: </label>\
+                        <input type="number" step=any class="input" id="view' + next + 'ZSpacing" name="view' + next + 'ZSpacing" placeholder="0.1">\
+                      </div>\
+                    </div>\
+                  </div>\
+                  <div class="form-group" id="view' + next + 'MolecularForm">\
+                    <h6>Molecular Data: </h6>\
+                    <div>\
+                      <label for="view' + next + 'MolecularDataFilename">Full path for molecular data: </label>\
+                      <input autocomplete="off" class="input" id="view' + next + 'MolecularDataFilename" name="view' + next + 'MolecularDataFilename" type="text" data-items="8"/>\
+                    </div>\
+                  </div>\
+                </div>'
+
+        var newInput = $(newIn);
+        var removeBtn = '<button id="remove' + (next - 1) + '" class="btn btn-danger remove-me" >Remove View</button></div><div id="field">';
+        var removeButton = $(removeBtn);
+        $(addto).after(newInput);
+        //$(addRemove).after(removeButton);
+        //$("#field" + next).attr('data-source',$(addto).attr('data-source'));
+        $("#count").val(next);  
+        
+            $('.remove-me').click(function(e){
+                e.preventDefault();
+                var fieldNum = this.id.charAt(this.id.length-1);
+                var fieldID = "#view" + fieldNum + "Form";
+                console.log(fieldID)
+                $(this).remove();
+                $(fieldID).remove();
+            });
+    });
+    
+});
+
+
+</script>
+
+      <div id="container"></div>
+
+
+      <section id='spinner'></section>
+    
+    <script src="node_modules/es6/ES6.js"></script>
+    
+    <script src="js/kdtree.js"></script>
+    <script src="js/progressbar.js"></script>
+    <script src="js/three.js"></script>
+    <script src="js/effects/AnaglyphEffect.js"></script>
+    <link rel="stylesheet" type="text/css" href="js/loading-bar.css"/>
+    <script src="js/loading-bar.js"></script>
+
+    <script src='js/LineSegmentsGeometry.js'></script>
+    <script src='js/LineGeometry.js'></script>
+    <script src='js/WireframeGeometry2.js'></script>
+    <script src='js/LineMaterial.js'></script>
+    <script src='js/LineSegments2.js'></script>
+    <script src='js/Line2.js'></script>
+    <script src='js/Wireframe.js'></script>
+
+    <script src="js/jQuery.js"></script>
+    <script src="./node_modules/papaparse/papaparse.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+    <script src="js/Detector.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <script src="./MultiviewControl/customizeLut.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/controls/TrackballControls.js"></script>
+    <script src="js/libs/dat.gui.js"></script>
+    <script src="D3js/d3.min.js"></script>
+    <script src="D3js/d3-queue.v3.min.js"></script>
+    
+    <script src="3DViews/Utilities.js"></script>
+
+
+
+    <script type="x-shader/x-vertex" id="vertexshader">
+      attribute float size;
+      attribute vec3 customColor;
+      attribute float alpha;
+
+        varying float vAlpha;
+      varying vec3 vColor;
+
+      void main() {
+        vColor = customColor;
+        vAlpha = alpha;
+        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+        gl_PointSize = size * ( 300.0 / -mvPosition.z );
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">
+      uniform vec3 color;
+      uniform sampler2D texture;
+
+      varying vec3 vColor;
+      varying float vAlpha;
+
+      void main() {
+        gl_FragColor = vec4( color * vColor, vAlpha );
+        gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+      }
+    </script>
+    <script type="x-shader/x-vertex" id="vertexshader_molecule">
+      attribute float size;
+      attribute vec3 customColor;
+
+      varying vec3 vColor;
+
+      void main() {
+        vColor = customColor;
+        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+        gl_PointSize = size * ( 300.0 / -mvPosition.z );
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader_molecule">
+      uniform vec3 color;
+      uniform sampler2D texture;
+
+      varying vec3 vColor;
+
+      void main() {
+        gl_FragColor = vec4( color * vColor, 1.0 );
+        gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+        if ( gl_FragColor.a < ALPHATEST ) discard;
+      }
+    </script>
+
+
+
+    <script src="2D3D_connection_heatmap_test.js"></script>
+    <script>
+      electroLensMain();
+    </script>
+ 
+</body>
+</html>
