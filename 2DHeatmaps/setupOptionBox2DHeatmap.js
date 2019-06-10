@@ -113,7 +113,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 			//updatePointCloudGeometry(view);
 		});
 
-		plotFolder.add( options, 'plotXTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		plotFolder.add( options, 'plotXTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10'/*, 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'*/})
 		.name( 'X scale' )
 		.onChange( function( value ) {
 			//updatePointCloudGeometry(view);
@@ -125,7 +125,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 			//updatePointCloudGeometry(view);
 		});
 
-		plotFolder.add( options, 'plotYTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'})
+		plotFolder.add( options, 'plotYTransformMoleculeData', {'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10'/*, 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'*/})
 		.name( 'Y scale' )
 		.onChange( function( value ) {
 			//updatePointCloudGeometry(view);

@@ -332,6 +332,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			changePointCloudGeometry(view);
 			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
+		
 		pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
 		.name( 'Opacity' )
 		.onChange( function( value ) {
@@ -393,6 +394,16 @@ export function setupOptionBox3DView(view,plotSetup){
 		});
 		pointCloudLegendFolder.add( options, 'toggleLegend').name("Toggle legend");
 		pointCloudLegendFolder.close();
+
+		var pointCloudAdditionalFolder 	= pointCloudFolder.addFolder( 'Additional' );
+
+		pointCloudAdditionalFolder.add( options, 'pointCloudTotalMagnitude', -5, 4 ).step( 1 )
+		.name( 'Dens. Magnitude' )
+		.onChange( function( value ) {
+			changePointCloudGeometry(view);
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+		});
+		pointCloudAdditionalFolder.close();
 
 	}
 

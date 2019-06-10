@@ -783,6 +783,8 @@ function arrangeDataToHeatmap(view) {
 
 	var heatmapStep = [];
 
+	var linThres = Math.pow(10, view.options.symlog10thres);
+
 	for (var i = 1; i <= numPerSide; i++) {
 		heatmapStep.push("" + i);
 	}
@@ -820,51 +822,47 @@ function arrangeDataToHeatmap(view) {
 		};
 	}
 
-	if (XTransform == 'symlog10') {
-		var xValue = function xValue(d) {
-			if (d[X] > 0.0) {
-				return Math.log10(d[X]) + 3.0;
-			} else if (d[X] < 0.0) {
-				return -1 * Math.log10(-1 * d[X]) - 3.0;
-			} else {
-				return 0.0;
-			}
-		};
-	}
-	if (YTransform == 'symlog10') {
-		var yValue = function yValue(d) {
-			if (d[Y] > 0.0) {
-				return Math.log10(d[Y]) + 3.0;
-			} else if (d[Y] < 0.0) {
-				return -1 * Math.log10(-1 * d[Y]) - 3.0;
-			} else {
-				return 0.0;
-			}
-		};
-	}
-
-	if (XTransform == 'symlogPC') {
-		var xValue = function xValue(d) {
-			if (d[X] > 0.0) {
-				return Math.log10(d[X]) - 2.0;
-			} else if (d[X] < 0.0) {
-				return -1 * Math.log10(-1 * d[X]) + 2.0;
-			} else {
-				return 0.0;
-			}
-		};
-	}
-	if (YTransform == 'symlogPC') {
-		var yValue = function yValue(d) {
-			if (d[Y] > 0.0) {
-				return Math.log10(d[Y]) + 4.5;
-			} else if (d[Y] < 0.0) {
-				return -1 * Math.log10(-1 * d[Y]) - 4.5;
-			} else {
-				return 0.0;
-			}
-		};
-	}
+	/*if (XTransform == 'symlog10') {var xValue = function(d) {
+ 	if (d[X]>0.0){
+ 		return Math.log10(d[X]) + 3.0;
+ 	}else if (d[X]<0.0) {
+ 		return -1*Math.log10(-1*d[X]) - 3.0;
+ 	}
+ 	else {
+ 		return 0.0;
+ 	}
+ }}
+ if (YTransform == 'symlog10') {var yValue = function(d) {
+ 	if (d[Y]>0.0){
+ 		return Math.log10(d[Y]) + 3.0;
+ 	}else if (d[Y]<0.0) {
+ 		return -1*Math.log10(-1*d[Y]) - 3.0;
+ 	}
+ 	else {
+ 		return 0.0;
+ 	}
+ }}
+ 
+ if (XTransform == 'symlogPC') {var xValue = function(d) {
+ 	if (d[X]>0.0){
+ 		return Math.log10(d[X]) -2.0;
+ 	}else if (d[X]<0.0) {
+ 		return -1*Math.log10(-1*d[X]) + 2.0;
+ 	}
+ 	else {
+ 		return 0.0;
+ 	}
+ }}
+ if (YTransform == 'symlogPC') {var yValue = function(d) {
+ 	if (d[Y]>0.0){
+ 		return Math.log10(d[Y]) + 4.5;
+ 	}else if (d[Y]<0.0) {
+ 		return -1*Math.log10(-1*d[Y]) - 4.5;
+ 	}
+ 	else {
+ 		return 0.0;
+ 	}
+ }}*/
 
 	/*var xMin = Math.floor(d3.min(Data,xValue));
  var xMax = Math.ceil(d3.max(Data,xValue));
@@ -1833,7 +1831,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 			//updatePointCloudGeometry(view);
 		});
 
-		plotFolder.add(options, 'plotXTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('X scale').onChange(function (value) {
+		plotFolder.add(options, 'plotXTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10' /*, 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'*/ }).name('X scale').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
 
@@ -1841,7 +1839,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 			//updatePointCloudGeometry(view);
 		});
 
-		plotFolder.add(options, 'plotYTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10', 'symlog10': 'symlog10', 'symlogPC': 'symlogPC' }).name('Y scale').onChange(function (value) {
+		plotFolder.add(options, 'plotYTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10', 'log10(-1*)': 'neglog10' /*, 'symlog10': 'symlog10', 'symlogPC': 'symlogPC'*/ }).name('Y scale').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
 
@@ -2817,7 +2815,7 @@ function getPointCloudGeometry(view) {
 	var particles = options.pointCloudParticles;
 	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
-	var total = 100;
+	var total = Math.pow(10, options.pointCloudTotalMagnitude);
 	var count = 0;
 
 	for (var k = 0; k < num_blocks; k++) {
@@ -3227,6 +3225,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.moleculeTransparency = 1.0;
 			this.maxBondLength = 1.5;
 			this.minBondLength = 0.3;
+			this.pointCloudTotalMagnitude = 2;
 			this.pointCloudParticles = 500;
 			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
@@ -3679,6 +3678,7 @@ function setupOptionBox3DView(view, plotSetup) {
 				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
 			};
 		});
+
 		pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			if (options.PBCBoolean) {
@@ -3739,6 +3739,16 @@ function setupOptionBox3DView(view, plotSetup) {
 		});
 		pointCloudLegendFolder.add(options, 'toggleLegend').name("Toggle legend");
 		pointCloudLegendFolder.close();
+
+		var pointCloudAdditionalFolder = pointCloudFolder.addFolder('Additional');
+
+		pointCloudAdditionalFolder.add(options, 'pointCloudTotalMagnitude', -5, 4).step(1).name('Dens. Magnitude').onChange(function (value) {
+			_PointCloud_selectionJs.changePointCloudGeometry(view);
+			if (options.PBCBoolean) {
+				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+			};
+		});
+		pointCloudAdditionalFolder.close();
 	}
 
 	sliderFolder.add(options, 'x_low', view.xPlotMin, view.xPlotMax).step(1).name('x low').onChange(function (value) {
