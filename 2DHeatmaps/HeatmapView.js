@@ -144,6 +144,8 @@ export function arrangeDataToHeatmap(view){
 
 	var heatmapStep = [];
 
+	var linThres = Math.pow(10,view.options.symlog10thres)
+
 	for (var i=1; i <= numPerSide; i++) {
 		heatmapStep.push(""+i);
 	}
@@ -157,7 +159,7 @@ export function arrangeDataToHeatmap(view){
 	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
 	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
 
-	if (XTransform == 'symlog10') {var xValue = function(d) {
+	/*if (XTransform == 'symlog10') {var xValue = function(d) {
 		if (d[X]>0.0){
 			return Math.log10(d[X]) + 3.0;
 		}else if (d[X]<0.0) {
@@ -197,7 +199,7 @@ export function arrangeDataToHeatmap(view){
 		else {
 			return 0.0;
 		}
-	}}
+	}}*/
 	
 	/*var xMin = Math.floor(d3.min(Data,xValue));
 	var xMax = Math.ceil(d3.max(Data,xValue));

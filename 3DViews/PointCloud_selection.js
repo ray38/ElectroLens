@@ -12,7 +12,7 @@ export function getPointCloudGeometry(view){
 	var particles = options.pointCloudParticles;
 	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
-	var total = 100;
+	var total = Math.pow(10,options.pointCloudTotalMagnitude);
 	var count = 0;
 
 	for ( var k = 0; k < num_blocks; k ++) {

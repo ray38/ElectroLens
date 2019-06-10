@@ -332,6 +332,12 @@ export function setupOptionBox3DView(view,plotSetup){
 			changePointCloudGeometry(view);
 			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
+		pointCloudFolder.add( options, 'pointCloudTotalMagnitude', -5, 4 ).step( 1 )
+		.name( 'Density Magnitude' )
+		.onChange( function( value ) {
+			changePointCloudGeometry(view);
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+		});
 		pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
 		.name( 'Opacity' )
 		.onChange( function( value ) {

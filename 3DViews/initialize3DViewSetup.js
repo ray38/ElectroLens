@@ -77,6 +77,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.moleculeTransparency = 1.0;
 			this.maxBondLength = 1.5;
 			this.minBondLength = 0.3;
+			this.pointCloudTotalMagnitude = 2;
 			this.pointCloudParticles = 500;
 			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
