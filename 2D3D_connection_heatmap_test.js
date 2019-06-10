@@ -3678,12 +3678,7 @@ function setupOptionBox3DView(view, plotSetup) {
 				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
 			};
 		});
-		pointCloudFolder.add(options, 'pointCloudTotalMagnitude', -5, 4).step(1).name('Density Magnitude').onChange(function (value) {
-			_PointCloud_selectionJs.changePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
-		});
+
 		pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			if (options.PBCBoolean) {
@@ -3744,6 +3739,16 @@ function setupOptionBox3DView(view, plotSetup) {
 		});
 		pointCloudLegendFolder.add(options, 'toggleLegend').name("Toggle legend");
 		pointCloudLegendFolder.close();
+
+		var pointCloudAdditionalFolder = pointCloudFolder.addFolder('Additional');
+
+		pointCloudAdditionalFolder.add(options, 'pointCloudTotalMagnitude', -5, 4).step(1).name('Dens. Magnitude').onChange(function (value) {
+			_PointCloud_selectionJs.changePointCloudGeometry(view);
+			if (options.PBCBoolean) {
+				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+			};
+		});
+		pointCloudAdditionalFolder.close();
 	}
 
 	sliderFolder.add(options, 'x_low', view.xPlotMin, view.xPlotMax).step(1).name('x low').onChange(function (value) {
