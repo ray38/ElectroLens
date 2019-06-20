@@ -3645,6 +3645,18 @@ function setupOptionBox3DView(view, plotSetup) {
 		});
 		moleculeLegendFolder.add(options, 'toggleLegendMolecule').name("Toggle legend");
 		moleculeLegendFolder.close();
+
+		var moleculeAdditionalFolder = moleculeFolder.addFolder('Additional');
+
+		moleculeAdditionalFolder.add(options, 'atomModelSegments', 3, 200).step(1).name('Atom Resolution').onChange(function (value) {
+			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
+		});
+		moleculeAdditionalFolder.add(options, 'bondModelSegments', 3, 200).step(1).name('Bond Resolution').onChange(function (value) {
+			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
+		});
+		moleculeAdditionalFolder.close();
 	}
 
 	/*
@@ -4672,7 +4684,7 @@ function processMoleculeData(view, overallMoleculeData, plotSetup, callback) {
 	d.forEach(function (d, i) {
 
 		var temp = {
-			atom: d.atom,
+			atom: d.atom.trim(),
 			x: +d.x,
 			y: +d.y,
 			z: +d.z,
@@ -4812,7 +4824,7 @@ function readCSVMoleculeData(view, overallMoleculeData, plotSetup, callback) {
 			d.forEach(function (d, i) {
 
 				var temp = {
-					atom: d.atom,
+					atom: d.atom.trim(),
 					x: +d.x,
 					y: +d.y,
 					z: +d.z,

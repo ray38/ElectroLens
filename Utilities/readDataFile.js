@@ -105,7 +105,7 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 	d.forEach(function (d,i) {
 
 		var temp = {
-					atom:d.atom,
+					atom:d.atom.trim(),
 					x:+d.x,
 					y:+d.y,
 					z:+d.z,
@@ -255,7 +255,7 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 			d.forEach(function (d,i) {
 
 				var temp = {
-							atom:d.atom,
+							atom:d.atom.trim(),
 							x:+d.x,
 							y:+d.y,
 							z:+d.z,

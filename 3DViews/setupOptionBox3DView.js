@@ -295,6 +295,22 @@ export function setupOptionBox3DView(view,plotSetup){
 		moleculeLegendFolder.add( options, 'toggleLegendMolecule').name("Toggle legend");
 		moleculeLegendFolder.close();
 
+		var moleculeAdditionalFolder 	= moleculeFolder.addFolder( 'Additional' );
+
+		moleculeAdditionalFolder.add( options, 'atomModelSegments', 3, 200 ).step( 1 )
+		.name( 'Atom Resolution' )
+		.onChange( function( value ) {
+			changeMoleculeGeometry(view);
+			changeMoleculePeriodicReplicates(view);
+		});
+		moleculeAdditionalFolder.add( options, 'bondModelSegments', 3, 200 ).step( 1 )
+		.name( 'Bond Resolution' )
+		.onChange( function( value ) {
+			changeMoleculeGeometry(view);
+			changeMoleculePeriodicReplicates(view);
+		});
+		moleculeAdditionalFolder.close();
+
 
 	}
 
