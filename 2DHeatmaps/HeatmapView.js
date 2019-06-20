@@ -1,5 +1,5 @@
 import {addTitle,changeTitle} from "./Utilities.js";
-
+import {makeTextSprite} from "../Utilities/other.js"
 /*export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 
 	var X = view.options.plotX, Y = view.options.plotY;

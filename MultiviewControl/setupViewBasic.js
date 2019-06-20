@@ -2,6 +2,11 @@ export function setupViewCameraSceneController(view,renderer){
 
 	var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 60000 );
 	camera.position.fromArray( view.eye );
+
+	//var pointLight = new THREE.PointLight( 0xffffff );
+	//pointLight.position.set(1,1,2);
+	//camera.add(pointLight);
+
 	view.camera = camera;
 	var tempController = new THREE.OrbitControls( camera, renderer.domElement );
 	tempController.minAzimuthAngle = - Infinity; // radians
@@ -17,9 +22,13 @@ export function setupViewCameraSceneController(view,renderer){
 	tempController.staticMoving = true;*/
 	view.controller = tempController;
 	var tempScene = new THREE.Scene();
-	view.scene = tempScene;
 
-	
+	view.scene = tempScene;
+	var light = new THREE.DirectionalLight( 0xffffff, 1, 100 );
+	light.position.set( 0, 1, 0 ); 			//default; light shining from top
+	light.castShadow = true;            // default false
+	view.scene.add( light );
+	//view.scene.add( camera );
 
 
 	var left   = Math.floor( window.innerWidth  * view.left );

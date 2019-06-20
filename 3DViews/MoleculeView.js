@@ -69,6 +69,8 @@ function addAtoms(view, moleculeData, lut){
 		var atoms = new THREE.Group();
 
 		var basicAtom = new THREE.Mesh(atomGeometry, material);
+		//basicAtom.castShadow = true; //default is false
+		//basicAtom.receiveShadow = false; //default
 
 		for (var i = 0; i < moleculeData.length; i++) {
 			var atomData = moleculeData[i];
@@ -92,6 +94,8 @@ function addAtoms(view, moleculeData, lut){
 					atom.scale.set(options.atomSize*tempSize, options.atomSize*tempSize, options.atomSize*tempSize);
 				}
 				atom.position.set(atomData.xPlot*20.0, atomData.yPlot*20.0,atomData.zPlot*20.0);
+				atom.castShadow = true; //default is false
+				atom.receiveShadow = false; //default
 				atoms.add(atom);
 			}
 			

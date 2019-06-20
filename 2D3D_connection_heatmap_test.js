@@ -630,7 +630,7 @@ function main(views, plotSetup) {
 }
 
 },{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":3,"./2DHeatmaps/Utilities.js":4,"./2DHeatmaps/initialize2DHeatmapSetup.js":5,"./2DHeatmaps/selection.js":6,"./2DHeatmaps/setupOptionBox2DHeatmap.js":7,"./2DHeatmaps/tooltip.js":8,"./3DViews/MoleculeView.js":10,"./3DViews/PointCloud_selection.js":12,"./3DViews/setupOptionBox3DView.js":14,"./3DViews/systemEdge.js":15,"./3DViews/tooltip.js":16,"./MultiviewControl/HUDControl.js":17,"./MultiviewControl/calculateViewportSizes.js":18,"./MultiviewControl/colorLegend.js":19,"./MultiviewControl/controllerControl.js":20,"./MultiviewControl/initializeViewSetups.js":21,"./MultiviewControl/optionBoxControl.js":22,"./MultiviewControl/setupViewBasic.js":23,"./Utilities/arrangeData.js":24,"./Utilities/readDataFile.js":26,"./Utilities/scale.js":28}],2:[function(require,module,exports){
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 exports.arrangeDataToHeatmap = arrangeDataToHeatmap;
@@ -639,6 +639,8 @@ exports.updateHeatmap = updateHeatmap;
 exports.replotHeatmap = replotHeatmap;
 
 var _UtilitiesJs = require("./Utilities.js");
+
+var _UtilitiesOtherJs = require("../Utilities/other.js");
 
 /*export function arrangeDataToHeatmap(view,spatiallyResolvedData){
 
@@ -1119,7 +1121,7 @@ function heatmapPointCount(data) {
 	return count;
 }
 
-},{"./Utilities.js":4}],3:[function(require,module,exports){
+},{"../Utilities/other.js":25,"./Utilities.js":4}],3:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2365,6 +2367,8 @@ function addAtoms(view, moleculeData, lut) {
 		var atoms = new THREE.Group();
 
 		var basicAtom = new THREE.Mesh(atomGeometry, material);
+		//basicAtom.castShadow = true; //default is false
+		//basicAtom.receiveShadow = false; //default
 
 		for (var i = 0; i < moleculeData.length; i++) {
 			var atomData = moleculeData[i];
@@ -2386,6 +2390,8 @@ function addAtoms(view, moleculeData, lut) {
 					atom.scale.set(options.atomSize * tempSize, options.atomSize * tempSize, options.atomSize * tempSize);
 				}
 				atom.position.set(atomData.xPlot * 20.0, atomData.yPlot * 20.0, atomData.zPlot * 20.0);
+				atom.castShadow = true; //default is false
+				atom.receiveShadow = true; //default
 				atoms.add(atom);
 			}
 		}
@@ -4379,6 +4385,11 @@ function setupViewCameraSceneController(view, renderer) {
 
 	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 60000);
 	camera.position.fromArray(view.eye);
+
+	//var pointLight = new THREE.PointLight( 0xffffff );
+	//pointLight.position.set(1,1,2);
+	//camera.add(pointLight);
+
 	view.camera = camera;
 	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
 	tempController.minAzimuthAngle = -Infinity; // radians
@@ -4394,7 +4405,13 @@ function setupViewCameraSceneController(view, renderer) {
  tempController.staticMoving = true;*/
 	view.controller = tempController;
 	var tempScene = new THREE.Scene();
+
 	view.scene = tempScene;
+	var light = new THREE.DirectionalLight(0xffffff, 1, 100);
+	light.position.set(0, 1, 0); //default; light shining from top
+	light.castShadow = true; // default false
+	view.scene.add(light);
+	//view.scene.add( camera );
 
 	var left = Math.floor(window.innerWidth * view.left);
 	var top = Math.floor(window.innerHeight * view.top);
@@ -4530,6 +4547,7 @@ exports.hexToRgb = hexToRgb;
 exports.getHexColor = getHexColor;
 exports.colorToRgb = colorToRgb;
 exports.rgbToHex = rgbToHex;
+exports.makeTextSprite = makeTextSprite;
 
 function arrayToIdenticalObject(array) {
     var result = {};
@@ -4569,6 +4587,70 @@ function componentToHex(c) {
 
 function rgbToHex(color) {
     return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
+}
+
+function makeTextSprite(message, parameters) {
+    if (parameters === undefined) parameters = {};
+
+    var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
+
+    var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 18;
+
+    var borderThickness = parameters.hasOwnProperty("borderThickness") ? parameters["borderThickness"] : 4;
+
+    var borderColor = parameters.hasOwnProperty("borderColor") ? parameters["borderColor"] : { r: 0, g: 0, b: 0, a: 1.0 };
+
+    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ? parameters["backgroundColor"] : { r: 255, g: 255, b: 255, a: 1.0 };
+
+    var spriteAlignment = THREE.SpriteAlignment.topLeft;
+
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    context.font = "Bold " + fontsize + "px " + fontface;
+
+    // get size data (height depends only on font size)
+    var metrics = context.measureText(message);
+    var textWidth = metrics.width;
+
+    // background color
+    context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
+    // border color
+    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
+
+    context.lineWidth = borderThickness;
+    roundRect(context, borderThickness / 2, borderThickness / 2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
+    // 1.4 is extra height factor for text below baseline: g,j,p,q.
+
+    // text color
+    context.fillStyle = "rgba(0, 0, 0, 1.0)";
+
+    context.fillText(message, borderThickness, fontsize + borderThickness);
+
+    // canvas contents will be used for a texture
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    var spriteMaterial = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false, alignment: spriteAlignment });
+    var sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(100, 50, 1.0);
+    return sprite;
+}
+
+// function for drawing rounded rectangles
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
 }
 
 },{}],26:[function(require,module,exports){
