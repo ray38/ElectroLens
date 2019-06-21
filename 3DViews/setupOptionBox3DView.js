@@ -3,6 +3,7 @@ import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, add
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
+import {updateCamLightPosition} from "../MultiviewControl/setupViewBasic.js";
 export function setupOptionBox3DView(view,plotSetup){
 
 	var options = view.options;
@@ -310,6 +311,24 @@ export function setupOptionBox3DView(view,plotSetup){
 			changeMoleculePeriodicReplicates(view);
 		});
 		moleculeAdditionalFolder.close();
+
+		moleculeAdditionalFolder.add( options, 'cameraLightPositionX', -20000, 20000 ).step( 50 )
+		.name( 'Cam. Light X' )
+		.onChange( function( value ) {
+			updateCamLightPosition(view);
+		});
+
+		moleculeAdditionalFolder.add( options, 'cameraLightPositionY', -20000, 20000 ).step( 50 )
+		.name( 'Cam. Light Y' )
+		.onChange( function( value ) {
+			updateCamLightPosition(view);
+		});
+
+		moleculeAdditionalFolder.add( options, 'cameraLightPositionZ', -20000, 20000 ).step( 50 )
+		.name( 'Cam. Light Z' )
+		.onChange( function( value ) {
+			updateCamLightPosition(view);
+		});
 
 
 	}

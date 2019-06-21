@@ -206,7 +206,6 @@ function main(views, plotSetup) {
 	if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 	var container, stats, renderer, effect;
-	//var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 	var mouseX = 0,
 	    mouseY = 0;
 	var windowWidth, windowHeight;
@@ -279,6 +278,20 @@ function main(views, plotSetup) {
 		//effect.setSize( window.innerWidth , window.innerHeight);
 
 		renderer.autoClear = false;
+
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMapEnabled = true;
+		renderer.shadowMapSoft = true;
+
+		renderer.shadowCameraNear = 1;
+		renderer.shadowCameraFar = 60000;
+		renderer.shadowCameraFov = 100;
+
+		renderer.shadowMapBias = 0.0039;
+		renderer.shadowMapDarkness = 0.5;
+		renderer.shadowMapWidth = 1024;
+		renderer.shadowMapHeight = 1024;
+
 		container.appendChild(renderer.domElement);
 
 		if (overallSpatiallyResolvedData.length > 0) {
@@ -327,6 +340,22 @@ function main(views, plotSetup) {
 
 			if (view.viewType == '3DView') {
 				view.controller.autoRotate = false;
+
+				/*var dirLight = new THREE.DirectionalLight(0xffffff, 1000000);
+    dirLight.position.set(0, 10000, 0);
+    		view.scene.add( dirLight );
+    		dirLight.castShadow = true;
+    dirLight.shadowDarkness = 1.0;
+    dirLight.shadowCameraVisible = true;*/
+
+				/*var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+    hemiLight.position.set( 0, 50, 0 );
+    view.scene.add( hemiLight );
+    		var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+    view.scene.add( hemiLightHelper );*/
+
+				/*var dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 );
+    view.scene.add( dirLightHeper );*/
 
 				if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0) {
 					view.systemSpatiallyResolvedDataBoolean = true;
@@ -2061,7 +2090,7 @@ function updateHeatmapTooltip(view) {
 
 exports.__esModule = true;
 var colorSetup = {
-						"H": 0xFFFFFF,
+						"H": 0x3050F8, //0xFFFFFF,
 						"He": 0xD9FFFF,
 						"Li": 0xCC80FF,
 						"Be": 0xC2FF00,
@@ -2363,7 +2392,9 @@ function addAtoms(view, moleculeData, lut) {
 
 	if (options.atomsStyle == "ball") {
 		var atomGeometry = new THREE.SphereGeometry(100, options.atomModelSegments, options.atomModelSegments);
-		var material = new THREE.MeshBasicMaterial({ transparent: true, opacity: options.moleculeAlpha });
+		/*var material = new THREE.MeshLambertMaterial({ transparent: true, opacity: options.moleculeAlpha});*/
+		var material = new THREE.MeshPhongMaterial({ transparent: true, opacity: options.moleculeAlpha });
+
 		var atoms = new THREE.Group();
 
 		var basicAtom = new THREE.Mesh(atomGeometry, material);
@@ -3346,6 +3377,10 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.saveSystemSpatiallyResolvedData = function () {
 				_UtilitiesSaveDataJs.saveSystemSpatiallyResolvedData(viewSetup, plotSetup);
 			};
+
+			this.cameraLightPositionX = 0;
+			this.cameraLightPositionY = 0;
+			this.cameraLightPositionZ = 0;
 		}()
 	};
 
@@ -3374,6 +3409,8 @@ var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js
 var _UtilitiesScaleJs = require("../Utilities/scale.js");
 
 var _UtilitiesOtherJs = require("../Utilities/other.js");
+
+var _MultiviewControlSetupViewBasicJs = require("../MultiviewControl/setupViewBasic.js");
 
 function setupOptionBox3DView(view, plotSetup) {
 
@@ -3663,6 +3700,18 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 		});
 		moleculeAdditionalFolder.close();
+
+		moleculeAdditionalFolder.add(options, 'cameraLightPositionX', -20000, 20000).step(50).name('Cam. Light X').onChange(function (value) {
+			_MultiviewControlSetupViewBasicJs.updateCamLightPosition(view);
+		});
+
+		moleculeAdditionalFolder.add(options, 'cameraLightPositionY', -20000, 20000).step(50).name('Cam. Light Y').onChange(function (value) {
+			_MultiviewControlSetupViewBasicJs.updateCamLightPosition(view);
+		});
+
+		moleculeAdditionalFolder.add(options, 'cameraLightPositionZ', -20000, 20000).step(50).name('Cam. Light Z').onChange(function (value) {
+			_MultiviewControlSetupViewBasicJs.updateCamLightPosition(view);
+		});
 	}
 
 	/*
@@ -3832,7 +3881,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":19,"../Utilities/other.js":25,"../Utilities/scale.js":28,"./MoleculeView.js":10,"./PointCloud_selection.js":12}],15:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":19,"../MultiviewControl/setupViewBasic.js":23,"../Utilities/other.js":25,"../Utilities/scale.js":28,"./MoleculeView.js":10,"./PointCloud_selection.js":12}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -4380,17 +4429,34 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 
 exports.__esModule = true;
 exports.setupViewCameraSceneController = setupViewCameraSceneController;
+exports.updateCamLightPosition = updateCamLightPosition;
 
 function setupViewCameraSceneController(view, renderer) {
 
 	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 60000);
 	camera.position.fromArray(view.eye);
 
-	//var pointLight = new THREE.PointLight( 0xffffff );
-	//pointLight.position.set(1,1,2);
-	//camera.add(pointLight);
-
 	view.camera = camera;
+
+	var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+
+	dirLight.castShadow = true;
+	dirLight.shadowDarkness = 1.0;
+	dirLight.shadowCameraVisible = true;
+	dirLight.position.set(0, 0, 0);
+	view.camLight = dirLight;
+	view.camera.add(dirLight);
+
+	/*var dirLightHeper = new THREE.DirectionalLightHelper(dirLight, 10);
+ view.scene.add(dirLightHeper);*/
+
+	/*var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+ hemiLight.position.set(0, 10000, 0);
+ view.scene.add(hemiLight);
+ 
+ var hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10);
+ view.scene.add(hemiLightHelper);*/
+
 	var tempController = new THREE.OrbitControls(camera, renderer.domElement);
 	tempController.minAzimuthAngle = -Infinity; // radians
 	tempController.maxAzimuthAngle = Infinity; // radians
@@ -4407,11 +4473,7 @@ function setupViewCameraSceneController(view, renderer) {
 	var tempScene = new THREE.Scene();
 
 	view.scene = tempScene;
-	var light = new THREE.DirectionalLight(0xffffff, 1, 100);
-	light.position.set(0, 1, 0); //default; light shining from top
-	light.castShadow = true; // default false
-	view.scene.add(light);
-	//view.scene.add( camera );
+	view.scene.add(view.camera);
 
 	var left = Math.floor(window.innerWidth * view.left);
 	var top = Math.floor(window.innerHeight * view.top);
@@ -4422,6 +4484,10 @@ function setupViewCameraSceneController(view, renderer) {
 	view.windowTop = top;
 	view.windowWidth = width;
 	view.windowHeight = height;
+}
+
+function updateCamLightPosition(view) {
+	view.camLight.position.set(view.options.cameraLightPositionX, view.options.cameraLightPositionY, view.options.cameraLightPositionZ);
 }
 
 },{}],24:[function(require,module,exports){

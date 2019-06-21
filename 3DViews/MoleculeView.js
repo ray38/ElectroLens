@@ -65,7 +65,9 @@ function addAtoms(view, moleculeData, lut){
 
 	if (options.atomsStyle == "ball"){
 		var atomGeometry = new THREE.SphereGeometry(100, options.atomModelSegments, options.atomModelSegments);
-		var material = new THREE.MeshBasicMaterial({ transparent: true, opacity: options.moleculeAlpha});
+		/*var material = new THREE.MeshLambertMaterial({ transparent: true, opacity: options.moleculeAlpha});*/
+		var material = new THREE.MeshPhongMaterial({ transparent: true, opacity: options.moleculeAlpha});
+		
 		var atoms = new THREE.Group();
 
 		var basicAtom = new THREE.Mesh(atomGeometry, material);
@@ -95,7 +97,7 @@ function addAtoms(view, moleculeData, lut){
 				}
 				atom.position.set(atomData.xPlot*20.0, atomData.yPlot*20.0,atomData.zPlot*20.0);
 				atom.castShadow = true; //default is false
-				atom.receiveShadow = false; //default
+				atom.receiveShadow = true; //default
 				atoms.add(atom);
 			}
 			

@@ -196,7 +196,6 @@ function main(views,plotSetup) {
 
 
 	var container, stats, renderer, effect;
-	//var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
 	var mouseX = 0, mouseY = 0;
 	var windowWidth, windowHeight;
 	var clickRequest = false;
@@ -273,6 +272,21 @@ function main(views,plotSetup) {
 		//effect.setSize( window.innerWidth , window.innerHeight);
 
 		renderer.autoClear = false;
+
+
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMapEnabled = true;
+		renderer.shadowMapSoft = true;
+
+		renderer.shadowCameraNear = 1;
+		renderer.shadowCameraFar = 60000;
+		renderer.shadowCameraFov = 100;
+
+		renderer.shadowMapBias = 0.0039;
+		renderer.shadowMapDarkness = 0.5;
+		renderer.shadowMapWidth = 1024;
+		renderer.shadowMapHeight = 1024;
+
 		container.appendChild( renderer.domElement );
 
 		if (overallSpatiallyResolvedData.length > 0){
@@ -323,6 +337,27 @@ function main(views,plotSetup) {
 
 			if (view.viewType == '3DView'){
 				view.controller.autoRotate = false;
+
+				/*var dirLight = new THREE.DirectionalLight(0xffffff, 1000000);
+				dirLight.position.set(0, 10000, 0);
+
+				view.scene.add( dirLight );
+
+				dirLight.castShadow = true;
+				dirLight.shadowDarkness = 1.0;
+				dirLight.shadowCameraVisible = true;*/
+
+				/*var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+				hemiLight.position.set( 0, 50, 0 );
+				view.scene.add( hemiLight );
+
+				var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+				view.scene.add( hemiLightHelper );*/
+
+
+
+				/*var dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 );
+				view.scene.add( dirLightHeper );*/
 								
 
 				if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0){
