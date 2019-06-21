@@ -1,118 +1,5 @@
 import {addTitle,changeTitle} from "./Utilities.js";
 import {makeTextSprite} from "../Utilities/other.js"
-/*export function arrangeDataToHeatmap(view,spatiallyResolvedData){
-
-	var X = view.options.plotX, Y = view.options.plotY;
-	var XTransform = view.options.plotXTransform, YTransform = view.options.plotYTransform;
-	var numPerSide = view.options.numPerSide;
-
-	var heatmapStep = [];
-
-	for (var i=1; i <= numPerSide; i++) {
-		heatmapStep.push(""+i);
-	}
-	
-	if (XTransform == 'linear') {var xValue = function(d) {return d[X];}}
-	if (YTransform == 'linear') {var yValue = function(d) {return d[Y];}}
-
-	if (XTransform == 'log10') {var xValue = function(d) {return Math.log10(d[X]);};}
-	if (YTransform == 'log10') {var yValue = function(d) {return Math.log10(d[Y]);};}
-
-	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
-	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
-
-	if (XTransform == 'symlog10') {var xValue = function(d) {
-		if (d[X]>0.0){
-			return Math.log10(d[X]) + 3.0;
-		}else if (d[X]<0.0) {
-			return -1*Math.log10(-1*d[X]) - 3.0;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-	if (YTransform == 'symlog10') {var yValue = function(d) {
-		if (d[Y]>0.0){
-			return Math.log10(d[Y]) + 3.0;
-		}else if (d[Y]<0.0) {
-			return -1*Math.log10(-1*d[Y]) - 3.0;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-
-	if (XTransform == 'symlogPC') {var xValue = function(d) {
-		if (d[X]>0.0){
-			return Math.log10(d[X]) -2.0;
-		}else if (d[X]<0.0) {
-			return -1*Math.log10(-1*d[X]) + 2.0;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-	if (YTransform == 'symlogPC') {var yValue = function(d) {
-		if (d[Y]>0.0){
-			return Math.log10(d[Y]) + 4.5;
-		}else if (d[Y]<0.0) {
-			return -1*Math.log10(-1*d[Y]) - 4.5;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-	
-	var xMin = Math.floor(d3.min(spatiallyResolvedData,xValue));
-	var xMax = Math.ceil(d3.max(spatiallyResolvedData,xValue));
-	var yMin = Math.floor(d3.min(spatiallyResolvedData,yValue));
-	var yMax = Math.ceil(d3.max(spatiallyResolvedData,yValue));
-
-
-	view.xMin = xMin;
-	view.xMax = xMax;
-	view.yMin = yMin;
-	view.yMax = yMax;
-
-	var xScale = d3.scaleQuantize()
-	.domain([xMin, xMax])
-	.range(heatmapStep);
-	
-	var yScale = d3.scaleQuantize()
-	.domain([yMin, yMax])
-	.range(heatmapStep);
-
-	console.log(xMin,xMax,yMin,yMax)
-
-	console.log(xScale,yScale)
-	
-	var xMap = function(d) {return xScale(xValue(d));};
-	var yMap = function(d) {return yScale(yValue(d));}; 
-	
-	view.data = {};
-	view.dataXMin = d3.min(spatiallyResolvedData,xValue);
-	view.dataXMax = d3.max(spatiallyResolvedData,xValue);
-	view.dataYMin = d3.min(spatiallyResolvedData,yValue);
-	view.dataYMax = d3.max(spatiallyResolvedData,yValue);
-
-	view.xScale = xScale;
-	view.yScale = yScale;
-
-	//console.log(xScale.invertExtent(""+50))
-	
-	for (var i=0; i<spatiallyResolvedData.length; i++){
-		var heatmapX = xMap(spatiallyResolvedData[i]);
-		var heatmapY = yMap(spatiallyResolvedData[i]);
-		
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
-		view.data[heatmapX][heatmapY]['list'].push(spatiallyResolvedData[i]);
-	}
-	
-	//console.log(view.data);
-			
-}*/
-
 
 export function arrangeDataToHeatmap(view){
 
@@ -425,6 +312,31 @@ export function updateHeatmap(view){
 	System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+}
+
+export function addHeatmapLabels(view){
+	var labels = new THREE.Group();
+	var style = { fontsize: 32, borderColor: {r:0, g:0, b:255, a:1.0}, backgroundColor: {r:255, g:255, b:255, a:1.0} };
+	var tempLabel = makeTextSprite( view.yMin.toString(), style );
+	tempLabel.position.set(-50,-50,0);
+	labels.add(tempLabel);
+
+	var tempLabel = makeTextSprite( view.yMax.toString(), style );
+	tempLabel.position.set(-50,50,0);
+	labels.add(tempLabel);
+
+	var tempLabel = makeTextSprite( view.xMin.toString(), style );
+	tempLabel.position.set(-50,-50,0);
+	labels.add(tempLabel);
+
+	var tempLabel = makeTextSprite( view.xMax.toString(), style );
+	tempLabel.position.set(50,-50,0);
+	labels.add(tempLabel);
+
+
+
+	view.scene.add( labels );
 
 }
 

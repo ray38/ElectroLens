@@ -2,7 +2,7 @@ import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {initialize2DHeatmapSetup} from "./2DHeatmaps/initialize2DHeatmapSetup.js";
 import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.js";
 
-import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap} from "./2DHeatmaps/HeatmapView.js";
+import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap, addHeatmapLabels} from "./2DHeatmaps/HeatmapView.js";
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
@@ -337,27 +337,6 @@ function main(views,plotSetup) {
 
 			if (view.viewType == '3DView'){
 				view.controller.autoRotate = false;
-
-				/*var dirLight = new THREE.DirectionalLight(0xffffff, 1000000);
-				dirLight.position.set(0, 10000, 0);
-
-				view.scene.add( dirLight );
-
-				dirLight.castShadow = true;
-				dirLight.shadowDarkness = 1.0;
-				dirLight.shadowCameraVisible = true;*/
-
-				/*var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-				hemiLight.position.set( 0, 50, 0 );
-				view.scene.add( hemiLight );
-
-				var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-				view.scene.add( hemiLightHelper );*/
-
-
-
-				/*var dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 );
-				view.scene.add( dirLightHeper );*/
 								
 
 				if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0){
@@ -399,6 +378,7 @@ function main(views,plotSetup) {
 
 				arrangeDataToHeatmap(view)
 				getHeatmap(view);
+				addHeatmapLabels(view);
 				insertLegend(view);
 				
 			}
@@ -527,6 +507,7 @@ function main(views,plotSetup) {
 
 			arrangeDataToHeatmap(temp_view)
 			getHeatmap(temp_view);
+			addHeatmapLabels(temp_view);
 			insertLegend(temp_view);
 			updateOptionBoxLocation(views);
 			update2DHeatmapTitlesLocation(views);

@@ -341,22 +341,6 @@ function main(views, plotSetup) {
 			if (view.viewType == '3DView') {
 				view.controller.autoRotate = false;
 
-				/*var dirLight = new THREE.DirectionalLight(0xffffff, 1000000);
-    dirLight.position.set(0, 10000, 0);
-    		view.scene.add( dirLight );
-    		dirLight.castShadow = true;
-    dirLight.shadowDarkness = 1.0;
-    dirLight.shadowCameraVisible = true;*/
-
-				/*var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-    hemiLight.position.set( 0, 50, 0 );
-    view.scene.add( hemiLight );
-    		var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-    view.scene.add( hemiLightHelper );*/
-
-				/*var dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 );
-    view.scene.add( dirLightHeper );*/
-
 				if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0) {
 					view.systemSpatiallyResolvedDataBoolean = true;
 					view.defaultScalesSpatiallyResolvedData = defaultScalesSpatiallyResolvedData;
@@ -395,6 +379,7 @@ function main(views, plotSetup) {
 
 				_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view);
 				_DHeatmapsHeatmapViewJs.getHeatmap(view);
+				_DHeatmapsHeatmapViewJs.addHeatmapLabels(view);
 				_MultiviewControlColorLegendJs.insertLegend(view);
 			}
 		}
@@ -517,6 +502,7 @@ function main(views, plotSetup) {
 
 			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(temp_view);
 			_DHeatmapsHeatmapViewJs.getHeatmap(temp_view);
+			_DHeatmapsHeatmapViewJs.addHeatmapLabels(temp_view);
 			_MultiviewControlColorLegendJs.insertLegend(temp_view);
 			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
 			_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
@@ -665,124 +651,12 @@ exports.__esModule = true;
 exports.arrangeDataToHeatmap = arrangeDataToHeatmap;
 exports.getHeatmap = getHeatmap;
 exports.updateHeatmap = updateHeatmap;
+exports.addHeatmapLabels = addHeatmapLabels;
 exports.replotHeatmap = replotHeatmap;
 
 var _UtilitiesJs = require("./Utilities.js");
 
 var _UtilitiesOtherJs = require("../Utilities/other.js");
-
-/*export function arrangeDataToHeatmap(view,spatiallyResolvedData){
-
-	var X = view.options.plotX, Y = view.options.plotY;
-	var XTransform = view.options.plotXTransform, YTransform = view.options.plotYTransform;
-	var numPerSide = view.options.numPerSide;
-
-	var heatmapStep = [];
-
-	for (var i=1; i <= numPerSide; i++) {
-		heatmapStep.push(""+i);
-	}
-	
-	if (XTransform == 'linear') {var xValue = function(d) {return d[X];}}
-	if (YTransform == 'linear') {var yValue = function(d) {return d[Y];}}
-
-	if (XTransform == 'log10') {var xValue = function(d) {return Math.log10(d[X]);};}
-	if (YTransform == 'log10') {var yValue = function(d) {return Math.log10(d[Y]);};}
-
-	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
-	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
-
-	if (XTransform == 'symlog10') {var xValue = function(d) {
-		if (d[X]>0.0){
-			return Math.log10(d[X]) + 3.0;
-		}else if (d[X]<0.0) {
-			return -1*Math.log10(-1*d[X]) - 3.0;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-	if (YTransform == 'symlog10') {var yValue = function(d) {
-		if (d[Y]>0.0){
-			return Math.log10(d[Y]) + 3.0;
-		}else if (d[Y]<0.0) {
-			return -1*Math.log10(-1*d[Y]) - 3.0;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-
-	if (XTransform == 'symlogPC') {var xValue = function(d) {
-		if (d[X]>0.0){
-			return Math.log10(d[X]) -2.0;
-		}else if (d[X]<0.0) {
-			return -1*Math.log10(-1*d[X]) + 2.0;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-	if (YTransform == 'symlogPC') {var yValue = function(d) {
-		if (d[Y]>0.0){
-			return Math.log10(d[Y]) + 4.5;
-		}else if (d[Y]<0.0) {
-			return -1*Math.log10(-1*d[Y]) - 4.5;
-		}
-		else {
-			return 0.0;
-		}
-	}}
-	
-	var xMin = Math.floor(d3.min(spatiallyResolvedData,xValue));
-	var xMax = Math.ceil(d3.max(spatiallyResolvedData,xValue));
-	var yMin = Math.floor(d3.min(spatiallyResolvedData,yValue));
-	var yMax = Math.ceil(d3.max(spatiallyResolvedData,yValue));
-
-
-	view.xMin = xMin;
-	view.xMax = xMax;
-	view.yMin = yMin;
-	view.yMax = yMax;
-
-	var xScale = d3.scaleQuantize()
-	.domain([xMin, xMax])
-	.range(heatmapStep);
-	
-	var yScale = d3.scaleQuantize()
-	.domain([yMin, yMax])
-	.range(heatmapStep);
-
-	console.log(xMin,xMax,yMin,yMax)
-
-	console.log(xScale,yScale)
-	
-	var xMap = function(d) {return xScale(xValue(d));};
-	var yMap = function(d) {return yScale(yValue(d));}; 
-	
-	view.data = {};
-	view.dataXMin = d3.min(spatiallyResolvedData,xValue);
-	view.dataXMax = d3.max(spatiallyResolvedData,xValue);
-	view.dataYMin = d3.min(spatiallyResolvedData,yValue);
-	view.dataYMax = d3.max(spatiallyResolvedData,yValue);
-
-	view.xScale = xScale;
-	view.yScale = yScale;
-
-	//console.log(xScale.invertExtent(""+50))
-	
-	for (var i=0; i<spatiallyResolvedData.length; i++){
-		var heatmapX = xMap(spatiallyResolvedData[i]);
-		var heatmapY = yMap(spatiallyResolvedData[i]);
-		
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
-		view.data[heatmapX][heatmapY]['list'].push(spatiallyResolvedData[i]);
-	}
-	
-	//console.log(view.data);
-			
-}*/
 
 function arrangeDataToHeatmap(view) {
 
@@ -1110,6 +984,28 @@ function updateHeatmap(view) {
 	System.geometry.addAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 	System.geometry.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	System.geometry.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+}
+
+function addHeatmapLabels(view) {
+	var labels = new THREE.Group();
+	var style = { fontsize: 32, borderColor: { r: 0, g: 0, b: 255, a: 1.0 }, backgroundColor: { r: 255, g: 255, b: 255, a: 1.0 } };
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.yMin.toString(), style);
+	tempLabel.position.set(-50, -50, 0);
+	labels.add(tempLabel);
+
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.yMax.toString(), style);
+	tempLabel.position.set(-50, 50, 0);
+	labels.add(tempLabel);
+
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.xMin.toString(), style);
+	tempLabel.position.set(-50, -50, 0);
+	labels.add(tempLabel);
+
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.xMax.toString(), style);
+	tempLabel.position.set(50, -50, 0);
+	labels.add(tempLabel);
+
+	view.scene.add(labels);
 }
 
 function replotHeatmap(view) {
@@ -4627,107 +4523,236 @@ exports.rgbToHex = rgbToHex;
 exports.makeTextSprite = makeTextSprite;
 
 function arrayToIdenticalObject(array) {
-    var result = {};
-    for (var i = 0; i < array.length; i++) {
-        result[array[i]] = array[i];
-    }
-    return result;
+        var result = {};
+        for (var i = 0; i < array.length; i++) {
+                result[array[i]] = array[i];
+        }
+        return result;
 }
 
 function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+        } : null;
 }
 
 function getHexColor(number) {
-    return "#" + (number >>> 0).toString(16).slice(-6);
+        return "#" + (number >>> 0).toString(16).slice(-6);
 }
 
 function colorToRgb(color) {
-    var hex = getHexColor(color);
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16) / 255,
-        g: parseInt(result[2], 16) / 255,
-        b: parseInt(result[3], 16) / 255
-    } : null;
+        var hex = getHexColor(color);
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+                r: parseInt(result[1], 16) / 255,
+                g: parseInt(result[2], 16) / 255,
+                b: parseInt(result[3], 16) / 255
+        } : null;
 }
 
 function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
 }
 
 function rgbToHex(color) {
-    return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
+        return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
 }
 
 function makeTextSprite(message, parameters) {
-    if (parameters === undefined) parameters = {};
 
-    var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
+        if (parameters === undefined) parameters = {};
 
-    var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 18;
+        var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
 
-    var borderThickness = parameters.hasOwnProperty("borderThickness") ? parameters["borderThickness"] : 4;
+        var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 18;
 
-    var borderColor = parameters.hasOwnProperty("borderColor") ? parameters["borderColor"] : { r: 0, g: 0, b: 0, a: 1.0 };
+        var borderThickness = parameters.hasOwnProperty("borderThickness") ? parameters["borderThickness"] : 4;
 
-    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ? parameters["backgroundColor"] : { r: 255, g: 255, b: 255, a: 1.0 };
+        var borderColor = parameters.hasOwnProperty("borderColor") ? parameters["borderColor"] : { r: 0, g: 0, b: 0, a: 1.0 };
 
-    var spriteAlignment = THREE.SpriteAlignment.topLeft;
+        var backgroundColor = parameters.hasOwnProperty("backgroundColor") ? parameters["backgroundColor"] : { r: 255, g: 255, b: 255, a: 1.0 };
 
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-    context.font = "Bold " + fontsize + "px " + fontface;
+        //var spriteAlignment = THREE.SpriteAlignment.topLeft;
 
-    // get size data (height depends only on font size)
-    var metrics = context.measureText(message);
-    var textWidth = metrics.width;
+        //var canvas = document.createElement('canvas');
+        //var context = canvas.getContext('2d');
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var contextWidth = context.canvas.clientWidth;
+        var contextHeight = context.canvas.clientHeight;
+        console.log("canvas: " + canvas.width + ", " + canvas.height);
+        console.log("context: " + contextWidth + ", " + contextHeight);
+        canvas.height = fontsize*2;
+        canvas.width = fontsize*2;
+        /*console.log("canvas: " + canvas.width + ", " + canvas.height );
+        console.log("context: " + contextWidth + ", " + contextHeight );*/
+        context.font = "Bold " + fontsize + "px " + fontface;
 
-    // background color
-    context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
-    // border color
-    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
+        // get size data (height depends only on font size)
+        var metrics = context.measureText(message);
+        var textWidth = metrics.width;
 
-    context.lineWidth = borderThickness;
-    roundRect(context, borderThickness / 2, borderThickness / 2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
-    // 1.4 is extra height factor for text below baseline: g,j,p,q.
+        // background color
+        context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
+        // border color
+        context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
 
-    // text color
-    context.fillStyle = "rgba(0, 0, 0, 1.0)";
+        context.lineWidth = borderThickness;
+        roundRect(context, borderThickness / 2, borderThickness / 2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
+        // 1.4 is extra height factor for text below baseline: g,j,p,q.
 
-    context.fillText(message, borderThickness, fontsize + borderThickness);
+        // text color
+        context.fillStyle = "rgba(0, 0, 0, 1.0)";
 
-    // canvas contents will be used for a texture
-    var texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
+        context.fillText(message, borderThickness, fontsize + borderThickness);
+        //context.fillText( message, (contextWidth - textWidth) / 2, (contextHeight - textHeight) / 2);
 
-    var spriteMaterial = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false, alignment: spriteAlignment });
-    var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(100, 50, 1.0);
-    return sprite;
+        // canvas contents will be used for a texture
+        var texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+
+        //var spriteMaterial = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false, alignment: spriteAlignment });
+        var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        var sprite = new THREE.Sprite(spriteMaterial);
+        //sprite.scale.set(10,5,1.0);
+        sprite.scale.set(textWidth, fontsize, 1.0);
+        sprite.position.normalize();
+        return sprite;
+
+        /*if ( parameters === undefined ) parameters = {};
+        
+            var fontface = parameters.hasOwnProperty("fontface") ?
+                  parameters["fontface"] : "Arial";
+        
+            var fontsize = parameters.hasOwnProperty("fontsize") ?
+                  parameters["fontsize"] : 18;
+        
+            var borderThickness = parameters.hasOwnProperty("borderThickness") ?
+                  parameters["borderThickness"] : 4;
+        
+            var borderColor = parameters.hasOwnProperty("borderColor") ?
+                  parameters["borderColor"] : { r:0, g:0, b:0, a:1.0 };
+        
+            var fillColor = parameters.hasOwnProperty("fillColor") ?
+                  parameters["fillColor"] : undefined;
+        
+            var textColor = parameters.hasOwnProperty("textColor") ?
+                  parameters["textColor"] : { r:0, g:0, b:255, a:1.0 };
+        
+            var radius = parameters.hasOwnProperty("radius") ?
+                          parameters["radius"] : 6;
+        
+            var vAlign = parameters.hasOwnProperty("vAlign") ?
+                                  parameters["vAlign"] : "center";
+        
+            var hAlign = parameters.hasOwnProperty("hAlign") ?
+                                  parameters["hAlign"] : "center";
+        
+            var canvas = document.createElement('canvas');
+              var context = canvas.getContext('2d');
+        
+            // set a large-enough fixed-size canvas.  Both dimensions should be powers of 2.
+            canvas.width  = 2048;
+            canvas.height = 1024;
+              context.font = fontsize + "px " + fontface;
+            context.textBaseline = "alphabetic";
+            context.textAlign = "left";
+              // get size data (height depends only on font size)
+            var metrics = context.measureText( message );
+            var textWidth = metrics.width;
+                // find the center of the canvas and the half of the font width and height
+            // we do it this way because the sprite's position is the CENTER of the sprite
+            var cx = canvas.width / 2;
+            var cy = canvas.height / 2;
+            var tx = textWidth/ 2.0;
+            var ty = fontsize / 2.0;
+        
+            // then adjust for the justification
+              if ( vAlign === "bottom")
+                ty = 0;
+              else if (vAlign === "top")
+                ty = fontsize;
+              if (hAlign === "left")
+                tx = 0;
+              else if (hAlign === "right")
+                tx = textWidth;
+        
+            // the DESCENDER_ADJUST is extra height factor for text below baseline: g,j,p,q. since we don't know the true bbox
+            roundRect(context, cx - tx , cy + ty + 0.28 * fontsize,
+                    textWidth, fontsize, radius, borderThickness, borderColor, fillColor);
+                // text color.  Note that we have to do this AFTER the round-rect as it also uses the "fillstyle" of the canvas
+              context.fillStyle = getCanvasColor(textColor);
+            context.fillText( message, cx - tx, cy + ty);
+              // draw some visual references - debug only
+            drawCrossHairs( context, cx, cy );
+            // outlineCanvas(context, canvas);
+            //addSphere(x,y,z);
+                // canvas contents will be used for a texture
+            var texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+              var spriteMaterial = new THREE.SpriteMaterial( { map: texture } );
+            var sprite = new THREE.Sprite( spriteMaterial );
+              // we MUST set the scale to 2:1.  The canvas is already at a 2:1 scale,
+            // but the sprite itself is square: 1.0 by 1.0
+            // Note also that the size of the scale factors controls the actual size of the text-label
+            sprite.scale.set(4,2,1);
+              return sprite;*/
 }
 
 // function for drawing rounded rectangles
 function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+}
+
+function drawCrossHairs(context, cx, cy) {
+
+        context.strokeStyle = "rgba(0,255,0,1)";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(cx - 150, cy);
+        context.lineTo(cx + 150, cy);
+        context.stroke();
+
+        context.strokeStyle = "rgba(0,255,0,1)";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(cx, cy - 150);
+        context.lineTo(cx, cy + 150);
+        context.stroke();
+        context.strokeStyle = "rgba(0,255,0,1)";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(cx - 150, cy);
+        context.lineTo(cx + 150, cy);
+        context.stroke();
+
+        context.strokeStyle = "rgba(0,255,0,1)";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(cx, cy - 150);
+        context.lineTo(cx, cy + 150);
+        context.stroke();
+}
+
+function getCanvasColor(color) {
+
+        return "rgba(" + color.r + "," + color.g + "," + color.b + "," + color.a + ")";
 }
 
 },{}],26:[function(require,module,exports){
