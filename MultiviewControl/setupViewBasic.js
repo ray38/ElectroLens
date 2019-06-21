@@ -1,6 +1,6 @@
 export function setupViewCameraSceneController(view,renderer){
 
-	var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 60000 );
+	var camera = new THREE.PerspectiveCamera( view.options.cameraFov, window.innerWidth / window.innerHeight, 1, 100000 );
 	camera.position.fromArray( view.eye );
 
 
@@ -59,4 +59,10 @@ export function setupViewCameraSceneController(view,renderer){
 
 export function updateCamLightPosition(view){
 	view.camLight.position.set(view.options.cameraLightPositionX, view.options.cameraLightPositionY, view.options.cameraLightPositionZ);
+}
+
+
+export function updateCameraFov(view){
+	view.camera.fov = view.options.cameraFov;
+	view.camera.updateProjectionMatrix();
 }

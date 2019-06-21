@@ -3,7 +3,7 @@ import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, add
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
-import {updateCamLightPosition} from "../MultiviewControl/setupViewBasic.js";
+import {updateCamLightPosition, updateCameraFov} from "../MultiviewControl/setupViewBasic.js";
 export function setupOptionBox3DView(view,plotSetup){
 
 	var options = view.options;
@@ -499,6 +499,12 @@ export function setupOptionBox3DView(view,plotSetup){
 		updatePointCloudGeometry(view);
 		//updatePlane(options);
 	    gui.updateDisplay();
+	});
+
+	detailFolder.add( options, 'cameraFov', 30, 150 ).step( 5 )
+	.name( 'Camera Fov' )
+	.onChange( function( value ) {
+		updateCameraFov(view);
 	});
 
 	detailFolder.add( options, 'autoRotateSpeed', 0.1, 30.0 ).step( 0.1 )

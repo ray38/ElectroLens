@@ -3226,7 +3226,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		controllerEnabledBackground: new THREE.Color(0.1, 0.1, 0.1),
 		eye: [0, 0, 1200],
 		up: [0, 1, 0],
-		fov: 100,
+		//fov: 100,
 		mousePosition: [0, 0],
 		//viewType: '3Dview',
 		//moleculeName: 'CO2',
@@ -3253,6 +3253,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		zCoordMin: zCoordMin,
 		zCoordMax: zCoordMax,
 		options: new function () {
+			this.cameraFov = 50;
 			this.backgroundColor = "#000000";
 			this.backgroundAlpha = 0.0;
 			this.showPointCloud = true;
@@ -3865,6 +3866,10 @@ function setupOptionBox3DView(view, plotSetup) {
 		gui.updateDisplay();
 	});
 
+	detailFolder.add(options, 'cameraFov', 30, 150).step(5).name('Camera Fov').onChange(function (value) {
+		_MultiviewControlSetupViewBasicJs.updateCameraFov(view);
+	});
+
 	detailFolder.add(options, 'autoRotateSpeed', 0.1, 30.0).step(0.1).name('Rotate Speed').onChange(function (value) {
 		view.controller.autoRotateSpeed = value;
 	});
@@ -4430,10 +4435,11 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 exports.__esModule = true;
 exports.setupViewCameraSceneController = setupViewCameraSceneController;
 exports.updateCamLightPosition = updateCamLightPosition;
+exports.updateCameraFov = updateCameraFov;
 
 function setupViewCameraSceneController(view, renderer) {
 
-	var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 60000);
+	var camera = new THREE.PerspectiveCamera(view.options.cameraFov, window.innerWidth / window.innerHeight, 1, 100000);
 	camera.position.fromArray(view.eye);
 
 	view.camera = camera;
@@ -4488,6 +4494,11 @@ function setupViewCameraSceneController(view, renderer) {
 
 function updateCamLightPosition(view) {
 	view.camLight.position.set(view.options.cameraLightPositionX, view.options.cameraLightPositionY, view.options.cameraLightPositionZ);
+}
+
+function updateCameraFov(view) {
+	view.camera.fov = view.options.cameraFov;
+	view.camera.updateProjectionMatrix();
 }
 
 },{}],24:[function(require,module,exports){
