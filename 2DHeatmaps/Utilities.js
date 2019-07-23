@@ -9,7 +9,9 @@ export function getAxis(view){
 	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
 	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3, });
 	var line = new THREE.Line(geometry, material);
-	view.scene.add(line);
+
+	return line;
+	//view.scene.add(line);
 	
 }
 

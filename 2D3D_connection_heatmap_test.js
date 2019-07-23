@@ -372,15 +372,17 @@ function main(views, plotSetup) {
 					view.overallMoleculeDataBoolean = true;
 				}
 
-				_DHeatmapsTooltipJs.initializeHeatmapTooltip(view);
+				//initializeHeatmapTooltip(view);
 				_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(view, plotSetup);
-				_DHeatmapsUtilitiesJs.getAxis(view);
-				_DHeatmapsUtilitiesJs.addTitle(view);
 
-				_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(view);
-				_DHeatmapsHeatmapViewJs.getHeatmap(view);
-				_DHeatmapsHeatmapViewJs.addHeatmapLabels(view);
-				_MultiviewControlColorLegendJs.insertLegend(view);
+				//addTitle(view);
+
+				/*
+    getAxis(view);
+    arrangeDataToHeatmap(view)
+    getHeatmap(view);
+    addHeatmapLabels(view);
+    insertLegend(view);*/
 			}
 		}
 
@@ -495,17 +497,19 @@ function main(views, plotSetup) {
 			_MultiviewControlHUDControlJs.setupHUD(temp_view);
 
 			temp_view.controller.enableRotate = false;
-			_DHeatmapsTooltipJs.initializeHeatmapTooltip(temp_view);
+			//initializeHeatmapTooltip(temp_view);
 			_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(temp_view, plotSetup);
-			_DHeatmapsUtilitiesJs.getAxis(temp_view);
-			_DHeatmapsUtilitiesJs.addTitle(temp_view);
-
-			_DHeatmapsHeatmapViewJs.arrangeDataToHeatmap(temp_view);
-			_DHeatmapsHeatmapViewJs.getHeatmap(temp_view);
-			_DHeatmapsHeatmapViewJs.addHeatmapLabels(temp_view);
-			_MultiviewControlColorLegendJs.insertLegend(temp_view);
 			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
-			_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
+
+			/*
+   getAxis(temp_view);
+   addTitle(temp_view);
+   arrangeDataToHeatmap(temp_view)
+   getHeatmap(temp_view);
+   addHeatmapLabels(temp_view);
+   insertLegend(temp_view);*/
+
+			//update2DHeatmapTitlesLocation(views);
 		}
 	}
 
@@ -540,9 +544,7 @@ function main(views, plotSetup) {
 				var dir = vector.sub(view.camera.position).normalize();
 				var distance = -view.camera.position.z / dir.z;
 				view.mousePosition = view.camera.position.clone().add(dir.multiplyScalar(distance));
-				if (view.viewType == "2DHeatmap") {
-					_DHeatmapsTooltipJs.updateHeatmapTooltip(view);
-				}
+				//if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
 				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
@@ -651,12 +653,14 @@ exports.__esModule = true;
 exports.arrangeDataToHeatmap = arrangeDataToHeatmap;
 exports.getHeatmap = getHeatmap;
 exports.updateHeatmap = updateHeatmap;
-exports.addHeatmapLabels = addHeatmapLabels;
+exports.getHeatmapLabels = getHeatmapLabels;
 exports.replotHeatmap = replotHeatmap;
 
 var _UtilitiesJs = require("./Utilities.js");
 
 var _UtilitiesOtherJs = require("../Utilities/other.js");
+
+var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
 
 function arrangeDataToHeatmap(view) {
 
@@ -935,15 +939,17 @@ function getHeatmap(view) {
 
 	//particles.name = 'scatterPoints';
 
-	view.System = System;
+	view.heatmap = System;
 	//view.attributes = particles.attributes;
 	//view.geometry = particles.geometry;
-	scene.add(System);
+	//scene.add(System);
+
+	return System;
 }
 
 function updateHeatmap(view) {
 	var options = view.options;
-	var System = view.System;
+	var System = view.heatmap;
 	var data = view.data;
 	var num = heatmapPointCount(data);
 	var colors = new Float32Array(num * 3);
@@ -986,30 +992,61 @@ function updateHeatmap(view) {
 	System.geometry.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 }
 
-function addHeatmapLabels(view) {
+function getHeatmapLabels(view) {
 	var labels = new THREE.Group();
+	/*var style = { fontsize: 32, borderColor: {r:0, g:0, b:255, a:1.0}, backgroundColor: {r:255, g:255, b:255, a:1.0} };
+ var tempLabel = makeTextSprite( view.yMin.toString(), style );
+ tempLabel.position.set(-50,-50,0);
+ labels.add(tempLabel);
+ 
+ var tempLabel = makeTextSprite( view.yMax.toString(), style );
+ tempLabel.position.set(-50,50,0);
+ labels.add(tempLabel);
+ 
+ var tempLabel = makeTextSprite( view.xMin.toString(), style );
+ tempLabel.position.set(-50,-50,0);
+ labels.add(tempLabel);
+ 
+ var tempLabel = makeTextSprite( view.xMax.toString(), style );
+ tempLabel.position.set(50,-50,0);
+ labels.add(tempLabel);*/
+
 	var style = { fontsize: 32, borderColor: { r: 0, g: 0, b: 255, a: 1.0 }, backgroundColor: { r: 255, g: 255, b: 255, a: 1.0 } };
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.yMin.toString(), style);
-	tempLabel.position.set(-50, -50, 0);
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.yMin.toString(), style);
+	tempLabel.position.set(-75, -50, 0);
 	labels.add(tempLabel);
 
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.yMax.toString(), style);
-	tempLabel.position.set(-50, 50, 0);
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.yMax.toString(), style);
+	tempLabel.position.set(-75, 50, 0);
 	labels.add(tempLabel);
 
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.xMin.toString(), style);
-	tempLabel.position.set(-50, -50, 0);
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(((view.yMax + view.yMin) / 2).toString(), style);
+	tempLabel.position.set(-75, 0, 0);
 	labels.add(tempLabel);
 
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite(view.xMax.toString(), style);
-	tempLabel.position.set(50, -50, 0);
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.xMin.toString(), style);
+	tempLabel.position.set(-50, -60, 0);
 	labels.add(tempLabel);
 
-	view.scene.add(labels);
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.xMax.toString(), style);
+	tempLabel.position.set(50, -60, 0);
+	labels.add(tempLabel);
+
+	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(((view.xMax + view.xMin) / 2).toString(), style);
+	tempLabel.position.set(0, -60, 0);
+	labels.add(tempLabel);
+
+	view.heatmapLabels = labels;
+
+	return labels;
+	//view.scene.add( labels );
 }
 
 function replotHeatmap(view) {
-	view.scene.remove(view.System);
+	if ("System" in view) {
+		view.scene.remove(view.System);
+	}
+
 	/*var options = view.options;
  //var options = view.options;
  if (options.plotData == 'spatiallyResolvedData'){
@@ -1021,8 +1058,20 @@ function replotHeatmap(view) {
  }*/
 
 	arrangeDataToHeatmap(view);
-	getHeatmap(view);
-	_UtilitiesJs.changeTitle(view);
+	var heatmap = new THREE.Group();
+
+	var heatmapPlot = getHeatmap(view);
+	var heatmapAxis = _UtilitiesJs.getAxis(view);
+	var heatmapLabels = getHeatmapLabels(view);
+
+	heatmap.add(heatmapPlot);
+	heatmap.add(heatmapAxis);
+	heatmap.add(heatmapLabels);
+
+	view.heatmap = heatmap;
+	view.scene.add(heatmap);
+	_MultiviewControlColorLegendJs.changeLegend(view);
+	//changeTitle(view);
 }
 
 function countListSelected(list) {
@@ -1046,7 +1095,7 @@ function heatmapPointCount(data) {
 	return count;
 }
 
-},{"../Utilities/other.js":25,"./Utilities.js":4}],3:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":19,"../Utilities/other.js":25,"./Utilities.js":4}],3:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1182,7 +1231,9 @@ function getAxis(view) {
 	geometry.vertices.push(new THREE.Vector3(-50, -50, 0));
 	var material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 });
 	var line = new THREE.Line(geometry, material);
-	view.scene.add(line);
+
+	return line;
+	//view.scene.add(line);
 }
 
 function addTitle(view) {
@@ -1912,7 +1963,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 		view.background = new THREE.Color(value);
 	});
 
-	gui.close();
+	gui.open();
 }
 
 },{"../MultiviewControl/colorLegend.js":19,"../Utilities/other.js":25,"./HeatmapView.js":2}],8:[function(require,module,exports){
@@ -1986,7 +2037,7 @@ function updateHeatmapTooltip(view) {
 
 exports.__esModule = true;
 var colorSetup = {
-						"H": 0x3050F8, //0xFFFFFF,
+						"H": 0xFFFFFF, //0xFFFFFF, 0x3050F8,
 						"He": 0xD9FFFF,
 						"Li": 0xCC80FF,
 						"Be": 0xC2FF00,
@@ -4520,6 +4571,7 @@ exports.hexToRgb = hexToRgb;
 exports.getHexColor = getHexColor;
 exports.colorToRgb = colorToRgb;
 exports.rgbToHex = rgbToHex;
+exports.makeTextSprite2 = makeTextSprite2;
 exports.makeTextSprite = makeTextSprite;
 
 function arrayToIdenticalObject(array) {
@@ -4562,6 +4614,57 @@ function rgbToHex(color) {
         return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
 }
 
+function expo(x, f) {
+        return Number.parseFloat(x).toExponential(f);
+}
+
+function makeTextSprite2(message, parameters) {
+        /*let sprite = new THREE.TextSprite({
+          textSize: 32,
+          redrawInterval: 250,
+          texture: {
+            text: message,
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            strokeStyle: 'white'
+          },
+          material: {
+            color: 'white',
+            fog: true,
+          },
+        });
+        return sprite
+        let texture = new THREE.TextTexture({
+          fontFamily: 'Arial, Helvetica, sans-serif',
+          fontSize: 32,
+          text: message,
+        });
+        let material = new THREE.SpriteMaterial({
+          color: 0xffffbb,
+          map: texture,
+        });
+        let sprite = new THREE.Sprite(material);
+        return sprite*/
+
+        /*let sprite = new THREE.TextSprite({
+          textSize: 32,
+          redrawInterval: 250,
+          texture: {
+            text: message,
+            fontsize: 800,
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            strokeStyle: 'white'
+          },
+          material: {
+            color: 'white',
+            fog: true,
+          },
+        });
+        return sprite*/
+
+        var sprite = new SpriteText(expo(message, 2));
+        return sprite;
+}
+
 function makeTextSprite(message, parameters) {
 
         if (parameters === undefined) parameters = {};
@@ -4586,8 +4689,8 @@ function makeTextSprite(message, parameters) {
         var contextHeight = context.canvas.clientHeight;
         console.log("canvas: " + canvas.width + ", " + canvas.height);
         console.log("context: " + contextWidth + ", " + contextHeight);
-        canvas.height = fontsize*2;
-        canvas.width = fontsize*2;
+        canvas.height = fontsize * 2;
+        canvas.width = fontsize * 2;
         /*console.log("canvas: " + canvas.width + ", " + canvas.height );
         console.log("context: " + contextWidth + ", " + contextHeight );*/
         context.font = "Bold " + fontsize + "px " + fontface;

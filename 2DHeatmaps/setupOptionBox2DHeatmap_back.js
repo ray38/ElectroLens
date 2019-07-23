@@ -322,6 +322,6 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		view.background = new THREE.Color(value);
 	});
 
-	gui.open();
+	gui.close();
 
 }

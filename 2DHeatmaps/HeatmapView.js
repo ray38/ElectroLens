@@ -1,5 +1,7 @@
 import {addTitle,changeTitle} from "./Utilities.js";
-import {makeTextSprite} from "../Utilities/other.js"
+import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
+import {getAxis} from "./Utilities.js";
+import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 
 export function arrangeDataToHeatmap(view){
 
@@ -258,17 +260,19 @@ export function getHeatmap(view){
 
 	//particles.name = 'scatterPoints';
 			
-	view.System = System;
+	view.heatmap = System;
 	//view.attributes = particles.attributes;
 	//view.geometry = particles.geometry;
-	scene.add(System);
+	//scene.add(System);
+
+	return System
 	
 }
 
 
 export function updateHeatmap(view){
 	var options = view.options;
-	var System = view.System;
+	var System = view.heatmap;
 	var data = view.data;
 	var num = heatmapPointCount(data);
 	var colors = new Float32Array(num *3);
@@ -315,9 +319,9 @@ export function updateHeatmap(view){
 
 }
 
-export function addHeatmapLabels(view){
+export function getHeatmapLabels(view){
 	var labels = new THREE.Group();
-	var style = { fontsize: 32, borderColor: {r:0, g:0, b:255, a:1.0}, backgroundColor: {r:255, g:255, b:255, a:1.0} };
+	/*var style = { fontsize: 32, borderColor: {r:0, g:0, b:255, a:1.0}, backgroundColor: {r:255, g:255, b:255, a:1.0} };
 	var tempLabel = makeTextSprite( view.yMin.toString(), style );
 	tempLabel.position.set(-50,-50,0);
 	labels.add(tempLabel);
@@ -332,16 +336,45 @@ export function addHeatmapLabels(view){
 
 	var tempLabel = makeTextSprite( view.xMax.toString(), style );
 	tempLabel.position.set(50,-50,0);
+	labels.add(tempLabel);*/
+
+	var style = { fontsize: 32, borderColor: {r:0, g:0, b:255, a:1.0}, backgroundColor: {r:255, g:255, b:255, a:1.0} };
+	var tempLabel = makeTextSprite2( view.yMin.toString(), style );
+	tempLabel.position.set(-75,-50,0);
 	labels.add(tempLabel);
 
+	var tempLabel = makeTextSprite2( view.yMax.toString(), style );
+	tempLabel.position.set(-75,50,0);
+	labels.add(tempLabel);
 
+	var tempLabel = makeTextSprite2( ((view.yMax + view.yMin)/2).toString(), style );
+	tempLabel.position.set(-75,0,0);
+	labels.add(tempLabel);
 
-	view.scene.add( labels );
+	var tempLabel = makeTextSprite2( view.xMin.toString(), style );
+	tempLabel.position.set(-50,-60,0);
+	labels.add(tempLabel);
+
+	var tempLabel = makeTextSprite2( view.xMax.toString(), style );
+	tempLabel.position.set(50,-60,0);
+	labels.add(tempLabel);
+
+	var tempLabel = makeTextSprite2( ((view.xMax + view.xMin)/2).toString(), style );
+	tempLabel.position.set(0,-60,0);
+	labels.add(tempLabel);
+
+	view.heatmapLabels = labels;
+
+	return labels
+	//view.scene.add( labels );
 
 }
 
 export function replotHeatmap(view){
-	view.scene.remove(view.System);
+	if ("System" in view) {
+		view.scene.remove(view.System);
+	}
+	
 	/*var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
@@ -353,8 +386,20 @@ export function replotHeatmap(view){
 	}*/
 
 	arrangeDataToHeatmap(view);
-	getHeatmap(view);
-	changeTitle(view);
+	var heatmap = new THREE.Group()
+
+	var heatmapPlot = getHeatmap(view);
+	var heatmapAxis = getAxis(view);
+	var heatmapLabels = getHeatmapLabels(view);
+
+	heatmap.add(heatmapPlot);
+	heatmap.add(heatmapAxis);
+	heatmap.add(heatmapLabels)
+
+	view.heatmap = heatmap;
+	view.scene.add( heatmap );
+	changeLegend(view);
+	//changeTitle(view);
 
 }
 

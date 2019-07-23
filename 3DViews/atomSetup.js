@@ -1,6 +1,6 @@
 //  jmol color scheme: http://jmol.sourceforge.net/jscolors/
 export var colorSetup = {
-						"H":   0x3050F8,//0xFFFFFF, 
+						"H":   0xFFFFFF,//0xFFFFFF, 0x3050F8,
 						"He":  0xD9FFFF,
 						"Li":  0xCC80FF,
 						"Be":  0xC2FF00,

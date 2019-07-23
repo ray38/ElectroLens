@@ -371,15 +371,17 @@ function main(views,plotSetup) {
 					view.overallMoleculeDataBoolean = true;
 				}
 
-				initializeHeatmapTooltip(view);
+				//initializeHeatmapTooltip(view);
 				setupOptionBox2DHeatmap(view,plotSetup);
-				getAxis(view);
-				addTitle(view);
+				
+				//addTitle(view);
 
+				/*
+				getAxis(view);
 				arrangeDataToHeatmap(view)
 				getHeatmap(view);
 				addHeatmapLabels(view);
-				insertLegend(view);
+				insertLegend(view);*/
 				
 			}
 
@@ -500,17 +502,20 @@ function main(views,plotSetup) {
 
 			
 			temp_view.controller.enableRotate=false;
-			initializeHeatmapTooltip(temp_view);
+			//initializeHeatmapTooltip(temp_view);
 			setupOptionBox2DHeatmap(temp_view,plotSetup);
+			updateOptionBoxLocation(views);
+			
+
+			/*
 			getAxis(temp_view);
 			addTitle(temp_view);
-
 			arrangeDataToHeatmap(temp_view)
 			getHeatmap(temp_view);
 			addHeatmapLabels(temp_view);
-			insertLegend(temp_view);
-			updateOptionBoxLocation(views);
-			update2DHeatmapTitlesLocation(views);
+			insertLegend(temp_view);*/
+			
+			//update2DHeatmapTitlesLocation(views);
 				
 			
 		}
@@ -549,7 +554,7 @@ function main(views,plotSetup) {
 				var dir = vector.sub( view.camera.position ).normalize();
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
-				if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
+				//if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
 				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}

@@ -38,6 +38,58 @@ export function rgbToHex(color) {
     return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
 }
 
+function expo(x, f) {
+  return Number.parseFloat(x).toExponential(f);
+}
+
+export function makeTextSprite2( message, parameters ){
+    /*let sprite = new THREE.TextSprite({
+      textSize: 32,
+      redrawInterval: 250,
+      texture: {
+        text: message,
+        fontFamily: 'Arial, Helvetica, sans-serif',
+        strokeStyle: 'white'
+      },
+      material: {
+        color: 'white',
+        fog: true,
+      },
+    });
+    return sprite
+    let texture = new THREE.TextTexture({
+      fontFamily: 'Arial, Helvetica, sans-serif',
+      fontSize: 32,
+      text: message,
+    });
+    let material = new THREE.SpriteMaterial({
+      color: 0xffffbb,
+      map: texture,
+    });
+    let sprite = new THREE.Sprite(material);
+    return sprite*/
+
+    /*let sprite = new THREE.TextSprite({
+      textSize: 32,
+      redrawInterval: 250,
+      texture: {
+        text: message,
+        fontsize: 800,
+        fontFamily: 'Arial, Helvetica, sans-serif',
+        strokeStyle: 'white'
+      },
+      material: {
+        color: 'white',
+        fog: true,
+      },
+    });
+    return sprite*/
+
+    var sprite = new SpriteText(expo(message,2));
+    return sprite
+
+}
+
 
 export function makeTextSprite( message, parameters ){
     
