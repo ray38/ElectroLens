@@ -20,7 +20,7 @@ import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./
 import {setupHUD} from "./MultiviewControl/HUDControl.js";
 import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis, addTitle, update2DHeatmapTitlesLocation} from "./2DHeatmaps/Utilities.js";
-import {initializeHeatmapTooltip,updateHeatmapTooltip} from "./2DHeatmaps/tooltip.js";
+import {initialize2DPlotTooltip,updateHeatmapTooltip, updateCovarianceTooltip} from "./2DHeatmaps/tooltip.js";
 import {selectionControl, updatePlaneSelection} from "./2DHeatmaps/selection.js";
 import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap} from "./2DHeatmaps/Selection/Utilities.js";
 
@@ -87,7 +87,8 @@ else{
 		    if (boolSpatiallyResolved) {
 		    	CONFIG["plotSetup"]["spatiallyResolvedPropertyList"] = tempFormResult["propertyListSpatiallyResolved"].split(",").map(function(item) { return item.trim();});
 		      CONFIG["plotSetup"]["pointcloudDensity"] = tempFormResult["densityProperty"];
-		      CONFIG["plotSetup"]["densityCutoff"] = Number(tempFormResult["densityCutoff"]);
+			  CONFIG["plotSetup"]["densityCutoffLow"] = Number(tempFormResult["densityCutoffLow"]);
+			  CONFIG["plotSetup"]["densityCutoffUp"] = Number(tempFormResult["densityCutoffUp"]);
 		    }
 		    else{
 		      console.log("No Spatially Resolved Data");
@@ -217,6 +218,7 @@ function main(views,plotSetup) {
 
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
+		view.plotSetup = plotSetup;
 
 		if (plotSetup.frameProperty != null){
 			console.log("use MD mode");
@@ -273,7 +275,6 @@ function main(views,plotSetup) {
 
 		renderer.autoClear = false;
 
-
 		renderer.shadowMap.enabled = true;
 		renderer.shadowMapEnabled = true;
 		renderer.shadowMapSoft = true;
@@ -324,10 +325,7 @@ function main(views,plotSetup) {
 						alert("error when calculating frame min and max, double check your input")
 					}
 				}
-
 			}
-
-
 
 			setupViewCameraSceneController(view,renderer);
 			addOptionBox(view);
@@ -371,10 +369,10 @@ function main(views,plotSetup) {
 					view.overallMoleculeDataBoolean = true;
 				}
 
-				//initializeHeatmapTooltip(view);
+				initialize2DPlotTooltip(view);
 				setupOptionBox2DHeatmap(view,plotSetup);
 				
-				//addTitle(view);
+				addTitle(view);
 
 				/*
 				getAxis(view);
@@ -462,7 +460,8 @@ function main(views,plotSetup) {
 		}
 		if (e.keyCode == 107 || e.keyCode == 65) {
 			var temp_view = {"viewType": "2DHeatmap"}
-
+			temp_view.plotSetup = plotSetup;
+			
 			if (overallSpatiallyResolvedData.length > 0){
 				temp_view["plotXSpatiallyResolvedData"] = plotSetup.spatiallyResolvedPropertyList[0]
 				temp_view["plotYSpatiallyResolvedData"] = plotSetup.spatiallyResolvedPropertyList[0]
@@ -502,14 +501,15 @@ function main(views,plotSetup) {
 
 			
 			temp_view.controller.enableRotate=false;
-			//initializeHeatmapTooltip(temp_view);
+			initialize2DPlotTooltip(temp_view);
 			setupOptionBox2DHeatmap(temp_view,plotSetup);
 			updateOptionBoxLocation(views);
+			addTitle(temp_view)
 			
 
 			/*
 			getAxis(temp_view);
-			addTitle(temp_view);
+			;
 			arrangeDataToHeatmap(temp_view)
 			getHeatmap(temp_view);
 			addHeatmapLabels(temp_view);
@@ -543,18 +543,21 @@ function main(views,plotSetup) {
 			if (view.controllerEnabled){
 				var left   = Math.floor( windowWidth  * view.left );
 				var top    = Math.floor( windowHeight * view.top );
-				var width  = Math.floor( windowWidth  * view.width ) + left;
-				var height = Math.floor( windowHeight * view.height ) + top;
+				// var width  = Math.floor( windowWidth  * view.width ) + left;
+				// var height = Math.floor( windowHeight * view.height ) + top;
 				var vector = new THREE.Vector3();
 			
-				vector.set(	(((event.clientX-left)/(width-left)) * 2 - 1),
-							(-((event.clientY-top)/(height-top)) * 2 + 1),
+				vector.set(	(((event.clientX-left)/Math.floor( windowWidth  * view.width )) * 2 - 1),
+							(-((event.clientY-top)/Math.floor( windowHeight * view.height )) * 2 + 1),
 							0.1);
 				vector.unproject( view.camera );
 				var dir = vector.sub( view.camera.position ).normalize();
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
-				//if (view.viewType == "2DHeatmap"){updateHeatmapTooltip(view);}
+				if (view.viewType == "2DHeatmap"){
+					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){updateHeatmapTooltip(view);}
+					if (view.options.plotType == "Correlation" && typeof view.covariancePlot != "undefined"){updateCovarianceTooltip(view);}
+				}
 				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
@@ -568,13 +571,14 @@ function main(views,plotSetup) {
 			for ( var ii = 0; ii < views.length; ++ii ){
 				var view = views[ii];
 					
-				var left   = Math.floor( windowWidth  * view.left );
-				var top    = Math.floor( windowHeight * view.top );
 				var width  = Math.floor( windowWidth  * view.width );
 				var height = Math.floor( windowHeight * view.height );
+				var left   = Math.floor( windowWidth  * view.left );
+				var top    = Math.floor( windowHeight * (1-view.top) - height );
+				// console.log('top', view.top,(1-view.top), top)
 
 				view.windowLeft = left;
-				view.windowTop = top;
+				view.windowTop = windowHeight * view.top;
 				view.windowWidth = width;
 				view.windowHeight = height;
 			}
@@ -615,18 +619,18 @@ function main(views,plotSetup) {
 				//}
 				
 			}
-
-
 			//view.controller.update();
 			
 			var camera = view.camera;
-			var left   = Math.floor( windowWidth  * view.left );
-			var top    = Math.floor( windowHeight * view.top );
+			
 			var width  = Math.floor( windowWidth  * view.width );
 			var height = Math.floor( windowHeight * view.height );
+			var left   = Math.floor( windowWidth  * view.left );
+			var top    = Math.floor( windowHeight * (1-view.top) - height );
+			// console.log('top', view.top,(1-view.top), top)
 
 			view.windowLeft = left;
-			view.windowTop = top;
+			view.windowTop = windowHeight * view.top;
 			view.windowWidth = width;
 			view.windowHeight = height;
 
@@ -653,7 +657,5 @@ function main(views,plotSetup) {
 		if (activeView != null){
 			if (activeView.viewType == '2DHeatmap') {selectionControl(views, activeView, mouseHold);}
 		}
-	}	
-
-
+	}
 }

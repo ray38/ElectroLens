@@ -1,4 +1,4 @@
-import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap} from "./Selection/Utilities.js";
+import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap, updateSelectionFromComparison} from "./Selection/Utilities.js";
 
 function spawnPlane(view){
 
@@ -99,27 +99,62 @@ export function updatePlaneSelection(views,view) {
 	var tempSelectionPlane = view.currentSelectionPlane;
 	//console.log(tempSelectionPlane)
 	if (tempSelectionPlane != null){
-		var p = tempSelectionPlane.geometry.attributes.position.array;
-		var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
-			ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
-		var tempx,tempy;
-
-		console.log('updating plane selection')
 		
-		var data = view.data;
-		var xPlotScale = view.xPlotScale;
-		var yPlotScale = view.yPlotScale;
-		for (var x in data){
-			for (var y in data[x]){
-				tempx = xPlotScale(parseFloat(x));
-				tempy = yPlotScale(parseFloat(y));
-				if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
-					data[x][y].selected = true;
+		if (view.viewType == '2DHeatmap' && (view.options.plotType == "Heatmap" || view.options.plotType == 'Dim. Reduction')) {
+			var p = tempSelectionPlane.geometry.attributes.position.array;
+			var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
+				ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
+			var tempx,tempy;
+
+			console.log('updating plane selection')
+			
+			var data = view.data;
+			var xPlotScale = view.xPlotScale;
+			var yPlotScale = view.yPlotScale;
+			for (var x in data){
+				for (var y in data[x]){
+					tempx = xPlotScale(parseFloat(x));
+					tempy = yPlotScale(parseFloat(y));
+					if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
+						// data[x][y].selected = true;
+						for (var i = 0; i < data[x][y]['list'].length; i++) {
+							data[x][y]['list'][i].selected = true;
+						}
+					}
+					// else { data[x][y].selected = false;}
 				}
-				else { data[x][y].selected = false;}
 			}
+			// updateSelectionFromHeatmap(view);
 		}
-		updateSelectionFromHeatmap(view);							
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
+			var p = tempSelectionPlane.geometry.attributes.position.array;
+			var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
+				ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
+			var tempx,tempy;
+			console.log('selecting for comparison')
+			const overallData = view.data;
+			var xPlotScale = view.xPlotScale;
+			var yPlotScale = view.yPlotScale;
+
+			Object.keys(overallData).forEach((systemName, index) => { 
+				var data = overallData[systemName].data;
+
+				for (var x in data){
+					for (var y in data[x]){
+						tempx = xPlotScale(parseFloat(x));
+						tempy = yPlotScale(parseFloat(y));
+						if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
+							// data[x][y].selected = true;
+							for (var i = 0; i < data[x][y]['list'].length; i++) {
+								data[x][y]['list'][i].selected = true;
+							}
+						}
+						// else { data[x][y].selected = false;}
+					}
+				}
+			})
+			// updateSelectionFromComparison(view);	
+		}
 	}	
 	updateAllPlots(views);
 }

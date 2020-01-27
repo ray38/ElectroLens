@@ -3,10 +3,11 @@ export function updateController(views, windowWidth, windowHeight, mouseX, mouse
 		var view = views[ii];
 		var left   = Math.floor( windowWidth  * view.left );
 		var top    = Math.floor( windowHeight * view.top );
-		var width  = Math.floor( windowWidth  * view.width );
-		var height = Math.floor( windowHeight * view.height );
+		var right  = Math.floor( windowWidth  * view.width ) + left;
+		var bottom = Math.floor( windowHeight * view.height ) + top;
 		
-		if (mouseX > left && mouseX < (left + width) && mouseY > top && mouseY <top + height){
+		// console.log(left, right, top, bottom)
+		if (mouseX > left && mouseX < right && (windowHeight - mouseY) > top && (windowHeight - mouseY) < bottom){
 			enableController(view, view.controller);
 		}
 		else{
@@ -16,6 +17,7 @@ export function updateController(views, windowWidth, windowHeight, mouseX, mouse
 }
 
 function enableController(view, controller){
+	// console.log('activating')
 	view.controllerEnabled = true;
 	controller.enableZoom = view.controllerZoom;
 	controller.enablePan  = view.controllerPan;

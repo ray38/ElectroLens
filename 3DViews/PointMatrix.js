@@ -85,10 +85,10 @@ for ( var k = 0; k < num_blocks; k ++) {
 	}			
 }
 
-geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 var System = new THREE.Points( geometry, shaderMaterial );
 
@@ -183,8 +183,8 @@ for ( var k = 0; k < num_blocks; k ++) {
 }
 
 
-System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 }

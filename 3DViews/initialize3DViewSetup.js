@@ -20,9 +20,15 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
 	var yCoordMin = systemDimension["y"][0], yCoordMax = systemDimension["y"][1];
 	var zCoordMin = systemDimension["z"][0], zCoordMax = systemDimension["z"][1];
-	var xSteps = (xCoordMax - xCoordMin)/gridSpacing.x;
+	/* var xSteps = (xCoordMax - xCoordMin)/gridSpacing.x;
 	var ySteps = (yCoordMax - yCoordMin)/gridSpacing.y;
-	var zSteps = (zCoordMax - zCoordMin)/gridSpacing.z;
+	var zSteps = (zCoordMax - zCoordMin)/gridSpacing.z; 
+	var xPlotMin = 0.0 - (xSteps/2.0), xPlotMax =  0.0 + (xSteps/2.0);
+	var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
+	var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0); */
+	var xSteps = gridSpacing.x;
+	var ySteps = gridSpacing.y;
+	var zSteps = gridSpacing.z;
 	var xPlotMin = 0.0 - (xSteps/2.0), xPlotMax =  0.0 + (xSteps/2.0);
 	var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
 	var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0);
@@ -39,7 +45,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		background: new THREE.Color( 0,0,0 ),
 		backgroundAlpha: 1.0,
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 1200 ],
+		eye: [ 0, 0, 120 ],
 		up: [ 0, 1, 0 ],
 		//fov: 100,
 		mousePosition: [0,0],
@@ -84,7 +90,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;
 			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 5;
+			this.pointCloudSize = 0.5;
 			this.animate = false;
 			this.currentFrame = 1;
 			this.xPBC = 1;

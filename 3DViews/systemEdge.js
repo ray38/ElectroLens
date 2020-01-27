@@ -3,9 +3,9 @@ export function addSystemEdge(view){
 	var options = view.options;
 	var scene = view.scene;
 
-	var geometry = new THREE.CubeGeometry(	20.0*(view.xPlotScale(view.xCoordMax)-view.xPlotScale(view.xCoordMin)), 
-											20.0*(view.yPlotScale(view.yCoordMax)-view.yPlotScale(view.yCoordMin)),  
-											20.0*(view.zPlotScale(view.zCoordMax)-view.zPlotScale(view.zCoordMin)) );
+	var geometry = new THREE.BoxGeometry(	( view.xPlotMax - view.xPlotMin ), 
+											( view.yPlotMax - view.yPlotMin ),  
+											( view.zPlotMax - view.zPlotMin ) );
 
 
 

@@ -52,9 +52,9 @@ export function fullscreenOneView(views, view){
 
 		//tempView.guiContainer.style.display = "none";
 		tempView.guiContainer.style.visibility = "hidden";
-		if (tempView.viewType == '2DHeatmap') {
+		/*if (tempView.viewType == '2DHeatmap') {
 			tempView.title.style.visibility = "hidden";
-		}
+		}*/
 	}
 
 	view.left = 0.0;
@@ -63,9 +63,9 @@ export function fullscreenOneView(views, view){
 	view.width = 1.0;
 
 	view.guiContainer.style.visibility = "visible";
-	if (view.viewType == '2DHeatmap') {
+	/*if (view.viewType == '2DHeatmap') {
 		view.title.style.visibility = "visible";
-	}
+	}*/
 
 	updateOptionBoxLocation(views);
 	update2DHeatmapTitlesLocation(views);

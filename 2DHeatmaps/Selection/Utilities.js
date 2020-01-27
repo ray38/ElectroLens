@@ -1,4 +1,6 @@
 import {updateHeatmap} from "../HeatmapView.js";
+import {updatePCAHeatmap} from "../PCAView.js";
+import {updateComparison} from "../comparisonView.js"
 //import {updatePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
 
 import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, updatePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "../../3DViews/PointCloud_selection.js";
@@ -62,8 +64,14 @@ export function selectAllMoleculeData(views,overallMoleculeData){
 export function updateAllPlots(views){
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
-		if (view.viewType == '2DHeatmap'){
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
 			updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Dim. Reduction'){
+			updatePCAHeatmap(view);
 		}
 	}
 	
@@ -85,6 +93,7 @@ export function updateAllPlots(views){
 
 
 export function updateSelectionFromHeatmap(view){
+	console.log('called update heatmap');
 	var data = view.data;
 	for (var x in data){
 		for (var y in data[x]){
@@ -100,4 +109,24 @@ export function updateSelectionFromHeatmap(view){
 			}*/
 		}
 	}
+}
+
+export function updateSelectionFromComparison(view){
+	console.log('called update comparison');
+	const overallData = view.data;
+
+	console.log(Object.keys(overallData))
+	Object.keys(overallData).forEach((systemName, index) => { 
+		var data = overallData[systemName].data;
+		for (var x in data){
+			for (var y in data[x]){
+				if (data[x][y].selected) {
+					for (var i = 0; i < data[x][y]['list'].length; i++) {
+						data[x][y]['list'][i].selected = true;
+					}
+				}
+			}
+		}
+	})
+	
 }

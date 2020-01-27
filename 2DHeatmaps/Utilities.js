@@ -19,19 +19,33 @@ export function addTitle(view) {
 	//var titleText = view.plotYTransform + " " + view.plotY + " v.s. " + view.plotXTransform + " " + view.plotX;
 
 	var options = view.options;
-
-	if (options.plotData == 'spatiallyResolvedData'){
-		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
-		var XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
+	var titleText = "";
+	if (options.plotType == "Undefined"){
+		titleText += "Undefined Plot";
 	}
 
-	if (options.plotData == 'moleculeData'){
-		var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
-		var XTransform = view.options.plotXTransformMoleculeData, YTransform = view.options.plotYTransformMoleculeData;
+	if (options.plotType == "Heatmap"){
+		
+		if (options.plotData == 'spatiallyResolvedData'){
+			var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
+			var XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
+		}
+
+		if (options.plotData == 'moleculeData'){
+			var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
+			var XTransform = view.options.plotXTransformMoleculeData, YTransform = view.options.plotYTransformMoleculeData;
+		}
+
+		titleText += YTransform + " " + Y + " v.s. " + XTransform + " " + X;
 	}
 
-	var titleText = YTransform + " " + Y + " v.s. " + XTransform + " " + X;
+	if (options.plotType == "Covariance"){
+		titleText += "Correlation Plot";
+	}
 
+	if (options.plotType == "PCA"){
+		titleText += "PCA Plot";
+	}
 	//var titleText = " v.s. ";
 	var tempTitle = document.createElement('div');
 	tempTitle.style.position = 'absolute';

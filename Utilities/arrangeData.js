@@ -14,12 +14,12 @@ export function arrangeMoleculeDataToFrame(view){
 				tempNeighborObject.distancesList = [];
 				tempNeighborObject.coordinatesList = [];
 				var coordinates1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
-				var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
+				var point1 = new THREE.Vector3(moleculeData[i].xPlot, moleculeData[i].yPlot,moleculeData[i].zPlot);
 
 			    for (var j = 0; j < moleculeData.length; j++) {
 			    	if (i!= j){
 			    		var coordinates2 = new THREE.Vector3(moleculeData[j].x, moleculeData[j].y, moleculeData[j].z);
-				    	var point2 = new THREE.Vector3(moleculeData[j].xPlot*20.0, moleculeData[j].yPlot*20.0,moleculeData[j].zPlot*20.0);
+				    	var point2 = new THREE.Vector3(moleculeData[j].xPlot, moleculeData[j].yPlot,moleculeData[j].zPlot);
 					    var bondlength = new THREE.Vector3().subVectors( coordinates2, coordinates1 ).length();
 					    var midPoint = new THREE.Vector3().addVectors( point2, point1 ).divideScalar(2);
 					    if (bondlength < 2) {
@@ -79,7 +79,7 @@ export function arrangeMoleculeDataToFrame2(view){
 				tempNeighborObject.distancesList = [];
 				tempNeighborObject.coordinatesList = [];
 				//var coordinates1 =  {"x":moleculeData[i].x, "y": moleculeData[i].y, "z":moleculeData[i].z};
-				var point1 = new THREE.Vector3(moleculeData[i].xPlot*20.0, moleculeData[i].yPlot*20.0,moleculeData[i].zPlot*20.0);
+				var point1 = new THREE.Vector3(moleculeData[i].xPlot, moleculeData[i].yPlot, moleculeData[i].zPlot);
 
 				var nearest = tree.nearest(moleculeData[i], 6, 6);
 
@@ -88,7 +88,7 @@ export function arrangeMoleculeDataToFrame2(view){
 					var distance = nearest[j][1];
 
 					if (distance > 0){
-						var point2 = new THREE.Vector3(neighbor.xPlot*20.0, neighbor.yPlot*20.0,neighbor.zPlot*20.0);
+						var point2 = new THREE.Vector3(neighbor.xPlot, neighbor.yPlot,neighbor.zPlot);
 						var bondlength = Math.sqrt(distance);
 					    var midPoint = new THREE.Vector3().addVectors( point2, point1 ).divideScalar(2);
 					    tempNeighborObject.neighborsList.push(neighbor);

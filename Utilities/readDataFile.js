@@ -43,7 +43,8 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 	var d = view.spatiallyResolvedData.data;
 	var propertyList = plotSetup.spatiallyResolvedPropertyList;
 	var density = plotSetup.pointcloudDensity;
-	var densityCutoff = plotSetup.densityCutoff;
+	var densityCutoffLow = plotSetup.densityCutoffLow;
+	var densityCutoffUp = plotSetup.densityCutoffUp;
 	var systemName = view.moleculeName;
 
 	var xPlotScale = view.xPlotScale;
@@ -51,7 +52,7 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 	var zPlotScale = view.zPlotScale;
 	d.forEach(function (d,i) {
 		var n = +d[density];
-		if (n >densityCutoff){
+		if (n > densityCutoffLow && n < densityCutoffUp){
 			var temp = {
 					x:+d.x,
 					y:+d.y,
@@ -158,15 +159,14 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 		console.log(filename)
 		var propertyList = plotSetup.spatiallyResolvedPropertyList;
 		var density = plotSetup.pointcloudDensity;
-		var densityCutoff = plotSetup.densityCutoff;
+		var densityCutoffLow = plotSetup.densityCutoffLow;
+		var densityCutoffUp = plotSetup.densityCutoffUp;
 		var systemName = view.moleculeName;
 
 		var xPlotScale = view.xPlotScale;
 		var yPlotScale = view.yPlotScale;
 		var zPlotScale = view.zPlotScale;
 
-		console.log(density,densityCutoff,propertyList)
-		
 
 		d3.csv(filename, function (error,d) {
 			if (error && error.target.status === 404) {
@@ -179,7 +179,7 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 			console.log('end loading')
 			d.forEach(function (d,i) {
 				var n = +d[density];
-				if (n >densityCutoff){
+				if (n > densityCutoffLow && n < densityCutoffUp){
 					var temp = {
 							x:+d.x,
 							y:+d.y,

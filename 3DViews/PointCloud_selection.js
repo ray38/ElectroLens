@@ -22,7 +22,7 @@ export function getPointCloudGeometry(view){
 	}
 	console.log("total points in cloud: ", count)
 
-	var geometry = new THREE.BufferGeometry();
+	
 
 	var positions = new Float32Array(count*3);
 	var colors = new Float32Array(count *3);
@@ -44,28 +44,22 @@ export function getPointCloudGeometry(view){
 		temp_num_points  =  points_in_block[k];
 		if (temp_num_points > 0){
 
-			var x_start = spatiallyResolvedData[k]['xPlot'];
-			var y_start = spatiallyResolvedData[k]['yPlot'];
-			var z_start = spatiallyResolvedData[k]['zPlot'];
+			var x_start = spatiallyResolvedData[k]['xPlot'] - 0.5;
+			var y_start = spatiallyResolvedData[k]['yPlot'] - 0.5;
+			var z_start = spatiallyResolvedData[k]['zPlot'] - 0.5;
 			var x_end = x_start + 1;
 			var y_end = y_start + 1;
 			var z_end = z_start + 1;
-			/*var x_start = view.systemSpatiallyResolvedData[k]['xPlot']-0.5;
-			var y_start = view.systemSpatiallyResolvedData[k]['yPlot']-0.5;
-			var z_start = view.systemSpatiallyResolvedData[k]['zPlot']-0.5;
-			var x_end = x_start + 0.5;
-			var y_end = y_start + 0.5;
-			var z_end = z_start + 0.5;*/
 			
 			for (var j = 0; j < temp_num_points; j ++){
 
-				var x = Math.random()*1  + x_start;
-				var y = Math.random()*1  + y_start;
-				var z = Math.random()*1  + z_start;
+				var x = Math.random()  + x_start;
+				var y = Math.random()  + y_start;
+				var z = Math.random()  + z_start;
 				
-				positions[ i3 + 0 ] = x*10;
-				positions[ i3 + 1 ] = y*10;
-				positions[ i3 + 2 ] = z*10;
+				positions[ i3 + 0 ] = x;
+				positions[ i3 + 1 ] = y;
+				positions[ i3 + 2 ] = z;
 
 				var color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
 				
@@ -95,13 +89,53 @@ export function getPointCloudGeometry(view){
 			}
 		}			
 	}
+
+	
+	/*if (options.PBCBoolean){
+		var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
+		var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
+		var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
+
+		var x_start = -1 * ((options.xPBC-1)/2);
+		var x_end = ((options.xPBC-1)/2) + 1;
+		var y_start = -1 * ((options.yPBC-1)/2);
+		var y_end = ((options.yPBC-1)/2) + 1;
+		var z_start = -1 * ((options.zPBC-1)/2);
+		var z_end = ((options.zPBC-1)/2) + 1;
 		
+		var sumDisplacement = [];
+		for ( var i = x_start; i < x_end; i ++) {
+			for ( var j = y_start; j < y_end; j ++) {
+				for ( var k = z_start; k < z_end; k ++) {
+					sumDisplacement.push(i*xStep, j*yStep, k*zStep);
+				}
+			}
+		}
+	} else {
+		var sumDisplacement = [0.0, 0.0, 0.0];
+	}
+	
 
+	var geometry = new THREE.InstancedBufferGeometry();
+	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	geometry.parentBlockMap = parentBlock;
+	console.log(sumDisplacement);
+	const sumDisp = new Float32Array(sumDisplacement);
+	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	var System = new THREE.Mesh( geometry, shaderMaterial );
+	System.frustumCulled = false
+	view.System = System;
+	scene.add( System );*/
+
+	var geometry = new THREE.BufferGeometry();
+	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 	geometry.parentBlockMap = parentBlock;
 
 	var System = new THREE.Points( geometry, shaderMaterial );
@@ -115,7 +149,7 @@ export function getPointCloudGeometry(view){
 
 }
 
-
+/*
 Float32Array.prototype.concat = function() {
 	var bytesPerIndex = 4,
 		buffers = Array.prototype.slice.call(arguments);
@@ -150,7 +184,7 @@ Float32Array.prototype.concat = function() {
 
 	return concatenatedArray;
 };
-
+*/
 
 function getPositionArrayAfterTranslation(positions, count, x, y, z){
 	var result = new Float32Array(count*3)
@@ -172,9 +206,9 @@ export function addPointCloudPeriodicReplicates(view){
 
 
 	//var geometry = new THREE.BufferGeometry();
-	var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
-	var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
-	var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
+	var xStep = (view.xPlotMax - view.xPlotMin);
+	var yStep = (view.yPlotMax - view.yPlotMin);
+	var zStep = (view.zPlotMax - view.zPlotMin);
 
 
 	var x_start = -1 * ((options.xPBC-1)/2);
@@ -193,7 +227,8 @@ export function addPointCloudPeriodicReplicates(view){
 	for ( var i = x_start; i < x_end; i ++) {
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
-				if (((i == 0) && (j == 0) && (k == 0)) == false) {
+				if (!((i == 0) && (j == 0) && (k == 0))) {
+					console.log(i,j,k);
 					var tempSystemReplica = system.clone();
 					tempSystemReplica.position.set(i*xStep, j*yStep, k*zStep); 
 					periodicReplicateSystemGroup.add(tempSystemReplica);
@@ -204,12 +239,33 @@ export function addPointCloudPeriodicReplicates(view){
 	view.periodicReplicateSystems = periodicReplicateSystemGroup;
 	scene.add(periodicReplicateSystemGroup);
 
-}
+	/*var options = view.options;
+	var system = view.System;
 
-export function updatePointCloudPeriodicReplicates(view){
+	var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
+	var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
+	var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
 
-	removePointCloudPeriodicReplicates(view);
-	addPointCloudPeriodicReplicates(view);
+
+	var x_start = -1 * ((options.xPBC-1)/2);
+	var x_end = ((options.xPBC-1)/2) + 1;
+	var y_start = -1 * ((options.yPBC-1)/2);
+	var y_end = ((options.yPBC-1)/2) + 1;
+	var z_start = -1 * ((options.zPBC-1)/2);
+	var z_end = ((options.zPBC-1)/2) + 1;
+
+	const sumDisplacement = []
+	for ( var i = x_start; i < x_end; i ++) {
+		for ( var j = y_start; j < y_end; j ++) {
+			for ( var k = z_start; k < z_end; k ++) {
+				sumDisplacement.push(i*xStep, j*yStep, k*zStep);
+			}
+		}
+	}
+	console.log(sumDisplacement);
+	const sumDisp = new Float32Array(sumDisplacement);
+	system.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));*/
+
 }
 
 
@@ -223,9 +279,6 @@ export function updatePointCloudGeometry(view){
 	var currentFrame = options.currentFrame.toString();
 	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 
-	var particles = options.pointCloudParticles;
-	var num_blocks = view.systemSpatiallyResolvedData.length;
-	var points_in_block = new Float32Array(num_blocks);
 	var count = view.System.geometry.attributes.size.array.length;
 
 
@@ -253,8 +306,6 @@ export function updatePointCloudGeometry(view){
 		colors[ i3 + 1 ] = color.g;
 		colors[ i3 + 2 ] = color.b;
 
-		
-		
 		if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
 				(y >= options.y_low) 	&& (y <= options.y_high)	&&
 				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	spatiallyResolvedData[k].selected)
@@ -272,12 +323,12 @@ export function updatePointCloudGeometry(view){
 
 	}
 
-	view.System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	view.System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	view.System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	view.System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	view.System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	view.System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 	if (options.PBCBoolean){
-		updatePointCloudPeriodicReplicates(view);
+		changePointCloudPeriodicReplicates(view);
 	}
 }
 

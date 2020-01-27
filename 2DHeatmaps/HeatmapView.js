@@ -250,17 +250,17 @@ export function getHeatmap(view){
 	}
 	
 	view.heatmapInformation = heatmapInformation;
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 	var System = new THREE.Points(geometry, shaderMaterial);
 	//return System;
 
 	//particles.name = 'scatterPoints';
 			
-	view.heatmap = System;
+	// view.heatmapPlot = System;
 	//view.attributes = particles.attributes;
 	//view.geometry = particles.geometry;
 	//scene.add(System);
@@ -272,7 +272,7 @@ export function getHeatmap(view){
 
 export function updateHeatmap(view){
 	var options = view.options;
-	var System = view.heatmap;
+	var System = view.heatmapPlot;
 	var data = view.data;
 	var num = heatmapPointCount(data);
 	var colors = new Float32Array(num *3);
@@ -298,24 +298,21 @@ export function updateHeatmap(view){
 				alphas[i] = options.pointCloudAlpha;
 			}
 			else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
 				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha/2;
 			}
-			
-			
-			
 			i++;
 			i3 += 3;
 		}
 	}
 	
 	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	System.geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	System.geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	System.geometry.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 }
 
@@ -371,10 +368,21 @@ export function getHeatmapLabels(view){
 }
 
 export function replotHeatmap(view){
-	if ("System" in view) {
-		view.scene.remove(view.System);
+	if ("covariance" in view) {
+		view.scene.remove(view.covariance);
+	}
+
+	if ("comparison" in view) {
+		view.scene.remove(view.comparison);
 	}
 	
+	if ("heatmap" in view) {
+		view.scene.remove(view.heatmap);
+	}
+	
+	if ("PCAGroup" in view) {
+		view.scene.remove(view.PCAGroup);
+	}
 	/*var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
@@ -390,16 +398,16 @@ export function replotHeatmap(view){
 
 	var heatmapPlot = getHeatmap(view);
 	var heatmapAxis = getAxis(view);
-	var heatmapLabels = getHeatmapLabels(view);
+	//var heatmapLabels = getHeatmapLabels(view);
 
 	heatmap.add(heatmapPlot);
 	heatmap.add(heatmapAxis);
-	heatmap.add(heatmapLabels)
+	//heatmap.add(heatmapLabels)
 
 	view.heatmap = heatmap;
 	view.scene.add( heatmap );
 	changeLegend(view);
-	//changeTitle(view);
+	changeTitle(view);
 
 }
 
