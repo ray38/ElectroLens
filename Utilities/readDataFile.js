@@ -57,9 +57,9 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 					x:+d.x,
 					y:+d.y,
 					z:+d.z,
-					xPlot: xPlotScale(+d.x),
-					yPlot: yPlotScale(+d.y),
-					zPlot: zPlotScale(+d.z),
+					// xPlot: xPlotScale(+d.x),
+					// yPlot: yPlotScale(+d.y),
+					// zPlot: zPlotScale(+d.z),
 					selected: true,
 					name: systemName
 				}
@@ -110,9 +110,9 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 					x:+d.x,
 					y:+d.y,
 					z:+d.z,
-					xPlot: xPlotScale(+d.x),
-					yPlot: yPlotScale(+d.y),
-					zPlot: zPlotScale(+d.z),
+					// xPlot: xPlotScale(+d.x),
+					// yPlot: yPlotScale(+d.y),
+					// zPlot: zPlotScale(+d.z),
 					selected: true,
 					name: systemName
 				};
@@ -184,9 +184,9 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 							x:+d.x,
 							y:+d.y,
 							z:+d.z,
-							xPlot: xPlotScale(+d.x),
-							yPlot: yPlotScale(+d.y),
-							zPlot: zPlotScale(+d.z),
+							// xPlot: xPlotScale(+d.x),
+							// yPlot: yPlotScale(+d.y),
+							// zPlot: zPlotScale(+d.z),
 							selected: true,
 							name: systemName
 						}
@@ -259,9 +259,9 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 							x:+d.x,
 							y:+d.y,
 							z:+d.z,
-							xPlot: xPlotScale(+d.x),
-							yPlot: yPlotScale(+d.y),
-							zPlot: zPlotScale(+d.z),
+							// xPlot: xPlotScale(+d.x),
+							// yPlot: yPlotScale(+d.y),
+							// zPlot: zPlotScale(+d.z),
 							selected: true,
 							name: systemName
 						};

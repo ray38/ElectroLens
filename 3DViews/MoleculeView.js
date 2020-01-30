@@ -18,9 +18,9 @@ function addAtoms(view, moleculeData, lut){
 		var i3 = 0;
 		for (var i = 0; i < moleculeData.length; i++) {
 			var atomData = moleculeData[i];
-			positions[i3+0] = atomData.xPlot;
-			positions[i3+1] = atomData.yPlot;
-			positions[i3+2] = atomData.zPlot;
+			positions[i3+0] = atomData.x;
+			positions[i3+1] = atomData.y;
+			positions[i3+2] = atomData.z;
 
 			if (colorCode == "atom") {
 				var color = colorToRgb(colorSetup[atomData.atom]);
@@ -35,11 +35,11 @@ function addAtoms(view, moleculeData, lut){
 
 			if (moleculeData[i].selected) {
 				if (sizeCode == "atom") {
-					sizes[i] = options.atomSize*atomRadius[atomData.atom]*40;
+					sizes[i] = options.atomSize*atomRadius[atomData.atom];
 				}
 				else {
 					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-					sizes[i] = options.atomSize*tempSize*40;
+					sizes[i] = options.atomSize*tempSize;
 				}
 
 				alphas[i] = options.moleculeAlpha;
@@ -84,14 +84,14 @@ function addAtoms(view, moleculeData, lut){
 					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
 					var atomSize = options.atomSize * tempSize;
 				}
-				atomList.push(new THREE.SphereBufferGeometry(atomSize*40, options.atomModelSegments, options.atomModelSegments).translate(atomData.xPlot, atomData.yPlot,atomData.zPlot));
+				atomList.push(new THREE.SphereBufferGeometry(atomSize, options.atomModelSegments, options.atomModelSegments).translate(atomData.x, atomData.y,atomData.z));
 				var tempColor = new THREE.Color( color );
 				atomColorList.push([tempColor.r, tempColor.g, tempColor.b]);
 
 			}
 		}
 		var atomsGeometry = combineGeometry(atomList, atomColorList);
-		var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshBasicMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
+		var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
 	}
 	
 	view.molecule.atoms = atoms;
@@ -123,7 +123,7 @@ function addBonds(view, moleculeData, neighborsData){
 					var color = lut.getColor( moleculeData[i][colorCode] );
 				}
 
-				var point1 = new THREE.Vector3(moleculeData[i].xPlot, moleculeData[i].yPlot,moleculeData[i].zPlot);
+				var point1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y,moleculeData[i].z);
 
 			    for (var j = 0; j < neighborsList.length; j++) {
 			    	var point2 = coordinatesList[j];
@@ -136,7 +136,7 @@ function addBonds(view, moleculeData, neighborsData){
 			}
 		}
 		var bondsGeometry = combineGeometry(bondList, bondColorList);
-		var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshBasicMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
+		var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
 	}
 
 	if (options.bondsStyle == "line"){
@@ -158,10 +158,9 @@ function addBonds(view, moleculeData, neighborsData){
 				else {var color = lut.getColor( moleculeData[i][colorCode] );}
 				//var color = colorSetup[moleculeData[i].atom];
 
-				var point1 = new THREE.Vector3(moleculeData[i].xPlot, moleculeData[i].yPlot, moleculeData[i].zPlot);
+				var point1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
 
 			    for (var j = 0; j < neighborsList.length; j++) {
-			    	//var point2 = new THREE.Vector3(neighborsList[j].xPlot*20.0, neighborsList[j].yPlot*20.0,neighborsList[j].zPlot*20.0);
 			    	var point2 = coordinatesList[j];
 				    if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength &&  neighborsList[j].selected ) {
 
@@ -196,7 +195,7 @@ function addBonds(view, moleculeData, neighborsData){
 		var bonds = new THREE.LineSegments(basicLineBondGeometry, material);
 	}
 
-	if (options.bondsStyle == "fatline"){
+	/* if (options.bondsStyle == "fatline"){
 		var basicLineBondGeometry = new THREE.BufferGeometry();
 		var material = new THREE.LineMaterial( {
 
@@ -260,7 +259,7 @@ function addBonds(view, moleculeData, neighborsData){
 		basicLineBondGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 		basicLineBondGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
 		var bonds = new THREE.LineSegments2(basicLineBondGeometry, material);
-	}
+	} */
 	view.molecule.bonds = bonds;
 	view.scene.add(bonds);
 }
@@ -351,33 +350,6 @@ function createBond(options, point1, point2) {
 	return bondGeometry;
 }
 
-function addBond(view, point1, point2, bond, bondGroup){
-	var options = view.options;
-
-	var direction = new THREE.Vector3().subVectors( point2, point1 );
-	//bond.scale.set(1, 1, direction.length());
-	var orientation = new THREE.Matrix4();
-    // THREE.Object3D().up (=Y) default orientation for all objects 
-    orientation.lookAt(point1, point2, new THREE.Object3D().up);
-    // rotation around axis X by -90 degrees 
-    // matches the default orientation Y 
-    // with the orientation of looking Z 
-    orientation.multiply(new THREE.Matrix4().set(1,0,0,0,
-                                            0,0,1,0, 
-                                            0,-1,0,0,
-                                            0,0,0,1));
-
-
-    bond.applyMatrix(orientation);
-    bond.position.x = (point2.x + point1.x) / 2;
-    bond.position.y = (point2.y + point1.y) / 2;
-    bond.position.z = (point2.z + point1.z) / 2;
-    bond.scale.set(1, direction.length(), 1);
-    //view[moleculeObject].bonds.push(bond);
-	bondGroup.add(bond);
-	// return bond;
-	//scene.add(bond);*/
-}
 
 export function getMoleculeGeometry(view){
 
@@ -446,38 +418,16 @@ export function removeMoleculeGeometry(view){
 
 export function addMoleculePeriodicReplicates(view){
 
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
+
 	view.periodicReplicateMolecule = {};
 
 	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
 	var scene = view.scene;
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 
 	var atoms = view.molecule.atoms;
 	var bonds = view.molecule.bonds;
-
-
-	var sizeCode = options.moleculeSizeCodeBasis;
-	var colorCode = options.moleculeColorCodeBasis;
-
-	if (colorCode != "atom") {
-		var lut = view.moleculeLut;
-		//var lut = view.lut;
-	}
-	
-	if (sizeCode != "atom") {
-		var sizeMax = options.moleculeSizeSettingMax;
-		var sizeMin = options.moleculeSizeSettingMin;
-	}
-
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	var zPlotScale = view.zPlotScale;
-
-	var xStep = 20.0*(view.xPlotMax - view.xPlotMin);
-	var yStep = 20.0*(view.yPlotMax - view.yPlotMin);
-	var zStep = 20.0*(view.zPlotMax - view.zPlotMin);
-
 
 	var x_start = -1 * ((options.xPBC-1)/2);
 	var x_end = ((options.xPBC-1)/2) + 1;
@@ -486,11 +436,20 @@ export function addMoleculePeriodicReplicates(view){
 	var z_start = -1 * ((options.zPBC-1)/2);
 	var z_end = ((options.zPBC-1)/2) + 1;
 
+	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+					'y': systemDimension.x * latticeVectors.u12, 
+					'z': systemDimension.x * latticeVectors.u13};
+	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+					'y': systemDimension.y * latticeVectors.u22, 
+					'z': systemDimension.y * latticeVectors.u23};
+	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+					'y': systemDimension.z * latticeVectors.u32, 
+					'z': systemDimension.z * latticeVectors.u33};
+	
+	var xStep, yStep, zStep, tempBondsReplica, tempAtomsReplica;
+
 	var periodicReplicateAtomGroup = new THREE.Group();
 	var periodicReplicateBondGroup = new THREE.Group();
-
-	//var atomGeometry = new THREE.SphereGeometry(100, options.atomModelSegments, options.atomModelSegments);
-	//var bondGeometry = new THREE.CylinderGeometry( options.bondSize*10, options.bondSize*10, direction.length(), options.bondModelSegments, 1, true);
 
 	
 	if (options.showAtoms){
@@ -498,25 +457,28 @@ export function addMoleculePeriodicReplicates(view){
 			for ( var j = y_start; j < y_end; j ++) {
 				for ( var k = z_start; k < z_end; k ++) {
 					if (((i == 0) && (j == 0) && (k == 0)) == false) {
-
-						var tempAtomsReplica = atoms.clone();
-						tempAtomsReplica.position.set(i*xStep, j*yStep, k*zStep); 
+						tempAtomsReplica = atoms.clone();
+						xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+						yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+						zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+						tempAtomsReplica.position.set(xStep, yStep, zStep); 
 						periodicReplicateAtomGroup.add(tempAtomsReplica);
 					}
 				}
 			}
 		}
 	}
-	
 
 	if (options.showBonds){
 		for ( var i = x_start; i < x_end; i ++) {
 			for ( var j = y_start; j < y_end; j ++) {
 				for ( var k = z_start; k < z_end; k ++) {
 					if (((i == 0) && (j == 0) && (k == 0)) == false) {
-						
-						var tempBondsReplica = bonds.clone();
-						tempBondsReplica.position.set(i*xStep, j*yStep, k*zStep); 
+						tempBondsReplica = bonds.clone();
+						xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+						yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+						zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+						tempBondsReplica.position.set(xStep, yStep, zStep); 
 						periodicReplicateBondGroup.add(tempBondsReplica);
 
 					}
@@ -525,10 +487,6 @@ export function addMoleculePeriodicReplicates(view){
 		}
 	}
 
-	
-
-
-	
 	
 	view.periodicReplicateMolecule.atoms = periodicReplicateAtomGroup;
 	view.periodicReplicateMolecule.bonds = periodicReplicateBondGroup;

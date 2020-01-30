@@ -1,9 +1,10 @@
-import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, updatePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "./PointCloud_selection.js";
+import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "./PointCloud_selection.js";
 import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, addMoleculePeriodicReplicates, removeMoleculePeriodicReplicates, changeMoleculePeriodicReplicates} from "./MoleculeView.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
 import {updateCamLightPosition, updateCameraFov} from "../MultiviewControl/setupViewBasic.js";
+import {colorMapDict} from "../Utilities/colorMap.js";
 export function setupOptionBox3DView(view,plotSetup){
 
 	var options = view.options;
@@ -114,7 +115,7 @@ export function setupOptionBox3DView(view,plotSetup){
 
 	var PBCFolder = viewFolder.addFolder('PBC')
 
-	PBCFolder.add( options, 'xPBC', {'1':1, '3':3, '5':5})
+	PBCFolder.add( options, 'xPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
@@ -128,7 +129,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		}
 	});
 
-	PBCFolder.add( options, 'yPBC', {'1':1, '3':3, '5':5})
+	PBCFolder.add( options, 'yPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
@@ -142,7 +143,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		}
 	});
 
-	PBCFolder.add( options, 'zPBC', {'1':1, '3':3, '5':5})
+	PBCFolder.add( options, 'zPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
@@ -239,13 +240,13 @@ export function setupOptionBox3DView(view,plotSetup){
 			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
-		moleculeFolder.add( options, 'atomSize', 0.1, 20 ).step( 0.1 )
+		moleculeFolder.add( options, 'atomSize', 0.01, 2 ).step( 0.01 )
 		.name( 'Atom Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
 			changeMoleculePeriodicReplicates(view);
 		});
-		moleculeFolder.add( options, 'bondSize', 0.1, 5 ).step( 0.1 )
+		moleculeFolder.add( options, 'bondSize', 0.01, 0.5 ).step( 0.01 )
 		.name( 'Bond Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
@@ -259,13 +260,13 @@ export function setupOptionBox3DView(view,plotSetup){
 		});
 
 
-		moleculeFolder.add( options, 'maxBondLength', 0.1, 5 ).step( 0.1 )
+		moleculeFolder.add( options, 'maxBondLength', 0.1, 4 ).step( 0.1 )
 		.name( 'Bond Max' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
 		});
 
-		moleculeFolder.add( options, 'minBondLength', 0.1, 5 ).step( 0.1 )
+		moleculeFolder.add( options, 'minBondLength', 0.1, 4 ).step( 0.1 )
 		.name( 'Bond Min' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
@@ -348,103 +349,20 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 			gui.updateDisplay();
 		});
 		
-		pointCloudFolder.add( options, 'colorMap',{
-		'rainbow':'rainbow', 
-		'cooltowarm':'cooltowarm', 
-		'blackbody':'blackbody', 
-		'grayscale':'grayscale',
-		'viridis':'viridis',
-		'plasma':'plasma',
-		'inferno':'inferno',
-		'magma':'magma',
-		'Greys':'Greys',
-		'Purples':'Purples',
-		'Blues':'Blues',
-		'Greens':'Greens',
-		'Oranges':'Oranges',
-		'Reds':'Reds',
-		'YlOrBr':'YlOrBr',
-		'YlOrRd':'YlOrRd',
-		'OrRd':'OrRd',
-		'PuRd':'PuRd',
-		'RdPu':'RdPu',
-		'BuPu':'BuPu',
-		'GnBu':'GnBu',
-		'PuBu':'PuBu',
-		'YlGnBu':'YlGnBu',
-		'PuBuGn':'PuBuGn',
-		'BuGn':'BuGn',
-		'YlGn':'YlGn',
-		'binary':'binary',
-		'gist_yarg':'gist_yarg',
-		'gist_gray':'gist_gray',
-		'gray':'gray',
-		'bone':'bone',
-		'pink':'pink',
-		'spring':'spring',
-		'summer':'summer',
-		'autumn':'autumn',
-		'winter':'winter',
-		'cool':'cool',
-		'Wistia':'Wistia',
-		'hot':'hot',
-		'afmhot':'afmhot',
-		'gist_heat':'gist_heat',
-		'copper':'copper',
-		'PiYG':'PiYG',
-		'PRGn':'PRGn',
-		'BrBG':'BrBG',
-		'PuOr':'PuOr',
-		'RdGy':'RdGy',
-		'RdBu':'RdBu',
-		'RdYlBu':'RdYlBu',
-		'RdYlGn':'RdYlGn',
-		'Spectral':'Spectral',
-		'coolwarm':'coolwarm',
-		'bwr':'bwr',
-		'seismic':'seismic',
-		'hsv':'hsv',
-		'Pastel1':'Pastel1',
-		'Pastel2':'Pastel2',
-		'Paired':'Paired',
-		'Accent':'Accent',
-		'Dark2':'Dark2',
-		'Set1':'Set1',
-		'Set2':'Set2',
-		'Set3':'Set3',
-		'tab10':'tab10',
-		'tab20':'tab20',
-		'tab20b':'tab20b',
-		'tab20c':'tab20c',
-		'flag':'flag',
-		'prism':'prism',
-		'ocean':'ocean',
-		'gist_earth':'gist_earth',
-		'terrain':'terrain',
-		'gist_stern':'gist_stern',
-		'gnuplot':'gnuplot',
-		'gnuplot2':'gnuplot2',
-		'CMRmap':'CMRmap',
-		'cubehelix':'cubehelix',
-		'brg':'brg',
-		'gist_rainbow':'gist_rainbow',
-		'rainbow2':'rainbow2',
-		'jet':'jet',
-		'nipy_spectral':'nipy_spectral',
-		'gist_ncar':'gist_ncar'})
+		pointCloudFolder.add( options, 'colorMap', colorMapDict )
 		.name( 'Color Scheme' )
 		.onChange( function( value ){
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);		
 		});
 
-		pointCloudFolder.add( options, 'pointCloudParticles', 10, 10000 ).step( 10 )
+		pointCloudFolder.add( options, 'pointCloudParticles', 0, 100 ).step( 0.1 )
 		.name( 'Density' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
@@ -455,26 +373,26 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Opacity' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
-		pointCloudFolder.add( options, 'pointCloudSize', 0, 10 ).step( 0.1 )
+		pointCloudFolder.add( options, 'pointCloudSize', 0.01, 1 ).step( 0.01 )
 		.name( 'Size' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Min' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){updatePointCloudPeriodicReplicates(view)};
+			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 		});
 		pointCloudFolder.add( options, 'pointCloudMaxPointPerBlock', 10, 200 ).step( 10 )

@@ -110,7 +110,7 @@
                   </div>
                 </div>
 
-                <div class="form-row">
+                <!-- <div class="form-row">
                   <div class="col">
                     <label for="view1XMin">x min: </label>
                     <input type="number" step=any class="input" id="view1XMin" name="view1XMin" value="-5.0">
@@ -137,6 +137,21 @@
                   <div class="col">
                     <label for="view1ZMax">z max: </label>
                     <input type="number" step=any class="input" id="view1ZMax" name="view1ZMax" value="4.9" disabled>
+                  </div>
+                </div> -->
+
+                <div class="form-row">
+                  <div class="col">
+                    <label for="view1XDim">x dimension: </label>
+                    <input type="number" step=any class="input" id="view1XDim" name="view1XDim" value="10">
+                  </div>
+                  <div class="col">
+                    <label for="view1YDim">y dimension: </label>
+                    <input type="number" step=any class="input" id="view1YDim" name="view1YDim" value="10" disabled>
+                  </div>
+                  <div class="col">
+                    <label for="view1ZDim">z dimension: </label>
+                    <input type="number" step=any class="input" id="view1ZDim" name="view1ZDim" value="10" disabled>
                   </div>
                 </div>
 
@@ -208,11 +223,11 @@
                   </div>
                   <div class="col">
                     <label for="view1YNumPoints">y: </label>
-                    <input type="number" step=1 class="input" id="view1YNumPoints" name="view1YNumPoints" value="100">
+                    <input type="number" step=1 class="input" id="view1YNumPoints" name="view1YNumPoints" value="100" disabled>
                   </div>
                   <div class="col">
                     <label for="view1ZNumPoints">z: </label>
-                    <input type="number" step=1 class="input" id="view1ZNumPoints" name="view1ZNumPoints" value="100">
+                    <input type="number" step=1 class="input" id="view1ZNumPoints" name="view1ZNumPoints" value="100" disabled>
                   </div>
                 </div>
 
@@ -224,11 +239,11 @@
                   </div>
                   <div class="col">
                     <label for="view1YSpacing">y: </label>
-                    <input type="number" step=any class="input" id="view1YSpacing" name="view1YSpacing" value="0.1">
+                    <input type="number" step=any class="input" id="view1YSpacing" name="view1YSpacing" value="0.1" disabled>
                   </div>
                   <div class="col">
                     <label for="view1ZSpacing">z: </label>
-                    <input type="number" step=any class="input" id="view1ZSpacing" name="view1ZSpacing" value="0.1">
+                    <input type="number" step=any class="input" id="view1ZSpacing" name="view1ZSpacing" value="0.1" disabled>
                   </div>
                 </div>
               </div>
@@ -248,6 +263,7 @@
             
 
             <button type="submit" class="btn btn-primary" id="formSubmitButton" disabled>Submit</button>
+            <button type="button" class="btn save-config btn-primary" id="saveConfigButton">Save Config</button>
           </form>
         </div>
       </div>
@@ -283,30 +299,16 @@
                         </div>\
                         <div class="form-row">\
                           <div class="col">\
-                            <label for="view' + next + 'XMin">x min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'XMin" name="view' + next + 'XMin" value="-5.0">\
+                            <label for="view' + next + 'XDim">x dimension: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'XDim" name="view' + next + 'XDim" value="10">\
                           </div>\
                           <div class="col">\
-                            <label for="view' + next + 'YMin">y min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YMin" name="view' + next + 'YMin" value="-5.0" disabled>\
+                            <label for="view' + next + 'YDim">y dimension: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'YDim" name="view' + next + 'YDim" value="10" disabled>\
                           </div>\
                           <div class="col">\
-                            <label for="view' + next + 'ZMin">z min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZMin" name="view' + next + 'ZMin" value="-5.0" disabled>\
-                          </div>\
-                        </div>\
-                        <div class="form-row">\
-                          <div class="col">\
-                            <label for="view' + next + 'XMax">x max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'XMax" name="view' + next + 'XMax" value="4.9">\
-                          </div>\
-                          <div class="col">\
-                            <label for="view' + next + 'YMax">y max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YMax" name="view' + next + 'YMax" value="4.9" disabled>\
-                          </div>\
-                          <div class="col">\
-                            <label for="view' + next + 'ZMax">z max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZMax" name="view' + next + 'ZMax" value="4.9" disabled>\
+                            <label for="view' + next + 'ZDim">z dimension: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'ZDim" name="view' + next + 'ZDim" value="10" disabled>\
                           </div>\
                         </div>\
                         <div class="form-row">\
@@ -374,11 +376,11 @@
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'YNumPoints">y: </label>\
-                            <input type="number" step=1 class="input" id="view' + next + 'YNumPoints" name="view' + next + 'YNumPoints" value="100">\
+                            <input type="number" step=1 class="input" id="view' + next + 'YNumPoints" name="view' + next + 'YNumPoints" value="100" disabled>\
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'ZNumPoints">z: </label>\
-                            <input type="number" step=1 class="input" id="view' + next + 'ZNumPoints" name="view' + next + 'ZNumPoints" value="100">\
+                            <input type="number" step=1 class="input" id="view' + next + 'ZNumPoints" name="view' + next + 'ZNumPoints" value="100" disabled>\
                           </div>\
                         </div>\
                         <label>Grid spacing: </label>\
@@ -389,11 +391,11 @@
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'YSpacing">y: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YSpacing" name="view' + next + 'YSpacing" value="0.1">\
+                            <input type="number" step=any class="input" id="view' + next + 'YSpacing" name="view' + next + 'YSpacing" value="0.1" disabled>\
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'ZSpacing">z: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZSpacing" name="view' + next + 'ZSpacing" value="0.1">\
+                            <input type="number" step=any class="input" id="view' + next + 'ZSpacing" name="view' + next + 'ZSpacing" value="0.1" disabled>\
                           </div>\
                         </div>\
                       </div>\
@@ -413,12 +415,20 @@
             //$("#field" + next).attr('data-source',$(addto).attr('data-source'));
             $("#count").val(next);  
 
-            document.getElementById('boolView' + next + 'CubicCell').onchange = function() {
+            /* document.getElementById('boolView' + next + 'CubicCell').onchange = function() {
               document.getElementById('view' + next + 'YMax').disabled = this.checked;
               document.getElementById('view' + next + 'ZMax').disabled = this.checked;
               document.getElementById('view' + next + 'YMin').disabled = this.checked;
               document.getElementById('view' + next + 'ZMin').disabled = this.checked;
-            };
+            }; */
+            document.getElementById('boolView' + next + 'CubicCell').onchange = function() {
+              document.getElementById('view' + next + 'YDim').disabled = this.checked;
+              document.getElementById('view' + next + 'ZDim').disabled = this.checked;
+              document.getElementById('view' + next + 'YSpacing').disabled = this.checked;
+              document.getElementById('view' + next + 'ZSpacing').disabled = this.checked;
+              document.getElementById('view' + next + 'YNumPoints').disabled = this.checked;
+              document.getElementById('view' + next + 'ZNumPoints').disabled = this.checked;
+            }; 
 
             document.getElementById('boolView' + next + 'OrthogonalLattice').onchange = function() {
             document.getElementById('view' + next + 'LatVec11').disabled = this.checked;
@@ -432,7 +442,7 @@
             document.getElementById('view' + next + 'LatVec33').disabled = this.checked;
           };
 
-            document.getElementById('view' + next + 'XMin').onchange = function(){
+            /* document.getElementById('view' + next + 'XMin').onchange = function(){
               if (document.getElementById('boolView' + next + 'CubicCell').checked){
                 document.getElementById('view' + next + 'YMin').value = document.getElementById('view' + next + 'XMin').value;
                 document.getElementById('view' + next + 'ZMin').value = document.getElementById('view' + next + 'XMin').value;
@@ -443,7 +453,56 @@
                 document.getElementById('view' + next + 'YMax').value = document.getElementById('view' + next + 'XMax').value;
                 document.getElementById('view' + next + 'ZMax').value = document.getElementById('view' + next + 'XMax').value;
               }
+            } */
+
+            document.getElementById('view' + next + 'XDim').onchange = function(){
+              if (document.getElementById('boolView' + next + 'CubicCell').checked){
+                document.getElementById('view' + next + 'YDim').value = document.getElementById('view' + next + 'XDim').value;
+                document.getElementById('view' + next + 'ZDim').value = document.getElementById('view' + next + 'XDim').value;
+                document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+                document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
+              }
+              document.getElementById('view' + next + 'XSpacing').value = document.getElementById('view' + next + 'XDim').value / document.getElementById('view' + next + 'XNumPoints').value;
             }
+            
+            document.getElementById('view' + next + 'XSpacing').onchange = function(){
+              if (document.getElementById('boolView' + next + 'CubicCell').checked){
+                document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'XSpacing').value;
+                document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'XSpacing').value;
+                document.getElementById('view' + next + 'YNumPoints').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YSpacing').value;
+                document.getElementById('view' + next + 'ZNumPoints').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZSpacing').value;
+              }
+              document.getElementById('view' + next + 'XNumPoints').value = document.getElementById('view' + next + 'XDim').value / document.getElementById('view' + next + 'XSpacing').value;
+            }
+            document.getElementById('view' + next + 'XNumPoints').onchange = function(){
+              if (document.getElementById('boolView' + next + 'CubicCell').checked){
+                document.getElementById('view' + next + 'YNumPoints').value = document.getElementById('view' + next + 'XNumPoints').value;
+                document.getElementById('view' + next + 'ZNumPoints').value = document.getElementById('view' + next + 'XNumPoints').value;
+                document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+                document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
+              }
+              document.getElementById('view' + next + 'XSpacing').value = document.getElementById('view' + next + 'XDim').value / document.getElementById('view' + next + 'XNumPoints').value;
+            }
+
+            document.getElementById('view' + next + 'YDim').onchange = function(){
+              document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+            }
+            document.getElementById('view' + next + 'ZDim').onchange = function(){
+              document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
+            }
+            document.getElementById('view' + next + 'YSpacing').onchange = function(){
+              document.getElementById('view' + next + 'YNumPoints').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YSpacing').value;
+            }
+            document.getElementById('view' + next + 'ZSpacing').onchange = function(){
+              document.getElementById('view' + next + 'ZNumPoints').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZSpacing').value;
+            }
+            document.getElementById('view' + next + 'YNumPoints').onchange = function(){
+              document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+            }
+            document.getElementById('view' + next + 'ZNumPoints').onchange = function(){
+              document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
+            }
+
 
             
 
@@ -557,12 +616,21 @@
         }
       };
 
-      document.getElementById('boolView1CubicCell').onchange = function() {
+     /*  document.getElementById('boolView1CubicCell').onchange = function() {
         document.getElementById('view1YMax').disabled = this.checked;
         document.getElementById('view1ZMax').disabled = this.checked;
         document.getElementById('view1YMin').disabled = this.checked;
         document.getElementById('view1ZMin').disabled = this.checked;
-      };
+      }; */
+
+      document.getElementById('boolView1CubicCell').onchange = function() {
+        document.getElementById('view1YDim').disabled = this.checked;
+        document.getElementById('view1ZDim').disabled = this.checked;
+        document.getElementById('view1YSpacing').disabled = this.checked;
+        document.getElementById('view1ZSpacing').disabled = this.checked;
+        document.getElementById('view1YNumPoints').disabled = this.checked;
+        document.getElementById('view1ZNumPoints').disabled = this.checked;
+      }; 
 
       document.getElementById('boolView1OrthogonalLattice').onchange = function() {
         document.getElementById('view1LatVec11').disabled = this.checked;
@@ -576,7 +644,7 @@
         document.getElementById('view1LatVec33').disabled = this.checked;
       };
 
-      document.getElementById('view1XMin').onchange = function(){
+      /* document.getElementById('view1XMin').onchange = function(){
         if (document.getElementById('boolView1CubicCell').checked){
           document.getElementById('view1YMin').value = document.getElementById('view1XMin').value;
           document.getElementById('view1ZMin').value = document.getElementById('view1XMin').value;
@@ -587,6 +655,52 @@
           document.getElementById('view1YMax').value = document.getElementById('view1XMax').value;
           document.getElementById('view1ZMax').value = document.getElementById('view1XMax').value;
         }
+      } */
+      document.getElementById('view1XDim').onchange = function(){
+        if (document.getElementById('boolView1CubicCell').checked){
+          document.getElementById('view1YDim').value = document.getElementById('view1XDim').value;
+          document.getElementById('view1ZDim').value = document.getElementById('view1XDim').value;
+          document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+          document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
+        }
+        document.getElementById('view1XSpacing').value = document.getElementById('view1XDim').value / document.getElementById('view1XNumPoints').value;
+      }
+      document.getElementById('view1XSpacing').onchange = function(){
+        if (document.getElementById('boolView1CubicCell').checked){
+          document.getElementById('view1YSpacing').value = document.getElementById('view1XSpacing').value;
+          document.getElementById('view1ZSpacing').value = document.getElementById('view1XSpacing').value;
+          document.getElementById('view1YNumPoints').value = document.getElementById('view1YDim').value / document.getElementById('view1YSpacing').value;
+          document.getElementById('view1ZNumPoints').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZSpacing').value;
+        }
+        document.getElementById('view1XNumPoints').value = document.getElementById('view1XDim').value / document.getElementById('view1XSpacing').value;
+      }
+      document.getElementById('view1XNumPoints').onchange = function(){
+        if (document.getElementById('boolView1CubicCell').checked){
+          document.getElementById('view1YNumPoints').value = document.getElementById('view1XNumPoints').value;
+          document.getElementById('view1ZNumPoints').value = document.getElementById('view1XNumPoints').value;
+          document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+          document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
+        }
+        document.getElementById('view1XSpacing').value = document.getElementById('view1XDim').value / document.getElementById('view1XNumPoints').value;
+      }
+
+      document.getElementById('view1YDim').onchange = function(){
+        document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+      }
+      document.getElementById('view1ZDim').onchange = function(){
+        document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
+      }
+      document.getElementById('view1YSpacing').onchange = function(){
+        document.getElementById('view1YNumPoints').value = document.getElementById('view1YDim').value / document.getElementById('view1YSpacing').value;
+      }
+      document.getElementById('view1ZSpacing').onchange = function(){
+        document.getElementById('view1ZNumPoints').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZSpacing').value;
+      }
+      document.getElementById('view1YNumPoints').onchange = function(){
+        document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+      }
+      document.getElementById('view1ZNumPoints').onchange = function(){
+        document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
       }
 
 

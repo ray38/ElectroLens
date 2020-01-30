@@ -2,21 +2,24 @@ import {uniforms, shaderMaterial} from "./PointCloudMaterials.js";
 
 export function getPointCloudGeometry(view){
 
-
+	var gridSpacing = view.spatiallyResolvedData.gridSpacing;
+	var systemLatticeVectors = view.systemLatticeVectors;
 
 	var options = view.options;
 	var scene = view.scene;
 	var currentFrame = options.currentFrame.toString();
 	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 
-	var particles = options.pointCloudParticles;
 	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
-	var total = Math.pow(10,options.pointCloudTotalMagnitude);
+	var pointCloudDensity = Math.pow(10,options.pointCloudTotalMagnitude) * options.pointCloudParticles;
 	var count = 0;
 
+	var voxelVolume = gridSpacing.x * gridSpacing.y * gridSpacing.z
+
 	for ( var k = 0; k < num_blocks; k ++) {
-		var num_points  = Math.min(Math.floor((spatiallyResolvedData[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
+		var num_points  = Math.min(Math.floor(spatiallyResolvedData[k][options.density] * pointCloudDensity * voxelVolume), options.pointCloudMaxPointPerBlock);
+		// var num_points  = Math.min(Math.floor((spatiallyResolvedData[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -40,39 +43,48 @@ export function getPointCloudGeometry(view){
 
 	var i = 0, i3 = 0;
 	var temp_num_points = 0;
+
+	var xTempBeforeTransform, yTempBeforeTransform, zTempBeforeTransform, x, y, z, color;
 	for ( var k = 0; k < num_blocks; k ++) {
 		temp_num_points  =  points_in_block[k];
 		if (temp_num_points > 0){
 
-			var x_start = spatiallyResolvedData[k]['xPlot'] - 0.5;
+			/*var x_start = spatiallyResolvedData[k]['xPlot'] - 0.5;
 			var y_start = spatiallyResolvedData[k]['yPlot'] - 0.5;
 			var z_start = spatiallyResolvedData[k]['zPlot'] - 0.5;
 			var x_end = x_start + 1;
 			var y_end = y_start + 1;
-			var z_end = z_start + 1;
+			var z_end = z_start + 1;*/
 			
 			for (var j = 0; j < temp_num_points; j ++){
 
-				var x = Math.random()  + x_start;
+				xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
+				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
+				zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
+
+				x = systemLatticeVectors.u11 * xTempBeforeTransform + systemLatticeVectors.u21 * yTempBeforeTransform + systemLatticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
+				y = systemLatticeVectors.u12 * xTempBeforeTransform + systemLatticeVectors.u22 * yTempBeforeTransform + systemLatticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
+				z = systemLatticeVectors.u13 * xTempBeforeTransform + systemLatticeVectors.u23 * yTempBeforeTransform + systemLatticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
+
+				/* var x = Math.random()  + x_start;
 				var y = Math.random()  + y_start;
-				var z = Math.random()  + z_start;
+				var z = Math.random()  + z_start; */
 				
 				positions[ i3 + 0 ] = x;
 				positions[ i3 + 1 ] = y;
 				positions[ i3 + 2 ] = z;
 
-				var color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
+				color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
 				
 				colors[ i3 + 0 ] = color.r;
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
 				
-				if (	(x_start >= options.x_low) 	&& (x_end <= options.x_high) 	&&
-					(y_start >= options.y_low) 	&& (y_end <= options.y_high)	&&
-					(z_start >= options.z_low) 	&& (z_end <= options.z_high)	&& spatiallyResolvedData[k].selected)
+				if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
+						(y >= options.y_low) 	&& (y <= options.y_high)	&&
+						(z >= options.z_low) 	&& (z <= options.z_high)	&& spatiallyResolvedData[k].selected)
 					{
 						alphas[ i ] = options.pointCloudAlpha;
-						//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
 						if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
 						else { sizes[ i ] = options.pointCloudSize; }
 						
@@ -198,18 +210,12 @@ function getPositionArrayAfterTranslation(positions, count, x, y, z){
 
 export function addPointCloudPeriodicReplicates(view){
 
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
+
 	var options = view.options;
 	var scene = view.scene;
 	var system = view.System;
-
-	var shaderMaterial = view.System.material;
-
-
-	//var geometry = new THREE.BufferGeometry();
-	var xStep = (view.xPlotMax - view.xPlotMin);
-	var yStep = (view.yPlotMax - view.yPlotMin);
-	var zStep = (view.zPlotMax - view.zPlotMin);
-
 
 	var x_start = -1 * ((options.xPBC-1)/2);
 	var x_end = ((options.xPBC-1)/2) + 1;
@@ -218,19 +224,30 @@ export function addPointCloudPeriodicReplicates(view){
 	var z_start = -1 * ((options.zPBC-1)/2);
 	var z_end = ((options.zPBC-1)/2) + 1;
 
+	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+					'y': systemDimension.x * latticeVectors.u12, 
+					'z': systemDimension.x * latticeVectors.u13};
+	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+					'y': systemDimension.y * latticeVectors.u22, 
+					'z': systemDimension.y * latticeVectors.u23};
+	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+					'y': systemDimension.z * latticeVectors.u32, 
+					'z': systemDimension.z * latticeVectors.u33};
 
 	var periodicReplicateSystemGroup = new THREE.Group();
-
 	
-	console.log('create replicates')
+	var xStep, yStep, zStep;
 
 	for ( var i = x_start; i < x_end; i ++) {
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
 				if (!((i == 0) && (j == 0) && (k == 0))) {
-					console.log(i,j,k);
 					var tempSystemReplica = system.clone();
-					tempSystemReplica.position.set(i*xStep, j*yStep, k*zStep); 
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+					
+					tempSystemReplica.position.set(xStep, yStep, zStep); 
 					periodicReplicateSystemGroup.add(tempSystemReplica);
 				}
 			}

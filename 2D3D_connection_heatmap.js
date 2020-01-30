@@ -11,6 +11,9 @@ import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatial
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
 
+import {readInputForm} from "./Utilities/readForm.js";
+import {download} from "./Utilities/saveData.js";
+
 
 import {setupOptionBox3DView} from "./3DViews/setupOptionBox3DView.js";
 import {setupOptionBox2DHeatmap} from "./2DHeatmaps/setupOptionBox2DHeatmap.js";
@@ -29,6 +32,7 @@ import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "./MultiviewControl/colorLegend.js";
 
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "./Utilities/scale.js";
+
 
 //import {addingProgressBar, updateProgressBar} from "./Utilities/progressBar.js";
 //var progressBar = new ldBar("#progressbar");
@@ -56,83 +60,16 @@ else{
 		var configForm = document.getElementById("form_wrapper");
 		var divider = document.getElementById("divider");
 
+		$(".save-config").click(function(e){
+			console.log("calling save config");
+			var CONFIG = readInputForm();
+			download(CONFIG, 'config.json', 'text/plain');
+		})
+
 		$( "form" ).submit(function( event ) {
 
-			for (var i = 0; i < NUMBER3DVIEWS; i++) { 
-              document.getElementById('view'+ (i+1) +'YMax').disabled = false;
-		      document.getElementById('view'+ (i+1) +'ZMax').disabled = false;
-		      document.getElementById('view'+ (i+1) +'YMin').disabled = false;
-		      document.getElementById('view'+ (i+1) +'ZMin').disabled = false;
-            } 
-
-		    var tempFormResult = { };
-		    var CONFIG = {"views":[],"plotSetup":{}};
-		    $.each($('form').serializeArray(), function() {
-		        tempFormResult[this.name] = this.value;
-		    });
-
-		    if (tempFormResult["boolSpatiallyResolvedData"] == "yes") {var boolSpatiallyResolved = true;}
-		    else {var boolSpatiallyResolved = false;}
-
-		    if (tempFormResult["boolMolecularData"] == "yes") {var boolMolecular = true;}
-		    else {var boolMolecular = false;}
-
-		    if (tempFormResult["boolFramedData"] == "yes") {var boolFramed = true;}
-		    else {var boolFramed = false;}
-		    
-
-		    var boolFormFilledCorrectly = false;
-
-
-		    if (boolSpatiallyResolved) {
-		    	CONFIG["plotSetup"]["spatiallyResolvedPropertyList"] = tempFormResult["propertyListSpatiallyResolved"].split(",").map(function(item) { return item.trim();});
-		      CONFIG["plotSetup"]["pointcloudDensity"] = tempFormResult["densityProperty"];
-			  CONFIG["plotSetup"]["densityCutoffLow"] = Number(tempFormResult["densityCutoffLow"]);
-			  CONFIG["plotSetup"]["densityCutoffUp"] = Number(tempFormResult["densityCutoffUp"]);
-		    }
-		    else{
-		      console.log("No Spatially Resolved Data");
-		    }
-
-		    if (boolMolecular) {
-		    	CONFIG["plotSetup"]["moleculePropertyList"] = tempFormResult["propertyListMolecular"].split(",").map(function(item) { return item.trim();});
-		      
-		    }
-		    else{
-		    	console.log("No Molecular Data");
-		    }
-
-		    if (boolFramed) {
-		    	CONFIG["plotSetup"]["frameProperty"] = tempFormResult["frameProperty"];
-		    }
-		    else{
-		    	console.log("Data not framed");
-		    }
-
-		    for (var i = 1; i < NUMBER3DVIEWS+1; i++) {
-		      var tempViewSetup = {"viewType": "3DView"};
-		      tempViewSetup["moleculeName"] = tempFormResult["view" + i + "Name"];
-		      tempViewSetup["systemDimension"] = {"x":[Number(tempFormResult["view"+i+"XMin"]), Number(tempFormResult["view"+i+"XMax"])],
-		                                          "y":[Number(tempFormResult["view"+i+"YMin"]), Number(tempFormResult["view"+i+"YMax"])],
-		                                          "z":[Number(tempFormResult["view"+i+"ZMin"]), Number(tempFormResult["view"+i+"ZMax"])]};
-		      if (boolSpatiallyResolved){
-		        tempViewSetup["spatiallyResolvedData"] = {};
-		        tempViewSetup["spatiallyResolvedData"]["dataFilename"] = document.getElementById("view"+i+"SpatiallyResolvedDataFilename").files[0].path;
-		        tempViewSetup["spatiallyResolvedData"]["gridSpacing"] = {"x":Number(tempFormResult["view"+i+"XSpacing"]), "y":Number(tempFormResult["view"+i+"YSpacing"]),"z":Number(tempFormResult["view"+i+"ZSpacing"])}
-		      }
-
-		      if (boolMolecular){
-		        tempViewSetup["moleculeData"] = {};
-		        tempViewSetup["moleculeData"]["dataFilename"] = document.getElementById("view"+i+"MolecularDataFilename").files[0].path;
-		      }
-		      CONFIG["views"].push(tempViewSetup);
-
-
-		    }
-
-		    console.log(tempFormResult);
+			var CONFIG = readInputForm();
 		    console.log( CONFIG );
-		    /*console.log(NUMBER3DVIEWS);*/
 		    console.log("read input form");
 		    event.preventDefault();
 		    uploader.parentNode.removeChild(uploader);
@@ -142,12 +79,14 @@ else{
 			handleViewSetup(CONFIG);
 		});
 
-
 	}
 	else{
 		console.log("error");
 	}
 }
+
+
+
 function handleFiles() {
 
 	var file = this.files[0];
@@ -191,9 +130,6 @@ function handleViewSetup(data){
 function main(views,plotSetup) {
 	console.log(plotSetup);
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-
-	
-
 
 
 	var container, stats, renderer, effect;
@@ -354,9 +290,8 @@ function main(views,plotSetup) {
 					//initialize3DViewTooltip(view);
 				}
 
-				addSystemEdge(view);
 				setupOptionBox3DView(view,plotSetup);
-				
+				addSystemEdge(view);
 			}
 			if (view.viewType == '2DHeatmap'){
 

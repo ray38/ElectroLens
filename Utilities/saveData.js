@@ -2,80 +2,35 @@ export function saveSystemMoleculeData(view, plotSetup){
 	//var data;
 	console.log("save MoleculeData");
 	var csv = convertArrayOfObjectsToCSV(view.systemMoleculeData, plotSetup["moleculePropertyList"].slice());
-	/*if (csv == null) return;
-
-	var filename = 'export.csv';
-
-	if (!csv.match(/^data:text\/csv/i)) {
-	    csv = 'data:text/csv;charset=utf-8,' + csv;
-	}
-	data = encodeURI(csv);
-
-	var link = document.createElement('a');
-	link.setAttribute('href', data);
-	link.setAttribute('download', filename);
-	link.click();*/
 }
 
 export function saveSystemSpatiallyResolvedData(view, plotSetup){
 	//var data;
 	console.log("save SpatiallyResolvedData");
 	var csv = convertArrayOfObjectsToCSV(view.data, plotSetup["spatiallyResolvedPropertyList"].slice());
-	/*console.log("end processing csv");
-
-	var filename = 'export.csv';
-
-	if (!csv.match(/^data:text\/csv/i)) {
-	    csv = 'data:text/csv;charset=utf-8,' + csv;
-	}
-	data = encodeURI(csv);
-
-	//console.log(data);
-
-	var link = document.createElement('a');
-	link.setAttribute('href', data);
-	link.setAttribute('download', filename);
-	link.click();*/
 }
 
 export function saveOverallMoleculeData(view, plotSetup){
 	//var data;
 	console.log("save overall MoleculeData");
 	var csv = convertArrayOfObjectsToCSV(view.overallMoleculeData, plotSetup["moleculePropertyList"].slice());
-	/*if (csv == null) return;
-
-	var filename = 'export.csv';
-
-	if (!csv.match(/^data:text\/csv/i)) {
-	    csv = 'data:text/csv;charset=utf-8,' + csv;
-	}
-	data = encodeURI(csv);
-
-	var link = document.createElement('a');
-	link.setAttribute('href', data);
-	link.setAttribute('download', filename);
-	link.click();*/
 }
 
 export function saveOverallSpatiallyResolvedData(view, plotSetup){
 	//var data;
 	console.log("save overall SpatiallyResolvedData");
 	var csv = convertArrayOfObjectsToCSV(view.spatiallyResolvedData, plotSetup["spatiallyResolvedPropertyList"].slice());
-	/*console.log("end processing csv");
+}
 
-	var filename = 'export.csv';
 
-	if (!csv.match(/^data:text\/csv/i)) {
-	    csv = 'data:text/csv;charset=utf-8,' + csv;
-	}
-	data = encodeURI(csv);
 
-	//console.log(data);
-
-	var link = document.createElement('a');
-	link.setAttribute('href', data);
-	link.setAttribute('download', filename);
-	link.click();*/
+export function download(content, fileName, contentType) {
+	var contentToWrite = JSON.stringify(content, null, 2);
+    var a = document.createElement("a");
+    var file = new Blob([contentToWrite], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
 }
 
 function convertArrayOfObjectsToCSV(data, keys) {

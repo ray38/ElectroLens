@@ -5,33 +5,51 @@ import {saveSystemMoleculeData, saveSystemSpatiallyResolvedData} from "../Utilit
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	
 	var systemDimension = viewSetup.systemDimension;
+	
+	if (viewSetup.systemLatticeVectors == null || viewSetup.systemLatticeVectors == undefined) {
+		console.log('assigning default lattice vector');
+		viewSetup.systemLatticeVectors = { 	"u11": 1, 
+											"u12": 0, 
+											"u13": 0, 
+											"u21": 0, 
+											"u22": 1, 
+											"u23": 0,
+											"u31": 0, 
+											"u32": 0, 
+											"u33": 1
+		}
+	}
+	var systemLatticeVectors = viewSetup.systemLatticeVectors;
 
 	if (viewSetup.spatiallyResolvedData != null) {
-		if (viewSetup.spatiallyResolvedData.gridSpacing != null){
+		if (viewSetup.spatiallyResolvedData.gridSpacing == null && viewSetup.spatiallyResolvedData.numGridPoints == null) {
+			alert("Error!! please specify grid spacing and/or number of grid points for all systems")
+		} else if (viewSetup.spatiallyResolvedData.gridSpacing == null){
+			var numGridPoints = viewSetup.spatiallyResolvedData.numGridPoints;
+			var gridSpacing = {	"x": systemDimension.x / numGridPoints.x,
+								"y": systemDimension.y / numGridPoints.y,
+								"z": systemDimension.z / numGridPoints.z};
+			viewSetup.spatiallyResolvedData.gridSpacing	= gridSpacing;	
+		} else if (viewSetup.spatiallyResolvedData.numGridPoints == null) {
 			var gridSpacing = viewSetup.spatiallyResolvedData.gridSpacing;
-		} else{
-			var gridSpacing = {"x":0.1,"y":0.1,"z":0.1};
+			var numGridPoints = {	"x": systemDimension.x / gridSpacing.x,
+									"y": systemDimension.y / gridSpacing.y,
+									"z": systemDimension.z / gridSpacing.z};
+			viewSetup.spatiallyResolvedData.numGridPoints = numGridPoints;
 		}
-		
-	} else{
-		var gridSpacing = {"x":0.1,"y":0.1,"z":0.1};
-	}
+	} 
+
+	var roughSystemSize = Math.sqrt(systemDimension.x * systemDimension.x + systemDimension.y * systemDimension.y + systemDimension.z * systemDimension.z)
 	
-	var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
+	/* var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
 	var yCoordMin = systemDimension["y"][0], yCoordMax = systemDimension["y"][1];
 	var zCoordMin = systemDimension["z"][0], zCoordMax = systemDimension["z"][1];
-	/* var xSteps = (xCoordMax - xCoordMin)/gridSpacing.x;
+	var xSteps = (xCoordMax - xCoordMin)/gridSpacing.x;
 	var ySteps = (yCoordMax - yCoordMin)/gridSpacing.y;
 	var zSteps = (zCoordMax - zCoordMin)/gridSpacing.z; 
 	var xPlotMin = 0.0 - (xSteps/2.0), xPlotMax =  0.0 + (xSteps/2.0);
 	var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
 	var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0); */
-	var xSteps = gridSpacing.x;
-	var ySteps = gridSpacing.y;
-	var zSteps = gridSpacing.z;
-	var xPlotMin = 0.0 - (xSteps/2.0), xPlotMax =  0.0 + (xSteps/2.0);
-	var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
-	var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0);
 
 	//plot gridspacing is 1
 
@@ -45,7 +63,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		background: new THREE.Color( 0,0,0 ),
 		backgroundAlpha: 1.0,
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
-		eye: [ 0, 0, 120 ],
+		// eye: [ 0, 0, 120 ],
+		eye: [0, 0, roughSystemSize],
 		up: [ 0, 1, 0 ],
 		//fov: 100,
 		mousePosition: [0,0],
@@ -58,10 +77,13 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		controllerZoom : true,
 		controllerRotate : true,
 		controllerPan : true,
-		xPlotScale : d3.scaleLinear().domain([xCoordMin,xCoordMax]).range([xPlotMin,xPlotMax]),
-		yPlotScale : d3.scaleLinear().domain([yCoordMin,yCoordMax]).range([yPlotMin,yPlotMax]),
-		zPlotScale : d3.scaleLinear().domain([zCoordMin,zCoordMax]).range([zPlotMin,zPlotMax]),
-		xPlotMin : xPlotMin,
+		// xPlotScale : d3.scaleLinear().domain([xCoordMin,xCoordMax]).range([xPlotMin,xPlotMax]),
+		// yPlotScale : d3.scaleLinear().domain([yCoordMin,yCoordMax]).range([yPlotMin,yPlotMax]),
+		// zPlotScale : d3.scaleLinear().domain([zCoordMin,zCoordMax]).range([zPlotMin,zPlotMax]),
+		// gridSpacing: gridSpacing,
+		systemLatticeVectors: systemLatticeVectors,
+		systemDimension: systemDimension,
+		/* xPlotMin : xPlotMin,
 		xPlotMax : xPlotMax,
 		yPlotMin : yPlotMin,
 		yPlotMax : yPlotMax,
@@ -72,37 +94,43 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		yCoordMin : yCoordMin,
 		yCoordMax : yCoordMax,
 		zCoordMin : zCoordMin,
-		zCoordMax : zCoordMax,
+		zCoordMax : zCoordMax, */
 		options: new function(){
 			this.cameraFov = 50;
 			this.backgroundColor = "#000000";
 			this.backgroundAlpha = 0.0;
 			this.showPointCloud = true;
 			this.showMolecule = true;
-			this.atomSize = 1.0;
-			this.bondSize = 1.0;
+			this.atomSize = 0.5;
+			this.bondSize = 0.05;
 			this.moleculeTransparency = 1.0;
 			this.maxBondLength = 1.5;
 			this.minBondLength = 0.3;
 			this.pointCloudTotalMagnitude = 2;
-			this.pointCloudParticles = 500;
+			this.pointCloudParticles = 10;
 			this.pointCloudMaxPointPerBlock = 60;
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;
 			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 0.5;
+			this.pointCloudSize = 0.1;
 			this.animate = false;
 			this.currentFrame = 1;
 			this.xPBC = 1;
 			this.yPBC = 1;
 			this.zPBC = 1;
 			this.PBCBoolean = false;
-			this.x_low =  xPlotMin;
+			/* this.x_low =  xPlotMin;
 			this.x_high = xPlotMax;
 			this.y_low =  yPlotMin;
 			this.y_high = yPlotMax;
 			this.z_low =  zPlotMin;
-			this.z_high = zPlotMax;
+			this.z_high = zPlotMax; */
+			this.x_low =  -1000;
+			this.x_high = 1000;
+			this.y_low =  -1000;
+			this.y_high = 1000;
+			this.z_low =  -1000;
+			this.z_high = 1000;
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;
@@ -170,8 +198,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
 			this.moleculeAlpha = 1.0;
-			this.atomModelSegments = 6;
-			this.bondModelSegments = 3;
+			this.atomModelSegments = 24;
+			this.bondModelSegments = 12;
 			this.showAtoms = true;
 			this.showBonds = false;
 			this.atomsStyle = "sprite";
