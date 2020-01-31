@@ -1,4 +1,4 @@
-import {pointCloudMaterial, pointCloudMaterialInstanced} from "./Materials.js";
+import {getPointCloudMaterialInstanced} from "./Materials.js";
 
 export function getPointCloudGeometry(view){
 
@@ -136,7 +136,7 @@ export function getPointCloudGeometry(view){
 	const sumDisp = new Float32Array(sumDisplacement);
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 
-	var System = new THREE.Points( geometry, pointCloudMaterialInstanced );
+	var System = new THREE.Points( geometry, getPointCloudMaterialInstanced() );
 	System.frustumCulled = false
 	view.System = System;
 	scene.add( System );

@@ -4189,42 +4189,31 @@ exports.atomRadius = atomRadius;
 "use strict";
 
 exports.__esModule = true;
+exports.getPointCloudMaterialInstanced = getPointCloudMaterialInstanced;
 exports.getMoleculeMaterialInstanced = getMoleculeMaterialInstanced;
-var uniforms = {
 
-	color: { value: new THREE.Color(0xffffff) },
-	texture: { value: new THREE.TextureLoader().load("textures/sprites/disc.png") }
+function getPointCloudMaterialInstanced(options) {
+	var uniforms = {
 
-};
+		color: { value: new THREE.Color(0xffffff) },
+		texture: { value: new THREE.TextureLoader().load("textures/sprites/disc.png") }
 
-exports.uniforms = uniforms;
-var pointCloudMaterialInstanced = new THREE.RawShaderMaterial({
+	};
 
-	uniforms: uniforms,
-	vertexShader: "\n\tprecision highp float;\n\n\tuniform mat4 modelViewMatrix;\n\tuniform mat4 projectionMatrix;\n\n\tattribute vec3 position;\n\n\tattribute float size;\n\tattribute vec3 customColor;\n\tattribute vec3 offset;\n\tattribute float alpha;\n\n\tvarying float vAlpha;\n\tvarying vec3 vColor;\n\n\tvoid main() {\n\t  vColor = customColor;\n\t  vAlpha = alpha;\n\t  vec3 newPosition = position + offset;\n\t  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t  gl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t  gl_Position = projectionMatrix * mvPosition;\n\n\t}",
-	fragmentShader: "\n\tprecision highp float;\n\tuniform vec3 color;\n\tuniform sampler2D texture;\n\n\tvarying vec3 vColor;\n\tvarying float vAlpha;\n\n\tvoid main() {\n\tgl_FragColor = vec4( color * vColor, vAlpha );\n\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t}",
+	var pointCloudMaterialInstanced = new THREE.RawShaderMaterial({
 
-	blending: THREE.AdditiveBlending,
-	depthTest: false,
-	transparent: true
+		uniforms: uniforms,
+		vertexShader: "\n\t\tprecision highp float;\n\n\t\tuniform mat4 modelViewMatrix;\n\t\tuniform mat4 projectionMatrix;\n\n\t\tattribute vec3 position;\n\n\t\tattribute float size;\n\t\tattribute vec3 customColor;\n\t\tattribute vec3 offset;\n\t\tattribute float alpha;\n\n\t\tvarying float vAlpha;\n\t\tvarying vec3 vColor;\n\n\t\tvoid main() {\n\t\tvColor = customColor;\n\t\tvAlpha = alpha;\n\t\tvec3 newPosition = position + offset;\n\t\tvec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t\tgl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t\tgl_Position = projectionMatrix * mvPosition;\n\n\t\t}",
+		fragmentShader: "\n\t\tprecision highp float;\n\t\tuniform vec3 color;\n\t\tuniform sampler2D texture;\n\n\t\tvarying vec3 vColor;\n\t\tvarying float vAlpha;\n\n\t\tvoid main() {\n\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t\t}",
 
-});
+		blending: THREE.AdditiveBlending,
+		depthTest: false,
+		transparent: true
 
-exports.pointCloudMaterialInstanced = pointCloudMaterialInstanced;
-var pointCloudMaterial = new THREE.ShaderMaterial({
+	});
 
-	uniforms: uniforms,
-	vertexShader: "\n\t\tattribute float size;\n\t\tattribute vec3 customColor;\n\t\tattribute float alpha;\n\n\t\tvarying float vAlpha;\n\t\tvarying vec3 vColor;\n\n\t\tvoid main() {\n\t\tvColor = customColor;\n\t\tvAlpha = alpha;\n\t\tvec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n\t\tgl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t\tgl_Position = projectionMatrix * mvPosition;\n\t\t}\n\t",
-	fragmentShader: "\n\t\tuniform vec3 color;\n\t\tuniform sampler2D texture;\n\n\t\tvarying vec3 vColor;\n\t\tvarying float vAlpha;\n\n\t\tvoid main() {\n\t\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\t\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t\t}\n\t",
-
-	blending: THREE.AdditiveBlending,
-	depthTest: false,
-	transparent: true
-
-});
-
-exports.pointCloudMaterial = pointCloudMaterial;
-// export var MoleculeMaterial = new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} );
+	return pointCloudMaterialInstanced;
+}
 
 function getMoleculeMaterialInstanced() {
 	var material = new THREE.MeshLambertMaterial({
@@ -4232,169 +4221,13 @@ function getMoleculeMaterialInstanced() {
 	});
 
 	material.onBeforeCompile = function (shader) {
-		shader.vertexShader = "\n\t\t#define LAMBERT\n\t\n\t\t// instanced\n\t\tattribute vec3 offset;\n\t\t// attribute vec3 instanceColor;\n\t\t// attribute float instanceScale;\n\t\n\t\tvarying vec3 vLightFront;\n\t\tvarying vec3 vIndirectFront;\n\t\n\t\t#ifdef DOUBLE_SIDED\n\t\t\tvarying vec3 vLightBack;\n\t\t\tvarying vec3 vIndirectBack;\n\t\t#endif\n\t\n\t\t#include <common>\n\t\t#include <uv_pars_vertex>\n\t\t#include <uv2_pars_vertex>\n\t\t#include <envmap_pars_vertex>\n\t\t#include <bsdfs>\n\t\t#include <lights_pars_begin>\n\t\t#include <color_pars_vertex>\n\t\t#include <fog_pars_vertex>\n\t\t#include <morphtarget_pars_vertex>\n\t\t#include <skinning_pars_vertex>\n\t\t#include <shadowmap_pars_vertex>\n\t\t#include <logdepthbuf_pars_vertex>\n\t\t#include <clipping_planes_pars_vertex>\n\t\n\t\tvoid main() {\n\t\n\t\t\t#include <uv_vertex>\n\t\t\t#include <uv2_vertex>\n\t\t\t#include <color_vertex>\n\t\n\t\t\t// vertex colors instanced\n\t\t\t// #ifdef USE_COLOR\n\t\t\t// \tvColor.xyz = instanceColor.xyz;\n\t\t\t// #endif\n\t\n\t\t\t#include <beginnormal_vertex>\n\t\t\t#include <morphnormal_vertex>\n\t\t\t#include <skinbase_vertex>\n\t\t\t#include <skinnormal_vertex>\n\t\t\t#include <defaultnormal_vertex>\n\t\n\t\t\t#include <begin_vertex>\n\t\n\t\t\t// position instanced\n\t\t\t// transformed *= instanceScale;\n\t\t\t// transformed = transformed + instanceOffset;\n\t\t\ttransformed = transformed + offset;\n\t\n\t\t\t#include <morphtarget_vertex>\n\t\t\t#include <skinning_vertex>\n\t\t\t#include <project_vertex>\n\t\t\t#include <logdepthbuf_vertex>\n\t\t\t#include <clipping_planes_vertex>\n\t\n\t\t\t#include <worldpos_vertex>\n\t\t\t#include <envmap_vertex>\n\t\t\t#include <lights_lambert_vertex>\n\t\t\t#include <shadowmap_vertex>\n\t\t\t#include <fog_vertex>\n\t\n\t\t}\n\t\t";
+		shader.vertexShader = "\n\t\t\t#define LAMBERT\n\t\t\n\t\t\t// instanced\n\t\t\tattribute vec3 offset;\n\t\t\t// attribute vec3 instanceColor;\n\t\t\t// attribute float instanceScale;\n\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <fog_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\t\t\n\t\t\tvoid main() {\n\t\t\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\t\t\n\t\t\t\t// vertex colors instanced\n\t\t\t\t// #ifdef USE_COLOR\n\t\t\t\t// \tvColor.xyz = instanceColor.xyz;\n\t\t\t\t// #endif\n\t\t\n\t\t\t\t#include <beginnormal_vertex>\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\t\t\n\t\t\t\t#include <begin_vertex>\n\t\t\n\t\t\t\t// position instanced\n\t\t\t\t// transformed *= instanceScale;\n\t\t\t\t// transformed = transformed + instanceOffset;\n\t\t\t\ttransformed = transformed + offset;\n\t\t\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\t\t\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <lights_lambert_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\t\t\t\t#include <fog_vertex>\n\t\t\n\t\t\t}\n\t\t\t";
+		shader.fragmentShader = "\n\t\tuniform vec3 diffuse;\n\t\tuniform vec3 emissive;\n\t\tuniform float opacity;\n\t\t\n\t\tvarying vec3 vLightFront;\n\t\tvarying vec3 vIndirectFront;\n\t\t\n\t\t#ifdef DOUBLE_SIDED\n\t\t\tvarying vec3 vLightBack;\n\t\t\tvarying vec3 vIndirectBack;\n\t\t#endif\n\t\t\n\t\t\n\t\t#include <common>\n\t\t#include <packing>\n\t\t#include <dithering_pars_fragment>\n\t\t#include <color_pars_fragment>\n\t\t#include <uv_pars_fragment>\n\t\t#include <uv2_pars_fragment>\n\t\t#include <map_pars_fragment>\n\t\t#include <alphamap_pars_fragment>\n\t\t#include <aomap_pars_fragment>\n\t\t#include <lightmap_pars_fragment>\n\t\t#include <emissivemap_pars_fragment>\n\t\t#include <envmap_common_pars_fragment>\n\t\t#include <envmap_pars_fragment>\n\t\t#include <cube_uv_reflection_fragment>\n\t\t#include <bsdfs>\n\t\t#include <lights_pars_begin>\n\t\t#include <fog_pars_fragment>\n\t\t#include <shadowmap_pars_fragment>\n\t\t#include <shadowmask_pars_fragment>\n\t\t#include <specularmap_pars_fragment>\n\t\t#include <logdepthbuf_pars_fragment>\n\t\t#include <clipping_planes_pars_fragment>\n\t\t\n\t\tvoid main() {\n\t\t\n\t\t\t#include <clipping_planes_fragment>\n\t\t\n\t\t\tvec4 diffuseColor = vec4( diffuse, opacity );\n\t\t\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\t\t\tvec3 totalEmissiveRadiance = emissive;\n\t\t\n\t\t\t#include <logdepthbuf_fragment>\n\t\t\t#include <map_fragment>\n\t\t\t#include <color_fragment>\n\t\t\t#include <alphamap_fragment>\n\t\t\t#include <alphatest_fragment>\n\t\t\t#include <specularmap_fragment>\n\t\t\t#include <emissivemap_fragment>\n\t\t\n\t\t\t// accumulation\n\t\t\treflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\n\t\t\t\treflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;\n\t\t\n\t\t\t#else\n\t\t\n\t\t\t\treflectedLight.indirectDiffuse += vIndirectFront;\n\t\t\n\t\t\t#endif\n\t\t\n\t\t\t#include <lightmap_fragment>\n\t\t\n\t\t\treflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\n\t\t\t\treflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;\n\t\t\n\t\t\t#else\n\t\t\n\t\t\t\treflectedLight.directDiffuse = vLightFront;\n\t\t\n\t\t\t#endif\n\t\t\n\t\t\treflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();\n\t\t\n\t\t\t// modulation\n\t\t\t#include <aomap_fragment>\n\t\t\n\t\t\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;\n\t\t\n\t\t\t#include <envmap_fragment>\n\t\t\n\t\t\tgl_FragColor = vec4( outgoingLight, diffuseColor.a );\n\t\t\n\t\t\t#include <tonemapping_fragment>\n\t\t\t#include <encodings_fragment>\n\t\t\t#include <fog_fragment>\n\t\t\t#include <premultiplied_alpha_fragment>\n\t\t\t#include <dithering_fragment>\n\t\t}\n\t\t";
 	};
+
 	return material;
 }
 
-/* 
-	export var MoleculeMaterialInstanced = new THREE.RawShaderMaterial( {
-
-		vertexShader:   phongMaterialVertexShaderInstanced,
-		fragmentShader: phongMaterialFragmentShaderInstanced,
-
-		blending:       THREE.AdditiveBlending,
-		depthTest:      false,
-		transparent: 	true, 
-		// opacity: 		options.moleculeAlpha, 
-		vertexColors: 	THREE.VertexColors
-
-	});
-
-
-	var phongMaterialVertexShaderInstanced = `
-	#define PHONG
-
-	attribute vec3 offset;
-	varying vec3 vDisplacement;
-
-	varying vec3 vViewPosition;
-
-	#ifndef FLAT_SHADED
-
-		varying vec3 vNormal;
-
-	#endif
-
-	#include <common>
-	#include <uv_pars_vertex>
-	#include <uv2_pars_vertex>
-	#include <displacementmap_pars_vertex>
-	#include <envmap_pars_vertex>
-	#include <color_pars_vertex>
-	#include <fog_pars_vertex>
-	#include <morphtarget_pars_vertex>
-	#include <skinning_pars_vertex>
-	#include <shadowmap_pars_vertex>
-	#include <logdepthbuf_pars_vertex>
-	#include <clipping_planes_pars_vertex>
-
-	void main() {
-
-		#include <uv_vertex>
-		#include <uv2_vertex>
-		#include <color_vertex>
-
-		#include <beginnormal_vertex>
-		#include <morphnormal_vertex>
-		#include <skinbase_vertex>
-		#include <skinnormal_vertex>
-		#include <defaultnormal_vertex>
-
-	#ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED
-
-		vNormal = normalize( transformedNormal );
-
-	#endif
-
-		#include <begin_vertex>
-		#include <morphtarget_vertex>
-		#include <skinning_vertex>
-		#include <displacementmap_vertex>
-		#include <project_vertex>
-		#include <logdepthbuf_vertex>
-		#include <clipping_planes_vertex>
-
-		vViewPosition = - mvPosition.xyz;
-
-		#include <worldpos_vertex>
-		#include <envmap_vertex>
-		#include <shadowmap_vertex>
-		#include <fog_vertex>
-
-		vDisplacement = offset;
-        vec3 newPosition = position + (vDisplacement);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-
-	}
-	`;
-
-var phongMaterialFragmentShaderInstanced = `
-	#define PHONG
-
-	uniform vec3 diffuse;
-	uniform vec3 emissive;
-	uniform vec3 specular;
-	uniform float shininess;
-	uniform float opacity;
-
-	#include <common>
-	#include <packing>
-	#include <dithering_pars_fragment>
-	#include <color_pars_fragment>
-	#include <uv_pars_fragment>
-	#include <uv2_pars_fragment>
-	#include <map_pars_fragment>
-	#include <alphamap_pars_fragment>
-	#include <aomap_pars_fragment>
-	#include <lightmap_pars_fragment>
-	#include <emissivemap_pars_fragment>
-	#include <envmap_common_pars_fragment>
-	#include <envmap_pars_fragment>
-	#include <cube_uv_reflection_fragment>
-	#include <fog_pars_fragment>
-	#include <bsdfs>
-	#include <lights_pars_begin>
-	#include <lights_phong_pars_fragment>
-	#include <shadowmap_pars_fragment>
-	#include <bumpmap_pars_fragment>
-	#include <normalmap_pars_fragment>
-	#include <specularmap_pars_fragment>
-	#include <logdepthbuf_pars_fragment>
-	#include <clipping_planes_pars_fragment>
-
-	void main() {
-
-		#include <clipping_planes_fragment>
-
-		vec4 diffuseColor = vec4( diffuse, opacity );
-		ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
-		vec3 totalEmissiveRadiance = emissive;
-
-		#include <logdepthbuf_fragment>
-		#include <map_fragment>
-		#include <color_fragment>
-		#include <alphamap_fragment>
-		#include <alphatest_fragment>
-		#include <specularmap_fragment>
-		#include <normal_fragment_begin>
-		#include <normal_fragment_maps>
-		#include <emissivemap_fragment>
-
-		// accumulation
-		#include <lights_phong_fragment>
-		#include <lights_fragment_begin>
-		#include <lights_fragment_maps>
-		#include <lights_fragment_end>
-
-		// modulation
-		#include <aomap_fragment>
-
-		vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
-
-		#include <envmap_fragment>
-
-		gl_FragColor = vec4( outgoingLight, diffuseColor.a );
-
-		#include <tonemapping_fragment>
-		#include <encodings_fragment>
-		#include <fog_fragment>
-		#include <premultiplied_alpha_fragment>
-		#include <dithering_fragment>
-
-	}
-	`;
- */
 var uniforms2 = {
 
 	color: { value: new THREE.Color(0xffffff) },
@@ -5193,7 +5026,7 @@ function getPointCloudGeometry(view) {
 	var sumDisp = new Float32Array(sumDisplacement);
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
 
-	var System = new THREE.Points(geometry, _MaterialsJs.pointCloudMaterialInstanced);
+	var System = new THREE.Points(geometry, _MaterialsJs.getPointCloudMaterialInstanced());
 	System.frustumCulled = false;
 	view.System = System;
 	scene.add(System);
