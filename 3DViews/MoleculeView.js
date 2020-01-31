@@ -1,15 +1,17 @@
 import {colorSetup, atomRadius} from "./AtomSetup.js";
-import {shaderMaterial2, shaderMaterial3} from "./Materials.js/index.js";
 import {hexToRgb, colorToRgb, rgbToHex} from "../Utilities/other.js";
-
+import {shaderMaterial2, MoleculeMaterial, MoleculeMaterialInstanced, getMoleculeMaterialInstanced, moleculeSpriteMaterialInstanced} from "./Materials.js";
 
 function addAtoms(view, moleculeData, lut){
+
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
 	var options = view.options;
 	var sizeCode = options.moleculeSizeCodeBasis;
 	var colorCode = options.moleculeColorCodeBasis;
 
 	if (options.atomsStyle == "sprite"){
-		var geometry = new THREE.BufferGeometry();
+		var geometry = new THREE.InstancedBufferGeometry();
 		var positions = new Float32Array(moleculeData.length * 3);
 		var colors = new Float32Array( moleculeData.length* 3);
 		var sizes = new Float32Array( moleculeData.length );
@@ -52,13 +54,52 @@ function addAtoms(view, moleculeData, lut){
 			i3 +=3;
 		}
 
-		geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+						'y': systemDimension.x * latticeVectors.u12, 
+						'z': systemDimension.x * latticeVectors.u13};
+		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+						'y': systemDimension.y * latticeVectors.u22, 
+						'z': systemDimension.y * latticeVectors.u23};
+		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+						'y': systemDimension.z * latticeVectors.u32, 
+						'z': systemDimension.z * latticeVectors.u33};
+		
+		
+		var x_start = -1 * ((options.xPBC-1)/2);
+		var x_end = ((options.xPBC-1)/2) + 1;
+		var y_start = -1 * ((options.yPBC-1)/2);
+		var y_end = ((options.yPBC-1)/2) + 1;
+		var z_start = -1 * ((options.zPBC-1)/2);
+		var z_end = ((options.zPBC-1)/2) + 1;
+		
+		var xStep, yStep, zStep;
+		var sumDisplacement = [];
+		for ( var i = x_start; i < x_end; i ++) {
+			for ( var j = y_start; j < y_end; j ++) {
+				for ( var k = z_start; k < z_end; k ++) {
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+					
+					sumDisplacement.push(xStep, yStep, zStep);
+				}
+			}
+		}
+
+		console.log(sumDisplacement);
+		const sumDisp = new Float32Array(sumDisplacement);
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+		var atoms = new THREE.Points( geometry, moleculeSpriteMaterialInstanced );
+
+		
+
+		/*geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 		geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 		geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 		geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
 		var atoms = new THREE.Points( geometry, shaderMaterial2 );
-		atoms.frustumCulled = false;
+		atoms.frustumCulled = false;*/
 
 	}
 
@@ -91,7 +132,44 @@ function addAtoms(view, moleculeData, lut){
 			}
 		}
 		var atomsGeometry = combineGeometry(atomList, atomColorList);
-		var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
+
+		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+						'y': systemDimension.x * latticeVectors.u12, 
+						'z': systemDimension.x * latticeVectors.u13};
+		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+						'y': systemDimension.y * latticeVectors.u22, 
+						'z': systemDimension.y * latticeVectors.u23};
+		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+						'y': systemDimension.z * latticeVectors.u32, 
+						'z': systemDimension.z * latticeVectors.u33};
+		
+		
+		var x_start = -1 * ((options.xPBC-1)/2);
+		var x_end = ((options.xPBC-1)/2) + 1;
+		var y_start = -1 * ((options.yPBC-1)/2);
+		var y_end = ((options.yPBC-1)/2) + 1;
+		var z_start = -1 * ((options.zPBC-1)/2);
+		var z_end = ((options.zPBC-1)/2) + 1;
+		
+		var xStep, yStep, zStep;
+		var sumDisplacement = [];
+		for ( var i = x_start; i < x_end; i ++) {
+			for ( var j = y_start; j < y_end; j ++) {
+				for ( var k = z_start; k < z_end; k ++) {
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+					
+					sumDisplacement.push(xStep, yStep, zStep);
+				}
+			}
+		}
+
+		console.log(sumDisplacement);
+		const sumDisp = new Float32Array(sumDisplacement);
+		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+		var atoms = new THREE.Mesh( atomsGeometry, getMoleculeMaterialInstanced() );
+		// var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
 	}
 	
 	view.molecule.atoms = atoms;
@@ -101,6 +179,8 @@ function addAtoms(view, moleculeData, lut){
 
 
 function addBonds(view, moleculeData, neighborsData){
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
 	var options = view.options;
 	var colorCode = options.moleculeColorCodeBasis;
 	var lut = view.moleculeLut;
@@ -135,8 +215,48 @@ function addBonds(view, moleculeData, neighborsData){
 				}
 			}
 		}
-		var bondsGeometry = combineGeometry(bondList, bondColorList);
-		var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
+		var bondsGeometry = combineGeometry(atomList, atomColorList);
+
+		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+						'y': systemDimension.x * latticeVectors.u12, 
+						'z': systemDimension.x * latticeVectors.u13};
+		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+						'y': systemDimension.y * latticeVectors.u22, 
+						'z': systemDimension.y * latticeVectors.u23};
+		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+						'y': systemDimension.z * latticeVectors.u32, 
+						'z': systemDimension.z * latticeVectors.u33};
+		
+		
+		var x_start = -1 * ((options.xPBC-1)/2);
+		var x_end = ((options.xPBC-1)/2) + 1;
+		var y_start = -1 * ((options.yPBC-1)/2);
+		var y_end = ((options.yPBC-1)/2) + 1;
+		var z_start = -1 * ((options.zPBC-1)/2);
+		var z_end = ((options.zPBC-1)/2) + 1;
+		
+		var xStep, yStep, zStep;
+		var sumDisplacement = [];
+		for ( var i = x_start; i < x_end; i ++) {
+			for ( var j = y_start; j < y_end; j ++) {
+				for ( var k = z_start; k < z_end; k ++) {
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+					
+					sumDisplacement.push(xStep, yStep, zStep);
+				}
+			}
+		}
+
+		console.log(sumDisplacement);
+		const sumDisp = new Float32Array(sumDisplacement);
+		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+		var bonds = new THREE.Mesh( atomsGeometry, getMoleculeMaterialInstanced() );
+
+		// var bondsGeometry = combineGeometry(bondList, bondColorList);
+		// var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
+		// var bonds = new THREE.Mesh( bondsGeometry, MoleculeMaterialInstanced );
 	}
 
 	if (options.bondsStyle == "line"){
@@ -321,7 +441,14 @@ function combineGeometry(geoarray, colorarray) {
 		sumIndexCursor2 += posAttArr.length / 3;
 	}
 
-	const combinedGeometry = new THREE.BufferGeometry();
+	/*const combinedGeometry = new THREE.BufferGeometry();
+	combinedGeometry.setAttribute('position', new THREE.BufferAttribute(sumPosArr, 3 ));
+	combinedGeometry.setAttribute('normal', new THREE.BufferAttribute(sumNormArr, 3 ));
+	combinedGeometry.setAttribute('uv', new THREE.BufferAttribute(sumUvArr, 2 ));
+	combinedGeometry.setAttribute('color', new THREE.BufferAttribute(sumColorArr, 3 ));
+	combinedGeometry.setIndex(new THREE.BufferAttribute(sumIndexArr, 1));
+	return combinedGeometry;*/
+	const combinedGeometry = new THREE.InstancedBufferGeometry();
 	combinedGeometry.setAttribute('position', new THREE.BufferAttribute(sumPosArr, 3 ));
 	combinedGeometry.setAttribute('normal', new THREE.BufferAttribute(sumNormArr, 3 ));
 	combinedGeometry.setAttribute('uv', new THREE.BufferAttribute(sumUvArr, 2 ));

@@ -591,7 +591,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":4,"./2DHeatmaps/Utilities.js":5,"./2DHeatmaps/initialize2DHeatmapSetup.js":8,"./2DHeatmaps/selection.js":9,"./2DHeatmaps/setupOptionBox2DHeatmap.js":10,"./2DHeatmaps/tooltip.js":11,"./3DViews/MoleculeView.js":13,"./3DViews/PointCloud_selection.js":15,"./3DViews/setupOptionBox3DView.js":17,"./3DViews/systemEdge.js":18,"./3DViews/tooltip.js":19,"./MultiviewControl/HUDControl.js":20,"./MultiviewControl/calculateViewportSizes.js":21,"./MultiviewControl/colorLegend.js":22,"./MultiviewControl/controllerControl.js":23,"./MultiviewControl/initializeViewSetups.js":24,"./MultiviewControl/optionBoxControl.js":25,"./MultiviewControl/setupViewBasic.js":26,"./Utilities/arrangeData.js":27,"./Utilities/readDataFile.js":30,"./Utilities/readForm.js":31,"./Utilities/saveData.js":32,"./Utilities/scale.js":33}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":4,"./2DHeatmaps/Utilities.js":5,"./2DHeatmaps/initialize2DHeatmapSetup.js":8,"./2DHeatmaps/selection.js":9,"./2DHeatmaps/setupOptionBox2DHeatmap.js":10,"./2DHeatmaps/tooltip.js":11,"./3DViews/MoleculeView.js":14,"./3DViews/PointCloud_selection.js":15,"./3DViews/setupOptionBox3DView.js":17,"./3DViews/systemEdge.js":18,"./3DViews/tooltip.js":19,"./MultiviewControl/HUDControl.js":20,"./MultiviewControl/calculateViewportSizes.js":21,"./MultiviewControl/colorLegend.js":22,"./MultiviewControl/controllerControl.js":23,"./MultiviewControl/initializeViewSetups.js":24,"./MultiviewControl/optionBoxControl.js":25,"./MultiviewControl/setupViewBasic.js":26,"./Utilities/arrangeData.js":27,"./Utilities/readDataFile.js":30,"./Utilities/readForm.js":31,"./Utilities/saveData.js":32,"./Utilities/scale.js":33}],2:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1745,7 +1745,7 @@ function updateSelectionFromComparison(view) {
 	});
 }
 
-},{"../../3DViews/MoleculeView.js":13,"../../3DViews/PointCloud_selection.js":15,"../HeatmapView.js":2,"../PCAView.js":3,"../comparisonView.js":6}],5:[function(require,module,exports){
+},{"../../3DViews/MoleculeView.js":14,"../../3DViews/PointCloud_selection.js":15,"../HeatmapView.js":2,"../PCAView.js":3,"../comparisonView.js":6}],5:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -4189,6 +4189,251 @@ exports.atomRadius = atomRadius;
 "use strict";
 
 exports.__esModule = true;
+exports.getMoleculeMaterialInstanced = getMoleculeMaterialInstanced;
+var uniforms = {
+
+	color: { value: new THREE.Color(0xffffff) },
+	texture: { value: new THREE.TextureLoader().load("textures/sprites/disc.png") }
+
+};
+
+exports.uniforms = uniforms;
+var pointCloudMaterialInstanced = new THREE.RawShaderMaterial({
+
+	uniforms: uniforms,
+	vertexShader: "\n\tprecision highp float;\n\n\tuniform mat4 modelViewMatrix;\n\tuniform mat4 projectionMatrix;\n\n\tattribute vec3 position;\n\n\tattribute float size;\n\tattribute vec3 customColor;\n\tattribute vec3 offset;\n\tattribute float alpha;\n\n\tvarying float vAlpha;\n\tvarying vec3 vColor;\n\n\tvoid main() {\n\t  vColor = customColor;\n\t  vAlpha = alpha;\n\t  vec3 newPosition = position + offset;\n\t  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t  gl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t  gl_Position = projectionMatrix * mvPosition;\n\n\t}",
+	fragmentShader: "\n\tprecision highp float;\n\tuniform vec3 color;\n\tuniform sampler2D texture;\n\n\tvarying vec3 vColor;\n\tvarying float vAlpha;\n\n\tvoid main() {\n\tgl_FragColor = vec4( color * vColor, vAlpha );\n\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t}",
+
+	blending: THREE.AdditiveBlending,
+	depthTest: false,
+	transparent: true
+
+});
+
+exports.pointCloudMaterialInstanced = pointCloudMaterialInstanced;
+var pointCloudMaterial = new THREE.ShaderMaterial({
+
+	uniforms: uniforms,
+	vertexShader: "\n\t\tattribute float size;\n\t\tattribute vec3 customColor;\n\t\tattribute float alpha;\n\n\t\tvarying float vAlpha;\n\t\tvarying vec3 vColor;\n\n\t\tvoid main() {\n\t\tvColor = customColor;\n\t\tvAlpha = alpha;\n\t\tvec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n\t\tgl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t\tgl_Position = projectionMatrix * mvPosition;\n\t\t}\n\t",
+	fragmentShader: "\n\t\tuniform vec3 color;\n\t\tuniform sampler2D texture;\n\n\t\tvarying vec3 vColor;\n\t\tvarying float vAlpha;\n\n\t\tvoid main() {\n\t\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\t\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t\t}\n\t",
+
+	blending: THREE.AdditiveBlending,
+	depthTest: false,
+	transparent: true
+
+});
+
+exports.pointCloudMaterial = pointCloudMaterial;
+// export var MoleculeMaterial = new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} );
+
+function getMoleculeMaterialInstanced() {
+	var material = new THREE.MeshLambertMaterial({
+		vertexColors: THREE.VertexColors
+	});
+
+	material.onBeforeCompile = function (shader) {
+		shader.vertexShader = "\n\t\t#define LAMBERT\n\t\n\t\t// instanced\n\t\tattribute vec3 offset;\n\t\t// attribute vec3 instanceColor;\n\t\t// attribute float instanceScale;\n\t\n\t\tvarying vec3 vLightFront;\n\t\tvarying vec3 vIndirectFront;\n\t\n\t\t#ifdef DOUBLE_SIDED\n\t\t\tvarying vec3 vLightBack;\n\t\t\tvarying vec3 vIndirectBack;\n\t\t#endif\n\t\n\t\t#include <common>\n\t\t#include <uv_pars_vertex>\n\t\t#include <uv2_pars_vertex>\n\t\t#include <envmap_pars_vertex>\n\t\t#include <bsdfs>\n\t\t#include <lights_pars_begin>\n\t\t#include <color_pars_vertex>\n\t\t#include <fog_pars_vertex>\n\t\t#include <morphtarget_pars_vertex>\n\t\t#include <skinning_pars_vertex>\n\t\t#include <shadowmap_pars_vertex>\n\t\t#include <logdepthbuf_pars_vertex>\n\t\t#include <clipping_planes_pars_vertex>\n\t\n\t\tvoid main() {\n\t\n\t\t\t#include <uv_vertex>\n\t\t\t#include <uv2_vertex>\n\t\t\t#include <color_vertex>\n\t\n\t\t\t// vertex colors instanced\n\t\t\t// #ifdef USE_COLOR\n\t\t\t// \tvColor.xyz = instanceColor.xyz;\n\t\t\t// #endif\n\t\n\t\t\t#include <beginnormal_vertex>\n\t\t\t#include <morphnormal_vertex>\n\t\t\t#include <skinbase_vertex>\n\t\t\t#include <skinnormal_vertex>\n\t\t\t#include <defaultnormal_vertex>\n\t\n\t\t\t#include <begin_vertex>\n\t\n\t\t\t// position instanced\n\t\t\t// transformed *= instanceScale;\n\t\t\t// transformed = transformed + instanceOffset;\n\t\t\ttransformed = transformed + offset;\n\t\n\t\t\t#include <morphtarget_vertex>\n\t\t\t#include <skinning_vertex>\n\t\t\t#include <project_vertex>\n\t\t\t#include <logdepthbuf_vertex>\n\t\t\t#include <clipping_planes_vertex>\n\t\n\t\t\t#include <worldpos_vertex>\n\t\t\t#include <envmap_vertex>\n\t\t\t#include <lights_lambert_vertex>\n\t\t\t#include <shadowmap_vertex>\n\t\t\t#include <fog_vertex>\n\t\n\t\t}\n\t\t";
+	};
+	return material;
+}
+
+/* 
+	export var MoleculeMaterialInstanced = new THREE.RawShaderMaterial( {
+
+		vertexShader:   phongMaterialVertexShaderInstanced,
+		fragmentShader: phongMaterialFragmentShaderInstanced,
+
+		blending:       THREE.AdditiveBlending,
+		depthTest:      false,
+		transparent: 	true, 
+		// opacity: 		options.moleculeAlpha, 
+		vertexColors: 	THREE.VertexColors
+
+	});
+
+
+	var phongMaterialVertexShaderInstanced = `
+	#define PHONG
+
+	attribute vec3 offset;
+	varying vec3 vDisplacement;
+
+	varying vec3 vViewPosition;
+
+	#ifndef FLAT_SHADED
+
+		varying vec3 vNormal;
+
+	#endif
+
+	#include <common>
+	#include <uv_pars_vertex>
+	#include <uv2_pars_vertex>
+	#include <displacementmap_pars_vertex>
+	#include <envmap_pars_vertex>
+	#include <color_pars_vertex>
+	#include <fog_pars_vertex>
+	#include <morphtarget_pars_vertex>
+	#include <skinning_pars_vertex>
+	#include <shadowmap_pars_vertex>
+	#include <logdepthbuf_pars_vertex>
+	#include <clipping_planes_pars_vertex>
+
+	void main() {
+
+		#include <uv_vertex>
+		#include <uv2_vertex>
+		#include <color_vertex>
+
+		#include <beginnormal_vertex>
+		#include <morphnormal_vertex>
+		#include <skinbase_vertex>
+		#include <skinnormal_vertex>
+		#include <defaultnormal_vertex>
+
+	#ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED
+
+		vNormal = normalize( transformedNormal );
+
+	#endif
+
+		#include <begin_vertex>
+		#include <morphtarget_vertex>
+		#include <skinning_vertex>
+		#include <displacementmap_vertex>
+		#include <project_vertex>
+		#include <logdepthbuf_vertex>
+		#include <clipping_planes_vertex>
+
+		vViewPosition = - mvPosition.xyz;
+
+		#include <worldpos_vertex>
+		#include <envmap_vertex>
+		#include <shadowmap_vertex>
+		#include <fog_vertex>
+
+		vDisplacement = offset;
+        vec3 newPosition = position + (vDisplacement);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+
+	}
+	`;
+
+var phongMaterialFragmentShaderInstanced = `
+	#define PHONG
+
+	uniform vec3 diffuse;
+	uniform vec3 emissive;
+	uniform vec3 specular;
+	uniform float shininess;
+	uniform float opacity;
+
+	#include <common>
+	#include <packing>
+	#include <dithering_pars_fragment>
+	#include <color_pars_fragment>
+	#include <uv_pars_fragment>
+	#include <uv2_pars_fragment>
+	#include <map_pars_fragment>
+	#include <alphamap_pars_fragment>
+	#include <aomap_pars_fragment>
+	#include <lightmap_pars_fragment>
+	#include <emissivemap_pars_fragment>
+	#include <envmap_common_pars_fragment>
+	#include <envmap_pars_fragment>
+	#include <cube_uv_reflection_fragment>
+	#include <fog_pars_fragment>
+	#include <bsdfs>
+	#include <lights_pars_begin>
+	#include <lights_phong_pars_fragment>
+	#include <shadowmap_pars_fragment>
+	#include <bumpmap_pars_fragment>
+	#include <normalmap_pars_fragment>
+	#include <specularmap_pars_fragment>
+	#include <logdepthbuf_pars_fragment>
+	#include <clipping_planes_pars_fragment>
+
+	void main() {
+
+		#include <clipping_planes_fragment>
+
+		vec4 diffuseColor = vec4( diffuse, opacity );
+		ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+		vec3 totalEmissiveRadiance = emissive;
+
+		#include <logdepthbuf_fragment>
+		#include <map_fragment>
+		#include <color_fragment>
+		#include <alphamap_fragment>
+		#include <alphatest_fragment>
+		#include <specularmap_fragment>
+		#include <normal_fragment_begin>
+		#include <normal_fragment_maps>
+		#include <emissivemap_fragment>
+
+		// accumulation
+		#include <lights_phong_fragment>
+		#include <lights_fragment_begin>
+		#include <lights_fragment_maps>
+		#include <lights_fragment_end>
+
+		// modulation
+		#include <aomap_fragment>
+
+		vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+
+		#include <envmap_fragment>
+
+		gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+
+		#include <tonemapping_fragment>
+		#include <encodings_fragment>
+		#include <fog_fragment>
+		#include <premultiplied_alpha_fragment>
+		#include <dithering_fragment>
+
+	}
+	`;
+ */
+var uniforms2 = {
+
+	color: { value: new THREE.Color(0xffffff) },
+	texture: { value: new THREE.TextureLoader().load("textures/sprites/ball.png") }
+
+};
+
+exports.uniforms2 = uniforms2;
+var shaderMaterial2 = new THREE.ShaderMaterial({
+
+	uniforms: uniforms2,
+	vertexShader: document.getElementById('vertexshader_molecule').textContent,
+	fragmentShader: document.getElementById('fragmentshader_molecule').textContent,
+
+	/*blending:       THREE.AdditiveBlending,
+ depthTest:      false,
+ transparent:    true*/
+	alphaTest: 0.5
+
+});
+
+exports.shaderMaterial2 = shaderMaterial2;
+var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial({
+
+	uniforms: uniforms2,
+	vertexShader: "\n\tprecision highp float;\n\n\tuniform mat4 modelViewMatrix;\n\tuniform mat4 projectionMatrix;\n\n\tattribute vec3 position;\n\n\tattribute float size;\n\tattribute vec3 customColor;\n\tattribute vec3 offset;\n\tattribute float alpha;\n\n\tvarying float vAlpha;\n\tvarying vec3 vColor;\n\n\tvoid main() {\n\t  vColor = customColor;\n\t  vAlpha = alpha;\n\t  vec3 newPosition = position + offset;\n\t  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t  gl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t  gl_Position = projectionMatrix * mvPosition;\n\n\t}",
+	fragmentShader: "\n\tprecision highp float;\n\tuniform vec3 color;\n\tuniform sampler2D texture;\n\n\tvarying vec3 vColor;\n\tvarying float vAlpha;\n\n\tvoid main() {\n\tgl_FragColor = vec4( color * vColor, vAlpha );\n\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t}",
+
+	blending: THREE.AdditiveBlending,
+	depthTest: false,
+	transparent: true
+
+});
+exports.moleculeSpriteMaterialInstanced = moleculeSpriteMaterialInstanced;
+
+},{}],14:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
 exports.getMoleculeGeometry = getMoleculeGeometry;
 exports.updateMoleculeGeometry = updateMoleculeGeometry;
 exports.changeMoleculeGeometry = changeMoleculeGeometry;
@@ -4199,17 +4444,20 @@ exports.changeMoleculePeriodicReplicates = changeMoleculePeriodicReplicates;
 
 var _AtomSetupJs = require("./AtomSetup.js");
 
-var _PointCloudMaterialsJs = require("./PointCloudMaterials.js");
-
 var _UtilitiesOtherJs = require("../Utilities/other.js");
 
+var _MaterialsJs = require("./Materials.js");
+
 function addAtoms(view, moleculeData, lut) {
+
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
 	var options = view.options;
 	var sizeCode = options.moleculeSizeCodeBasis;
 	var colorCode = options.moleculeColorCodeBasis;
 
 	if (options.atomsStyle == "sprite") {
-		var geometry = new THREE.BufferGeometry();
+		var geometry = new THREE.InstancedBufferGeometry();
 		var positions = new Float32Array(moleculeData.length * 3);
 		var colors = new Float32Array(moleculeData.length * 3);
 		var sizes = new Float32Array(moleculeData.length);
@@ -4249,13 +4497,48 @@ function addAtoms(view, moleculeData, lut) {
 			i3 += 3;
 		}
 
-		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-		geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
-		geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-		geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+			'y': systemDimension.x * latticeVectors.u12,
+			'z': systemDimension.x * latticeVectors.u13 };
+		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+			'y': systemDimension.y * latticeVectors.u22,
+			'z': systemDimension.y * latticeVectors.u23 };
+		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+			'y': systemDimension.z * latticeVectors.u32,
+			'z': systemDimension.z * latticeVectors.u33 };
 
-		var atoms = new THREE.Points(geometry, _PointCloudMaterialsJs.shaderMaterial2);
-		atoms.frustumCulled = false;
+		var x_start = -1 * ((options.xPBC - 1) / 2);
+		var x_end = (options.xPBC - 1) / 2 + 1;
+		var y_start = -1 * ((options.yPBC - 1) / 2);
+		var y_end = (options.yPBC - 1) / 2 + 1;
+		var z_start = -1 * ((options.zPBC - 1) / 2);
+		var z_end = (options.zPBC - 1) / 2 + 1;
+
+		var xStep, yStep, zStep;
+		var sumDisplacement = [];
+		for (var i = x_start; i < x_end; i++) {
+			for (var j = y_start; j < y_end; j++) {
+				for (var k = z_start; k < z_end; k++) {
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+					sumDisplacement.push(xStep, yStep, zStep);
+				}
+			}
+		}
+
+		console.log(sumDisplacement);
+		var sumDisp = new Float32Array(sumDisplacement);
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
+		var atoms = new THREE.Points(geometry, _MaterialsJs.moleculeSpriteMaterialInstanced);
+
+		/*geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+  geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+  geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+  geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+  		var atoms = new THREE.Points( geometry, shaderMaterial2 );
+  atoms.frustumCulled = false;*/
 	}
 
 	if (options.atomsStyle == "ball") {
@@ -4284,7 +4567,43 @@ function addAtoms(view, moleculeData, lut) {
 			}
 		}
 		var atomsGeometry = combineGeometry(atomList, atomColorList);
-		var atoms = new THREE.Mesh(atomsGeometry, new THREE.MeshPhongMaterial({ transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors }));
+
+		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+			'y': systemDimension.x * latticeVectors.u12,
+			'z': systemDimension.x * latticeVectors.u13 };
+		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+			'y': systemDimension.y * latticeVectors.u22,
+			'z': systemDimension.y * latticeVectors.u23 };
+		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+			'y': systemDimension.z * latticeVectors.u32,
+			'z': systemDimension.z * latticeVectors.u33 };
+
+		var x_start = -1 * ((options.xPBC - 1) / 2);
+		var x_end = (options.xPBC - 1) / 2 + 1;
+		var y_start = -1 * ((options.yPBC - 1) / 2);
+		var y_end = (options.yPBC - 1) / 2 + 1;
+		var z_start = -1 * ((options.zPBC - 1) / 2);
+		var z_end = (options.zPBC - 1) / 2 + 1;
+
+		var xStep, yStep, zStep;
+		var sumDisplacement = [];
+		for (var i = x_start; i < x_end; i++) {
+			for (var j = y_start; j < y_end; j++) {
+				for (var k = z_start; k < z_end; k++) {
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+					sumDisplacement.push(xStep, yStep, zStep);
+				}
+			}
+		}
+
+		console.log(sumDisplacement);
+		var sumDisp = new Float32Array(sumDisplacement);
+		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
+		var atoms = new THREE.Mesh(atomsGeometry, _MaterialsJs.getMoleculeMaterialInstanced());
+		// var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
 	}
 
 	view.molecule.atoms = atoms;
@@ -4292,6 +4611,8 @@ function addAtoms(view, moleculeData, lut) {
 }
 
 function addBonds(view, moleculeData, neighborsData) {
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
 	var options = view.options;
 	var colorCode = options.moleculeColorCodeBasis;
 	var lut = view.moleculeLut;
@@ -4325,8 +4646,47 @@ function addBonds(view, moleculeData, neighborsData) {
 				}
 			}
 		}
-		var bondsGeometry = combineGeometry(bondList, bondColorList);
-		var bonds = new THREE.Mesh(bondsGeometry, new THREE.MeshPhongMaterial({ transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors }));
+		var bondsGeometry = combineGeometry(atomList, atomColorList);
+
+		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+			'y': systemDimension.x * latticeVectors.u12,
+			'z': systemDimension.x * latticeVectors.u13 };
+		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+			'y': systemDimension.y * latticeVectors.u22,
+			'z': systemDimension.y * latticeVectors.u23 };
+		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+			'y': systemDimension.z * latticeVectors.u32,
+			'z': systemDimension.z * latticeVectors.u33 };
+
+		var x_start = -1 * ((options.xPBC - 1) / 2);
+		var x_end = (options.xPBC - 1) / 2 + 1;
+		var y_start = -1 * ((options.yPBC - 1) / 2);
+		var y_end = (options.yPBC - 1) / 2 + 1;
+		var z_start = -1 * ((options.zPBC - 1) / 2);
+		var z_end = (options.zPBC - 1) / 2 + 1;
+
+		var xStep, yStep, zStep;
+		var sumDisplacement = [];
+		for (var i = x_start; i < x_end; i++) {
+			for (var j = y_start; j < y_end; j++) {
+				for (var k = z_start; k < z_end; k++) {
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+					sumDisplacement.push(xStep, yStep, zStep);
+				}
+			}
+		}
+
+		console.log(sumDisplacement);
+		var sumDisp = new Float32Array(sumDisplacement);
+		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
+		var bonds = new THREE.Mesh(atomsGeometry, _MaterialsJs.getMoleculeMaterialInstanced());
+
+		// var bondsGeometry = combineGeometry(bondList, bondColorList);
+		// var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
+		// var bonds = new THREE.Mesh( bondsGeometry, MoleculeMaterialInstanced );
 	}
 
 	if (options.bondsStyle == "line") {
@@ -4512,7 +4872,14 @@ function combineGeometry(geoarray, colorarray) {
 		sumIndexCursor2 += posAttArr.length / 3;
 	}
 
-	var combinedGeometry = new THREE.BufferGeometry();
+	/*const combinedGeometry = new THREE.BufferGeometry();
+ combinedGeometry.setAttribute('position', new THREE.BufferAttribute(sumPosArr, 3 ));
+ combinedGeometry.setAttribute('normal', new THREE.BufferAttribute(sumNormArr, 3 ));
+ combinedGeometry.setAttribute('uv', new THREE.BufferAttribute(sumUvArr, 2 ));
+ combinedGeometry.setAttribute('color', new THREE.BufferAttribute(sumColorArr, 3 ));
+ combinedGeometry.setIndex(new THREE.BufferAttribute(sumIndexArr, 1));
+ return combinedGeometry;*/
+	var combinedGeometry = new THREE.InstancedBufferGeometry();
 	combinedGeometry.setAttribute('position', new THREE.BufferAttribute(sumPosArr, 3));
 	combinedGeometry.setAttribute('normal', new THREE.BufferAttribute(sumNormArr, 3));
 	combinedGeometry.setAttribute('uv', new THREE.BufferAttribute(sumUvArr, 2));
@@ -4541,8 +4908,6 @@ function createBond(options, point1, point2) {
 function getMoleculeGeometry(view) {
 
 	view.molecule = {};
-	//view.molecule.atoms = [];
-	//view.molecule.bonds = [];
 	var options = view.options;
 	var currentFrame = options.currentFrame.toString();
 	var scene = view.scene;
@@ -4683,153 +5048,7 @@ function changeMoleculePeriodicReplicates(view) {
 	addMoleculePeriodicReplicates(view);
 }
 
-},{"../Utilities/other.js":29,"./AtomSetup.js":12,"./PointCloudMaterials.js":14}],14:[function(require,module,exports){
-"use strict";
-
-exports.__esModule = true;
-var uniforms = {
-
-	color: { value: new THREE.Color(0xffffff) },
-	texture: { value: new THREE.TextureLoader().load("textures/sprites/disc.png") }
-
-};
-
-exports.uniforms = uniforms;
-/*const material = new THREE.ShaderMaterial( {
-	vertexShader: `attribute vec3 color;
-	attribute vec3 offset;
-	varying vec4 vColor;
-	varying vec3 vDisplacement;
-	uniform float scale;
-
-	void main()	{
-		vColor = vec4( color, 1.0 );
-		vDisplacement = offset;
-		//vDisplacement = vec3(0.0,0.0,0.0);
-		vec3 newPosition = position + (vDisplacement);
-		gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-	}`,
-	fragmentShader: `varying vec3 vPosition;
-	varying vec4 vColor;
-	void main()	{
-		vec4 color = vec4( vColor );
-		gl_FragColor = color;
-	}`,
-	side: THREE.DoubleSide,
-	transparent: true
-	});
-	
-
-
-<script id="vshader" type="x-shader/x-vertex">
-		precision highp float;
-		uniform mat4 modelViewMatrix;
-		uniform mat4 projectionMatrix;
-		uniform float time;
-
-		attribute vec3 position;
-		attribute vec2 uv;
-		attribute vec3 translate;
-
-		varying vec2 vUv;
-		varying float vScale;
-
-		void main() {
-
-			vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
-			vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
-			float scale =  sin( trTime.x * 2.1 ) + sin( trTime.y * 3.2 ) + sin( trTime.z * 4.3 );
-			vScale = scale;
-			scale = scale * 10.0 + 10.0;
-			mvPosition.xyz += position * scale;
-			vUv = uv;
-			gl_Position = projectionMatrix * mvPosition;
-
-		}
-	</script>
-	<script id="fshader" type="x-shader/x-fragment">
-		precision highp float;
-
-		uniform sampler2D map;
-
-		varying vec2 vUv;
-		varying float vScale;
-
-		// HSL to RGB Convertion helpers
-		vec3 HUEtoRGB(float H){
-			H = mod(H,1.0);
-			float R = abs(H * 6.0 - 3.0) - 1.0;
-			float G = 2.0 - abs(H * 6.0 - 2.0);
-			float B = 2.0 - abs(H * 6.0 - 4.0);
-			return clamp(vec3(R,G,B),0.0,1.0);
-		}
-
-		vec3 HSLtoRGB(vec3 HSL){
-			vec3 RGB = HUEtoRGB(HSL.x);
-			float C = (1.0 - abs(2.0 * HSL.z - 1.0)) * HSL.y;
-			return (RGB - 0.5) * C + HSL.z;
-		}
-
-		void main() {
-			vec4 diffuseColor = texture2D( map, vUv );
-			gl_FragColor = vec4( diffuseColor.xyz * HSLtoRGB(vec3(vScale/5.0, 1.0, 0.5)), diffuseColor.w );
-
-			if ( diffuseColor.w < 0.5 ) discard;
-		}
-	</script>
-	
-	
-	*/
-
-var shaderMaterialInstanced = new THREE.RawShaderMaterial({
-
-	uniforms: uniforms,
-	vertexShader: "\n\tprecision highp float;\n\n\tuniform mat4 modelViewMatrix;\n\tuniform mat4 projectionMatrix;\n\n\tattribute vec3 position;\n\n\tattribute float size;\n\tattribute vec3 customColor;\n\tattribute vec3 offset;\n\tattribute float alpha;\n\n\tvarying float vAlpha;\n\tvarying vec3 vColor;\n\n\tvoid main() {\n\t  vColor = customColor;\n\t  vAlpha = alpha;\n\t  vec3 newPosition = position + offset;\n\t  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t  gl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t  gl_Position = projectionMatrix * mvPosition;\n\n\t}",
-	fragmentShader: "\n\tprecision highp float;\n\tuniform vec3 color;\n\tuniform sampler2D texture;\n\n\tvarying vec3 vColor;\n\tvarying float vAlpha;\n\n\tvoid main() {\n\tgl_FragColor = vec4( color * vColor, vAlpha );\n\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t}",
-
-	blending: THREE.AdditiveBlending,
-	depthTest: false,
-	transparent: true
-
-});
-
-exports.shaderMaterialInstanced = shaderMaterialInstanced;
-var shaderMaterial = new THREE.ShaderMaterial({
-
-	uniforms: uniforms,
-	vertexShader: "\n\t\tattribute float size;\n\t\tattribute vec3 customColor;\n\t\tattribute float alpha;\n\n\t\tvarying float vAlpha;\n\t\tvarying vec3 vColor;\n\n\t\tvoid main() {\n\t\tvColor = customColor;\n\t\tvAlpha = alpha;\n\t\tvec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n\t\tgl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t\tgl_Position = projectionMatrix * mvPosition;\n\t\t}\n\t",
-	fragmentShader: "\n\t\tuniform vec3 color;\n\t\tuniform sampler2D texture;\n\n\t\tvarying vec3 vColor;\n\t\tvarying float vAlpha;\n\n\t\tvoid main() {\n\t\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\t\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t\t}\n\t",
-
-	blending: THREE.AdditiveBlending,
-	depthTest: false,
-	transparent: true
-
-});
-
-exports.shaderMaterial = shaderMaterial;
-var uniforms2 = {
-
-	color: { value: new THREE.Color(0xffffff) },
-	texture: { value: new THREE.TextureLoader().load("textures/sprites/ball.png") }
-
-};
-
-exports.uniforms2 = uniforms2;
-var shaderMaterial2 = new THREE.ShaderMaterial({
-
-	uniforms: uniforms2,
-	vertexShader: document.getElementById('vertexshader_molecule').textContent,
-	fragmentShader: document.getElementById('fragmentshader_molecule').textContent,
-
-	/*blending:       THREE.AdditiveBlending,
- depthTest:      false,
- transparent:    true*/
-	alphaTest: 0.5
-
-});
-exports.shaderMaterial2 = shaderMaterial2;
-
-},{}],15:[function(require,module,exports){
+},{"../Utilities/other.js":29,"./AtomSetup.js":12,"./Materials.js":13}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -4842,12 +5061,11 @@ exports.removePointCloudPeriodicReplicates = removePointCloudPeriodicReplicates;
 exports.changePointCloudGeometry = changePointCloudGeometry;
 exports.changePointCloudPeriodicReplicates = changePointCloudPeriodicReplicates;
 
-var _PointCloudMaterialsJs = require("./PointCloudMaterials.js");
+var _MaterialsJs = require("./Materials.js");
 
 function getPointCloudGeometry(view) {
 
 	var gridSpacing = view.spatiallyResolvedData.gridSpacing;
-	var systemLatticeVectors = view.systemLatticeVectors;
 	var systemDimension = view.systemDimension;
 	var latticeVectors = view.systemLatticeVectors;
 
@@ -4900,9 +5118,9 @@ function getPointCloudGeometry(view) {
 				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
 				zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
 
-				x = systemLatticeVectors.u11 * xTempBeforeTransform + systemLatticeVectors.u21 * yTempBeforeTransform + systemLatticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
-				y = systemLatticeVectors.u12 * xTempBeforeTransform + systemLatticeVectors.u22 * yTempBeforeTransform + systemLatticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
-				z = systemLatticeVectors.u13 * xTempBeforeTransform + systemLatticeVectors.u23 * yTempBeforeTransform + systemLatticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
+				x = latticeVectors.u11 * xTempBeforeTransform + latticeVectors.u21 * yTempBeforeTransform + latticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
+				y = latticeVectors.u12 * xTempBeforeTransform + latticeVectors.u22 * yTempBeforeTransform + latticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
+				z = latticeVectors.u13 * xTempBeforeTransform + latticeVectors.u23 * yTempBeforeTransform + latticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
 
 				positions[i3 + 0] = x;
 				positions[i3 + 1] = y;
@@ -4975,7 +5193,7 @@ function getPointCloudGeometry(view) {
 	var sumDisp = new Float32Array(sumDisplacement);
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
 
-	var System = new THREE.Points(geometry, _PointCloudMaterialsJs.shaderMaterialInstanced);
+	var System = new THREE.Points(geometry, _MaterialsJs.pointCloudMaterialInstanced);
 	System.frustumCulled = false;
 	view.System = System;
 	scene.add(System);
@@ -5299,7 +5517,7 @@ function changePointCloudPeriodicReplicates(view) {
 	addPointCloudPeriodicReplicates(view);
 }
 
-},{"./PointCloudMaterials.js":14}],16:[function(require,module,exports){
+},{"./Materials.js":13}],16:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -5506,12 +5724,12 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
 			this.moleculeAlpha = 1.0;
-			this.atomModelSegments = 24;
-			this.bondModelSegments = 12;
+			this.atomModelSegments = 16;
+			this.bondModelSegments = 8;
 			this.showAtoms = true;
 			this.showBonds = false;
-			this.atomsStyle = "sprite";
-			this.bondsStyle = "line";
+			this.atomsStyle = "ball";
+			this.bondsStyle = "tube";
 
 			this.legendXMolecule = 6;
 			this.legendYMolecule = -4;
@@ -5672,60 +5890,66 @@ function setupOptionBox3DView(view, plotSetup) {
 	var PBCFolder = viewFolder.addFolder('PBC');
 
 	PBCFolder.add(options, 'xPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
-		// updatePointCloudGeometry(view);
-		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
-			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
-				_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			}
-			if (options.showMolecule && view.systemMoleculeDataBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			}
-			options.PBCBoolean = true;
-		} else {
-			// removePointCloudPeriodicReplicates(view);
+		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			_MoleculeViewJs.removeMoleculePeriodicReplicates(view);
-			options.PBCBoolean = false;
 		}
+		if (options.showMolecule && view.systemMoleculeDataBoolean) {
+			_MoleculeViewJs.updateMoleculeGeometry(view);
+		}
+		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
+  	// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+  	if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
+  	if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
+  	options.PBCBoolean = true;
+  }
+  else {
+  	// removePointCloudPeriodicReplicates(view);
+  	updatePointCloudGeometry(view);
+  	removeMoleculePeriodicReplicates(view);
+  	options.PBCBoolean = false;
+  }  */
 	});
 
 	PBCFolder.add(options, 'yPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
-		// updatePointCloudGeometry(view);
-		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
-			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
-				_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			}
-			if (options.showMolecule && view.systemMoleculeDataBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			}
-			options.PBCBoolean = true;
-		} else {
-			// removePointCloudPeriodicReplicates(view);
+		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			_MoleculeViewJs.removeMoleculePeriodicReplicates(view);
-			options.PBCBoolean = false;
 		}
+		if (options.showMolecule && view.systemMoleculeDataBoolean) {
+			_MoleculeViewJs.updateMoleculeGeometry(view);
+		}
+		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
+  	// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+  	if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
+  	if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
+  	options.PBCBoolean = true;
+  }
+  else {
+  	// removePointCloudPeriodicReplicates(view);
+  	updatePointCloudGeometry(view);
+  	removeMoleculePeriodicReplicates(view);
+  	options.PBCBoolean = false;
+  }  */
 	});
 
 	PBCFolder.add(options, 'zPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
-		// updatePointCloudGeometry(view);
-		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
-			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
-				_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			}
-			if (options.showMolecule && view.systemMoleculeDataBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			}
-			options.PBCBoolean = true;
-		} else {
-			// removePointCloudPeriodicReplicates(view);
+		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			_MoleculeViewJs.removeMoleculePeriodicReplicates(view);
-			options.PBCBoolean = false;
 		}
+		if (options.showMolecule && view.systemMoleculeDataBoolean) {
+			_MoleculeViewJs.updateMoleculeGeometry(view);
+		}
+		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
+  	// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+  	if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
+  	if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
+  	options.PBCBoolean = true;
+  }
+  else {
+  	// removePointCloudPeriodicReplicates(view);
+  	updatePointCloudGeometry(view);
+  	removeMoleculePeriodicReplicates(view);
+  	options.PBCBoolean = false;
+  }  */
 	});
 	PBCFolder.close();
 
@@ -6037,7 +6261,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":22,"../MultiviewControl/setupViewBasic.js":26,"../Utilities/colorMap.js":28,"../Utilities/other.js":29,"../Utilities/scale.js":33,"./MoleculeView.js":13,"./PointCloud_selection.js":15}],18:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":22,"../MultiviewControl/setupViewBasic.js":26,"../Utilities/colorMap.js":28,"../Utilities/other.js":29,"../Utilities/scale.js":33,"./MoleculeView.js":14,"./PointCloud_selection.js":15}],18:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;

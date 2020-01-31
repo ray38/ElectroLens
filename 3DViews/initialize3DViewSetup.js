@@ -198,12 +198,12 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
 			this.moleculeAlpha = 1.0;
-			this.atomModelSegments = 24;
-			this.bondModelSegments = 12;
+			this.atomModelSegments = 16;
+			this.bondModelSegments = 8;
 			this.showAtoms = true;
 			this.showBonds = false;
-			this.atomsStyle = "sprite";
-			this.bondsStyle = "line";
+			this.atomsStyle = "ball";
+			this.bondsStyle = "tube";
 
 			this.legendXMolecule = 6;
 			this.legendYMolecule = -4;

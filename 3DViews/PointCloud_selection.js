@@ -1,9 +1,8 @@
-import {pointCloudMaterial, pointCloudMaterialInstanced} from "./Materials.js/index.js";
+import {pointCloudMaterial, pointCloudMaterialInstanced} from "./Materials.js";
 
 export function getPointCloudGeometry(view){
 
 	var gridSpacing = view.spatiallyResolvedData.gridSpacing;
-	var systemLatticeVectors = view.systemLatticeVectors;
 	var systemDimension = view.systemDimension;
 	var latticeVectors = view.systemLatticeVectors;
 
@@ -57,9 +56,9 @@ export function getPointCloudGeometry(view){
 				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
 				zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
 
-				x = systemLatticeVectors.u11 * xTempBeforeTransform + systemLatticeVectors.u21 * yTempBeforeTransform + systemLatticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
-				y = systemLatticeVectors.u12 * xTempBeforeTransform + systemLatticeVectors.u22 * yTempBeforeTransform + systemLatticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
-				z = systemLatticeVectors.u13 * xTempBeforeTransform + systemLatticeVectors.u23 * yTempBeforeTransform + systemLatticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
+				x = latticeVectors.u11 * xTempBeforeTransform + latticeVectors.u21 * yTempBeforeTransform + latticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
+				y = latticeVectors.u12 * xTempBeforeTransform + latticeVectors.u22 * yTempBeforeTransform + latticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
+				z = latticeVectors.u13 * xTempBeforeTransform + latticeVectors.u23 * yTempBeforeTransform + latticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
 				
 				positions[ i3 + 0 ] = x;
 				positions[ i3 + 1 ] = y;
