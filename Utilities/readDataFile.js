@@ -1,38 +1,3 @@
-import {initializeViewSetups} from "../MultiviewControl/initializeViewSetups.js";
-export function readCSV(view,plotData,callback){
-
-	var filename = view.dataFilename;
-	view.data = [];
-	d3.csv(filename, function (d) {
-		d.forEach(function (d,i) {
-			var n = +d.rho;
-
-			if (n >1e-3){
-				var temp = {
-						x: +d.x,
-						y: +d.y,
-						z: +d.z,
-						n: +d.rho,
-						gamma: +d.gamma,
-						epxc: +d.epxc,
-						ad0p2: +d.ad0p2,
-						deriv1: +d.deriv1,
-						deriv2: +d.deriv2,
-						selected: true
-					}
-			    	
-				view.data.push(temp);
-				plotData.push(temp);
-			}
-		})
-	//number = number + view.data.length;
-	//console.log(number);
-	//console.log(view.data);
-	callback(null);
-	});
-
-}
-
 
 export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
@@ -47,9 +12,6 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 	var densityCutoffUp = plotSetup.densityCutoffUp;
 	var systemName = view.moleculeName;
 
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	var zPlotScale = view.zPlotScale;
 	d.forEach(function (d,i) {
 		var n = +d[density];
 		if (n > densityCutoffLow && n < densityCutoffUp){
@@ -57,9 +19,6 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 					x:+d.x,
 					y:+d.y,
 					z:+d.z,
-					// xPlot: xPlotScale(+d.x),
-					// yPlot: yPlotScale(+d.y),
-					// zPlot: zPlotScale(+d.z),
 					selected: true,
 					name: systemName
 				}
@@ -98,10 +57,6 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 	var propertyList = plotSetup.moleculePropertyList;
 	var systemName = view.moleculeName;
 
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	var zPlotScale = view.zPlotScale;
-
 	
 	d.forEach(function (d,i) {
 
@@ -110,9 +65,6 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 					x:+d.x,
 					y:+d.y,
 					z:+d.z,
-					// xPlot: xPlotScale(+d.x),
-					// yPlot: yPlotScale(+d.y),
-					// zPlot: zPlotScale(+d.z),
 					selected: true,
 					name: systemName
 				};
@@ -163,10 +115,6 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 		var densityCutoffUp = plotSetup.densityCutoffUp;
 		var systemName = view.moleculeName;
 
-		var xPlotScale = view.xPlotScale;
-		var yPlotScale = view.yPlotScale;
-		var zPlotScale = view.zPlotScale;
-
 
 		d3.csv(filename, function (error,d) {
 			if (error && error.target.status === 404) {
@@ -184,9 +132,6 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 							x:+d.x,
 							y:+d.y,
 							z:+d.z,
-							// xPlot: xPlotScale(+d.x),
-							// yPlot: yPlotScale(+d.y),
-							// zPlot: zPlotScale(+d.z),
 							selected: true,
 							name: systemName
 						}
@@ -237,11 +182,6 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 		var propertyList = plotSetup.moleculePropertyList;
 		var systemName = view.moleculeName;
 
-		var xPlotScale = view.xPlotScale;
-		var yPlotScale = view.yPlotScale;
-		var zPlotScale = view.zPlotScale;
-
-		
 
 		d3.csv(filename, function (error,d) {
 			if (error && error.target.status === 404) {
@@ -259,9 +199,6 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 							x:+d.x,
 							y:+d.y,
 							z:+d.z,
-							// xPlot: xPlotScale(+d.x),
-							// yPlot: yPlotScale(+d.y),
-							// zPlot: zPlotScale(+d.z),
 							selected: true,
 							name: systemName
 						};
@@ -370,28 +307,6 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 	});*/
 
 //}
-
-function getCoordinateScales(data){
-	var xValue = function(d) {return d.x;}
-	var yValue = function(d) {return d.y;}
-	var zValue = function(d) {return d.z;}
-	var xMin = d3.min(data,xValue);
-	var xMax = d3.max(data,xValue);
-	var yMin = d3.min(data,yValue);
-	var yMax = d3.max(data,yValue);
-	var zMin = d3.min(data,zValue);
-	var zMax = d3.max(data,zValue);
-}
-
-
-function preprocessData(view){
-	var data = view.data;
-}
-
-
-
-
-
 
 
 /*

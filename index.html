@@ -571,9 +571,12 @@
 
         if (document.getElementById('boolSpatiallyResolvedData').checked  || document.getElementById('boolMolecularData').checked ){
           document.getElementById('formSubmitButton').disabled = false;
+          document.getElementById('saveConfigButton').disabled = false;
+          
         }
         else{
           document.getElementById('formSubmitButton').disabled = true;
+          document.getElementById('saveConfigButton').disabled = true;
         }
         
       };
@@ -599,9 +602,11 @@
 
         if (document.getElementById('boolSpatiallyResolvedData').checked  || document.getElementById('boolMolecularData').checked ){
           document.getElementById('formSubmitButton').disabled = false;
+          document.getElementById('saveConfigButton').disabled = false;
         }
         else{
           document.getElementById('formSubmitButton').disabled = true;
+          document.getElementById('saveConfigButton').disabled = true;
         }
         
       };

@@ -4781,53 +4781,19 @@ exports.uniforms = uniforms;
 	
 	*/
 
-/*export var shaderMaterialInstanced = new THREE.RawShaderMaterial( {
+var shaderMaterialInstanced = new THREE.RawShaderMaterial({
 
-	uniforms:       uniforms,
-	vertexShader:   `
-	precision highp float;
+	uniforms: uniforms,
+	vertexShader: "\n\tprecision highp float;\n\n\tuniform mat4 modelViewMatrix;\n\tuniform mat4 projectionMatrix;\n\n\tattribute vec3 position;\n\n\tattribute float size;\n\tattribute vec3 customColor;\n\tattribute vec3 offset;\n\tattribute float alpha;\n\n\tvarying float vAlpha;\n\tvarying vec3 vColor;\n\n\tvoid main() {\n\t  vColor = customColor;\n\t  vAlpha = alpha;\n\t  vec3 newPosition = position + offset;\n\t  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t  gl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t  gl_Position = projectionMatrix * mvPosition;\n\n\t}",
+	fragmentShader: "\n\tprecision highp float;\n\tuniform vec3 color;\n\tuniform sampler2D texture;\n\n\tvarying vec3 vColor;\n\tvarying float vAlpha;\n\n\tvoid main() {\n\tgl_FragColor = vec4( color * vColor, vAlpha );\n\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t}",
 
-	uniform mat4 modelViewMatrix;
-	uniform mat4 projectionMatrix;
+	blending: THREE.AdditiveBlending,
+	depthTest: false,
+	transparent: true
 
-	attribute vec3 position;
+});
 
-	attribute float size;
-	attribute vec3 customColor;
-	attribute vec3 offset;
-	attribute float alpha;
-
-	varying float vAlpha;
-	varying vec3 vColor;
-
-	void main() {
-	  vColor = customColor;
-	  vAlpha = alpha;
-	  vec3 newPosition = position + offset;
-	  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
-	  gl_PointSize = size * ( 300.0 / -mvPosition.z );
-	  gl_Position = projectionMatrix * mvPosition;
-
-	}`,
-	fragmentShader: `
-	precision highp float;
-	uniform vec3 color;
-	uniform sampler2D texture;
-
-	varying vec3 vColor;
-	varying float vAlpha;
-
-	void main() {
-	gl_FragColor = vec4( color * vColor, vAlpha );
-	gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-	}`,
-
-	blending:       THREE.AdditiveBlending,
-	depthTest:      false,
-	transparent:    true
-
-});*/
-
+exports.shaderMaterialInstanced = shaderMaterialInstanced;
 var shaderMaterial = new THREE.ShaderMaterial({
 
 	uniforms: uniforms,
@@ -4882,6 +4848,8 @@ function getPointCloudGeometry(view) {
 
 	var gridSpacing = view.spatiallyResolvedData.gridSpacing;
 	var systemLatticeVectors = view.systemLatticeVectors;
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
 
 	var options = view.options;
 	var scene = view.scene;
@@ -4926,13 +4894,6 @@ function getPointCloudGeometry(view) {
 		temp_num_points = points_in_block[k];
 		if (temp_num_points > 0) {
 
-			/*var x_start = spatiallyResolvedData[k]['xPlot'] - 0.5;
-   var y_start = spatiallyResolvedData[k]['yPlot'] - 0.5;
-   var z_start = spatiallyResolvedData[k]['zPlot'] - 0.5;
-   var x_end = x_start + 1;
-   var y_end = y_start + 1;
-   var z_end = z_start + 1;*/
-
 			for (var j = 0; j < temp_num_points; j++) {
 
 				xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
@@ -4942,10 +4903,6 @@ function getPointCloudGeometry(view) {
 				x = systemLatticeVectors.u11 * xTempBeforeTransform + systemLatticeVectors.u21 * yTempBeforeTransform + systemLatticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
 				y = systemLatticeVectors.u12 * xTempBeforeTransform + systemLatticeVectors.u22 * yTempBeforeTransform + systemLatticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
 				z = systemLatticeVectors.u13 * xTempBeforeTransform + systemLatticeVectors.u23 * yTempBeforeTransform + systemLatticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
-
-				/* var x = Math.random()  + x_start;
-    var y = Math.random()  + y_start;
-    var z = Math.random()  + z_start; */
 
 				positions[i3 + 0] = x;
 				positions[i3 + 1] = y;
@@ -4977,61 +4934,67 @@ function getPointCloudGeometry(view) {
 		}
 	}
 
-	/*if (options.PBCBoolean){
- 	var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
- 	var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
- 	var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
- 
- 	var x_start = -1 * ((options.xPBC-1)/2);
- 	var x_end = ((options.xPBC-1)/2) + 1;
- 	var y_start = -1 * ((options.yPBC-1)/2);
- 	var y_end = ((options.yPBC-1)/2) + 1;
- 	var z_start = -1 * ((options.zPBC-1)/2);
- 	var z_end = ((options.zPBC-1)/2) + 1;
- 	
- 	var sumDisplacement = [];
- 	for ( var i = x_start; i < x_end; i ++) {
- 		for ( var j = y_start; j < y_end; j ++) {
- 			for ( var k = z_start; k < z_end; k ++) {
- 				sumDisplacement.push(i*xStep, j*yStep, k*zStep);
- 			}
- 		}
- 	}
- } else {
- 	var sumDisplacement = [0.0, 0.0, 0.0];
- }
- 
- 
- var geometry = new THREE.InstancedBufferGeometry();
- geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
- geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
- geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
- geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
- geometry.parentBlockMap = parentBlock;
- console.log(sumDisplacement);
- const sumDisp = new Float32Array(sumDisplacement);
- geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
- 
- var System = new THREE.Mesh( geometry, shaderMaterial );
- System.frustumCulled = false
- view.System = System;
- scene.add( System );*/
+	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+		'y': systemDimension.x * latticeVectors.u12,
+		'z': systemDimension.x * latticeVectors.u13 };
+	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+		'y': systemDimension.y * latticeVectors.u22,
+		'z': systemDimension.y * latticeVectors.u23 };
+	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+		'y': systemDimension.z * latticeVectors.u32,
+		'z': systemDimension.z * latticeVectors.u33 };
 
-	var geometry = new THREE.BufferGeometry();
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+
+	var xStep, yStep, zStep;
+	var sumDisplacement = [];
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+				sumDisplacement.push(xStep, yStep, zStep);
+			}
+		}
+	}
+
+	var geometry = new THREE.InstancedBufferGeometry();
 	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 	geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 	geometry.parentBlockMap = parentBlock;
+	console.log(sumDisplacement);
+	var sumDisp = new Float32Array(sumDisplacement);
+	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
 
-	var System = new THREE.Points(geometry, _PointCloudMaterialsJs.shaderMaterial);
+	var System = new THREE.Points(geometry, _PointCloudMaterialsJs.shaderMaterialInstanced);
+	System.frustumCulled = false;
 	view.System = System;
-	//console.log(System);
 	scene.add(System);
 
-	if (options.PBCBoolean) {
-		changePointCloudPeriodicReplicates(view);
-	}
+	/* var geometry = new THREE.BufferGeometry();
+ geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+ geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+ geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+ geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+ geometry.parentBlockMap = parentBlock;
+ 
+ var System = new THREE.Points( geometry, shaderMaterial );
+ view.System = System;
+ scene.add( System );
+ 
+ if (options.PBCBoolean){
+ 	changePointCloudPeriodicReplicates(view);
+ }
+ */
 }
 
 /*
@@ -5087,7 +5050,6 @@ function addPointCloudPeriodicReplicates(view) {
 	var latticeVectors = view.systemLatticeVectors;
 
 	var options = view.options;
-	var scene = view.scene;
 	var system = view.System;
 
 	var x_start = -1 * ((options.xPBC - 1) / 2);
@@ -5107,27 +5069,43 @@ function addPointCloudPeriodicReplicates(view) {
 		'y': systemDimension.z * latticeVectors.u32,
 		'z': systemDimension.z * latticeVectors.u33 };
 
-	var periodicReplicateSystemGroup = new THREE.Group();
+	// 	var periodicReplicateSystemGroup = new THREE.Group();
 
 	var xStep, yStep, zStep;
 
+	var sumDisplacement = [];
 	for (var i = x_start; i < x_end; i++) {
 		for (var j = y_start; j < y_end; j++) {
 			for (var k = z_start; k < z_end; k++) {
-				if (!(i == 0 && j == 0 && k == 0)) {
-					var tempSystemReplica = system.clone();
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 
-					tempSystemReplica.position.set(xStep, yStep, zStep);
-					periodicReplicateSystemGroup.add(tempSystemReplica);
-				}
+				sumDisplacement.push(xStep, yStep, zStep);
 			}
 		}
 	}
-	view.periodicReplicateSystems = periodicReplicateSystemGroup;
-	scene.add(periodicReplicateSystemGroup);
+	console.log(sumDisplacement);
+	var sumDisp = new Float32Array(sumDisplacement);
+	system.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
+
+	/*for ( var i = x_start; i < x_end; i ++) {
+ 	for ( var j = y_start; j < y_end; j ++) {
+ 		for ( var k = z_start; k < z_end; k ++) {
+ 			if (!((i == 0) && (j == 0) && (k == 0))) {
+ 				var tempSystemReplica = system.clone();
+ 				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+ 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+ 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+ 				
+ 				tempSystemReplica.position.set(xStep, yStep, zStep); 
+ 				periodicReplicateSystemGroup.add(tempSystemReplica);
+ 			}
+ 		}
+ 	}
+ }
+ view.periodicReplicateSystems = periodicReplicateSystemGroup;
+ scene.add(periodicReplicateSystemGroup);*/
 
 	/*var options = view.options;
  var system = view.System;
@@ -5160,10 +5138,10 @@ function addPointCloudPeriodicReplicates(view) {
 function updatePointCloudGeometry(view) {
 
 	var options = view.options;
-	var positionArray = view.System.geometry.attributes.position.array;
 	var parentBlock = view.System.geometry.parentBlockMap;
 	var currentFrame = options.currentFrame.toString();
 	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+	var positionArray = view.System.geometry.attributes.position.array;
 
 	var count = view.System.geometry.attributes.size.array.length;
 
@@ -5180,9 +5158,9 @@ function updatePointCloudGeometry(view) {
 	view.lut = lut;
 
 	for (var i = 0, i3 = 0; i < count; i++) {
-		var x = positionArray[i3 + 0] / 10;
-		var y = positionArray[i3 + 1] / 10;
-		var z = positionArray[i3 + 2] / 10;
+		var x = positionArray[i3 + 0];
+		var y = positionArray[i3 + 1];
+		var z = positionArray[i3 + 2];
 		var k = parentBlock[i];
 
 		var color = lut.getColor(spatiallyResolvedData[k][options.propertyOfInterest]);
@@ -5210,9 +5188,49 @@ function updatePointCloudGeometry(view) {
 	view.System.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	view.System.geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
-	if (options.PBCBoolean) {
-		changePointCloudPeriodicReplicates(view);
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+
+	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+		'y': systemDimension.x * latticeVectors.u12,
+		'z': systemDimension.x * latticeVectors.u13 };
+	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+		'y': systemDimension.y * latticeVectors.u22,
+		'z': systemDimension.y * latticeVectors.u23 };
+	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+		'y': systemDimension.z * latticeVectors.u32,
+		'z': systemDimension.z * latticeVectors.u33 };
+
+	// 	var periodicReplicateSystemGroup = new THREE.Group();
+
+	var xStep, yStep, zStep;
+
+	var sumDisplacement = [];
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+				sumDisplacement.push(xStep, yStep, zStep);
+			}
+		}
 	}
+	console.log(sumDisplacement);
+	var sumDisp = new Float32Array(sumDisplacement);
+	view.System.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
+
+	// if (options.PBCBoolean){
+	// 	changePointCloudPeriodicReplicates(view);
+	// }
 }
 
 function animatePointCloudGeometry(view) {
@@ -5654,48 +5672,57 @@ function setupOptionBox3DView(view, plotSetup) {
 	var PBCFolder = viewFolder.addFolder('PBC');
 
 	PBCFolder.add(options, 'xPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
+		// updatePointCloudGeometry(view);
 		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
+			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+				_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			}
 			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			}
 			options.PBCBoolean = true;
 		} else {
-			_PointCloud_selectionJs.removePointCloudPeriodicReplicates(view);
+			// removePointCloudPeriodicReplicates(view);
+			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			_MoleculeViewJs.removeMoleculePeriodicReplicates(view);
 			options.PBCBoolean = false;
 		}
 	});
 
 	PBCFolder.add(options, 'yPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
+		// updatePointCloudGeometry(view);
 		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
+			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+				_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			}
 			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			}
 			options.PBCBoolean = true;
 		} else {
-			_PointCloud_selectionJs.removePointCloudPeriodicReplicates(view);
+			// removePointCloudPeriodicReplicates(view);
+			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			_MoleculeViewJs.removeMoleculePeriodicReplicates(view);
 			options.PBCBoolean = false;
 		}
 	});
 
 	PBCFolder.add(options, 'zPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
+		// updatePointCloudGeometry(view);
 		if (options.xPBC > 1 || options.yPBC > 1 || options.zPBC > 1) {
+			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
+				_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			}
 			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
 			}
 			options.PBCBoolean = true;
 		} else {
-			_PointCloud_selectionJs.removePointCloudPeriodicReplicates(view);
+			// removePointCloudPeriodicReplicates(view);
+			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			_MoleculeViewJs.removeMoleculePeriodicReplicates(view);
 			options.PBCBoolean = false;
 		}
@@ -5867,59 +5894,43 @@ function setupOptionBox3DView(view, plotSetup) {
 		pointCloudFolder.add(options, 'propertyOfInterest', propertyChoiceObject).name('Color Basis').onChange(function (value) {
 			_UtilitiesScaleJs.adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 			gui.updateDisplay();
 		});
 
 		pointCloudFolder.add(options, 'colorMap', _UtilitiesColorMapJs.colorMapDict).name('Color Scheme').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
 
 		pointCloudFolder.add(options, 'pointCloudParticles', 0, 100).step(0.1).name('Density').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 
 		pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add(options, 'pointCloudSize', 0.01, 1).step(0.01).name('Size').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add(options, 'pointCloudColorSettingMin', -1000, 1000).step(0.001).name('Color Scale Min').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
 		pointCloudFolder.add(options, 'pointCloudColorSettingMax', -1000, 1000).step(0.001).name('Color Scale Max').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
 		pointCloudFolder.add(options, 'pointCloudMaxPointPerBlock', 10, 200).step(10).name('Max Density').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add(options, 'animate').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
@@ -5954,9 +5965,7 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		pointCloudAdditionalFolder.add(options, 'pointCloudTotalMagnitude', -5, 4).step(1).name('Dens. Magnitude').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
-			if (options.PBCBoolean) {
-				_PointCloud_selectionJs.changePointCloudPeriodicReplicates(view);
-			};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudAdditionalFolder.close();
 	}
@@ -7201,46 +7210,10 @@ function getCanvasColor(color) {
 "use strict";
 
 exports.__esModule = true;
-exports.readCSV = readCSV;
 exports.processSpatiallyResolvedData = processSpatiallyResolvedData;
 exports.processMoleculeData = processMoleculeData;
 exports.readCSVSpatiallyResolvedData = readCSVSpatiallyResolvedData;
 exports.readCSVMoleculeData = readCSVMoleculeData;
-
-var _MultiviewControlInitializeViewSetupsJs = require("../MultiviewControl/initializeViewSetups.js");
-
-function readCSV(view, plotData, callback) {
-
-	var filename = view.dataFilename;
-	view.data = [];
-	d3.csv(filename, function (d) {
-		d.forEach(function (d, i) {
-			var n = +d.rho;
-
-			if (n > 1e-3) {
-				var temp = {
-					x: +d.x,
-					y: +d.y,
-					z: +d.z,
-					n: +d.rho,
-					gamma: +d.gamma,
-					epxc: +d.epxc,
-					ad0p2: +d.ad0p2,
-					deriv1: +d.deriv1,
-					deriv2: +d.deriv2,
-					selected: true
-				};
-
-				view.data.push(temp);
-				plotData.push(temp);
-			}
-		});
-		//number = number + view.data.length;
-		//console.log(number);
-		//console.log(view.data);
-		callback(null);
-	});
-}
 
 function processSpatiallyResolvedData(view, overallSpatiallyResolvedData, plotSetup, callback) {
 	view.systemSpatiallyResolvedData = [];
@@ -7255,9 +7228,6 @@ function processSpatiallyResolvedData(view, overallSpatiallyResolvedData, plotSe
 	var densityCutoffUp = plotSetup.densityCutoffUp;
 	var systemName = view.moleculeName;
 
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	var zPlotScale = view.zPlotScale;
 	d.forEach(function (d, i) {
 		var n = +d[density];
 		if (n > densityCutoffLow && n < densityCutoffUp) {
@@ -7265,9 +7235,6 @@ function processSpatiallyResolvedData(view, overallSpatiallyResolvedData, plotSe
 				x: +d.x,
 				y: +d.y,
 				z: +d.z,
-				// xPlot: xPlotScale(+d.x),
-				// yPlot: yPlotScale(+d.y),
-				// zPlot: zPlotScale(+d.z),
 				selected: true,
 				name: systemName
 			};
@@ -7304,10 +7271,6 @@ function processMoleculeData(view, overallMoleculeData, plotSetup, callback) {
 	var propertyList = plotSetup.moleculePropertyList;
 	var systemName = view.moleculeName;
 
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	var zPlotScale = view.zPlotScale;
-
 	d.forEach(function (d, i) {
 
 		var temp = {
@@ -7315,9 +7278,6 @@ function processMoleculeData(view, overallMoleculeData, plotSetup, callback) {
 			x: +d.x,
 			y: +d.y,
 			z: +d.z,
-			// xPlot: xPlotScale(+d.x),
-			// yPlot: yPlotScale(+d.y),
-			// zPlot: zPlotScale(+d.z),
 			selected: true,
 			name: systemName
 		};
@@ -7366,10 +7326,6 @@ function readCSVSpatiallyResolvedData(view, overallSpatiallyResolvedData, plotSe
 		var densityCutoffUp = plotSetup.densityCutoffUp;
 		var systemName = view.moleculeName;
 
-		var xPlotScale = view.xPlotScale;
-		var yPlotScale = view.yPlotScale;
-		var zPlotScale = view.zPlotScale;
-
 		d3.csv(filename, function (error, d) {
 			if (error && error.target.status === 404) {
 				console.log(error);
@@ -7386,9 +7342,6 @@ function readCSVSpatiallyResolvedData(view, overallSpatiallyResolvedData, plotSe
 						x: +d.x,
 						y: +d.y,
 						z: +d.z,
-						// xPlot: xPlotScale(+d.x),
-						// yPlot: yPlotScale(+d.y),
-						// zPlot: zPlotScale(+d.z),
 						selected: true,
 						name: systemName
 					};
@@ -7434,10 +7387,6 @@ function readCSVMoleculeData(view, overallMoleculeData, plotSetup, callback) {
 		var propertyList = plotSetup.moleculePropertyList;
 		var systemName = view.moleculeName;
 
-		var xPlotScale = view.xPlotScale;
-		var yPlotScale = view.yPlotScale;
-		var zPlotScale = view.zPlotScale;
-
 		d3.csv(filename, function (error, d) {
 			if (error && error.target.status === 404) {
 				console.log(error);
@@ -7454,9 +7403,6 @@ function readCSVMoleculeData(view, overallMoleculeData, plotSetup, callback) {
 					x: +d.x,
 					y: +d.y,
 					z: +d.z,
-					// xPlot: xPlotScale(+d.x),
-					// yPlot: yPlotScale(+d.y),
-					// zPlot: zPlotScale(+d.z),
 					selected: true,
 					name: systemName
 				};
@@ -7561,28 +7507,6 @@ callback(null);
 
 //}
 
-function getCoordinateScales(data) {
-	var xValue = function xValue(d) {
-		return d.x;
-	};
-	var yValue = function yValue(d) {
-		return d.y;
-	};
-	var zValue = function zValue(d) {
-		return d.z;
-	};
-	var xMin = d3.min(data, xValue);
-	var xMax = d3.max(data, xValue);
-	var yMin = d3.min(data, yValue);
-	var yMax = d3.max(data, yValue);
-	var zMin = d3.min(data, zValue);
-	var zMax = d3.max(data, zValue);
-}
-
-function preprocessData(view) {
-	var data = view.data;
-}
-
 /*
 
 export function readViewsSetup(filname,callback){
@@ -7610,7 +7534,7 @@ function loadJSON(filename,callback) {
 	xobj.send(null);  
 }*/
 
-},{"../MultiviewControl/initializeViewSetups.js":24}],31:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7958,11 +7882,11 @@ function max(input) {
     throw new TypeError('input must not be empty');
   }
 
-  var max = input[0];
-  for (var i = 1; i < input.length; i++) {
-    if (input[i] > max) max = input[i];
+  let maxValue = input[0];
+  for (let i = 1; i < input.length; i++) {
+    if (input[i] > maxValue) maxValue = input[i];
   }
-  return max;
+  return maxValue;
 }
 
 module.exports = max;
@@ -7988,11 +7912,11 @@ function min(input) {
     throw new TypeError('input must not be empty');
   }
 
-  var min = input[0];
-  for (var i = 1; i < input.length; i++) {
-    if (input[i] < min) min = input[i];
+  let minValue = input[0];
+  for (let i = 1; i < input.length; i++) {
+    if (input[i] < minValue) minValue = input[i];
   }
-  return min;
+  return minValue;
 }
 
 module.exports = min;
@@ -8028,13 +7952,13 @@ function rescale(input, options = {}) {
 
   if (currentMin === currentMax) {
     throw new RangeError(
-      'minimum and maximum input values are equal. Cannot rescale a constant array'
+      'minimum and maximum input values are equal. Cannot rescale a constant array',
     );
   }
 
   const {
     min: minValue = options.autoMinMax ? currentMin : 0,
-    max: maxValue = options.autoMinMax ? currentMax : 1
+    max: maxValue = options.autoMinMax ? currentMax : 1,
   } = options;
 
   if (minValue >= maxValue) {
@@ -8042,7 +7966,7 @@ function rescale(input, options = {}) {
   }
 
   const factor = (maxValue - minValue) / (currentMax - currentMin);
-  for (var i = 0; i < input.length; i++) {
+  for (let i = 0; i < input.length; i++) {
     output[i] = (input[i] - currentMin) * factor + minValue;
   }
 
@@ -8068,7 +7992,7 @@ var rescale = _interopDefault(require('ml-array-rescale'));
  * @param {boolean} [outer]
  */
 function checkRowIndex(matrix, index, outer) {
-  var max = outer ? matrix.rows : matrix.rows - 1;
+  let max = outer ? matrix.rows : matrix.rows - 1;
   if (index < 0 || index > max) {
     throw new RangeError('Row index out of range');
   }
@@ -8082,7 +8006,7 @@ function checkRowIndex(matrix, index, outer) {
  * @param {boolean} [outer]
  */
 function checkColumnIndex(matrix, index, outer) {
-  var max = outer ? matrix.columns : matrix.columns - 1;
+  let max = outer ? matrix.columns : matrix.columns - 1;
   if (index < 0 || index > max) {
     throw new RangeError('Column index out of range');
   }
@@ -8102,7 +8026,7 @@ function checkRowVector(matrix, vector) {
   }
   if (vector.length !== matrix.columns) {
     throw new RangeError(
-      'vector size must be the same as the number of columns'
+      'vector size must be the same as the number of columns',
     );
   }
   return vector;
@@ -8129,7 +8053,7 @@ function checkColumnVector(matrix, vector) {
 function checkIndices(matrix, rowIndices, columnIndices) {
   return {
     row: checkRowIndices(matrix, rowIndices),
-    column: checkColumnIndices(matrix, columnIndices)
+    column: checkColumnIndices(matrix, columnIndices),
   };
 }
 
@@ -8138,7 +8062,7 @@ function checkRowIndices(matrix, rowIndices) {
     throw new TypeError('unexpected type for row indices');
   }
 
-  var rowOut = rowIndices.some((r) => {
+  let rowOut = rowIndices.some((r) => {
     return r < 0 || r >= matrix.rows;
   });
 
@@ -8156,7 +8080,7 @@ function checkColumnIndices(matrix, columnIndices) {
     throw new TypeError('unexpected type for column indices');
   }
 
-  var columnOut = columnIndices.some((c) => {
+  let columnOut = columnIndices.some((c) => {
     return c < 0 || c >= matrix.columns;
   });
 
@@ -8193,8 +8117,8 @@ function checkRange(matrix, startRow, endRow, startColumn, endColumn) {
 }
 
 function newArray(length, value = 0) {
-  var array = [];
-  for (var i = 0; i < length; i++) {
+  let array = [];
+  for (let i = 0; i < length; i++) {
     array.push(value);
   }
   return array;
@@ -8207,9 +8131,9 @@ function checkNumber(name, value) {
 }
 
 function sumByRow(matrix) {
-  var sum = newArray(matrix.rows);
-  for (var i = 0; i < matrix.rows; ++i) {
-    for (var j = 0; j < matrix.columns; ++j) {
+  let sum = newArray(matrix.rows);
+  for (let i = 0; i < matrix.rows; ++i) {
+    for (let j = 0; j < matrix.columns; ++j) {
       sum[i] += matrix.get(i, j);
     }
   }
@@ -8217,9 +8141,9 @@ function sumByRow(matrix) {
 }
 
 function sumByColumn(matrix) {
-  var sum = newArray(matrix.columns);
-  for (var i = 0; i < matrix.rows; ++i) {
-    for (var j = 0; j < matrix.columns; ++j) {
+  let sum = newArray(matrix.columns);
+  for (let i = 0; i < matrix.rows; ++i) {
+    for (let j = 0; j < matrix.columns; ++j) {
       sum[j] += matrix.get(i, j);
     }
   }
@@ -8227,9 +8151,9 @@ function sumByColumn(matrix) {
 }
 
 function sumAll(matrix) {
-  var v = 0;
-  for (var i = 0; i < matrix.rows; i++) {
-    for (var j = 0; j < matrix.columns; j++) {
+  let v = 0;
+  for (let i = 0; i < matrix.rows; i++) {
+    for (let j = 0; j < matrix.columns; j++) {
       v += matrix.get(i, j);
     }
   }
@@ -8237,9 +8161,9 @@ function sumAll(matrix) {
 }
 
 function productByRow(matrix) {
-  var sum = newArray(matrix.rows, 1);
-  for (var i = 0; i < matrix.rows; ++i) {
-    for (var j = 0; j < matrix.columns; ++j) {
+  let sum = newArray(matrix.rows, 1);
+  for (let i = 0; i < matrix.rows; ++i) {
+    for (let j = 0; j < matrix.columns; ++j) {
       sum[i] *= matrix.get(i, j);
     }
   }
@@ -8247,9 +8171,9 @@ function productByRow(matrix) {
 }
 
 function productByColumn(matrix) {
-  var sum = newArray(matrix.columns, 1);
-  for (var i = 0; i < matrix.rows; ++i) {
-    for (var j = 0; j < matrix.columns; ++j) {
+  let sum = newArray(matrix.columns, 1);
+  for (let i = 0; i < matrix.rows; ++i) {
+    for (let j = 0; j < matrix.columns; ++j) {
       sum[j] *= matrix.get(i, j);
     }
   }
@@ -8257,9 +8181,9 @@ function productByColumn(matrix) {
 }
 
 function productAll(matrix) {
-  var v = 1;
-  for (var i = 0; i < matrix.rows; i++) {
-    for (var j = 0; j < matrix.columns; j++) {
+  let v = 1;
+  for (let i = 0; i < matrix.rows; i++) {
+    for (let j = 0; j < matrix.columns; j++) {
       v *= matrix.get(i, j);
     }
   }
@@ -8271,11 +8195,11 @@ function varianceByRow(matrix, unbiased, mean) {
   const cols = matrix.columns;
   const variance = [];
 
-  for (var i = 0; i < rows; i++) {
-    var sum1 = 0;
-    var sum2 = 0;
-    var x = 0;
-    for (var j = 0; j < cols; j++) {
+  for (let i = 0; i < rows; i++) {
+    let sum1 = 0;
+    let sum2 = 0;
+    let x = 0;
+    for (let j = 0; j < cols; j++) {
       x = matrix.get(i, j) - mean[i];
       sum1 += x;
       sum2 += x * x;
@@ -8294,11 +8218,11 @@ function varianceByColumn(matrix, unbiased, mean) {
   const cols = matrix.columns;
   const variance = [];
 
-  for (var j = 0; j < cols; j++) {
-    var sum1 = 0;
-    var sum2 = 0;
-    var x = 0;
-    for (var i = 0; i < rows; i++) {
+  for (let j = 0; j < cols; j++) {
+    let sum1 = 0;
+    let sum2 = 0;
+    let x = 0;
+    for (let i = 0; i < rows; i++) {
       x = matrix.get(i, j) - mean[j];
       sum1 += x;
       sum2 += x * x;
@@ -8317,11 +8241,11 @@ function varianceAll(matrix, unbiased, mean) {
   const cols = matrix.columns;
   const size = rows * cols;
 
-  var sum1 = 0;
-  var sum2 = 0;
-  var x = 0;
-  for (var i = 0; i < rows; i++) {
-    for (var j = 0; j < cols; j++) {
+  let sum1 = 0;
+  let sum2 = 0;
+  let x = 0;
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
       x = matrix.get(i, j) - mean;
       sum1 += x;
       sum2 += x * x;
@@ -8438,9 +8362,9 @@ function inspectData(matrix, indent) {
   const maxI = Math.min(rows, maxRows);
   const maxJ = Math.min(columns, maxColumns);
   const result = [];
-  for (var i = 0; i < maxI; i++) {
+  for (let i = 0; i < maxI; i++) {
     let line = [];
-    for (var j = 0; j < maxJ; j++) {
+    for (let j = 0; j < maxJ; j++) {
       line.push(formatNumber(matrix.get(i, j)));
     }
     result.push(`${line.join(' ')}`);
@@ -8476,8 +8400,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.addS = function addS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) + value);
       }
     }
@@ -8490,8 +8414,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) + matrix.get(i, j));
       }
     }
@@ -8499,7 +8423,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.add = function add(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.add(value);
   };
 
@@ -8509,8 +8433,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.subS = function subS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) - value);
       }
     }
@@ -8523,8 +8447,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) - matrix.get(i, j));
       }
     }
@@ -8532,7 +8456,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.sub = function sub(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.sub(value);
   };
   AbstractMatrix.prototype.subtract = AbstractMatrix.prototype.sub;
@@ -8546,8 +8470,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.mulS = function mulS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) * value);
       }
     }
@@ -8560,8 +8484,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) * matrix.get(i, j));
       }
     }
@@ -8569,7 +8493,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.mul = function mul(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.mul(value);
   };
   AbstractMatrix.prototype.multiply = AbstractMatrix.prototype.mul;
@@ -8583,8 +8507,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.divS = function divS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) / value);
       }
     }
@@ -8597,8 +8521,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) / matrix.get(i, j));
       }
     }
@@ -8606,7 +8530,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.div = function div(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.div(value);
   };
   AbstractMatrix.prototype.divide = AbstractMatrix.prototype.div;
@@ -8620,8 +8544,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.modS = function modS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) % value);
       }
     }
@@ -8634,8 +8558,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) % matrix.get(i, j));
       }
     }
@@ -8643,7 +8567,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.mod = function mod(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.mod(value);
   };
   AbstractMatrix.prototype.modulus = AbstractMatrix.prototype.mod;
@@ -8657,8 +8581,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.andS = function andS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) & value);
       }
     }
@@ -8671,8 +8595,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) & matrix.get(i, j));
       }
     }
@@ -8680,7 +8604,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.and = function and(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.and(value);
   };
 
@@ -8690,8 +8614,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.orS = function orS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) | value);
       }
     }
@@ -8704,8 +8628,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) | matrix.get(i, j));
       }
     }
@@ -8713,7 +8637,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.or = function or(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.or(value);
   };
 
@@ -8723,8 +8647,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.xorS = function xorS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) ^ value);
       }
     }
@@ -8737,8 +8661,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) ^ matrix.get(i, j));
       }
     }
@@ -8746,7 +8670,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.xor = function xor(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.xor(value);
   };
 
@@ -8756,8 +8680,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.leftShiftS = function leftShiftS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) << value);
       }
     }
@@ -8770,8 +8694,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) << matrix.get(i, j));
       }
     }
@@ -8779,7 +8703,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.leftShift = function leftShift(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.leftShift(value);
   };
 
@@ -8789,8 +8713,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.signPropagatingRightShiftS = function signPropagatingRightShiftS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) >> value);
       }
     }
@@ -8803,8 +8727,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) >> matrix.get(i, j));
       }
     }
@@ -8812,7 +8736,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.signPropagatingRightShift = function signPropagatingRightShift(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.signPropagatingRightShift(value);
   };
 
@@ -8822,8 +8746,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.rightShiftS = function rightShiftS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) >>> value);
       }
     }
@@ -8836,8 +8760,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) >>> matrix.get(i, j));
       }
     }
@@ -8845,7 +8769,7 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.rightShift = function rightShift(matrix, value) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.rightShift(value);
   };
   AbstractMatrix.prototype.zeroFillRightShift = AbstractMatrix.prototype.rightShift;
@@ -8854,8 +8778,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   AbstractMatrix.zeroFillRightShift = AbstractMatrix.rightShift;
 
   AbstractMatrix.prototype.not = function not() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, ~(this.get(i, j)));
       }
     }
@@ -8863,13 +8787,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.not = function not(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.not();
   };
 
   AbstractMatrix.prototype.abs = function abs() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.abs(this.get(i, j)));
       }
     }
@@ -8877,13 +8801,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.abs = function abs(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.abs();
   };
 
   AbstractMatrix.prototype.acos = function acos() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.acos(this.get(i, j)));
       }
     }
@@ -8891,13 +8815,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.acos = function acos(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.acos();
   };
 
   AbstractMatrix.prototype.acosh = function acosh() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.acosh(this.get(i, j)));
       }
     }
@@ -8905,13 +8829,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.acosh = function acosh(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.acosh();
   };
 
   AbstractMatrix.prototype.asin = function asin() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.asin(this.get(i, j)));
       }
     }
@@ -8919,13 +8843,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.asin = function asin(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.asin();
   };
 
   AbstractMatrix.prototype.asinh = function asinh() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.asinh(this.get(i, j)));
       }
     }
@@ -8933,13 +8857,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.asinh = function asinh(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.asinh();
   };
 
   AbstractMatrix.prototype.atan = function atan() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.atan(this.get(i, j)));
       }
     }
@@ -8947,13 +8871,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.atan = function atan(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.atan();
   };
 
   AbstractMatrix.prototype.atanh = function atanh() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.atanh(this.get(i, j)));
       }
     }
@@ -8961,13 +8885,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.atanh = function atanh(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.atanh();
   };
 
   AbstractMatrix.prototype.cbrt = function cbrt() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.cbrt(this.get(i, j)));
       }
     }
@@ -8975,13 +8899,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.cbrt = function cbrt(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.cbrt();
   };
 
   AbstractMatrix.prototype.ceil = function ceil() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.ceil(this.get(i, j)));
       }
     }
@@ -8989,13 +8913,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.ceil = function ceil(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.ceil();
   };
 
   AbstractMatrix.prototype.clz32 = function clz32() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.clz32(this.get(i, j)));
       }
     }
@@ -9003,13 +8927,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.clz32 = function clz32(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.clz32();
   };
 
   AbstractMatrix.prototype.cos = function cos() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.cos(this.get(i, j)));
       }
     }
@@ -9017,13 +8941,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.cos = function cos(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.cos();
   };
 
   AbstractMatrix.prototype.cosh = function cosh() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.cosh(this.get(i, j)));
       }
     }
@@ -9031,13 +8955,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.cosh = function cosh(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.cosh();
   };
 
   AbstractMatrix.prototype.exp = function exp() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.exp(this.get(i, j)));
       }
     }
@@ -9045,13 +8969,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.exp = function exp(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.exp();
   };
 
   AbstractMatrix.prototype.expm1 = function expm1() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.expm1(this.get(i, j)));
       }
     }
@@ -9059,13 +8983,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.expm1 = function expm1(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.expm1();
   };
 
   AbstractMatrix.prototype.floor = function floor() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.floor(this.get(i, j)));
       }
     }
@@ -9073,13 +8997,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.floor = function floor(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.floor();
   };
 
   AbstractMatrix.prototype.fround = function fround() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.fround(this.get(i, j)));
       }
     }
@@ -9087,13 +9011,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.fround = function fround(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.fround();
   };
 
   AbstractMatrix.prototype.log = function log() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.log(this.get(i, j)));
       }
     }
@@ -9101,13 +9025,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.log = function log(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.log();
   };
 
   AbstractMatrix.prototype.log1p = function log1p() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.log1p(this.get(i, j)));
       }
     }
@@ -9115,13 +9039,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.log1p = function log1p(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.log1p();
   };
 
   AbstractMatrix.prototype.log10 = function log10() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.log10(this.get(i, j)));
       }
     }
@@ -9129,13 +9053,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.log10 = function log10(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.log10();
   };
 
   AbstractMatrix.prototype.log2 = function log2() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.log2(this.get(i, j)));
       }
     }
@@ -9143,13 +9067,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.log2 = function log2(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.log2();
   };
 
   AbstractMatrix.prototype.round = function round() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.round(this.get(i, j)));
       }
     }
@@ -9157,13 +9081,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.round = function round(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.round();
   };
 
   AbstractMatrix.prototype.sign = function sign() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.sign(this.get(i, j)));
       }
     }
@@ -9171,13 +9095,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.sign = function sign(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.sign();
   };
 
   AbstractMatrix.prototype.sin = function sin() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.sin(this.get(i, j)));
       }
     }
@@ -9185,13 +9109,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.sin = function sin(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.sin();
   };
 
   AbstractMatrix.prototype.sinh = function sinh() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.sinh(this.get(i, j)));
       }
     }
@@ -9199,13 +9123,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.sinh = function sinh(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.sinh();
   };
 
   AbstractMatrix.prototype.sqrt = function sqrt() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.sqrt(this.get(i, j)));
       }
     }
@@ -9213,13 +9137,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.sqrt = function sqrt(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.sqrt();
   };
 
   AbstractMatrix.prototype.tan = function tan() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.tan(this.get(i, j)));
       }
     }
@@ -9227,13 +9151,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.tan = function tan(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.tan();
   };
 
   AbstractMatrix.prototype.tanh = function tanh() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.tanh(this.get(i, j)));
       }
     }
@@ -9241,13 +9165,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.tanh = function tanh(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.tanh();
   };
 
   AbstractMatrix.prototype.trunc = function trunc() {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.trunc(this.get(i, j)));
       }
     }
@@ -9255,12 +9179,12 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.trunc = function trunc(matrix) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.trunc();
   };
 
   AbstractMatrix.pow = function pow(matrix, arg0) {
-    var newMatrix = new Matrix(matrix);
+    const newMatrix = new Matrix(matrix);
     return newMatrix.pow(arg0);
   };
 
@@ -9270,8 +9194,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
   };
 
   AbstractMatrix.prototype.powS = function powS(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.pow(this.get(i, j), value));
       }
     }
@@ -9284,8 +9208,8 @@ function installMathOperations(AbstractMatrix, Matrix) {
       this.columns !== matrix.columns) {
       throw new RangeError('Matrices dimensions must be equal');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, Math.pow(this.get(i, j), matrix.get(i, j)));
       }
     }
@@ -9295,13 +9219,13 @@ function installMathOperations(AbstractMatrix, Matrix) {
 
 class AbstractMatrix {
   static from1DArray(newRows, newColumns, newData) {
-    var length = newRows * newColumns;
+    let length = newRows * newColumns;
     if (length !== newData.length) {
       throw new RangeError('data length does not match given dimensions');
     }
-    var newMatrix = new Matrix(newRows, newColumns);
-    for (var row = 0; row < newRows; row++) {
-      for (var column = 0; column < newColumns; column++) {
+    let newMatrix = new Matrix(newRows, newColumns);
+    for (let row = 0; row < newRows; row++) {
+      for (let column = 0; column < newColumns; column++) {
         newMatrix.set(row, column, newData[row * newColumns + column]);
       }
     }
@@ -9309,16 +9233,16 @@ class AbstractMatrix {
   }
 
   static rowVector(newData) {
-    var vector = new Matrix(1, newData.length);
-    for (var i = 0; i < newData.length; i++) {
+    let vector = new Matrix(1, newData.length);
+    for (let i = 0; i < newData.length; i++) {
       vector.set(0, i, newData[i]);
     }
     return vector;
   }
 
   static columnVector(newData) {
-    var vector = new Matrix(newData.length, 1);
-    for (var i = 0; i < newData.length; i++) {
+    let vector = new Matrix(newData.length, 1);
+    for (let i = 0; i < newData.length; i++) {
       vector.set(i, 0, newData[i]);
     }
     return vector;
@@ -9337,9 +9261,9 @@ class AbstractMatrix {
       throw new TypeError('options must be an object');
     }
     const { random = Math.random } = options;
-    var matrix = new Matrix(rows, columns);
-    for (var i = 0; i < rows; i++) {
-      for (var j = 0; j < columns; j++) {
+    let matrix = new Matrix(rows, columns);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
         matrix.set(i, j, random());
       }
     }
@@ -9354,11 +9278,11 @@ class AbstractMatrix {
     if (!Number.isInteger(min)) throw new TypeError('min must be an integer');
     if (!Number.isInteger(max)) throw new TypeError('max must be an integer');
     if (min >= max) throw new RangeError('min must be smaller than max');
-    var interval = max - min;
-    var matrix = new Matrix(rows, columns);
-    for (var i = 0; i < rows; i++) {
-      for (var j = 0; j < columns; j++) {
-        var value = min + Math.round(random() * interval);
+    let interval = max - min;
+    let matrix = new Matrix(rows, columns);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        let value = min + Math.round(random() * interval);
         matrix.set(i, j, value);
       }
     }
@@ -9368,21 +9292,21 @@ class AbstractMatrix {
   static eye(rows, columns, value) {
     if (columns === undefined) columns = rows;
     if (value === undefined) value = 1;
-    var min = Math.min(rows, columns);
-    var matrix = this.zeros(rows, columns);
-    for (var i = 0; i < min; i++) {
+    let min = Math.min(rows, columns);
+    let matrix = this.zeros(rows, columns);
+    for (let i = 0; i < min; i++) {
       matrix.set(i, i, value);
     }
     return matrix;
   }
 
   static diag(data, rows, columns) {
-    var l = data.length;
+    let l = data.length;
     if (rows === undefined) rows = l;
     if (columns === undefined) columns = rows;
-    var min = Math.min(l, rows, columns);
-    var matrix = this.zeros(rows, columns);
-    for (var i = 0; i < min; i++) {
+    let min = Math.min(l, rows, columns);
+    let matrix = this.zeros(rows, columns);
+    for (let i = 0; i < min; i++) {
       matrix.set(i, i, data[i]);
     }
     return matrix;
@@ -9391,11 +9315,11 @@ class AbstractMatrix {
   static min(matrix1, matrix2) {
     matrix1 = this.checkMatrix(matrix1);
     matrix2 = this.checkMatrix(matrix2);
-    var rows = matrix1.rows;
-    var columns = matrix1.columns;
-    var result = new Matrix(rows, columns);
-    for (var i = 0; i < rows; i++) {
-      for (var j = 0; j < columns; j++) {
+    let rows = matrix1.rows;
+    let columns = matrix1.columns;
+    let result = new Matrix(rows, columns);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
         result.set(i, j, Math.min(matrix1.get(i, j), matrix2.get(i, j)));
       }
     }
@@ -9405,11 +9329,11 @@ class AbstractMatrix {
   static max(matrix1, matrix2) {
     matrix1 = this.checkMatrix(matrix1);
     matrix2 = this.checkMatrix(matrix2);
-    var rows = matrix1.rows;
-    var columns = matrix1.columns;
-    var result = new this(rows, columns);
-    for (var i = 0; i < rows; i++) {
-      for (var j = 0; j < columns; j++) {
+    let rows = matrix1.rows;
+    let columns = matrix1.columns;
+    let result = new this(rows, columns);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
         result.set(i, j, Math.max(matrix1.get(i, j), matrix2.get(i, j)));
       }
     }
@@ -9432,8 +9356,8 @@ class AbstractMatrix {
     if (typeof callback !== 'function') {
       throw new TypeError('callback must be a function');
     }
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         callback.call(this, i, j);
       }
     }
@@ -9441,9 +9365,9 @@ class AbstractMatrix {
   }
 
   to1DArray() {
-    var array = [];
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    let array = [];
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         array.push(this.get(i, j));
       }
     }
@@ -9451,10 +9375,10 @@ class AbstractMatrix {
   }
 
   to2DArray() {
-    var copy = [];
-    for (var i = 0; i < this.rows; i++) {
+    let copy = [];
+    for (let i = 0; i < this.rows; i++) {
       copy.push([]);
-      for (var j = 0; j < this.columns; j++) {
+      for (let j = 0; j < this.columns; j++) {
         copy[i].push(this.get(i, j));
       }
     }
@@ -9483,8 +9407,8 @@ class AbstractMatrix {
 
   isSymmetric() {
     if (this.isSquare()) {
-      for (var i = 0; i < this.rows; i++) {
-        for (var j = 0; j <= i; j++) {
+      for (let i = 0; i < this.rows; i++) {
+        for (let j = 0; j <= i; j++) {
           if (this.get(i, j) !== this.get(j, i)) {
             return false;
           }
@@ -9554,7 +9478,7 @@ class AbstractMatrix {
     let result = this.clone();
     let h = 0;
     let k = 0;
-    while ((h < result.rows) && (k < result.columns)) {
+    while (h < result.rows && k < result.columns) {
       let iMax = h;
       for (let i = h; i < result.rows; i++) {
         if (result.get(i, k) > result.get(iMax, k)) {
@@ -9594,7 +9518,7 @@ class AbstractMatrix {
       } else {
         let p = 0;
         let pivot = false;
-        while ((p < n) && (pivot === false)) {
+        while (p < n && pivot === false) {
           if (result.get(h, p) === 1) {
             pivot = true;
           } else {
@@ -9633,9 +9557,9 @@ class AbstractMatrix {
     if (!Number.isInteger(columns) || columns <= 0) {
       throw new TypeError('columns must be a positive integer');
     }
-    var matrix = new Matrix(this.rows * rows, this.columns * columns);
-    for (var i = 0; i < rows; i++) {
-      for (var j = 0; j < columns; j++) {
+    let matrix = new Matrix(this.rows * rows, this.columns * columns);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
         matrix.setSubMatrix(this, this.rows * i, this.columns * j);
       }
     }
@@ -9643,8 +9567,8 @@ class AbstractMatrix {
   }
 
   fill(value) {
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, value);
       }
     }
@@ -9657,8 +9581,8 @@ class AbstractMatrix {
 
   getRow(index) {
     checkRowIndex(this, index);
-    var row = [];
-    for (var i = 0; i < this.columns; i++) {
+    let row = [];
+    for (let i = 0; i < this.columns; i++) {
       row.push(this.get(index, i));
     }
     return row;
@@ -9671,7 +9595,7 @@ class AbstractMatrix {
   setRow(index, array) {
     checkRowIndex(this, index);
     array = checkRowVector(this, array);
-    for (var i = 0; i < this.columns; i++) {
+    for (let i = 0; i < this.columns; i++) {
       this.set(index, i, array[i]);
     }
     return this;
@@ -9680,8 +9604,8 @@ class AbstractMatrix {
   swapRows(row1, row2) {
     checkRowIndex(this, row1);
     checkRowIndex(this, row2);
-    for (var i = 0; i < this.columns; i++) {
-      var temp = this.get(row1, i);
+    for (let i = 0; i < this.columns; i++) {
+      let temp = this.get(row1, i);
       this.set(row1, i, this.get(row2, i));
       this.set(row2, i, temp);
     }
@@ -9690,8 +9614,8 @@ class AbstractMatrix {
 
   getColumn(index) {
     checkColumnIndex(this, index);
-    var column = [];
-    for (var i = 0; i < this.rows; i++) {
+    let column = [];
+    for (let i = 0; i < this.rows; i++) {
       column.push(this.get(i, index));
     }
     return column;
@@ -9704,7 +9628,7 @@ class AbstractMatrix {
   setColumn(index, array) {
     checkColumnIndex(this, index);
     array = checkColumnVector(this, array);
-    for (var i = 0; i < this.rows; i++) {
+    for (let i = 0; i < this.rows; i++) {
       this.set(i, index, array[i]);
     }
     return this;
@@ -9713,8 +9637,8 @@ class AbstractMatrix {
   swapColumns(column1, column2) {
     checkColumnIndex(this, column1);
     checkColumnIndex(this, column2);
-    for (var i = 0; i < this.rows; i++) {
-      var temp = this.get(i, column1);
+    for (let i = 0; i < this.rows; i++) {
+      let temp = this.get(i, column1);
       this.set(i, column1, this.get(i, column2));
       this.set(i, column2, temp);
     }
@@ -9723,8 +9647,8 @@ class AbstractMatrix {
 
   addRowVector(vector) {
     vector = checkRowVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) + vector[j]);
       }
     }
@@ -9733,8 +9657,8 @@ class AbstractMatrix {
 
   subRowVector(vector) {
     vector = checkRowVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) - vector[j]);
       }
     }
@@ -9743,8 +9667,8 @@ class AbstractMatrix {
 
   mulRowVector(vector) {
     vector = checkRowVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) * vector[j]);
       }
     }
@@ -9753,8 +9677,8 @@ class AbstractMatrix {
 
   divRowVector(vector) {
     vector = checkRowVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) / vector[j]);
       }
     }
@@ -9763,8 +9687,8 @@ class AbstractMatrix {
 
   addColumnVector(vector) {
     vector = checkColumnVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) + vector[i]);
       }
     }
@@ -9773,8 +9697,8 @@ class AbstractMatrix {
 
   subColumnVector(vector) {
     vector = checkColumnVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) - vector[i]);
       }
     }
@@ -9783,8 +9707,8 @@ class AbstractMatrix {
 
   mulColumnVector(vector) {
     vector = checkColumnVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) * vector[i]);
       }
     }
@@ -9793,8 +9717,8 @@ class AbstractMatrix {
 
   divColumnVector(vector) {
     vector = checkColumnVector(this, vector);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         this.set(i, j, this.get(i, j) / vector[i]);
       }
     }
@@ -9803,7 +9727,7 @@ class AbstractMatrix {
 
   mulRow(index, value) {
     checkRowIndex(this, index);
-    for (var i = 0; i < this.columns; i++) {
+    for (let i = 0; i < this.columns; i++) {
       this.set(index, i, this.get(index, i) * value);
     }
     return this;
@@ -9811,16 +9735,16 @@ class AbstractMatrix {
 
   mulColumn(index, value) {
     checkColumnIndex(this, index);
-    for (var i = 0; i < this.rows; i++) {
+    for (let i = 0; i < this.rows; i++) {
       this.set(i, index, this.get(i, index) * value);
     }
     return this;
   }
 
   max() {
-    var v = this.get(0, 0);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    let v = this.get(0, 0);
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         if (this.get(i, j) > v) {
           v = this.get(i, j);
         }
@@ -9830,10 +9754,10 @@ class AbstractMatrix {
   }
 
   maxIndex() {
-    var v = this.get(0, 0);
-    var idx = [0, 0];
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    let v = this.get(0, 0);
+    let idx = [0, 0];
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         if (this.get(i, j) > v) {
           v = this.get(i, j);
           idx[0] = i;
@@ -9845,9 +9769,9 @@ class AbstractMatrix {
   }
 
   min() {
-    var v = this.get(0, 0);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    let v = this.get(0, 0);
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         if (this.get(i, j) < v) {
           v = this.get(i, j);
         }
@@ -9857,10 +9781,10 @@ class AbstractMatrix {
   }
 
   minIndex() {
-    var v = this.get(0, 0);
-    var idx = [0, 0];
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    let v = this.get(0, 0);
+    let idx = [0, 0];
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         if (this.get(i, j) < v) {
           v = this.get(i, j);
           idx[0] = i;
@@ -9873,8 +9797,8 @@ class AbstractMatrix {
 
   maxRow(row) {
     checkRowIndex(this, row);
-    var v = this.get(row, 0);
-    for (var i = 1; i < this.columns; i++) {
+    let v = this.get(row, 0);
+    for (let i = 1; i < this.columns; i++) {
       if (this.get(row, i) > v) {
         v = this.get(row, i);
       }
@@ -9884,9 +9808,9 @@ class AbstractMatrix {
 
   maxRowIndex(row) {
     checkRowIndex(this, row);
-    var v = this.get(row, 0);
-    var idx = [row, 0];
-    for (var i = 1; i < this.columns; i++) {
+    let v = this.get(row, 0);
+    let idx = [row, 0];
+    for (let i = 1; i < this.columns; i++) {
       if (this.get(row, i) > v) {
         v = this.get(row, i);
         idx[1] = i;
@@ -9897,8 +9821,8 @@ class AbstractMatrix {
 
   minRow(row) {
     checkRowIndex(this, row);
-    var v = this.get(row, 0);
-    for (var i = 1; i < this.columns; i++) {
+    let v = this.get(row, 0);
+    for (let i = 1; i < this.columns; i++) {
       if (this.get(row, i) < v) {
         v = this.get(row, i);
       }
@@ -9908,9 +9832,9 @@ class AbstractMatrix {
 
   minRowIndex(row) {
     checkRowIndex(this, row);
-    var v = this.get(row, 0);
-    var idx = [row, 0];
-    for (var i = 1; i < this.columns; i++) {
+    let v = this.get(row, 0);
+    let idx = [row, 0];
+    for (let i = 1; i < this.columns; i++) {
       if (this.get(row, i) < v) {
         v = this.get(row, i);
         idx[1] = i;
@@ -9921,8 +9845,8 @@ class AbstractMatrix {
 
   maxColumn(column) {
     checkColumnIndex(this, column);
-    var v = this.get(0, column);
-    for (var i = 1; i < this.rows; i++) {
+    let v = this.get(0, column);
+    for (let i = 1; i < this.rows; i++) {
       if (this.get(i, column) > v) {
         v = this.get(i, column);
       }
@@ -9932,9 +9856,9 @@ class AbstractMatrix {
 
   maxColumnIndex(column) {
     checkColumnIndex(this, column);
-    var v = this.get(0, column);
-    var idx = [0, column];
-    for (var i = 1; i < this.rows; i++) {
+    let v = this.get(0, column);
+    let idx = [0, column];
+    for (let i = 1; i < this.rows; i++) {
       if (this.get(i, column) > v) {
         v = this.get(i, column);
         idx[0] = i;
@@ -9945,8 +9869,8 @@ class AbstractMatrix {
 
   minColumn(column) {
     checkColumnIndex(this, column);
-    var v = this.get(0, column);
-    for (var i = 1; i < this.rows; i++) {
+    let v = this.get(0, column);
+    for (let i = 1; i < this.rows; i++) {
       if (this.get(i, column) < v) {
         v = this.get(i, column);
       }
@@ -9956,9 +9880,9 @@ class AbstractMatrix {
 
   minColumnIndex(column) {
     checkColumnIndex(this, column);
-    var v = this.get(0, column);
-    var idx = [0, column];
-    for (var i = 1; i < this.rows; i++) {
+    let v = this.get(0, column);
+    let idx = [0, column];
+    for (let i = 1; i < this.rows; i++) {
       if (this.get(i, column) < v) {
         v = this.get(i, column);
         idx[0] = i;
@@ -9968,21 +9892,21 @@ class AbstractMatrix {
   }
 
   diag() {
-    var min = Math.min(this.rows, this.columns);
-    var diag = [];
-    for (var i = 0; i < min; i++) {
+    let min = Math.min(this.rows, this.columns);
+    let diag = [];
+    for (let i = 0; i < min; i++) {
       diag.push(this.get(i, i));
     }
     return diag;
   }
 
   norm(type = 'frobenius') {
-    var result = 0;
+    let result = 0;
     if (type === 'max') {
       return this.max();
     } else if (type === 'frobenius') {
-      for (var i = 0; i < this.rows; i++) {
-        for (var j = 0; j < this.columns; j++) {
+      for (let i = 0; i < this.rows; i++) {
+        for (let j = 0; j < this.columns; j++) {
           result = result + this.get(i, j) * this.get(i, j);
         }
       }
@@ -9993,9 +9917,9 @@ class AbstractMatrix {
   }
 
   cumulativeSum() {
-    var sum = 0;
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    let sum = 0;
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         sum += this.get(i, j);
         this.set(i, j, sum);
       }
@@ -10005,12 +9929,12 @@ class AbstractMatrix {
 
   dot(vector2) {
     if (AbstractMatrix.isMatrix(vector2)) vector2 = vector2.to1DArray();
-    var vector1 = this.to1DArray();
+    let vector1 = this.to1DArray();
     if (vector1.length !== vector2.length) {
       throw new RangeError('vectors do not have the same size');
     }
-    var dot = 0;
-    for (var i = 0; i < vector1.length; i++) {
+    let dot = 0;
+    for (let i = 0; i < vector1.length; i++) {
       dot += vector1[i] * vector2[i];
     }
     return dot;
@@ -10019,21 +9943,21 @@ class AbstractMatrix {
   mmul(other) {
     other = Matrix.checkMatrix(other);
 
-    var m = this.rows;
-    var n = this.columns;
-    var p = other.columns;
+    let m = this.rows;
+    let n = this.columns;
+    let p = other.columns;
 
-    var result = new Matrix(m, p);
+    let result = new Matrix(m, p);
 
-    var Bcolj = new Float64Array(n);
-    for (var j = 0; j < p; j++) {
-      for (var k = 0; k < n; k++) {
+    let Bcolj = new Float64Array(n);
+    for (let j = 0; j < p; j++) {
+      for (let k = 0; k < n; k++) {
         Bcolj[k] = other.get(k, j);
       }
 
-      for (var i = 0; i < m; i++) {
-        var s = 0;
-        for (k = 0; k < n; k++) {
+      for (let i = 0; i < m; i++) {
+        let s = 0;
+        for (let k = 0; k < n; k++) {
           s += this.get(i, k) * Bcolj[k];
         }
 
@@ -10045,7 +9969,7 @@ class AbstractMatrix {
 
   strassen2x2(other) {
     other = Matrix.checkMatrix(other);
-    var result = new Matrix(2, 2);
+    let result = new Matrix(2, 2);
     const a11 = this.get(0, 0);
     const b11 = other.get(0, 0);
     const a12 = this.get(0, 1);
@@ -10079,7 +10003,7 @@ class AbstractMatrix {
 
   strassen3x3(other) {
     other = Matrix.checkMatrix(other);
-    var result = new Matrix(3, 3);
+    let result = new Matrix(3, 3);
 
     const a00 = this.get(0, 0);
     const a01 = this.get(0, 1);
@@ -10149,27 +10073,27 @@ class AbstractMatrix {
 
   mmulStrassen(y) {
     y = Matrix.checkMatrix(y);
-    var x = this.clone();
-    var r1 = x.rows;
-    var c1 = x.columns;
-    var r2 = y.rows;
-    var c2 = y.columns;
+    let x = this.clone();
+    let r1 = x.rows;
+    let c1 = x.columns;
+    let r2 = y.rows;
+    let c2 = y.columns;
     if (c1 !== r2) {
       // eslint-disable-next-line no-console
       console.warn(
-        `Multiplying ${r1} x ${c1} and ${r2} x ${c2} matrix: dimensions do not match.`
+        `Multiplying ${r1} x ${c1} and ${r2} x ${c2} matrix: dimensions do not match.`,
       );
     }
 
     // Put a matrix into the top left of a matrix of zeros.
     // `rows` and `cols` are the dimensions of the output matrix.
     function embed(mat, rows, cols) {
-      var r = mat.rows;
-      var c = mat.columns;
+      let r = mat.rows;
+      let c = mat.columns;
       if (r === rows && c === cols) {
         return mat;
       } else {
-        var resultat = AbstractMatrix.zeros(rows, cols);
+        let resultat = AbstractMatrix.zeros(rows, cols);
         resultat = resultat.setSubMatrix(mat, 0, 0);
         return resultat;
       }
@@ -10179,8 +10103,8 @@ class AbstractMatrix {
     // This is exclusively for simplicity:
     // this algorithm can be implemented with matrices of different sizes.
 
-    var r = Math.max(r1, r2);
-    var c = Math.max(c1, c2);
+    let r = Math.max(r1, r2);
+    let c = Math.max(c1, c2);
     x = embed(x, r, c);
     y = embed(y, r, c);
 
@@ -10203,57 +10127,57 @@ class AbstractMatrix {
         b = embed(b, rows, cols + 1);
       }
 
-      var halfRows = parseInt(a.rows / 2, 10);
-      var halfCols = parseInt(a.columns / 2, 10);
+      let halfRows = parseInt(a.rows / 2, 10);
+      let halfCols = parseInt(a.columns / 2, 10);
       // Subdivide input matrices.
-      var a11 = a.subMatrix(0, halfRows - 1, 0, halfCols - 1);
-      var b11 = b.subMatrix(0, halfRows - 1, 0, halfCols - 1);
+      let a11 = a.subMatrix(0, halfRows - 1, 0, halfCols - 1);
+      let b11 = b.subMatrix(0, halfRows - 1, 0, halfCols - 1);
 
-      var a12 = a.subMatrix(0, halfRows - 1, halfCols, a.columns - 1);
-      var b12 = b.subMatrix(0, halfRows - 1, halfCols, b.columns - 1);
+      let a12 = a.subMatrix(0, halfRows - 1, halfCols, a.columns - 1);
+      let b12 = b.subMatrix(0, halfRows - 1, halfCols, b.columns - 1);
 
-      var a21 = a.subMatrix(halfRows, a.rows - 1, 0, halfCols - 1);
-      var b21 = b.subMatrix(halfRows, b.rows - 1, 0, halfCols - 1);
+      let a21 = a.subMatrix(halfRows, a.rows - 1, 0, halfCols - 1);
+      let b21 = b.subMatrix(halfRows, b.rows - 1, 0, halfCols - 1);
 
-      var a22 = a.subMatrix(halfRows, a.rows - 1, halfCols, a.columns - 1);
-      var b22 = b.subMatrix(halfRows, b.rows - 1, halfCols, b.columns - 1);
+      let a22 = a.subMatrix(halfRows, a.rows - 1, halfCols, a.columns - 1);
+      let b22 = b.subMatrix(halfRows, b.rows - 1, halfCols, b.columns - 1);
 
       // Compute intermediate values.
-      var m1 = blockMult(
+      let m1 = blockMult(
         AbstractMatrix.add(a11, a22),
         AbstractMatrix.add(b11, b22),
         halfRows,
-        halfCols
+        halfCols,
       );
-      var m2 = blockMult(AbstractMatrix.add(a21, a22), b11, halfRows, halfCols);
-      var m3 = blockMult(a11, AbstractMatrix.sub(b12, b22), halfRows, halfCols);
-      var m4 = blockMult(a22, AbstractMatrix.sub(b21, b11), halfRows, halfCols);
-      var m5 = blockMult(AbstractMatrix.add(a11, a12), b22, halfRows, halfCols);
-      var m6 = blockMult(
+      let m2 = blockMult(AbstractMatrix.add(a21, a22), b11, halfRows, halfCols);
+      let m3 = blockMult(a11, AbstractMatrix.sub(b12, b22), halfRows, halfCols);
+      let m4 = blockMult(a22, AbstractMatrix.sub(b21, b11), halfRows, halfCols);
+      let m5 = blockMult(AbstractMatrix.add(a11, a12), b22, halfRows, halfCols);
+      let m6 = blockMult(
         AbstractMatrix.sub(a21, a11),
         AbstractMatrix.add(b11, b12),
         halfRows,
-        halfCols
+        halfCols,
       );
-      var m7 = blockMult(
+      let m7 = blockMult(
         AbstractMatrix.sub(a12, a22),
         AbstractMatrix.add(b21, b22),
         halfRows,
-        halfCols
+        halfCols,
       );
 
       // Combine intermediate values into the output.
-      var c11 = AbstractMatrix.add(m1, m4);
+      let c11 = AbstractMatrix.add(m1, m4);
       c11.sub(m5);
       c11.add(m7);
-      var c12 = AbstractMatrix.add(m3, m5);
-      var c21 = AbstractMatrix.add(m2, m4);
-      var c22 = AbstractMatrix.sub(m1, m2);
+      let c12 = AbstractMatrix.add(m3, m5);
+      let c21 = AbstractMatrix.add(m2, m4);
+      let c22 = AbstractMatrix.sub(m1, m2);
       c22.add(m3);
       c22.add(m6);
 
       // Crop output to the desired size (undo dynamic padding).
-      var resultat = AbstractMatrix.zeros(2 * c11.rows, 2 * c11.columns);
+      let resultat = AbstractMatrix.zeros(2 * c11.rows, 2 * c11.columns);
       resultat = resultat.setSubMatrix(c11, 0, 0);
       resultat = resultat.setSubMatrix(c12, c11.rows, 0);
       resultat = resultat.setSubMatrix(c21, 0, c11.columns);
@@ -10271,8 +10195,8 @@ class AbstractMatrix {
     if (!Number.isFinite(min)) throw new TypeError('min must be a number');
     if (!Number.isFinite(max)) throw new TypeError('max must be a number');
     if (min >= max) throw new RangeError('min must be smaller than max');
-    var newMatrix = new Matrix(this.rows, this.columns);
-    for (var i = 0; i < this.rows; i++) {
+    let newMatrix = new Matrix(this.rows, this.columns);
+    for (let i = 0; i < this.rows; i++) {
       const row = this.getRow(i);
       rescale(row, { min, max, output: row });
       newMatrix.setRow(i, row);
@@ -10288,13 +10212,13 @@ class AbstractMatrix {
     if (!Number.isFinite(min)) throw new TypeError('min must be a number');
     if (!Number.isFinite(max)) throw new TypeError('max must be a number');
     if (min >= max) throw new RangeError('min must be smaller than max');
-    var newMatrix = new Matrix(this.rows, this.columns);
-    for (var i = 0; i < this.columns; i++) {
+    let newMatrix = new Matrix(this.rows, this.columns);
+    for (let i = 0; i < this.columns; i++) {
       const column = this.getColumn(i);
       rescale(column, {
         min: min,
         max: max,
-        output: column
+        output: column,
       });
       newMatrix.setColumn(i, column);
     }
@@ -10303,10 +10227,10 @@ class AbstractMatrix {
 
   flipRows() {
     const middle = Math.ceil(this.columns / 2);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < middle; j++) {
-        var first = this.get(i, j);
-        var last = this.get(i, this.columns - 1 - j);
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < middle; j++) {
+        let first = this.get(i, j);
+        let last = this.get(i, this.columns - 1 - j);
         this.set(i, j, last);
         this.set(i, this.columns - 1 - j, first);
       }
@@ -10316,10 +10240,10 @@ class AbstractMatrix {
 
   flipColumns() {
     const middle = Math.ceil(this.rows / 2);
-    for (var j = 0; j < this.columns; j++) {
-      for (var i = 0; i < middle; i++) {
-        var first = this.get(i, j);
-        var last = this.get(this.rows - 1 - i, j);
+    for (let j = 0; j < this.columns; j++) {
+      for (let i = 0; i < middle; i++) {
+        let first = this.get(i, j);
+        let last = this.get(this.rows - 1 - i, j);
         this.set(i, j, last);
         this.set(this.rows - 1 - i, j, first);
       }
@@ -10330,16 +10254,16 @@ class AbstractMatrix {
   kroneckerProduct(other) {
     other = Matrix.checkMatrix(other);
 
-    var m = this.rows;
-    var n = this.columns;
-    var p = other.rows;
-    var q = other.columns;
+    let m = this.rows;
+    let n = this.columns;
+    let p = other.rows;
+    let q = other.columns;
 
-    var result = new Matrix(m * p, n * q);
-    for (var i = 0; i < m; i++) {
-      for (var j = 0; j < n; j++) {
-        for (var k = 0; k < p; k++) {
-          for (var l = 0; l < q; l++) {
+    let result = new Matrix(m * p, n * q);
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < n; j++) {
+        for (let k = 0; k < p; k++) {
+          for (let l = 0; l < q; l++) {
             result.set(p * i + k, q * j + l, this.get(i, j) * other.get(k, l));
           }
         }
@@ -10349,9 +10273,9 @@ class AbstractMatrix {
   }
 
   transpose() {
-    var result = new Matrix(this.columns, this.rows);
-    for (var i = 0; i < this.rows; i++) {
-      for (var j = 0; j < this.columns; j++) {
+    let result = new Matrix(this.columns, this.rows);
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         result.set(j, i, this.get(i, j));
       }
     }
@@ -10359,14 +10283,14 @@ class AbstractMatrix {
   }
 
   sortRows(compareFunction = compareNumbers) {
-    for (var i = 0; i < this.rows; i++) {
+    for (let i = 0; i < this.rows; i++) {
       this.setRow(i, this.getRow(i).sort(compareFunction));
     }
     return this;
   }
 
   sortColumns(compareFunction = compareNumbers) {
-    for (var i = 0; i < this.columns; i++) {
+    for (let i = 0; i < this.columns; i++) {
       this.setColumn(i, this.getColumn(i).sort(compareFunction));
     }
     return this;
@@ -10374,12 +10298,12 @@ class AbstractMatrix {
 
   subMatrix(startRow, endRow, startColumn, endColumn) {
     checkRange(this, startRow, endRow, startColumn, endColumn);
-    var newMatrix = new Matrix(
+    let newMatrix = new Matrix(
       endRow - startRow + 1,
-      endColumn - startColumn + 1
+      endColumn - startColumn + 1,
     );
-    for (var i = startRow; i <= endRow; i++) {
-      for (var j = startColumn; j <= endColumn; j++) {
+    for (let i = startRow; i <= endRow; i++) {
+      for (let j = startColumn; j <= endColumn; j++) {
         newMatrix.set(i - startRow, j - startColumn, this.get(i, j));
       }
     }
@@ -10399,9 +10323,9 @@ class AbstractMatrix {
       throw new RangeError('Argument out of range');
     }
 
-    var newMatrix = new Matrix(indices.length, endColumn - startColumn + 1);
-    for (var i = 0; i < indices.length; i++) {
-      for (var j = startColumn; j <= endColumn; j++) {
+    let newMatrix = new Matrix(indices.length, endColumn - startColumn + 1);
+    for (let i = 0; i < indices.length; i++) {
+      for (let j = startColumn; j <= endColumn; j++) {
         if (indices[i] < 0 || indices[i] >= this.rows) {
           throw new RangeError(`Row index out of range: ${indices[i]}`);
         }
@@ -10424,9 +10348,9 @@ class AbstractMatrix {
       throw new RangeError('Argument out of range');
     }
 
-    var newMatrix = new Matrix(endRow - startRow + 1, indices.length);
-    for (var i = 0; i < indices.length; i++) {
-      for (var j = startRow; j <= endRow; j++) {
+    let newMatrix = new Matrix(endRow - startRow + 1, indices.length);
+    for (let i = 0; i < indices.length; i++) {
+      for (let j = startRow; j <= endRow; j++) {
         if (indices[i] < 0 || indices[i] >= this.columns) {
           throw new RangeError(`Column index out of range: ${indices[i]}`);
         }
@@ -10438,11 +10362,11 @@ class AbstractMatrix {
 
   setSubMatrix(matrix, startRow, startColumn) {
     matrix = Matrix.checkMatrix(matrix);
-    var endRow = startRow + matrix.rows - 1;
-    var endColumn = startColumn + matrix.columns - 1;
+    let endRow = startRow + matrix.rows - 1;
+    let endColumn = startColumn + matrix.columns - 1;
     checkRange(this, startRow, endRow, startColumn, endColumn);
-    for (var i = 0; i < matrix.rows; i++) {
-      for (var j = 0; j < matrix.columns; j++) {
+    for (let i = 0; i < matrix.rows; i++) {
+      for (let j = 0; j < matrix.columns; j++) {
         this.set(startRow + i, startColumn + j, matrix.get(i, j));
       }
     }
@@ -10450,12 +10374,12 @@ class AbstractMatrix {
   }
 
   selection(rowIndices, columnIndices) {
-    var indices = checkIndices(this, rowIndices, columnIndices);
-    var newMatrix = new Matrix(rowIndices.length, columnIndices.length);
-    for (var i = 0; i < indices.row.length; i++) {
-      var rowIndex = indices.row[i];
-      for (var j = 0; j < indices.column.length; j++) {
-        var columnIndex = indices.column[j];
+    let indices = checkIndices(this, rowIndices, columnIndices);
+    let newMatrix = new Matrix(rowIndices.length, columnIndices.length);
+    for (let i = 0; i < indices.row.length; i++) {
+      let rowIndex = indices.row[i];
+      for (let j = 0; j < indices.column.length; j++) {
+        let columnIndex = indices.column[j];
         newMatrix.set(i, j, this.get(rowIndex, columnIndex));
       }
     }
@@ -10463,18 +10387,18 @@ class AbstractMatrix {
   }
 
   trace() {
-    var min = Math.min(this.rows, this.columns);
-    var trace = 0;
-    for (var i = 0; i < min; i++) {
+    let min = Math.min(this.rows, this.columns);
+    let trace = 0;
+    for (let i = 0; i < min; i++) {
       trace += this.get(i, i);
     }
     return trace;
   }
 
   clone() {
-    var newMatrix = new Matrix(this.rows, this.columns);
-    for (var row = 0; row < this.rows; row++) {
-      for (var column = 0; column < this.columns; column++) {
+    let newMatrix = new Matrix(this.rows, this.columns);
+    for (let row = 0; row < this.rows; row++) {
+      for (let column = 0; column < this.columns; column++) {
         newMatrix.set(row, column, this.get(row, column));
       }
     }
@@ -10574,7 +10498,7 @@ class AbstractMatrix {
     if (by === undefined) {
       return Math.sqrt(variance);
     } else {
-      for (var i = 0; i < variance.length; i++) {
+      for (let i = 0; i < variance.length; i++) {
         variance[i] = Math.sqrt(variance[i]);
       }
       return variance;
@@ -10604,7 +10528,8 @@ class AbstractMatrix {
         }
         centerByColumn(this, center);
         return this;
-      } case undefined: {
+      }
+      case undefined: {
         if (typeof center !== 'number') {
           throw new TypeError('center must be a number');
         }
@@ -10702,7 +10627,7 @@ class Matrix extends AbstractMatrix {
       nColumns = arrayData[0].length;
       if (typeof nColumns !== 'number' || nColumns === 0) {
         throw new TypeError(
-          'Data must be a 2D array with at least one element'
+          'Data must be a 2D array with at least one element',
         );
       }
       this.data = [];
@@ -10714,7 +10639,7 @@ class Matrix extends AbstractMatrix {
       }
     } else {
       throw new TypeError(
-        'First argument must be a positive number or an array'
+        'First argument must be a positive number or an array',
       );
     }
     this.rows = nRows;
@@ -10758,7 +10683,7 @@ class Matrix extends AbstractMatrix {
     if (this.columns === 1) {
       throw new RangeError('A matrix cannot have less than one column');
     }
-    for (var i = 0; i < this.rows; i++) {
+    for (let i = 0; i < this.rows; i++) {
       const newRow = new Float64Array(this.columns - 1);
       for (let j = 0; j < index; j++) {
         newRow[j] = this.data[i][j];
@@ -10779,7 +10704,7 @@ class Matrix extends AbstractMatrix {
     }
     checkColumnIndex(this, index, true);
     array = checkColumnVector(this, array);
-    for (var i = 0; i < this.rows; i++) {
+    for (let i = 0; i < this.rows; i++) {
       const newRow = new Float64Array(this.columns + 1);
       let j = 0;
       for (; j < index; j++) {
@@ -10907,7 +10832,7 @@ class MatrixRowSelectionView extends BaseView {
 
 class MatrixSelectionView extends BaseView {
   constructor(matrix, rowIndices, columnIndices) {
-    var indices = checkIndices(matrix, rowIndices, columnIndices);
+    let indices = checkIndices(matrix, rowIndices, columnIndices);
     super(matrix, indices.row.length, indices.column.length);
     this.rowIndices = indices.row;
     this.columnIndices = indices.column;
@@ -10917,7 +10842,7 @@ class MatrixSelectionView extends BaseView {
     this.matrix.set(
       this.rowIndices[rowIndex],
       this.columnIndices[columnIndex],
-      value
+      value,
     );
     return this;
   }
@@ -10925,7 +10850,7 @@ class MatrixSelectionView extends BaseView {
   get(rowIndex, columnIndex) {
     return this.matrix.get(
       this.rowIndices[rowIndex],
-      this.columnIndices[columnIndex]
+      this.columnIndices[columnIndex],
     );
   }
 }
@@ -10942,7 +10867,7 @@ class MatrixSubView extends BaseView {
     this.matrix.set(
       this.startRow + rowIndex,
       this.startColumn + columnIndex,
-      value
+      value,
     );
     return this;
   }
@@ -10950,7 +10875,7 @@ class MatrixSubView extends BaseView {
   get(rowIndex, columnIndex) {
     return this.matrix.get(
       this.startRow + rowIndex,
-      this.startColumn + columnIndex
+      this.startColumn + columnIndex,
     );
   }
 }
@@ -10984,13 +10909,13 @@ class WrapperMatrix1D extends AbstractMatrix {
   }
 
   set(rowIndex, columnIndex, value) {
-    var index = this._calculateIndex(rowIndex, columnIndex);
+    let index = this._calculateIndex(rowIndex, columnIndex);
     this.data[index] = value;
     return this;
   }
 
   get(rowIndex, columnIndex) {
-    var index = this._calculateIndex(rowIndex, columnIndex);
+    let index = this._calculateIndex(rowIndex, columnIndex);
     return this.data[index];
   }
 
@@ -11033,13 +10958,13 @@ class LuDecomposition {
   constructor(matrix) {
     matrix = WrapperMatrix2D.checkMatrix(matrix);
 
-    var lu = matrix.clone();
-    var rows = lu.rows;
-    var columns = lu.columns;
-    var pivotVector = new Float64Array(rows);
-    var pivotSign = 1;
-    var i, j, k, p, s, t, v;
-    var LUcolj, kmax;
+    let lu = matrix.clone();
+    let rows = lu.rows;
+    let columns = lu.columns;
+    let pivotVector = new Float64Array(rows);
+    let pivotSign = 1;
+    let i, j, k, p, s, t, v;
+    let LUcolj, kmax;
 
     for (i = 0; i < rows; i++) {
       pivotVector[i] = i;
@@ -11096,9 +11021,9 @@ class LuDecomposition {
   }
 
   isSingular() {
-    var data = this.LU;
-    var col = data.columns;
-    for (var j = 0; j < col; j++) {
+    let data = this.LU;
+    let col = data.columns;
+    for (let j = 0; j < col; j++) {
       if (data.get(j, j) === 0) {
         return true;
       }
@@ -11109,8 +11034,8 @@ class LuDecomposition {
   solve(value) {
     value = Matrix.checkMatrix(value);
 
-    var lu = this.LU;
-    var rows = lu.rows;
+    let lu = this.LU;
+    let rows = lu.rows;
 
     if (rows !== value.rows) {
       throw new Error('Invalid matrix dimensions');
@@ -11119,10 +11044,10 @@ class LuDecomposition {
       throw new Error('LU matrix is singular');
     }
 
-    var count = value.columns;
-    var X = value.subMatrixRow(this.pivotVector, 0, count - 1);
-    var columns = lu.columns;
-    var i, j, k;
+    let count = value.columns;
+    let X = value.subMatrixRow(this.pivotVector, 0, count - 1);
+    let columns = lu.columns;
+    let i, j, k;
 
     for (k = 0; k < columns; k++) {
       for (i = k + 1; i < columns; i++) {
@@ -11145,25 +11070,25 @@ class LuDecomposition {
   }
 
   get determinant() {
-    var data = this.LU;
+    let data = this.LU;
     if (!data.isSquare()) {
       throw new Error('Matrix must be square');
     }
-    var determinant = this.pivotSign;
-    var col = data.columns;
-    for (var j = 0; j < col; j++) {
+    let determinant = this.pivotSign;
+    let col = data.columns;
+    for (let j = 0; j < col; j++) {
       determinant *= data.get(j, j);
     }
     return determinant;
   }
 
   get lowerTriangularMatrix() {
-    var data = this.LU;
-    var rows = data.rows;
-    var columns = data.columns;
-    var X = new Matrix(rows, columns);
-    for (var i = 0; i < rows; i++) {
-      for (var j = 0; j < columns; j++) {
+    let data = this.LU;
+    let rows = data.rows;
+    let columns = data.columns;
+    let X = new Matrix(rows, columns);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
         if (i > j) {
           X.set(i, j, data.get(i, j));
         } else if (i === j) {
@@ -11177,12 +11102,12 @@ class LuDecomposition {
   }
 
   get upperTriangularMatrix() {
-    var data = this.LU;
-    var rows = data.rows;
-    var columns = data.columns;
-    var X = new Matrix(rows, columns);
-    for (var i = 0; i < rows; i++) {
-      for (var j = 0; j < columns; j++) {
+    let data = this.LU;
+    let rows = data.rows;
+    let columns = data.columns;
+    let X = new Matrix(rows, columns);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
         if (i <= j) {
           X.set(i, j, data.get(i, j));
         } else {
@@ -11199,7 +11124,7 @@ class LuDecomposition {
 }
 
 function hypotenuse(a, b) {
-  var r = 0;
+  let r = 0;
   if (Math.abs(a) > Math.abs(b)) {
     r = b / a;
     return Math.abs(a) * Math.sqrt(1 + r * r);
@@ -11215,14 +11140,14 @@ class QrDecomposition {
   constructor(value) {
     value = WrapperMatrix2D.checkMatrix(value);
 
-    var qr = value.clone();
-    var m = value.rows;
-    var n = value.columns;
-    var rdiag = new Float64Array(n);
-    var i, j, k, s;
+    let qr = value.clone();
+    let m = value.rows;
+    let n = value.columns;
+    let rdiag = new Float64Array(n);
+    let i, j, k, s;
 
     for (k = 0; k < n; k++) {
-      var nrm = 0;
+      let nrm = 0;
       for (i = k; i < m; i++) {
         nrm = hypotenuse(nrm, qr.get(i, k));
       }
@@ -11255,8 +11180,8 @@ class QrDecomposition {
   solve(value) {
     value = Matrix.checkMatrix(value);
 
-    var qr = this.QR;
-    var m = qr.rows;
+    let qr = this.QR;
+    let m = qr.rows;
 
     if (value.rows !== m) {
       throw new Error('Matrix row dimensions must agree');
@@ -11265,10 +11190,10 @@ class QrDecomposition {
       throw new Error('Matrix is rank deficient');
     }
 
-    var count = value.columns;
-    var X = value.clone();
-    var n = qr.columns;
-    var i, j, k, s;
+    let count = value.columns;
+    let X = value.clone();
+    let n = qr.columns;
+    let i, j, k, s;
 
     for (k = 0; k < n; k++) {
       for (j = 0; j < count; j++) {
@@ -11297,8 +11222,8 @@ class QrDecomposition {
   }
 
   isFullRank() {
-    var columns = this.QR.columns;
-    for (var i = 0; i < columns; i++) {
+    let columns = this.QR.columns;
+    for (let i = 0; i < columns; i++) {
       if (this.Rdiag[i] === 0) {
         return false;
       }
@@ -11307,10 +11232,10 @@ class QrDecomposition {
   }
 
   get upperTriangularMatrix() {
-    var qr = this.QR;
-    var n = qr.columns;
-    var X = new Matrix(n, n);
-    var i, j;
+    let qr = this.QR;
+    let n = qr.columns;
+    let X = new Matrix(n, n);
+    let i, j;
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
         if (i < j) {
@@ -11326,11 +11251,11 @@ class QrDecomposition {
   }
 
   get orthogonalMatrix() {
-    var qr = this.QR;
-    var rows = qr.rows;
-    var columns = qr.columns;
-    var X = new Matrix(rows, columns);
-    var i, j, k, s;
+    let qr = this.QR;
+    let rows = qr.rows;
+    let columns = qr.columns;
+    let X = new Matrix(rows, columns);
+    let i, j, k, s;
 
     for (k = columns - 1; k >= 0; k--) {
       for (i = 0; i < rows; i++) {
@@ -11344,7 +11269,7 @@ class QrDecomposition {
             s += qr.get(i, k) * X.get(i, j);
           }
 
-          s = -s / qr[k][k];
+          s = -s / qr.get(k, k);
 
           for (i = k; i < rows; i++) {
             X.set(i, j, X.get(i, j) + s * qr.get(i, k));
@@ -11360,33 +11285,33 @@ class SingularValueDecomposition {
   constructor(value, options = {}) {
     value = WrapperMatrix2D.checkMatrix(value);
 
-    var m = value.rows;
-    var n = value.columns;
+    let m = value.rows;
+    let n = value.columns;
 
     const {
       computeLeftSingularVectors = true,
       computeRightSingularVectors = true,
-      autoTranspose = false
+      autoTranspose = false,
     } = options;
 
-    var wantu = Boolean(computeLeftSingularVectors);
-    var wantv = Boolean(computeRightSingularVectors);
+    let wantu = Boolean(computeLeftSingularVectors);
+    let wantv = Boolean(computeRightSingularVectors);
 
-    var swapped = false;
-    var a;
+    let swapped = false;
+    let a;
     if (m < n) {
       if (!autoTranspose) {
         a = value.clone();
         // eslint-disable-next-line no-console
         console.warn(
-          'Computing SVD on a matrix with more columns than rows. Consider enabling autoTranspose'
+          'Computing SVD on a matrix with more columns than rows. Consider enabling autoTranspose',
         );
       } else {
         a = value.transpose();
         m = a.rows;
         n = a.columns;
         swapped = true;
-        var aux = wantu;
+        let aux = wantu;
         wantu = wantv;
         wantv = aux;
       }
@@ -11394,21 +11319,21 @@ class SingularValueDecomposition {
       a = value.clone();
     }
 
-    var nu = Math.min(m, n);
-    var ni = Math.min(m + 1, n);
-    var s = new Float64Array(ni);
-    var U = new Matrix(m, nu);
-    var V = new Matrix(n, n);
+    let nu = Math.min(m, n);
+    let ni = Math.min(m + 1, n);
+    let s = new Float64Array(ni);
+    let U = new Matrix(m, nu);
+    let V = new Matrix(n, n);
 
-    var e = new Float64Array(n);
-    var work = new Float64Array(m);
+    let e = new Float64Array(n);
+    let work = new Float64Array(m);
 
-    var si = new Float64Array(ni);
+    let si = new Float64Array(ni);
     for (let i = 0; i < ni; i++) si[i] = i;
 
-    var nct = Math.min(m - 1, n);
-    var nrt = Math.max(0, Math.min(n - 2, m));
-    var mrc = Math.max(nct, nrt);
+    let nct = Math.min(m - 1, n);
+    let nrt = Math.max(0, Math.min(n - 2, m));
+    let mrc = Math.max(nct, nrt);
 
     for (let k = 0; k < mrc; k++) {
       if (k < nct) {
@@ -11555,8 +11480,8 @@ class SingularValueDecomposition {
       }
     }
 
-    var pp = p - 1;
-    var eps = Number.EPSILON;
+    let pp = p - 1;
+    let eps = Number.EPSILON;
     while (p > 0) {
       let k, kase;
       for (k = p - 2; k >= -1; k--) {
@@ -11647,7 +11572,7 @@ class SingularValueDecomposition {
             Math.abs(s[p - 2]),
             Math.abs(e[p - 2]),
             Math.abs(s[k]),
-            Math.abs(e[k])
+            Math.abs(e[k]),
           );
           const sp = s[p - 1] / scale;
           const spm1 = s[p - 2] / scale;
@@ -11746,7 +11671,7 @@ class SingularValueDecomposition {
     }
 
     if (swapped) {
-      var tmp = V;
+      let tmp = V;
       V = U;
       U = tmp;
     }
@@ -11759,10 +11684,10 @@ class SingularValueDecomposition {
   }
 
   solve(value) {
-    var Y = value;
-    var e = this.threshold;
-    var scols = this.s.length;
-    var Ls = Matrix.zeros(scols, scols);
+    let Y = value;
+    let e = this.threshold;
+    let scols = this.s.length;
+    let Ls = Matrix.zeros(scols, scols);
 
     for (let i = 0; i < scols; i++) {
       if (Math.abs(this.s[i]) <= e) {
@@ -11772,13 +11697,13 @@ class SingularValueDecomposition {
       }
     }
 
-    var U = this.U;
-    var V = this.rightSingularVectors;
+    let U = this.U;
+    let V = this.rightSingularVectors;
 
-    var VL = V.mmul(Ls);
-    var vrows = V.rows;
-    var urows = U.rows;
-    var VLU = Matrix.zeros(vrows, urows);
+    let VL = V.mmul(Ls);
+    let vrows = V.rows;
+    let urows = U.rows;
+    let VLU = Matrix.zeros(vrows, urows);
 
     for (let i = 0; i < vrows; i++) {
       for (let j = 0; j < urows; j++) {
@@ -11798,11 +11723,11 @@ class SingularValueDecomposition {
   }
 
   inverse() {
-    var V = this.V;
-    var e = this.threshold;
-    var vrows = V.rows;
-    var vcols = V.columns;
-    var X = new Matrix(vrows, this.s.length);
+    let V = this.V;
+    let e = this.threshold;
+    let vrows = V.rows;
+    let vcols = V.columns;
+    let X = new Matrix(vrows, this.s.length);
 
     for (let i = 0; i < vrows; i++) {
       for (let j = 0; j < vcols; j++) {
@@ -11812,11 +11737,11 @@ class SingularValueDecomposition {
       }
     }
 
-    var U = this.U;
+    let U = this.U;
 
-    var urows = U.rows;
-    var ucols = U.columns;
-    var Y = new Matrix(vrows, urows);
+    let urows = U.rows;
+    let ucols = U.columns;
+    let Y = new Matrix(vrows, urows);
 
     for (let i = 0; i < vrows; i++) {
       for (let j = 0; j < urows; j++) {
@@ -11840,10 +11765,10 @@ class SingularValueDecomposition {
   }
 
   get rank() {
-    var tol = Math.max(this.m, this.n) * this.s[0] * Number.EPSILON;
-    var r = 0;
-    var s = this.s;
-    for (var i = 0, ii = s.length; i < ii; i++) {
+    let tol = Math.max(this.m, this.n) * this.s[0] * Number.EPSILON;
+    let r = 0;
+    let s = this.s;
+    for (let i = 0, ii = s.length; i < ii; i++) {
       if (s[i] > tol) {
         r++;
       }
@@ -11896,7 +11821,7 @@ function solve(leftHandSide, rightHandSide, useSVD = false) {
 function determinant(matrix) {
   matrix = Matrix.checkMatrix(matrix);
   if (matrix.isSquare()) {
-    var a, b, c, d;
+    let a, b, c, d;
     if (matrix.columns === 2) {
       // 2 x 2 matrix
       a = matrix.get(0, 0);
@@ -11907,7 +11832,7 @@ function determinant(matrix) {
       return a * d - b * c;
     } else if (matrix.columns === 3) {
       // 3 x 3 matrix
-      var subMatrix0, subMatrix1, subMatrix2;
+      let subMatrix0, subMatrix1, subMatrix2;
       subMatrix0 = new MatrixSelectionView(matrix, [1, 2], [1, 2]);
       subMatrix1 = new MatrixSelectionView(matrix, [1, 2], [0, 2]);
       subMatrix2 = new MatrixSelectionView(matrix, [1, 2], [0, 1]);
@@ -11930,8 +11855,8 @@ function determinant(matrix) {
 }
 
 function xrange(n, exception) {
-  var range = [];
-  for (var i = 0; i < n; i++) {
+  let range = [];
+  for (let i = 0; i < n; i++) {
     if (i !== exception) {
       range.push(i);
     }
@@ -11944,13 +11869,13 @@ function dependenciesOneRow(
   matrix,
   index,
   thresholdValue = 10e-10,
-  thresholdError = 10e-10
+  thresholdError = 10e-10,
 ) {
   if (error > thresholdError) {
     return new Array(matrix.rows + 1).fill(0);
   } else {
-    var returnArray = matrix.addRow(index, [0]);
-    for (var i = 0; i < returnArray.rows; i++) {
+    let returnArray = matrix.addRow(index, [0]);
+    for (let i = 0; i < returnArray.rows; i++) {
       if (Math.abs(returnArray.get(i, 0)) < thresholdValue) {
         returnArray.set(i, 0, 0);
       }
@@ -11963,20 +11888,20 @@ function linearDependencies(matrix, options = {}) {
   const { thresholdValue = 10e-10, thresholdError = 10e-10 } = options;
   matrix = Matrix.checkMatrix(matrix);
 
-  var n = matrix.rows;
-  var results = new Matrix(n, n);
+  let n = matrix.rows;
+  let results = new Matrix(n, n);
 
-  for (var i = 0; i < n; i++) {
-    var b = Matrix.columnVector(matrix.getRow(i));
-    var Abis = matrix.subMatrixRow(xrange(n, i)).transpose();
-    var svd = new SingularValueDecomposition(Abis);
-    var x = svd.solve(b);
-    var error = Matrix.sub(b, Abis.mmul(x))
+  for (let i = 0; i < n; i++) {
+    let b = Matrix.columnVector(matrix.getRow(i));
+    let Abis = matrix.subMatrixRow(xrange(n, i)).transpose();
+    let svd = new SingularValueDecomposition(Abis);
+    let x = svd.solve(b);
+    let error = Matrix.sub(b, Abis.mmul(x))
       .abs()
       .max();
     results.setRow(
       i,
-      dependenciesOneRow(error, x, i, thresholdValue, thresholdError)
+      dependenciesOneRow(error, x, i, thresholdValue, thresholdError),
     );
   }
   return results;
@@ -11984,13 +11909,13 @@ function linearDependencies(matrix, options = {}) {
 
 function pseudoInverse(matrix, threshold = Number.EPSILON) {
   matrix = Matrix.checkMatrix(matrix);
-  var svdSolution = new SingularValueDecomposition(matrix, { autoTranspose: true });
+  let svdSolution = new SingularValueDecomposition(matrix, { autoTranspose: true });
 
-  var U = svdSolution.leftSingularVectors;
-  var V = svdSolution.rightSingularVectors;
-  var s = svdSolution.diagonal;
+  let U = svdSolution.leftSingularVectors;
+  let V = svdSolution.rightSingularVectors;
+  let s = svdSolution.diagonal;
 
-  for (var i = 0; i < s.length; i++) {
+  for (let i = 0; i < s.length; i++) {
     if (Math.abs(s[i]) > threshold) {
       s[i] = 1.0 / s[i];
     } else {
@@ -12004,7 +11929,11 @@ function pseudoInverse(matrix, threshold = Number.EPSILON) {
 function covariance(xMatrix, yMatrix = xMatrix, options = {}) {
   xMatrix = Matrix.checkMatrix(xMatrix);
   let yIsSame = false;
-  if (typeof yMatrix === 'object' && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
+  if (
+    typeof yMatrix === 'object' &&
+    !Matrix.isMatrix(yMatrix) &&
+    !Array.isArray(yMatrix)
+  ) {
     options = yMatrix;
     yMatrix = xMatrix;
     yIsSame = true;
@@ -12021,19 +11950,23 @@ function covariance(xMatrix, yMatrix = xMatrix, options = {}) {
       yMatrix = yMatrix.center('column');
     }
   }
-  const covariance = xMatrix.transpose().mmul(yMatrix);
-  for (let i = 0; i < covariance.rows; i++) {
-    for (let j = 0; j < covariance.columns; j++) {
-      covariance.set(i, j, covariance.get(i, j) * (1 / (xMatrix.rows - 1)));
+  const cov = xMatrix.transpose().mmul(yMatrix);
+  for (let i = 0; i < cov.rows; i++) {
+    for (let j = 0; j < cov.columns; j++) {
+      cov.set(i, j, cov.get(i, j) * (1 / (xMatrix.rows - 1)));
     }
   }
-  return covariance;
+  return cov;
 }
 
 function correlation(xMatrix, yMatrix = xMatrix, options = {}) {
   xMatrix = Matrix.checkMatrix(xMatrix);
   let yIsSame = false;
-  if (typeof yMatrix === 'object' && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
+  if (
+    typeof yMatrix === 'object' &&
+    !Matrix.isMatrix(yMatrix) &&
+    !Array.isArray(yMatrix)
+  ) {
     options = yMatrix;
     yMatrix = xMatrix;
     yIsSame = true;
@@ -12059,15 +11992,21 @@ function correlation(xMatrix, yMatrix = xMatrix, options = {}) {
   }
 
   const sdx = xMatrix.standardDeviation('column', { unbiased: true });
-  const sdy = yIsSame ? sdx : yMatrix.standardDeviation('column', { unbiased: true });
+  const sdy = yIsSame
+    ? sdx
+    : yMatrix.standardDeviation('column', { unbiased: true });
 
-  const correlation = xMatrix.transpose().mmul(yMatrix);
-  for (let i = 0; i < correlation.rows; i++) {
-    for (let j = 0; j < correlation.columns; j++) {
-      correlation.set(i, j, correlation.get(i, j) * (1 / (sdx[i] * sdy[j])) * (1 / (xMatrix.rows - 1)));
+  const corr = xMatrix.transpose().mmul(yMatrix);
+  for (let i = 0; i < corr.rows; i++) {
+    for (let j = 0; j < corr.columns; j++) {
+      corr.set(
+        i,
+        j,
+        corr.get(i, j) * (1 / (sdx[i] * sdy[j])) * (1 / (xMatrix.rows - 1)),
+      );
     }
   }
-  return correlation;
+  return corr;
 }
 
 class EigenvalueDecomposition {
@@ -12079,14 +12018,14 @@ class EigenvalueDecomposition {
       throw new Error('Matrix is not a square matrix');
     }
 
-    var n = matrix.columns;
-    var V = new Matrix(n, n);
-    var d = new Float64Array(n);
-    var e = new Float64Array(n);
-    var value = matrix;
-    var i, j;
+    let n = matrix.columns;
+    let V = new Matrix(n, n);
+    let d = new Float64Array(n);
+    let e = new Float64Array(n);
+    let value = matrix;
+    let i, j;
 
-    var isSymmetric = false;
+    let isSymmetric = false;
     if (assumeSymmetric) {
       isSymmetric = true;
     } else {
@@ -12102,8 +12041,8 @@ class EigenvalueDecomposition {
       tred2(n, e, d, V);
       tql2(n, e, d, V);
     } else {
-      var H = new Matrix(n, n);
-      var ort = new Float64Array(n);
+      let H = new Matrix(n, n);
+      let ort = new Float64Array(n);
       for (j = 0; j < n; j++) {
         for (i = 0; i < n; i++) {
           H.set(i, j, value.get(i, j));
@@ -12132,11 +12071,11 @@ class EigenvalueDecomposition {
   }
 
   get diagonalMatrix() {
-    var n = this.n;
-    var e = this.e;
-    var d = this.d;
-    var X = new Matrix(n, n);
-    var i, j;
+    let n = this.n;
+    let e = this.e;
+    let d = this.d;
+    let X = new Matrix(n, n);
+    let i, j;
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
         X.set(i, j, 0);
@@ -12153,7 +12092,7 @@ class EigenvalueDecomposition {
 }
 
 function tred2(n, e, d, V) {
-  var f, g, h, i, j, k, hh, scale;
+  let f, g, h, i, j, k, hh, scale;
 
   for (j = 0; j < n; j++) {
     d[j] = V.get(n - 1, j);
@@ -12262,7 +12201,7 @@ function tred2(n, e, d, V) {
 }
 
 function tql2(n, e, d, V) {
-  var g, h, i, j, k, l, m, p, r, dl1, c, c2, c3, el1, s, s2;
+  let g, h, i, j, k, l, m, p, r, dl1, c, c2, c3, el1, s, s2;
 
   for (i = 1; i < n; i++) {
     e[i - 1] = e[i];
@@ -12270,9 +12209,9 @@ function tql2(n, e, d, V) {
 
   e[n - 1] = 0;
 
-  var f = 0;
-  var tst1 = 0;
-  var eps = Number.EPSILON;
+  let f = 0;
+  let tst1 = 0;
+  let eps = Number.EPSILON;
 
   for (l = 0; l < n; l++) {
     tst1 = Math.max(tst1, Math.abs(d[l]) + Math.abs(e[l]));
@@ -12363,10 +12302,10 @@ function tql2(n, e, d, V) {
 }
 
 function orthes(n, H, ort, V) {
-  var low = 0;
-  var high = n - 1;
-  var f, g, h, i, j, m;
-  var scale;
+  let low = 0;
+  let high = n - 1;
+  let f, g, h, i, j, m;
+  let scale;
 
   for (m = low + 1; m <= high - 1; m++) {
     scale = 0;
@@ -12446,21 +12385,21 @@ function orthes(n, H, ort, V) {
 }
 
 function hqr2(nn, e, d, V, H) {
-  var n = nn - 1;
-  var low = 0;
-  var high = nn - 1;
-  var eps = Number.EPSILON;
-  var exshift = 0;
-  var norm = 0;
-  var p = 0;
-  var q = 0;
-  var r = 0;
-  var s = 0;
-  var z = 0;
-  var iter = 0;
-  var i, j, k, l, m, t, w, x, y;
-  var ra, sa, vr, vi;
-  var notlast, cdivres;
+  let n = nn - 1;
+  let low = 0;
+  let high = nn - 1;
+  let eps = Number.EPSILON;
+  let exshift = 0;
+  let norm = 0;
+  let p = 0;
+  let q = 0;
+  let r = 0;
+  let s = 0;
+  let z = 0;
+  let iter = 0;
+  let i, j, k, l, m, t, w, x, y;
+  let ra, sa, vr, vi;
+  let notlast, cdivres;
 
   for (i = 0; i < nn; i++) {
     if (i < low || i > high) {
@@ -12725,7 +12664,7 @@ function hqr2(nn, e, d, V, H) {
             H.set(
               i + 1,
               n,
-              Math.abs(x) > Math.abs(z) ? (-r - w * t) / x : (-s - y * t) / z
+              Math.abs(x) > Math.abs(z) ? (-r - w * t) / x : (-s - y * t) / z,
             );
           }
 
@@ -12790,7 +12729,7 @@ function hqr2(nn, e, d, V, H) {
               x * r - z * ra + q * sa,
               x * s - z * sa - q * ra,
               vr,
-              vi
+              vi,
             );
             H.set(i, n - 1, cdivres[0]);
             H.set(i, n, cdivres[1]);
@@ -12798,19 +12737,19 @@ function hqr2(nn, e, d, V, H) {
               H.set(
                 i + 1,
                 n - 1,
-                (-ra - w * H.get(i, n - 1) + q * H.get(i, n)) / x
+                (-ra - w * H.get(i, n - 1) + q * H.get(i, n)) / x,
               );
               H.set(
                 i + 1,
                 n,
-                (-sa - w * H.get(i, n) - q * H.get(i, n - 1)) / x
+                (-sa - w * H.get(i, n) - q * H.get(i, n - 1)) / x,
               );
             } else {
               cdivres = cdiv(
                 -r - y * H.get(i, n - 1),
                 -s - y * H.get(i, n),
                 z,
-                q
+                q,
               );
               H.set(i + 1, n - 1, cdivres[0]);
               H.set(i + 1, n, cdivres[1]);
@@ -12849,7 +12788,7 @@ function hqr2(nn, e, d, V, H) {
 }
 
 function cdiv(xr, xi, yr, yi) {
-  var r, d;
+  let r, d;
   if (Math.abs(yr) > Math.abs(yi)) {
     r = yi / yr;
     d = yr + r * yi;
@@ -12868,16 +12807,16 @@ class CholeskyDecomposition {
       throw new Error('Matrix is not symmetric');
     }
 
-    var a = value;
-    var dimension = a.rows;
-    var l = new Matrix(dimension, dimension);
-    var positiveDefinite = true;
-    var i, j, k;
+    let a = value;
+    let dimension = a.rows;
+    let l = new Matrix(dimension, dimension);
+    let positiveDefinite = true;
+    let i, j, k;
 
     for (j = 0; j < dimension; j++) {
-      var d = 0;
+      let d = 0;
       for (k = 0; k < j; k++) {
-        var s = 0;
+        let s = 0;
         for (i = 0; i < k; i++) {
           s += l.get(k, i) * l.get(j, i);
         }
@@ -12895,26 +12834,30 @@ class CholeskyDecomposition {
       }
     }
 
-    if (!positiveDefinite) {
-      throw new Error('Matrix is not positive definite');
-    }
-
     this.L = l;
+    this.positiveDefinite = Boolean(positiveDefinite);
+  }
+
+  isPositiveDefinite() {
+    return this.positiveDefinite;
   }
 
   solve(value) {
     value = WrapperMatrix2D.checkMatrix(value);
 
-    var l = this.L;
-    var dimension = l.rows;
+    let l = this.L;
+    let dimension = l.rows;
 
     if (value.rows !== dimension) {
       throw new Error('Matrix dimensions do not match');
     }
+    if (this.isPositiveDefinite() === false) {
+      throw new Error('Matrix is not positive definite');
+    }
 
-    var count = value.columns;
-    var B = value.clone();
-    var i, j, k;
+    let count = value.columns;
+    let B = value.clone();
+    let i, j, k;
 
     for (k = 0; k < dimension; k++) {
       for (j = 0; j < count; j++) {
@@ -13122,8 +13065,8 @@ var mlMatrix = require('ml-matrix');
  * @param {Matrix} dataset - dataset or covariance matrix.
  * @param {Object} [options]
  * @param {boolean} [options.isCovarianceMatrix=false] - true if the dataset is a covariance matrix.
- * @param {boolean} [options.method='SVD'] - select which method to use: SVD (default), covarianceMatrirx or NIPALS.
- * @param {boolean} [options.nCompNIPALS=2] - number of components to be computed with NIPALS.
+ * @param {string} [options.method='SVD'] - select which method to use: SVD (default), covarianceMatrirx or NIPALS.
+ * @param {number} [options.nCompNIPALS=2] - number of components to be computed with NIPALS.
  * @param {boolean} [options.center=true] - should the data be centered (subtract the mean).
  * @param {boolean} [options.scale=false] - should the data be scaled (divide by the standard deviation).
  * @param {boolean} [options.ignoreZeroVariance=false] - ignore columns with zero variance if `scale` is `true`.
@@ -13139,7 +13082,7 @@ class PCA {
       this.U = mlMatrix.Matrix.checkMatrix(model.U);
       this.S = model.S;
       this.R = model.R;
-      this.excludedFeatures = model.excludedFeatures;
+      this.excludedFeatures = model.excludedFeatures || [];
       return;
     }
 
@@ -13330,6 +13273,7 @@ class PCA {
       stdevs: this.stdevs,
       U: this.U,
       S: this.S,
+      excludedFeatures: this.excludedFeatures,
     };
   }
 

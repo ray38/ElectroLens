@@ -1,5 +1,5 @@
 import {colorSetup, atomRadius} from "./AtomSetup.js";
-import {shaderMaterial2, shaderMaterial3} from "./PointCloudMaterials.js";
+import {shaderMaterial2, shaderMaterial3} from "./Materials.js/index.js";
 import {hexToRgb, colorToRgb, rgbToHex} from "../Utilities/other.js";
 
 
@@ -354,8 +354,6 @@ function createBond(options, point1, point2) {
 export function getMoleculeGeometry(view){
 
 	view.molecule = {};
-	//view.molecule.atoms = [];
-	//view.molecule.bonds = [];
 	var options = view.options;
 	var currentFrame = options.currentFrame.toString();
 	var scene = view.scene;

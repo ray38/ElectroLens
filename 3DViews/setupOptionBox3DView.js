@@ -117,44 +117,53 @@ export function setupOptionBox3DView(view,plotSetup){
 
 	PBCFolder.add( options, 'xPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
+		// updatePointCloudGeometry(view);
 		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 			if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
 			options.PBCBoolean = true;
 		}
 		else {
-			removePointCloudPeriodicReplicates(view);
+			// removePointCloudPeriodicReplicates(view);
+			updatePointCloudGeometry(view);
 			removeMoleculePeriodicReplicates(view);
 			options.PBCBoolean = false;
-		}
+		} 
 	});
 
 	PBCFolder.add( options, 'yPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
+		// updatePointCloudGeometry(view);
 		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 			if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
 			options.PBCBoolean = true;
 		}
 		else {
-			removePointCloudPeriodicReplicates(view);
+			// removePointCloudPeriodicReplicates(view);
+			updatePointCloudGeometry(view);
 			removeMoleculePeriodicReplicates(view);
 			options.PBCBoolean = false;
-		}
+		} 
 	});
 
 	PBCFolder.add( options, 'zPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
+		// updatePointCloudGeometry(view);
 		if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
+			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 			if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
 			options.PBCBoolean = true;
 		}
 		else {
-			removePointCloudPeriodicReplicates(view);
+			// removePointCloudPeriodicReplicates(view);
+			updatePointCloudGeometry(view);
 			removeMoleculePeriodicReplicates(view);
 			options.PBCBoolean = false;
-		}
+		} 
 	});
 	PBCFolder.close();
 	
@@ -349,7 +358,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 			gui.updateDisplay();
 		});
@@ -358,7 +367,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Color Scheme' )
 		.onChange( function( value ){
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);		
 		});
 
@@ -366,40 +375,40 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Density' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		
 		pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
 		.name( 'Opacity' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add( options, 'pointCloudSize', 0.01, 1 ).step( 0.01 )
 		.name( 'Size' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Min' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 		});
 		pointCloudFolder.add( options, 'pointCloudMaxPointPerBlock', 10, 200 ).step( 10 )
 		.name( 'Max Density')
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add( options, 'animate')
 		.onChange( function( value ) {
@@ -437,7 +446,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Dens. Magnitude' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
-			if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
+			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudAdditionalFolder.close();
 
