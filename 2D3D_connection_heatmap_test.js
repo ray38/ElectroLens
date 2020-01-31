@@ -5724,7 +5724,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
 			this.moleculeAlpha = 1.0;
-			this.atomModelSegments = 16;
+			this.atomModelSegments = 12;
 			this.bondModelSegments = 8;
 			this.showAtoms = true;
 			this.showBonds = false;
@@ -8041,8 +8041,13 @@ function calcDefaultScalesSpatiallyResolvedData(plotSetup, spatiallyResolvedData
 }
 
 function adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view) {
-	view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
-	view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
+	if (view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'] != view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max']) {
+		view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
+		view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
+	} else {
+		view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'] - 0.5;
+		view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'] + 0.5;
+	}
 }
 
 function calcDefaultScalesMoleculeData(plotSetup, moleculeData) {

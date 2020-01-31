@@ -12,8 +12,16 @@ export function calcDefaultScalesSpatiallyResolvedData(plotSetup,spatiallyResolv
 }
 
 export function adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view){
-	view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
-	view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
+	if (view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'] != 
+		view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max']) {
+		view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
+		view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
+	}
+	else {
+		view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'] - 0.5;
+		view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'] + 0.5;
+	}
+	
 }
 
 
