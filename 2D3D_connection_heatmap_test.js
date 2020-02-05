@@ -1691,18 +1691,12 @@ function updateAllPlots(views) {
 	for (var ii = 0; ii < views.length; ++ii) {
 		var view = views[ii];
 		if (view.viewType == '3DView') {
-			//if (view.System != null){updatePointCloudGeometry(view);}
 			if (view.systemSpatiallyResolvedDataBoolean) {
 				_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
-				if (view.options.PBCBoolean) {
-					_DViewsPointCloud_selectionJs.updatePointCloudPeriodicReplicates(view);
-				}
 			}
 			if (view.systemMoleculeDataBoolean) {
 				_DViewsMoleculeViewJs.changeMoleculeGeometry(view);
-				if (view.options.PBCBoolean) {
-					_DViewsMoleculeViewJs.changeMoleculePeriodicReplicates(view);
-				}
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
 		}
 	}
@@ -4245,12 +4239,7 @@ function getMoleculeMaterialInstanced(options) {
 		shader.vertexShader = '\n\t\t\t#define LAMBERT\n\t\t\n\t\t\t// instanced\n\t\t\tattribute vec3 offset;\n\t\t\t// attribute vec3 instanceColor;\n\t\t\t// attribute float instanceScale;\n\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\t\t\tvarying vec3 slicePosition;\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <fog_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\t\t\n\t\t\tvoid main() {\n\t\t\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\t\t\n\t\t\t\t// vertex colors instanced\n\t\t\t\t// #ifdef USE_COLOR\n\t\t\t\t// \tvColor.xyz = instanceColor.xyz;\n\t\t\t\t// #endif\n\t\t\n\t\t\t\t#include <beginnormal_vertex>\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\t\t\n\t\t\t\t#include <begin_vertex>\n\t\t\n\t\t\t\t// position instanced\n\t\t\t\t// transformed *= instanceScale;\n\t\t\t\t// transformed = transformed + instanceOffset;\n\t\t\t\ttransformed = transformed + offset;\n\t\t\t\tslicePosition = transformed;\n\t\t\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\t\t\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <lights_lambert_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\t\t\t\t#include <fog_vertex>\n\t\t\n\t\t\t}\n\t\t\t';
 		shader.fragmentShader = '\n\t\t\tuniform vec3 diffuse;\n\t\t\tuniform vec3 emissive;\n\t\t\tuniform float opacity;\n\t\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\t\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\t\n\t\t\t\n\t\t\t#include <common>\n\t\t\t#include <packing>\n\t\t\t#include <dithering_pars_fragment>\n\t\t\t#include <color_pars_fragment>\n\t\t\t#include <uv_pars_fragment>\n\t\t\t#include <uv2_pars_fragment>\n\t\t\t#include <map_pars_fragment>\n\t\t\t#include <alphamap_pars_fragment>\n\t\t\t#include <aomap_pars_fragment>\n\t\t\t#include <lightmap_pars_fragment>\n\t\t\t#include <emissivemap_pars_fragment>\n\t\t\t#include <envmap_common_pars_fragment>\n\t\t\t#include <envmap_pars_fragment>\n\t\t\t#include <cube_uv_reflection_fragment>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <fog_pars_fragment>\n\t\t\t#include <shadowmap_pars_fragment>\n\t\t\t#include <shadowmask_pars_fragment>\n\t\t\t#include <specularmap_pars_fragment>\n\t\t\t#include <logdepthbuf_pars_fragment>\n\t\t\t#include <clipping_planes_pars_fragment>\n\t\t\t\n\t\t\tvoid main() {\n\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\t\t\t\n\t\t\t\t#include <clipping_planes_fragment>\n\t\t\t\n\t\t\t\tvec4 diffuseColor = vec4( diffuse, opacity );\n\t\t\t\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\t\t\t\tvec3 totalEmissiveRadiance = emissive;\n\t\t\t\n\t\t\t\t#include <logdepthbuf_fragment>\n\t\t\t\t#include <map_fragment>\n\t\t\t\t#include <color_fragment>\n\t\t\t\t#include <alphamap_fragment>\n\t\t\t\t#include <alphatest_fragment>\n\t\t\t\t#include <specularmap_fragment>\n\t\t\t\t#include <emissivemap_fragment>\n\t\t\t\n\t\t\t\t// accumulation\n\t\t\t\treflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += vIndirectFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\t#include <lightmap_fragment>\n\t\t\t\n\t\t\t\treflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = vLightFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\treflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();\n\t\t\t\n\t\t\t\t// modulation\n\t\t\t\t#include <aomap_fragment>\n\t\t\t\n\t\t\t\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;\n\t\t\t\n\t\t\t\t#include <envmap_fragment>\n\t\t\t\n\t\t\t\tgl_FragColor = vec4( outgoingLight, diffuseColor.a );\n\t\t\t\n\t\t\t\t#include <tonemapping_fragment>\n\t\t\t\t#include <encodings_fragment>\n\t\t\t\t#include <fog_fragment>\n\t\t\t\t#include <premultiplied_alpha_fragment>\n\t\t\t\t#include <dithering_fragment>\n\t\t\t}\n\t\t\t';
 		material.userData.shader = shader;
-		console.log('material on before complie', materialShader);
 	};
-
-	console.log('material on before complie initialization', material, material.uniforms, materialShader);
-	// material.uniforms = uniforms;
-	// console.log(material, material.uniforms)
 
 	return material;
 }
@@ -4333,54 +4322,6 @@ function getMoleculeBondLineMaterialInstanced(options) {
 	return materialInstanced;
 }
 
-/*
-export var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial( {
-
-	uniforms:       uniforms2,
-	vertexShader:   `
-	precision highp float;
-
-	uniform mat4 modelViewMatrix;
-	uniform mat4 projectionMatrix;
-
-	attribute vec3 position;
-
-	attribute float size;
-	attribute vec3 customColor;
-	attribute vec3 offset;
-	attribute float alpha;
-
-	varying float vAlpha;
-	varying vec3 vColor;
-
-	void main() {
-	  vColor = customColor;
-	  vAlpha = alpha;
-	  vec3 newPosition = position + offset;
-	  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
-	  gl_PointSize = size * ( 300.0 / -mvPosition.z );
-	  gl_Position = projectionMatrix * mvPosition;
-
-	}`,
-	fragmentShader: `
-	precision highp float;
-	uniform vec3 color;
-	uniform sampler2D texture;
-
-	varying vec3 vColor;
-	varying float vAlpha;
-
-	void main() {
-	gl_FragColor = vec4( color * vColor, vAlpha );
-	gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-	}`,
-
-	blending:       THREE.AdditiveBlending,
-	depthTest:      false,
-	transparent:    true
-
-});*/
-
 },{}],14:[function(require,module,exports){
 "use strict";
 
@@ -4389,9 +4330,6 @@ exports.getMoleculeGeometry = getMoleculeGeometry;
 exports.updateMoleculeGeometry = updateMoleculeGeometry;
 exports.changeMoleculeGeometry = changeMoleculeGeometry;
 exports.removeMoleculeGeometry = removeMoleculeGeometry;
-exports.addMoleculePeriodicReplicates = addMoleculePeriodicReplicates;
-exports.removeMoleculePeriodicReplicates = removeMoleculePeriodicReplicates;
-exports.changeMoleculePeriodicReplicates = changeMoleculePeriodicReplicates;
 
 var _AtomSetupJs = require("./AtomSetup.js");
 
@@ -4469,7 +4407,6 @@ function addAtoms(view, moleculeData, lut) {
 		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
 		sumDisplacement.fill(0);
 		var xStep, yStep, zStep;
-		// var sumDisplacement = [];
 		for (var i = x_start; i < x_end; i++) {
 			for (var j = y_start; j < y_end; j++) {
 				for (var k = z_start; k < z_end; k++) {
@@ -4477,7 +4414,6 @@ function addAtoms(view, moleculeData, lut) {
 					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 
-					// sumDisplacement.push(xStep, yStep, zStep);
 					sumDisplacement[counter * 3 + 0] = xStep;
 					sumDisplacement[counter * 3 + 1] = yStep;
 					sumDisplacement[counter * 3 + 2] = zStep;
@@ -4497,13 +4433,6 @@ function addAtoms(view, moleculeData, lut) {
 
 		var atoms = new THREE.Points(geometry, _MaterialsJs.getMoleculeAtomSpriteMaterialInstanced(options));
 		atoms.frustumCulled = false;
-
-		/*geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-  geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-  geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-  geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-  		var atoms = new THREE.Points( geometry, shaderMaterial2 );
-  atoms.frustumCulled = false;*/
 	}
 
 	if (options.atomsStyle == "ball") {
@@ -4515,7 +4444,6 @@ function addAtoms(view, moleculeData, lut) {
 
 			if (moleculeData[i].selected) {
 				if (colorCode == "atom") {
-					//var color = colorToRgb(colorSetup[atomData.atom]);
 					var color = _AtomSetupJs.colorSetup[atomData.atom];
 				} else {
 					var color = lut.getColor(atomData[colorCode]);
@@ -4554,7 +4482,6 @@ function addAtoms(view, moleculeData, lut) {
 		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
 		sumDisplacement.fill(0);
 		var xStep, yStep, zStep;
-		// var sumDisplacement = [];
 		for (var i = x_start; i < x_end; i++) {
 			for (var j = y_start; j < y_end; j++) {
 				for (var k = z_start; k < z_end; k++) {
@@ -4562,7 +4489,6 @@ function addAtoms(view, moleculeData, lut) {
 					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 
-					// sumDisplacement.push(xStep, yStep, zStep);
 					sumDisplacement[counter * 3 + 0] = xStep;
 					sumDisplacement[counter * 3 + 1] = yStep;
 					sumDisplacement[counter * 3 + 2] = zStep;
@@ -4573,14 +4499,11 @@ function addAtoms(view, moleculeData, lut) {
 
 		var material = _MaterialsJs.getMoleculeMaterialInstanced(options);
 
-		console.log(sumDisplacement);
 		var sumDisp = new Float32Array(sumDisplacement);
 		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
 		atomsGeometry.maxInstancedCount = counter;
 		var atoms = new THREE.Mesh(atomsGeometry, material);
-		// var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
 	}
-	console.log(atoms, atoms.userData);
 	view.molecule.atoms = atoms;
 	view.scene.add(atoms);
 }
@@ -4644,7 +4567,6 @@ function addBonds(view, moleculeData, neighborsData) {
 		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
 		sumDisplacement.fill(0);
 		var xStep, yStep, zStep;
-		// var sumDisplacement = [];
 		for (var i = x_start; i < x_end; i++) {
 			for (var j = y_start; j < y_end; j++) {
 				for (var k = z_start; k < z_end; k++) {
@@ -4652,7 +4574,6 @@ function addBonds(view, moleculeData, neighborsData) {
 					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 
-					// sumDisplacement.push(xStep, yStep, zStep);
 					sumDisplacement[counter * 3 + 0] = xStep;
 					sumDisplacement[counter * 3 + 1] = yStep;
 					sumDisplacement[counter * 3 + 2] = zStep;
@@ -4666,239 +4587,102 @@ function addBonds(view, moleculeData, neighborsData) {
 		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
 		bondsGeometry.maxInstancedCount = counter;
 		var bonds = new THREE.Mesh(bondsGeometry, material);
-
-		// var bondsGeometry = combineGeometry(bondList, bondColorList);
-		// var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
-		// var bonds = new THREE.Mesh( bondsGeometry, MoleculeMaterialInstanced );
 	} else if (options.bondsStyle == "line") {
 
-			var vertices = [];
-			var indices = [];
-			var verticesColors = [];
-			var index_counter = 0;
+		var vertices = [];
+		var indices = [];
+		var verticesColors = [];
+		var index_counter = 0;
 
-			for (var i = 0; i < moleculeData.length; i++) {
-				if (moleculeData[i].selected) {
-					var tempNeighborObject = neighborsData[i];
-					var neighborsList = tempNeighborObject.neighborsList;
-					var distancesList = tempNeighborObject.distancesList;
-					var coordinatesList = tempNeighborObject.coordinatesList;
+		for (var i = 0; i < moleculeData.length; i++) {
+			if (moleculeData[i].selected) {
+				var tempNeighborObject = neighborsData[i];
+				var neighborsList = tempNeighborObject.neighborsList;
+				var distancesList = tempNeighborObject.distancesList;
+				var coordinatesList = tempNeighborObject.coordinatesList;
 
-					if (colorCode == "atom") {
-						var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[moleculeData[i].atom]);
-					} else {
-						var color = lut.getColor(moleculeData[i][colorCode]);
-					}
-					//var color = colorSetup[moleculeData[i].atom];
+				if (colorCode == "atom") {
+					var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[moleculeData[i].atom]);
+				} else {
+					var color = lut.getColor(moleculeData[i][colorCode]);
+				}
 
-					var point1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
+				var point1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
 
-					for (var j = 0; j < neighborsList.length; j++) {
-						var point2 = coordinatesList[j];
-						if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength && neighborsList[j].selected) {
+				for (var j = 0; j < neighborsList.length; j++) {
+					var point2 = coordinatesList[j];
+					if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength && neighborsList[j].selected) {
 
-							vertices.push(point1, point2);
-							indices.push(index_counter, index_counter + 1);
-							verticesColors.push(color, color);
-							index_counter += 2;
-						}
+						vertices.push(point1, point2);
+						indices.push(index_counter, index_counter + 1);
+						verticesColors.push(color, color);
+						index_counter += 2;
 					}
 				}
 			}
-
-			var positions = new Float32Array(vertices.length * 3);
-			var colors = new Float32Array(vertices.length * 3);
-
-			for (var i = 0; i < vertices.length; i++) {
-
-				positions[i * 3] = vertices[i].x;
-				positions[i * 3 + 1] = vertices[i].y;
-				positions[i * 3 + 2] = vertices[i].z;
-
-				colors[i * 3] = verticesColors[i].r;
-				colors[i * 3 + 1] = verticesColors[i].g;
-				colors[i * 3 + 2] = verticesColors[i].b;
-			}
-
-			var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-				'y': systemDimension.x * latticeVectors.u12,
-				'z': systemDimension.x * latticeVectors.u13 };
-			var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-				'y': systemDimension.y * latticeVectors.u22,
-				'z': systemDimension.y * latticeVectors.u23 };
-			var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-				'y': systemDimension.z * latticeVectors.u32,
-				'z': systemDimension.z * latticeVectors.u33 };
-
-			var x_start = -1 * ((options.xPBC - 1) / 2);
-			var x_end = (options.xPBC - 1) / 2 + 1;
-			var y_start = -1 * ((options.yPBC - 1) / 2);
-			var y_end = (options.yPBC - 1) / 2 + 1;
-			var z_start = -1 * ((options.zPBC - 1) / 2);
-			var z_end = (options.zPBC - 1) / 2 + 1;
-
-			var counter = 0;
-			var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-			sumDisplacement.fill(0);
-			var xStep, yStep, zStep;
-			// var sumDisplacement = [];
-			for (var i = x_start; i < x_end; i++) {
-				for (var j = y_start; j < y_end; j++) {
-					for (var k = z_start; k < z_end; k++) {
-						xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-						yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-						zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-						// sumDisplacement.push(xStep, yStep, zStep);
-						sumDisplacement[counter * 3 + 0] = xStep;
-						sumDisplacement[counter * 3 + 1] = yStep;
-						sumDisplacement[counter * 3 + 2] = zStep;
-						counter++;
-					}
-				}
-			}
-
-			var geometry = new THREE.InstancedBufferGeometry();
-			geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-			geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-			geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
-			geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3));
-			geometry.maxInstancedCount = counter;
-
-			var bonds = new THREE.LineSegments(geometry, _MaterialsJs.getMoleculeBondLineMaterialInstanced(options));
-			bonds.frustumCulled = false;
-
-			/*var geometry = new THREE.BufferGeometry();
-   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-   geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
-   		var material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors });
-   var bonds = new THREE.LineSegments(basicLineBondGeometry, material);*/
 		}
 
-	/* if (options.bondsStyle == "line"){
- 	var basicLineBondGeometry = new THREE.BufferGeometry();
- 	
- 	var vertices = [];
- 	var indices = [];
- 	var verticesColors = [];
- 	var index_counter = 0;
- 
- 	for (var i = 0; i < moleculeData.length; i++) {
- 		if (moleculeData[i].selected) {
- 			var tempNeighborObject = neighborsData[i];
- 			var neighborsList = tempNeighborObject.neighborsList;
- 			var distancesList = tempNeighborObject.distancesList;
- 			var coordinatesList = tempNeighborObject.coordinatesList;
- 
- 			if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
- 			else {var color = lut.getColor( moleculeData[i][colorCode] );}
- 			//var color = colorSetup[moleculeData[i].atom];
- 
- 			var point1 = new THREE.Vector3(moleculeData[i].x, moleculeData[i].y, moleculeData[i].z);
- 
- 		    for (var j = 0; j < neighborsList.length; j++) {
- 		    	var point2 = coordinatesList[j];
- 			    if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength &&  neighborsList[j].selected ) {
- 
- 			    	vertices.push(point1, point2);
- 			    	indices.push(index_counter, index_counter + 1);
- 			    	verticesColors.push(color, color);
- 			    	index_counter += 2;
- 
- 			    }
- 			}
- 		}
- 	}
- 
- 	var positions = new Float32Array(vertices.length * 3);
- 	var colors = new Float32Array(vertices.length * 3);
- 
- 	for (var i = 0; i < vertices.length; i++) {
- 
- 	    positions[i * 3] = vertices[i].x;
- 	    positions[i * 3 + 1] = vertices[i].y;
- 	    positions[i * 3 + 2] = vertices[i].z;
- 
- 	    colors[i * 3] = verticesColors[i].r;
- 	    colors[i * 3 + 1] = verticesColors[i].g;
- 	    colors[i * 3 + 2] = verticesColors[i].b;
- 
- 	}
- 	basicLineBondGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
- 	basicLineBondGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
- 	basicLineBondGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
- 
- 	var material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors });
- 	var bonds = new THREE.LineSegments(basicLineBondGeometry, material);
- }
- 
- if (options.bondsStyle == "fatline"){
- 	var basicLineBondGeometry = new THREE.BufferGeometry();
- 	var material = new THREE.LineMaterial( {
- 
- 		color: 0xffffff,
- 		linewidth: 5, // in pixels
- 		vertexColors: THREE.VertexColors,
- 		//resolution:  // to be set by renderer, eventually
- 		dashed: false
- 
- 	} );
- 
- 	material.resolution.set( view.windowWidth, view.windowHeight );
- 	var vertices = [];
- 	var indices = [];
- 	var verticesColors = [];
- 	var index_counter = 0;
- 
- 	for (var i = 0; i < moleculeData.length; i++) {
- 		if (moleculeData[i].selected) {
- 			var tempNeighborObject = neighborsData[i];
- 			var neighborsList = tempNeighborObject.neighborsList;
- 			var distancesList = tempNeighborObject.distancesList;
- 			var coordinatesList = tempNeighborObject.coordinatesList;
- 
- 			if (colorCode == "atom") {var color = colorToRgb(colorSetup[moleculeData[i].atom]);	}
- 			else {var color = lut.getColor( moleculeData[i][colorCode] );}
- 			//var color = colorSetup[moleculeData[i].atom];
- 
- 			var point1 = new THREE.Vector3(moleculeData[i].xPlot, moleculeData[i].yPlot,moleculeData[i].zPlot);
- 
- 		    for (var j = 0; j < neighborsList.length; j++) {
- 		    	//var point2 = new THREE.Vector3(neighborsList[j].xPlot*20.0, neighborsList[j].yPlot*20.0,neighborsList[j].zPlot*20.0);
- 		    	var point2 = coordinatesList[j];
- 			    if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength &&  neighborsList[j].selected ) {
- 
- 			    	vertices.push(point1, point2);
- 			    	indices.push(index_counter, index_counter + 1);
- 			    	verticesColors.push(color, color);
- 			    	index_counter += 2;
- 
- 			    }
- 			}
- 		}
- 	}
- 
- 	var positions = new Float32Array(vertices.length * 3);
- 	var colors = new Float32Array(vertices.length * 3);
- 
- 	for (var i = 0; i < vertices.length; i++) {
- 
- 	    positions[i * 3] = vertices[i].x;
- 	    positions[i * 3 + 1] = vertices[i].y;
- 	    positions[i * 3 + 2] = vertices[i].z;
- 
- 	    colors[i * 3] = verticesColors[i].r;
- 	    colors[i * 3 + 1] = verticesColors[i].g;
- 	    colors[i * 3 + 2] = verticesColors[i].b;
- 
- 	}
- 	basicLineBondGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
- 	basicLineBondGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
- 	basicLineBondGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
- 	var bonds = new THREE.LineSegments2(basicLineBondGeometry, material);
- } */
-	console.log(bonds, bonds.userData);
+		var positions = new Float32Array(vertices.length * 3);
+		var colors = new Float32Array(vertices.length * 3);
+
+		for (var i = 0; i < vertices.length; i++) {
+
+			positions[i * 3] = vertices[i].x;
+			positions[i * 3 + 1] = vertices[i].y;
+			positions[i * 3 + 2] = vertices[i].z;
+
+			colors[i * 3] = verticesColors[i].r;
+			colors[i * 3 + 1] = verticesColors[i].g;
+			colors[i * 3 + 2] = verticesColors[i].b;
+		}
+
+		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+			'y': systemDimension.x * latticeVectors.u12,
+			'z': systemDimension.x * latticeVectors.u13 };
+		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+			'y': systemDimension.y * latticeVectors.u22,
+			'z': systemDimension.y * latticeVectors.u23 };
+		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+			'y': systemDimension.z * latticeVectors.u32,
+			'z': systemDimension.z * latticeVectors.u33 };
+
+		var x_start = -1 * ((options.xPBC - 1) / 2);
+		var x_end = (options.xPBC - 1) / 2 + 1;
+		var y_start = -1 * ((options.yPBC - 1) / 2);
+		var y_end = (options.yPBC - 1) / 2 + 1;
+		var z_start = -1 * ((options.zPBC - 1) / 2);
+		var z_end = (options.zPBC - 1) / 2 + 1;
+
+		var counter = 0;
+		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+		sumDisplacement.fill(0);
+		var xStep, yStep, zStep;
+		for (var i = x_start; i < x_end; i++) {
+			for (var j = y_start; j < y_end; j++) {
+				for (var k = z_start; k < z_end; k++) {
+					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+					sumDisplacement[counter * 3 + 0] = xStep;
+					sumDisplacement[counter * 3 + 1] = yStep;
+					sumDisplacement[counter * 3 + 2] = zStep;
+					counter++;
+				}
+			}
+		}
+
+		var geometry = new THREE.InstancedBufferGeometry();
+		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+		geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3));
+		geometry.maxInstancedCount = counter;
+
+		var bonds = new THREE.LineSegments(geometry, _MaterialsJs.getMoleculeBondLineMaterialInstanced(options));
+		bonds.frustumCulled = false;
+	}
+
 	view.molecule.bonds = bonds;
 	view.scene.add(bonds);
 }
@@ -4960,13 +4744,6 @@ function combineGeometry(geoarray, colorarray) {
 		sumIndexCursor2 += posAttArr.length / 3;
 	}
 
-	/*const combinedGeometry = new THREE.BufferGeometry();
- combinedGeometry.setAttribute('position', new THREE.BufferAttribute(sumPosArr, 3 ));
- combinedGeometry.setAttribute('normal', new THREE.BufferAttribute(sumNormArr, 3 ));
- combinedGeometry.setAttribute('uv', new THREE.BufferAttribute(sumUvArr, 2 ));
- combinedGeometry.setAttribute('color', new THREE.BufferAttribute(sumColorArr, 3 ));
- combinedGeometry.setIndex(new THREE.BufferAttribute(sumIndexArr, 1));
- return combinedGeometry;*/
 	var combinedGeometry = new THREE.InstancedBufferGeometry();
 	combinedGeometry.setAttribute('position', new THREE.BufferAttribute(sumPosArr, 3));
 	combinedGeometry.setAttribute('normal', new THREE.BufferAttribute(sumNormArr, 3));
@@ -5031,7 +4808,6 @@ function updateMoleculeGeometry(view) {
 	var options = view.options;
 
 	if (options.showAtoms) {
-		console.log("updating atoms", view.molecule.atoms);
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
@@ -5092,7 +4868,6 @@ function updateMoleculeGeometry(view) {
 	}
 
 	if (options.showBonds) {
-		console.log("updating bonds", view.molecule.atoms);
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
@@ -5150,9 +4925,6 @@ function updateMoleculeGeometry(view) {
 			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
 		}
 	}
-
-	// removeMoleculeGeometry(view);
-	// getMoleculeGeometry(view);
 }
 
 function changeMoleculeGeometry(view) {
@@ -5170,107 +4942,15 @@ function removeMoleculeGeometry(view) {
 	}
 }
 
-function addMoleculePeriodicReplicates(view) {
-
-	var systemDimension = view.systemDimension;
-	var latticeVectors = view.systemLatticeVectors;
-
-	view.periodicReplicateMolecule = {};
-
-	var options = view.options;
-	var scene = view.scene;
-
-	var atoms = view.molecule.atoms;
-	var bonds = view.molecule.bonds;
-
-	var x_start = -1 * ((options.xPBC - 1) / 2);
-	var x_end = (options.xPBC - 1) / 2 + 1;
-	var y_start = -1 * ((options.yPBC - 1) / 2);
-	var y_end = (options.yPBC - 1) / 2 + 1;
-	var z_start = -1 * ((options.zPBC - 1) / 2);
-	var z_end = (options.zPBC - 1) / 2 + 1;
-
-	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-		'y': systemDimension.x * latticeVectors.u12,
-		'z': systemDimension.x * latticeVectors.u13 };
-	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-		'y': systemDimension.y * latticeVectors.u22,
-		'z': systemDimension.y * latticeVectors.u23 };
-	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-		'y': systemDimension.z * latticeVectors.u32,
-		'z': systemDimension.z * latticeVectors.u33 };
-
-	var xStep, yStep, zStep, tempBondsReplica, tempAtomsReplica;
-
-	var periodicReplicateAtomGroup = new THREE.Group();
-	var periodicReplicateBondGroup = new THREE.Group();
-
-	if (options.showAtoms) {
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					if ((i == 0 && j == 0 && k == 0) == false) {
-						tempAtomsReplica = atoms.clone();
-						xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-						yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-						zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-						tempAtomsReplica.position.set(xStep, yStep, zStep);
-						periodicReplicateAtomGroup.add(tempAtomsReplica);
-					}
-				}
-			}
-		}
-	}
-
-	if (options.showBonds) {
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					if ((i == 0 && j == 0 && k == 0) == false) {
-						tempBondsReplica = bonds.clone();
-						xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-						yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-						zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-						tempBondsReplica.position.set(xStep, yStep, zStep);
-						periodicReplicateBondGroup.add(tempBondsReplica);
-					}
-				}
-			}
-		}
-	}
-
-	view.periodicReplicateMolecule.atoms = periodicReplicateAtomGroup;
-	view.periodicReplicateMolecule.bonds = periodicReplicateBondGroup;
-	scene.add(periodicReplicateAtomGroup);
-	scene.add(periodicReplicateBondGroup);
-}
-
-function removeMoleculePeriodicReplicates(view) {
-
-	if (view.periodicReplicateMolecule != null) {
-		view.scene.remove(view.periodicReplicateMolecule.atoms);
-		view.scene.remove(view.periodicReplicateMolecule.bonds);
-		delete view.periodicReplicateMolecule;
-	}
-}
-
-function changeMoleculePeriodicReplicates(view) {
-	removeMoleculePeriodicReplicates(view);
-	addMoleculePeriodicReplicates(view);
-}
-
 },{"../Utilities/other.js":29,"./AtomSetup.js":12,"./Materials.js":13}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
 exports.getPointCloudGeometry = getPointCloudGeometry;
-exports.addPointCloudPeriodicReplicates = addPointCloudPeriodicReplicates;
 exports.updatePointCloudGeometry = updatePointCloudGeometry;
 exports.animatePointCloudGeometry = animatePointCloudGeometry;
 exports.removePointCloudGeometry = removePointCloudGeometry;
-exports.removePointCloudPeriodicReplicates = removePointCloudPeriodicReplicates;
 exports.changePointCloudGeometry = changePointCloudGeometry;
-exports.changePointCloudPeriodicReplicates = changePointCloudPeriodicReplicates;
 
 var _MaterialsJs = require("./Materials.js");
 
@@ -5383,7 +5063,6 @@ function getPointCloudGeometry(view) {
 	var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
 	sumDisplacement.fill(0);
 	var xStep, yStep, zStep;
-	// var sumDisplacement = [];
 	for (var i = x_start; i < x_end; i++) {
 		for (var j = y_start; j < y_end; j++) {
 			for (var k = z_start; k < z_end; k++) {
@@ -5391,7 +5070,6 @@ function getPointCloudGeometry(view) {
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 
-				// sumDisplacement.push(xStep, yStep, zStep);
 				sumDisplacement[counter * 3 + 0] = xStep;
 				sumDisplacement[counter * 3 + 1] = yStep;
 				sumDisplacement[counter * 3 + 2] = zStep;
@@ -5406,9 +5084,6 @@ function getPointCloudGeometry(view) {
 	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 	geometry.parentBlockMap = parentBlock;
-	console.log(sumDisplacement);
-	// const sumDisp = new Float32Array(sumDisplacement);
-	// geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3));
 	geometry.maxInstancedCount = counter;
 
@@ -5416,123 +5091,6 @@ function getPointCloudGeometry(view) {
 	System.frustumCulled = false;
 	view.System = System;
 	scene.add(System);
-
-	/* var geometry = new THREE.BufferGeometry();
- geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
- geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
- geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
- geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
- geometry.parentBlockMap = parentBlock;
- 
- var System = new THREE.Points( geometry, shaderMaterial );
- view.System = System;
- scene.add( System );
- 
- if (options.PBCBoolean){
- 	changePointCloudPeriodicReplicates(view);
- }
- */
-}
-
-function getPositionArrayAfterTranslation(positions, count, x, y, z) {
-	var result = new Float32Array(count * 3);
-	for (var i = 0; i < count * 3; i = i + 3) {
-		result[i] = positions[i] + x;
-		result[i + 1] = positions[i + 1] + y;
-		result[i + 2] = positions[i + 2] + z;
-	}
-	return result;
-}
-
-function addPointCloudPeriodicReplicates(view) {
-
-	var systemDimension = view.systemDimension;
-	var latticeVectors = view.systemLatticeVectors;
-
-	var options = view.options;
-	var system = view.System;
-
-	var x_start = -1 * ((options.xPBC - 1) / 2);
-	var x_end = (options.xPBC - 1) / 2 + 1;
-	var y_start = -1 * ((options.yPBC - 1) / 2);
-	var y_end = (options.yPBC - 1) / 2 + 1;
-	var z_start = -1 * ((options.zPBC - 1) / 2);
-	var z_end = (options.zPBC - 1) / 2 + 1;
-
-	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-		'y': systemDimension.x * latticeVectors.u12,
-		'z': systemDimension.x * latticeVectors.u13 };
-	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-		'y': systemDimension.y * latticeVectors.u22,
-		'z': systemDimension.y * latticeVectors.u23 };
-	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-		'y': systemDimension.z * latticeVectors.u32,
-		'z': systemDimension.z * latticeVectors.u33 };
-
-	// 	var periodicReplicateSystemGroup = new THREE.Group();
-
-	var xStep, yStep, zStep;
-
-	var sumDisplacement = [];
-	for (var i = x_start; i < x_end; i++) {
-		for (var j = y_start; j < y_end; j++) {
-			for (var k = z_start; k < z_end; k++) {
-				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-				sumDisplacement.push(xStep, yStep, zStep);
-			}
-		}
-	}
-	console.log(sumDisplacement);
-	var sumDisp = new Float32Array(sumDisplacement);
-	system.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
-
-	/*for ( var i = x_start; i < x_end; i ++) {
- 	for ( var j = y_start; j < y_end; j ++) {
- 		for ( var k = z_start; k < z_end; k ++) {
- 			if (!((i == 0) && (j == 0) && (k == 0))) {
- 				var tempSystemReplica = system.clone();
- 				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
- 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
- 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
- 				
- 				tempSystemReplica.position.set(xStep, yStep, zStep); 
- 				periodicReplicateSystemGroup.add(tempSystemReplica);
- 			}
- 		}
- 	}
- }
- view.periodicReplicateSystems = periodicReplicateSystemGroup;
- scene.add(periodicReplicateSystemGroup);*/
-
-	/*var options = view.options;
- var system = view.System;
- 
- var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
- var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
- var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
- 
- 
- var x_start = -1 * ((options.xPBC-1)/2);
- var x_end = ((options.xPBC-1)/2) + 1;
- var y_start = -1 * ((options.yPBC-1)/2);
- var y_end = ((options.yPBC-1)/2) + 1;
- var z_start = -1 * ((options.zPBC-1)/2);
- var z_end = ((options.zPBC-1)/2) + 1;
- 
- const sumDisplacement = []
- for ( var i = x_start; i < x_end; i ++) {
- 	for ( var j = y_start; j < y_end; j ++) {
- 		for ( var k = z_start; k < z_end; k ++) {
- 			sumDisplacement.push(i*xStep, j*yStep, k*zStep);
- 		}
- 	}
- }
- console.log(sumDisplacement);
- const sumDisp = new Float32Array(sumDisplacement);
- system.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));*/
 }
 
 function updatePointCloudGeometry(view) {
@@ -5571,7 +5129,6 @@ function updatePointCloudGeometry(view) {
 
 		if (spatiallyResolvedData[k].selected) {
 			alphas[i] = options.pointCloudAlpha;
-			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
 			if (options.animate) {
 				sizes[i] = Math.random() * options.pointCloudSize;
 			} else {
@@ -5610,7 +5167,6 @@ function updatePointCloudGeometry(view) {
 
 	var xStep, yStep, zStep;
 
-	// const sumDisplacement = []
 	var sumDisplacement = view.System.geometry.attributes.offset.array;
 	var counter = 0;
 	for (var i = x_start; i < x_end; i++) {
@@ -5620,7 +5176,6 @@ function updatePointCloudGeometry(view) {
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 
-				// sumDisplacement.push(xStep, yStep, zStep);
 				sumDisplacement[counter * 3 + 0] = xStep;
 				sumDisplacement[counter * 3 + 1] = yStep;
 				sumDisplacement[counter * 3 + 2] = zStep;
@@ -5628,13 +5183,9 @@ function updatePointCloudGeometry(view) {
 			}
 		}
 	}
-	// console.log(sumDisplacement);
 	view.System.geometry.attributes.offset.needsUpdate = true;
 	view.System.geometry.maxInstancedCount = counter;
-	// const sumDisp = new Float32Array(sumDisplacement);
-	// view.System.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 
-	// console.log(view.System, view.System.shaderMaterial);
 	view.System.material.uniforms.xClippingPlaneMax.value = options.x_high;
 	view.System.material.uniforms.xClippingPlaneMin.value = options.x_low;
 	view.System.material.uniforms.yClippingPlaneMax.value = options.y_high;
@@ -5690,23 +5241,9 @@ function removePointCloudGeometry(view) {
 	}
 }
 
-function removePointCloudPeriodicReplicates(view) {
-	view.scene.remove(view.periodicReplicateSystems);
-	if (view.periodicReplicateSystems != null) {
-		view.scene.remove(view.periodicReplicateSystems);
-		delete view.periodicReplicateSystems;
-	}
-}
-
 function changePointCloudGeometry(view) {
 	removePointCloudGeometry(view);
 	getPointCloudGeometry(view);
-}
-
-function changePointCloudPeriodicReplicates(view) {
-	//if (view.periodicReplicateSystems != null ){removePointCloudPeriodicReplicates(view)}
-	removePointCloudPeriodicReplicates(view);
-	addPointCloudPeriodicReplicates(view);
 }
 
 },{"./Materials.js":13}],16:[function(require,module,exports){
@@ -6027,20 +5564,16 @@ function setupOptionBox3DView(view, plotSetup) {
 	systemInfoFolder.add(options, 'showMolecule').name('Show Molecule').onChange(function (value) {
 		if (value == true) {
 			_MoleculeViewJs.getMoleculeGeometry(view);
-			_MoleculeViewJs.addMoleculePeriodicReplicates(view);
 		} else {
 			_MoleculeViewJs.removeMoleculeGeometry(view);
-			_MoleculeViewJs.removeMoleculePeriodicReplicates(view);
 		}
 	});
 
 	systemInfoFolder.add(options, 'showPointCloud').name('Show Point Cloud').onChange(function (value) {
 		if (value == true) {
 			_PointCloud_selectionJs.getPointCloudGeometry(view);
-			_PointCloud_selectionJs.addPointCloudPeriodicReplicates(view);
 		} else {
 			_PointCloud_selectionJs.removePointCloudGeometry(view);
-			_PointCloud_selectionJs.removePointCloudPeriodicReplicates(view);
 		}
 	});
 
@@ -6060,11 +5593,9 @@ function setupOptionBox3DView(view, plotSetup) {
 		viewFolder.add(options, 'currentFrame', view.frameMin, view.frameMax).step(1).name('Current Frame').onChange(function (value) {
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean) {
 				_PointCloud_selectionJs.updatePointCloudGeometry(view);
-				// if (options.PBCBoolean == true) {changePointCloudPeriodicReplicates(view);}
 			}
 			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculeGeometry(view);
-				// if (options.PBCBoolean == true) {changeMoleculePeriodicReplicates(view);}
 			}
 		});
 	}
@@ -6080,18 +5611,6 @@ function setupOptionBox3DView(view, plotSetup) {
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 		}
-		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-  	// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-  	if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-  	if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
-  	options.PBCBoolean = true;
-  }
-  else {
-  	// removePointCloudPeriodicReplicates(view);
-  	updatePointCloudGeometry(view);
-  	removeMoleculePeriodicReplicates(view);
-  	options.PBCBoolean = false;
-  }  */
 	});
 
 	PBCFolder.add(options, 'yPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
@@ -6101,18 +5620,6 @@ function setupOptionBox3DView(view, plotSetup) {
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 		}
-		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-  	// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-  	if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-  	if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
-  	options.PBCBoolean = true;
-  }
-  else {
-  	// removePointCloudPeriodicReplicates(view);
-  	updatePointCloudGeometry(view);
-  	removeMoleculePeriodicReplicates(view);
-  	options.PBCBoolean = false;
-  }  */
 	});
 
 	PBCFolder.add(options, 'zPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
@@ -6122,18 +5629,6 @@ function setupOptionBox3DView(view, plotSetup) {
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 		}
-		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-  	// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-  	if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-  	if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
-  	options.PBCBoolean = true;
-  }
-  else {
-  	// removePointCloudPeriodicReplicates(view);
-  	updatePointCloudGeometry(view);
-  	removeMoleculePeriodicReplicates(view);
-  	options.PBCBoolean = false;
-  }  */
 	});
 	PBCFolder.close();
 
@@ -6141,30 +5636,18 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		moleculeFolder.add(options, 'showAtoms').name('Show Atoms').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			if (options.PBCBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			};
 		});
 
 		moleculeFolder.add(options, 'showBonds').name('Show Bonds').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			if (options.PBCBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			};
 		});
 
 		moleculeFolder.add(options, 'atomsStyle', { "sprite": "sprite", "ball": "ball" }).name('Atom Style').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			if (options.PBCBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			};
 		});
 
 		moleculeFolder.add(options, 'bondsStyle', { "line": "line", "tube": "tube", "fatline": "fatline" }).name('Bond Style').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			if (options.PBCBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			};
 		});
 
 		moleculeFolder.add(options, 'moleculeColorCodeBasis', moleculeDataFeatureChoiceObject).name('Color Basis').onChange(function (value) {
@@ -6177,20 +5660,15 @@ function setupOptionBox3DView(view, plotSetup) {
 			if (value != "atom") {
 				_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 			}
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			gui.updateDisplay();
 		});
 
 		moleculeFolder.add(options, 'moleculeColorSettingMin', -100, 100).step(0.1).name('Color Scale Min').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			if (options.PBCBoolean) {
-				_MoleculeViewJs.changeMoleculePeriodicReplicates(view);
-			};
 			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 		});
 		moleculeFolder.add(options, 'moleculeColorSettingMax', -100, 100).step(0.1).name('Color Scale Max').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 		});
 
@@ -6198,43 +5676,32 @@ function setupOptionBox3DView(view, plotSetup) {
 			//adjustColorScaleAccordingToDefault(view);
 			_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			gui.updateDisplay();
 		});
 
 		moleculeFolder.add(options, 'moleculeSizeSettingMin', -100, 100).step(0.1).name('Size Scale Min').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};	
 		});
 		moleculeFolder.add(options, 'moleculeSizeSettingMax', -100, 100).step(0.1).name('Size Scale Max').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
 		moleculeFolder.add(options, 'atomSize', 0.01, 2).step(0.01).name('Atom Size').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeFolder.add(options, 'bondSize', 0.01, 0.5).step(0.01).name('Bond Size').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeFolder.add(options, 'moleculeAlpha', 0.1, 1.0).step(0.1).name('Molecule Opacity').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 
 		moleculeFolder.add(options, 'maxBondLength', 0.1, 4).step(0.1).name('Bond Max').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
 		});
 
 		moleculeFolder.add(options, 'minBondLength', 0.1, 4).step(0.1).name('Bond Min').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
 		});
 
 		moleculeFolder.close();
@@ -6266,13 +5733,9 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		moleculeAdditionalFolder.add(options, 'atomModelSegments', 3, 200).step(1).name('Atom Resolution').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeAdditionalFolder.add(options, 'bondModelSegments', 3, 200).step(1).name('Bond Resolution').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeAdditionalFolder.close();
 
@@ -6299,43 +5762,35 @@ function setupOptionBox3DView(view, plotSetup) {
 		pointCloudFolder.add(options, 'propertyOfInterest', propertyChoiceObject).name('Color Basis').onChange(function (value) {
 			_UtilitiesScaleJs.adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 			gui.updateDisplay();
 		});
 
 		pointCloudFolder.add(options, 'colorMap', _UtilitiesColorMapJs.colorMapDict).name('Color Scheme').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
 
 		pointCloudFolder.add(options, 'pointCloudParticles', 0, 100).step(0.1).name('Density').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 
 		pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add(options, 'pointCloudSize', 0.01, 1).step(0.01).name('Size').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add(options, 'pointCloudColorSettingMin', -1000, 1000).step(0.001).name('Color Scale Min').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
 		pointCloudFolder.add(options, 'pointCloudColorSettingMax', -1000, 1000).step(0.001).name('Color Scale Max').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			_MultiviewControlColorLegendJs.changeLegend(view);
 		});
 		pointCloudFolder.add(options, 'pointCloudMaxPointPerBlock', 10, 200).step(10).name('Max Density').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add(options, 'animate').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
@@ -6370,7 +5825,6 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		pointCloudAdditionalFolder.add(options, 'pointCloudTotalMagnitude', -5, 10).step(1).name('Dens. Magnitude').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudAdditionalFolder.close();
 	}

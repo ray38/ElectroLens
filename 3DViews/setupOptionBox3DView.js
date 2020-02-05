@@ -1,5 +1,5 @@
-import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "./PointCloud_selection.js";
-import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, addMoleculePeriodicReplicates, removeMoleculePeriodicReplicates, changeMoleculePeriodicReplicates, updateMoleculeGeometry} from "./MoleculeView.js";
+import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "./PointCloud_selection.js";
+import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, updateMoleculeGeometry} from "./MoleculeView.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
@@ -17,7 +17,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	if (view.systemMoleculeDataBoolean) {
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
 		//if (moleculeDataFeatureList.includes('atom') == false){
-		console.log(moleculeDataFeatureList.indexOf("atom"))
+		// console.log(moleculeDataFeatureList.indexOf("atom"))
 		if (moleculeDataFeatureList.indexOf("atom") < 0){
 			moleculeDataFeatureList.push("atom");
 		}
@@ -51,10 +51,8 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ) {
 		if (value == true) {
 			getMoleculeGeometry(view);
-			addMoleculePeriodicReplicates(view);
 		} else {
 			removeMoleculeGeometry(view);
-			removeMoleculePeriodicReplicates(view);
 		}
 	});
 
@@ -63,10 +61,8 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ) {
 		if (value == true) {
 			getPointCloudGeometry(view);
-			addPointCloudPeriodicReplicates(view);
 		} else {
 			removePointCloudGeometry(view);
-			removePointCloudPeriodicReplicates(view);
 		}
 	});
 
@@ -96,13 +92,9 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){
 				updatePointCloudGeometry(view);
-				// if (options.PBCBoolean == true) {changePointCloudPeriodicReplicates(view);}
-				
 			}
 			if (options.showMolecule && view.systemMoleculeDataBoolean){
 				changeMoleculeGeometry(view);
-				// if (options.PBCBoolean == true) {changeMoleculePeriodicReplicates(view);}
-				
 			}
 		});
 	}
@@ -119,54 +111,18 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculeGeometry(view);}
-		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-			if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
-			options.PBCBoolean = true;
-		}
-		else {
-			// removePointCloudPeriodicReplicates(view);
-			updatePointCloudGeometry(view);
-			removeMoleculePeriodicReplicates(view);
-			options.PBCBoolean = false;
-		}  */
 	});
 
 	PBCFolder.add( options, 'yPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculeGeometry(view);}
-		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-			if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
-			options.PBCBoolean = true;
-		}
-		else {
-			// removePointCloudPeriodicReplicates(view);
-			updatePointCloudGeometry(view);
-			removeMoleculePeriodicReplicates(view);
-			options.PBCBoolean = false;
-		}  */
 	});
 
 	PBCFolder.add( options, 'zPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculeGeometry(view);}
-		/* if ((options.xPBC > 1) || (options.yPBC > 1) || (options.zPBC > 1))	{
-			// if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){changePointCloudPeriodicReplicates(view);}
-			if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-			if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculePeriodicReplicates(view);}
-			options.PBCBoolean = true;
-		}
-		else {
-			// removePointCloudPeriodicReplicates(view);
-			updatePointCloudGeometry(view);
-			removeMoleculePeriodicReplicates(view);
-			options.PBCBoolean = false;
-		}  */
 	});
 	PBCFolder.close();
 	
@@ -178,28 +134,24 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Show Atoms' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
 		moleculeFolder.add( options, 'showBonds')
 		.name( 'Show Bonds' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
 		moleculeFolder.add( options, 'atomsStyle',{"sprite":"sprite", "ball":"ball"})
 		.name( 'Atom Style' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
 		moleculeFolder.add( options, 'bondsStyle',{"line":"line", "tube":"tube", "fatline": "fatline"})
 		.name( 'Bond Style' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
 		moleculeFolder.add( options, 'moleculeColorCodeBasis', moleculeDataFeatureChoiceObject)
@@ -210,7 +162,6 @@ export function setupOptionBox3DView(view,plotSetup){
 			adjustScaleAccordingToDefaultMoleculeData(view);
 			changeMoleculeGeometry(view);
 			if (value != "atom"){changeLegendMolecule(view);}
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			gui.updateDisplay();
 		});
 
@@ -218,14 +169,12 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Color Scale Min' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			changeLegendMolecule(view);	
 		});
 		moleculeFolder.add( options, 'moleculeColorSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			changeLegendMolecule(view);	
 		});
 
@@ -235,7 +184,6 @@ export function setupOptionBox3DView(view,plotSetup){
 			//adjustColorScaleAccordingToDefault(view);
 			adjustScaleAccordingToDefaultMoleculeData(view);
 			changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 			gui.updateDisplay();
 		});
 
@@ -243,35 +191,27 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Size Scale Min' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};	
 		});
 		moleculeFolder.add( options, 'moleculeSizeSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Size Scale Max' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// if (options.PBCBoolean){changeMoleculePeriodicReplicates(view)};
 		});
 
 		moleculeFolder.add( options, 'atomSize', 0.01, 2 ).step( 0.01 )
 		.name( 'Atom Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeFolder.add( options, 'bondSize', 0.01, 0.5 ).step( 0.01 )
 		.name( 'Bond Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeFolder.add( options, 'moleculeAlpha', 0.1, 1.0 ).step( 0.1 )
 		.name( 'Molecule Opacity' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 
 
@@ -279,14 +219,12 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Bond Max' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
 		});
 
 		moleculeFolder.add( options, 'minBondLength', 0.1, 4 ).step( 0.1 )
 		.name( 'Bond Min' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
 		});
 
 		moleculeFolder.close();
@@ -320,15 +258,11 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Atom Resolution' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeAdditionalFolder.add( options, 'bondModelSegments', 3, 200 ).step( 1 )
 		.name( 'Bond Resolution' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
-			// changeMoleculeGeometry(view);
-			// changeMoleculePeriodicReplicates(view);
 		});
 		moleculeAdditionalFolder.close();
 
@@ -368,7 +302,6 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
 			updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 			gui.updateDisplay();
 		});
@@ -377,7 +310,6 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Color Scheme' )
 		.onChange( function( value ){
 			updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);		
 		});
 
@@ -385,40 +317,34 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Density' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		
 		pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
 		.name( 'Opacity' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add( options, 'pointCloudSize', 0.01, 1 ).step( 0.01 )
 		.name( 'Size' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Min' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 			changeLegend(view);	
 		});
 		pointCloudFolder.add( options, 'pointCloudMaxPointPerBlock', 10, 200 ).step( 10 )
 		.name( 'Max Density')
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudFolder.add( options, 'animate')
 		.onChange( function( value ) {
@@ -456,7 +382,6 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Dens. Magnitude' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
-			// if (options.PBCBoolean){changePointCloudPeriodicReplicates(view)};
 		});
 		pointCloudAdditionalFolder.close();
 

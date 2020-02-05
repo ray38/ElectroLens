@@ -74,7 +74,6 @@ export function getPointCloudGeometry(view){
 						alphas[ i ] = options.pointCloudAlpha;
 						if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
 						else { sizes[ i ] = options.pointCloudSize; }
-						
 					}
 				else {
 					alphas[ i ] = 0;
@@ -112,7 +111,6 @@ export function getPointCloudGeometry(view){
 	var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
     sumDisplacement.fill(0);
 	var xStep, yStep, zStep;
-	// var sumDisplacement = [];
 	for ( var i = x_start; i < x_end; i ++) {
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
@@ -120,7 +118,6 @@ export function getPointCloudGeometry(view){
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 				
-				// sumDisplacement.push(xStep, yStep, zStep);
 				sumDisplacement[counter * 3 + 0] = xStep;
 				sumDisplacement[counter * 3 + 1] = yStep;
 				sumDisplacement[counter * 3 + 2] = zStep;
@@ -136,9 +133,6 @@ export function getPointCloudGeometry(view){
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 	geometry.parentBlockMap = parentBlock;
-	console.log(sumDisplacement);
-	// const sumDisp = new Float32Array(sumDisplacement);
-	// geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3 ));
 	geometry.maxInstancedCount = counter;
 
@@ -146,128 +140,7 @@ export function getPointCloudGeometry(view){
 	System.frustumCulled = false;
 	view.System = System;
 	scene.add( System );
-
-	/* var geometry = new THREE.BufferGeometry();
-	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-	geometry.parentBlockMap = parentBlock;
-
-	var System = new THREE.Points( geometry, shaderMaterial );
-	view.System = System;
-	scene.add( System );
-
-	if (options.PBCBoolean){
-		changePointCloudPeriodicReplicates(view);
-	}
- */
 }
-
-
-function getPositionArrayAfterTranslation(positions, count, x, y, z){
-	var result = new Float32Array(count*3)
-	for (var i = 0; i < count*3; i=i+3){
-		result[i] = positions[i] + x;
-		result[i+1] = positions[i + 1] + y;
-		result[i+2] = positions[i + 2] + z;
-	}
-	return result;
-}
-
-export function addPointCloudPeriodicReplicates(view){
-
-	var systemDimension = view.systemDimension;
-	var latticeVectors = view.systemLatticeVectors;
-
-	var options = view.options;
-	var system = view.System;
-
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
-
-	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-					'y': systemDimension.x * latticeVectors.u12, 
-					'z': systemDimension.x * latticeVectors.u13};
-	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-					'y': systemDimension.y * latticeVectors.u22, 
-					'z': systemDimension.y * latticeVectors.u23};
-	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-					'y': systemDimension.z * latticeVectors.u32, 
-					'z': systemDimension.z * latticeVectors.u33};
-
-// 	var periodicReplicateSystemGroup = new THREE.Group();
-	
-	var xStep, yStep, zStep;
-
-	const sumDisplacement = []
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
-				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-				
-				sumDisplacement.push(xStep, yStep, zStep); 
-			}
-		}
-	}
-	console.log(sumDisplacement);
-	const sumDisp = new Float32Array(sumDisplacement);
-	system.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
-
-	/*for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
-				if (!((i == 0) && (j == 0) && (k == 0))) {
-					var tempSystemReplica = system.clone();
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-					
-					tempSystemReplica.position.set(xStep, yStep, zStep); 
-					periodicReplicateSystemGroup.add(tempSystemReplica);
-				}
-			}
-		}
-	}
-	view.periodicReplicateSystems = periodicReplicateSystemGroup;
-	scene.add(periodicReplicateSystemGroup);*/
-
-	/*var options = view.options;
-	var system = view.System;
-
-	var xStep = 10.0*(view.xPlotMax - view.xPlotMin);
-	var yStep = 10.0*(view.yPlotMax - view.yPlotMin);
-	var zStep = 10.0*(view.zPlotMax - view.zPlotMin);
-
-
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
-
-	const sumDisplacement = []
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
-				sumDisplacement.push(i*xStep, j*yStep, k*zStep);
-			}
-		}
-	}
-	console.log(sumDisplacement);
-	const sumDisp = new Float32Array(sumDisplacement);
-	system.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));*/
-
-}
-
-
 
 
 export function updatePointCloudGeometry(view){
@@ -308,7 +181,6 @@ export function updatePointCloudGeometry(view){
 		if (spatiallyResolvedData[k].selected)
 		{
 			alphas[ i ] = options.pointCloudAlpha;
-			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
 			if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
 			else { sizes[ i ] = options.pointCloudSize; }
 		}
@@ -347,7 +219,6 @@ export function updatePointCloudGeometry(view){
 	
 	var xStep, yStep, zStep;
 
-	// const sumDisplacement = []
 	var sumDisplacement = view.System.geometry.attributes.offset.array;
 	var counter = 0
 	for ( var i = x_start; i < x_end; i ++) {
@@ -357,7 +228,6 @@ export function updatePointCloudGeometry(view){
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 				
-				// sumDisplacement.push(xStep, yStep, zStep);
 				sumDisplacement[counter * 3 + 0] = xStep;
 				sumDisplacement[counter * 3 + 1] = yStep;
 				sumDisplacement[counter * 3 + 2] = zStep;
@@ -365,13 +235,9 @@ export function updatePointCloudGeometry(view){
 			}
 		}
 	}
-	// console.log(sumDisplacement);
 	view.System.geometry.attributes.offset.needsUpdate = true;
 	view.System.geometry.maxInstancedCount = counter;
-	// const sumDisp = new Float32Array(sumDisplacement);
-	// view.System.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 
-	// console.log(view.System, view.System.shaderMaterial);
 	view.System.material.uniforms.xClippingPlaneMax.value = options.x_high;
 	view.System.material.uniforms.xClippingPlaneMin.value = options.x_low;
 	view.System.material.uniforms.yClippingPlaneMax.value = options.y_high;
@@ -437,22 +303,8 @@ export function removePointCloudGeometry(view){
 }
 
 
-export function removePointCloudPeriodicReplicates(view){
-	view.scene.remove(view.periodicReplicateSystems);
-	if (view.periodicReplicateSystems != null ){
-		view.scene.remove(view.periodicReplicateSystems);
-		delete view.periodicReplicateSystems;
-	}
-}
-
 export function changePointCloudGeometry(view){
 	removePointCloudGeometry(view);
 	getPointCloudGeometry(view);
 
-}
-
-export function changePointCloudPeriodicReplicates(view){
-	//if (view.periodicReplicateSystems != null ){removePointCloudPeriodicReplicates(view)}
-	removePointCloudPeriodicReplicates(view);
-	addPointCloudPeriodicReplicates(view);
 }

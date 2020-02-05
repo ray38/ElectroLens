@@ -7,7 +7,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	var systemDimension = viewSetup.systemDimension;
 	
 	if (viewSetup.systemLatticeVectors == null || viewSetup.systemLatticeVectors == undefined) {
-		console.log('assigning default lattice vector');
 		viewSetup.systemLatticeVectors = { 	"u11": 1, 
 											"u12": 0, 
 											"u13": 0, 

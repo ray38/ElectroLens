@@ -3,8 +3,8 @@ import {updatePCAHeatmap} from "../PCAView.js";
 import {updateComparison} from "../comparisonView.js"
 //import {updatePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
 
-import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, updatePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "../../3DViews/PointCloud_selection.js";
-import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, addMoleculePeriodicReplicates, removeMoleculePeriodicReplicates, changeMoleculePeriodicReplicates} from "../../3DViews/MoleculeView.js";
+import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
+import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry} from "../../3DViews/MoleculeView.js";
 
 
 /*export function heatmapsResetSelection(views){
@@ -78,14 +78,12 @@ export function updateAllPlots(views){
 	for (var ii =  0; ii < views.length; ++ii ) {
 		var view = views[ii];
 		if (view.viewType == '3DView'){
-			//if (view.System != null){updatePointCloudGeometry(view);}
 			if (view.systemSpatiallyResolvedDataBoolean) {
 				updatePointCloudGeometry(view);
-				if (view.options.PBCBoolean) {updatePointCloudPeriodicReplicates(view);}
 			}
 			if (view.systemMoleculeDataBoolean) {
 				changeMoleculeGeometry(view);
-				if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
 		}
 	}

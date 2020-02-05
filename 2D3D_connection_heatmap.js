@@ -63,7 +63,6 @@ else{
 		var divider = document.getElementById("divider");
 
 		$(".save-config").click(function(e){
-			console.log("calling save config");
 			var CONFIG = readInputForm();
 			download(CONFIG, 'config.json', 'text/plain');
 		})
@@ -71,7 +70,6 @@ else{
 		$( "form" ).submit(function( event ) {
 
 			var CONFIG = readInputForm();
-		    console.log( CONFIG );
 		    console.log("read input form");
 		    event.preventDefault();
 		    uploader.parentNode.removeChild(uploader);
@@ -96,8 +94,6 @@ function handleFiles() {
 	uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
 	configForm.parentNode.removeChild(configForm);
 	divider.parentNode.removeChild(divider);
-	console.log(file);
-	console.log(this);
 
 	$.ajax({
 		url: file.path,
@@ -130,7 +126,6 @@ function handleViewSetup(data){
 }
 
 function main(views,plotSetup) {
-	console.log(plotSetup);
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 	var container, stats, renderer, effect;
