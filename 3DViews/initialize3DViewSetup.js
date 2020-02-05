@@ -39,7 +39,13 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		}
 	} 
 
-	var roughSystemSize = Math.sqrt(systemDimension.x * systemDimension.x + systemDimension.y * systemDimension.y + systemDimension.z * systemDimension.z)
+	var roughSystemSize = Math.sqrt(systemDimension.x * systemDimension.x + systemDimension.y * systemDimension.y + systemDimension.z * systemDimension.z);
+	var xPlotMin = systemDimension.x * -10;
+	var yPlotMin = systemDimension.y * -10;
+	var zPlotMin = systemDimension.z * -10;
+	var xPlotMax = systemDimension.x * 10;
+	var yPlotMax = systemDimension.y * 10;
+	var zPlotMax = systemDimension.z * 10;
 	
 	/* var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
 	var yCoordMin = systemDimension["y"][0], yCoordMax = systemDimension["y"][1];
@@ -83,13 +89,13 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		// gridSpacing: gridSpacing,
 		systemLatticeVectors: systemLatticeVectors,
 		systemDimension: systemDimension,
-		/* xPlotMin : xPlotMin,
+		xPlotMin : xPlotMin,
 		xPlotMax : xPlotMax,
 		yPlotMin : yPlotMin,
 		yPlotMax : yPlotMax,
 		zPlotMin : zPlotMin,
 		zPlotMax : zPlotMax,
-		xCoordMin : xCoordMin,
+		/* xCoordMin : xCoordMin,
 		xCoordMax : xCoordMax,
 		yCoordMin : yCoordMin,
 		yCoordMax : yCoordMax,
@@ -125,12 +131,12 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.y_high = yPlotMax;
 			this.z_low =  zPlotMin;
 			this.z_high = zPlotMax; */
-			this.x_low =  -1000;
-			this.x_high = 1000;
-			this.y_low =  -1000;
-			this.y_high = 1000;
-			this.z_low =  -1000;
-			this.z_high = 1000;
+			this.x_low =  -100;
+			this.x_high = 100;
+			this.y_low =  -100;
+			this.y_high = 100;
+			this.z_low =  -100;
+			this.z_high = 100;
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;

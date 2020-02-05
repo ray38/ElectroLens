@@ -1,3 +1,6 @@
+var Papa = require('papaparse');
+const fs = require('fs');
+
 
 export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
@@ -158,9 +161,73 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 			console.log('end parsing')
 			callback(null);
 		});
+	}
+}
+
+export function readCSVSpatiallyResolvedDataPapaparse(view,overallSpatiallyResolvedData,plotSetup,callback){
+	view.systemSpatiallyResolvedData = [];
+	view.systemSpatiallyResolvedDataFramed = {};
+
+	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
+		console.log('no spatially resolved data loaded')
+		callback(null);
+	} else{
+		if (view.frameBool && !(plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty))){
+			alert("The frame property Not in spatiallyResolvedPropertyList");
+		}
+		console.log('started loading')
+		var filename = view.spatiallyResolvedData.dataFilename;
+		console.log(filename)
+		var propertyList = plotSetup.spatiallyResolvedPropertyList;
+		var density = plotSetup.pointcloudDensity;
+		var densityCutoffLow = plotSetup.densityCutoffLow;
+		var densityCutoffUp = plotSetup.densityCutoffUp;
+		var systemName = view.moleculeName;
+
+		var d, n, currentFrame;
+		Papa.parse(filename, {
+			header: true,
+			download: true,
+			chunk: function(chunk) {
+				for (var ii = 0; ii < chunk.length; ii++) {
+					d = chunck.data[ii];
+					n = +d[density];
+					if (n > densityCutoffLow && n < densityCutoffUp){
+						var temp = {
+								x:+d.x,
+								y:+d.y,
+								z:+d.z,
+								selected: true,
+								name: systemName
+							}
+						for (var i = 0; i < propertyList.length; i++) {
+							temp[propertyList[i]] = +d[propertyList[i]];
+						}
+
+						if (view.frameBool){
+							currentFrame = (+d[plotSetup.frameProperty]).toString();
+						}
+						else{
+							temp["__frame__"] = 1;
+							currentFrame = (1).toString();
+						}
+
+						!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
+
+						view.systemSpatiallyResolvedData.push(temp);
+						view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
+						overallSpatiallyResolvedData.push(temp);
+
+					}
+				}
+			},
+			complete: function() {
+				console.log('papa load complete',overallSpatiallyResolvedData);
+				callback(null);
+			}
+		});
 
 	}
-
 }
 
 

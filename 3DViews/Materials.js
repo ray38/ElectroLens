@@ -2,7 +2,14 @@ export function getPointCloudMaterialInstanced(options) {
 	var uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
+		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) },
+
+		xClippingPlaneMax: { type: 'f', value: options.x_high },
+		xClippingPlaneMin: { type: 'f', value: options.x_low  },
+		yClippingPlaneMax: { type: 'f', value: options.y_high },
+		yClippingPlaneMin: { type: 'f', value: options.y_low  },
+		zClippingPlaneMax: { type: 'f', value: options.z_high },
+		zClippingPlaneMin: { type: 'f', value: options.z_low  },
 
 	};
 
@@ -11,42 +18,58 @@ export function getPointCloudMaterialInstanced(options) {
 
 		uniforms:       uniforms,
 		vertexShader:   `
-		precision highp float;
+			precision highp float;
 
-		uniform mat4 modelViewMatrix;
-		uniform mat4 projectionMatrix;
+			uniform mat4 modelViewMatrix;
+			uniform mat4 projectionMatrix;
 
-		attribute vec3 position;
+			attribute vec3 position;
 
-		attribute float size;
-		attribute vec3 customColor;
-		attribute vec3 offset;
-		attribute float alpha;
+			attribute float size;
+			attribute vec3 customColor;
+			attribute vec3 offset;
+			attribute float alpha;
 
-		varying float vAlpha;
-		varying vec3 vColor;
+			varying vec3 slicePosition;
+			varying float vAlpha;
+			varying vec3 vColor;
 
-		void main() {
-		vColor = customColor;
-		vAlpha = alpha;
-		vec3 newPosition = position + offset;
-		vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
-		gl_PointSize = size * ( 300.0 / -mvPosition.z );
-		gl_Position = projectionMatrix * mvPosition;
+			void main() {
+			vColor = customColor;
+			vAlpha = alpha;
+			vec3 newPosition = position + offset;
+			slicePosition = newPosition;
+			vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+			gl_PointSize = size * ( 300.0 / -mvPosition.z );
+			gl_Position = projectionMatrix * mvPosition;
 
-		}`,
+			}`,
 		fragmentShader: `
-		precision highp float;
-		uniform vec3 color;
-		uniform sampler2D texture;
+			precision highp float;
+			uniform vec3 color;
+			uniform sampler2D texture;
 
-		varying vec3 vColor;
-		varying float vAlpha;
+			varying vec3 vColor;
+			varying float vAlpha;
+			varying vec3 slicePosition;
+			uniform float xClippingPlaneMax;
+			uniform float xClippingPlaneMin;
+			uniform float yClippingPlaneMax;
+			uniform float yClippingPlaneMin;
+			uniform float zClippingPlaneMax;
+			uniform float zClippingPlaneMin;
 
-		void main() {
-		gl_FragColor = vec4( color * vColor, vAlpha );
-		gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-		}`,
+			void main() {
+				if(slicePosition.x<xClippingPlaneMin) discard;
+				if(slicePosition.x>xClippingPlaneMax) discard;
+				if(slicePosition.y<yClippingPlaneMin) discard;
+				if(slicePosition.y>yClippingPlaneMax) discard;
+				if(slicePosition.z<zClippingPlaneMin) discard;
+				if(slicePosition.z>zClippingPlaneMax) discard;
+
+				gl_FragColor = vec4( color * vColor, vAlpha );
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+			}`,
 
 		blending:       THREE.AdditiveBlending,
 		depthTest:      false,
@@ -66,12 +89,23 @@ export function getPointCloudMaterialInstanced(options) {
 
 
 
-export function getMoleculeMaterialInstanced() {
+export function getMoleculeMaterialInstanced(options) {
+
+	var materialShader;
+
 	var material = new THREE.MeshLambertMaterial( {
+		// uniforms: uniforms,
 		vertexColors: THREE.VertexColors,
 	} );
 
 	material.onBeforeCompile = function( shader ) {
+		
+		shader.uniforms.xClippingPlaneMax = { type: 'f', value: options.x_high };
+		shader.uniforms.xClippingPlaneMin = { type: 'f', value: options.x_low  };
+		shader.uniforms.yClippingPlaneMax = { type: 'f', value: options.y_high };
+		shader.uniforms.yClippingPlaneMin = { type: 'f', value: options.y_low  };
+		shader.uniforms.zClippingPlaneMax = { type: 'f', value: options.z_high };
+		shader.uniforms.zClippingPlaneMin = { type: 'f', value: options.z_low  };
 		shader.vertexShader = `
 			#define LAMBERT
 		
@@ -82,6 +116,7 @@ export function getMoleculeMaterialInstanced() {
 		
 			varying vec3 vLightFront;
 			varying vec3 vIndirectFront;
+			varying vec3 slicePosition;
 		
 			#ifdef DOUBLE_SIDED
 				varying vec3 vLightBack;
@@ -125,6 +160,7 @@ export function getMoleculeMaterialInstanced() {
 				// transformed *= instanceScale;
 				// transformed = transformed + instanceOffset;
 				transformed = transformed + offset;
+				slicePosition = transformed;
 		
 				#include <morphtarget_vertex>
 				#include <skinning_vertex>
@@ -141,106 +177,126 @@ export function getMoleculeMaterialInstanced() {
 			}
 			`;
 		shader.fragmentShader = `
-		uniform vec3 diffuse;
-		uniform vec3 emissive;
-		uniform float opacity;
-		
-		varying vec3 vLightFront;
-		varying vec3 vIndirectFront;
-		
-		#ifdef DOUBLE_SIDED
-			varying vec3 vLightBack;
-			varying vec3 vIndirectBack;
-		#endif
-		
-		
-		#include <common>
-		#include <packing>
-		#include <dithering_pars_fragment>
-		#include <color_pars_fragment>
-		#include <uv_pars_fragment>
-		#include <uv2_pars_fragment>
-		#include <map_pars_fragment>
-		#include <alphamap_pars_fragment>
-		#include <aomap_pars_fragment>
-		#include <lightmap_pars_fragment>
-		#include <emissivemap_pars_fragment>
-		#include <envmap_common_pars_fragment>
-		#include <envmap_pars_fragment>
-		#include <cube_uv_reflection_fragment>
-		#include <bsdfs>
-		#include <lights_pars_begin>
-		#include <fog_pars_fragment>
-		#include <shadowmap_pars_fragment>
-		#include <shadowmask_pars_fragment>
-		#include <specularmap_pars_fragment>
-		#include <logdepthbuf_pars_fragment>
-		#include <clipping_planes_pars_fragment>
-		
-		void main() {
-		
-			#include <clipping_planes_fragment>
-		
-			vec4 diffuseColor = vec4( diffuse, opacity );
-			ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
-			vec3 totalEmissiveRadiance = emissive;
-		
-			#include <logdepthbuf_fragment>
-			#include <map_fragment>
-			#include <color_fragment>
-			#include <alphamap_fragment>
-			#include <alphatest_fragment>
-			#include <specularmap_fragment>
-			#include <emissivemap_fragment>
-		
-			// accumulation
-			reflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );
-		
+			uniform vec3 diffuse;
+			uniform vec3 emissive;
+			uniform float opacity;
+			
+			varying vec3 vLightFront;
+			varying vec3 vIndirectFront;
+
+			varying vec3 slicePosition;
+			uniform float xClippingPlaneMax;
+			uniform float xClippingPlaneMin;
+			uniform float yClippingPlaneMax;
+			uniform float yClippingPlaneMin;
+			uniform float zClippingPlaneMax;
+			uniform float zClippingPlaneMin;
+			
 			#ifdef DOUBLE_SIDED
-		
-				reflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;
-		
-			#else
-		
-				reflectedLight.indirectDiffuse += vIndirectFront;
-		
+				varying vec3 vLightBack;
+				varying vec3 vIndirectBack;
 			#endif
-		
-			#include <lightmap_fragment>
-		
-			reflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );
-		
-			#ifdef DOUBLE_SIDED
-		
-				reflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;
-		
-			#else
-		
-				reflectedLight.directDiffuse = vLightFront;
-		
-			#endif
-		
-			reflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();
-		
-			// modulation
-			#include <aomap_fragment>
-		
-			vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
-		
-			#include <envmap_fragment>
-		
-			gl_FragColor = vec4( outgoingLight, diffuseColor.a );
-		
-			#include <tonemapping_fragment>
-			#include <encodings_fragment>
-			#include <fog_fragment>
-			#include <premultiplied_alpha_fragment>
-			#include <dithering_fragment>
-		}
-		`;
+			
+			
+			#include <common>
+			#include <packing>
+			#include <dithering_pars_fragment>
+			#include <color_pars_fragment>
+			#include <uv_pars_fragment>
+			#include <uv2_pars_fragment>
+			#include <map_pars_fragment>
+			#include <alphamap_pars_fragment>
+			#include <aomap_pars_fragment>
+			#include <lightmap_pars_fragment>
+			#include <emissivemap_pars_fragment>
+			#include <envmap_common_pars_fragment>
+			#include <envmap_pars_fragment>
+			#include <cube_uv_reflection_fragment>
+			#include <bsdfs>
+			#include <lights_pars_begin>
+			#include <fog_pars_fragment>
+			#include <shadowmap_pars_fragment>
+			#include <shadowmask_pars_fragment>
+			#include <specularmap_pars_fragment>
+			#include <logdepthbuf_pars_fragment>
+			#include <clipping_planes_pars_fragment>
+			
+			void main() {
+
+				if(slicePosition.x<xClippingPlaneMin) discard;
+				if(slicePosition.x>xClippingPlaneMax) discard;
+				if(slicePosition.y<yClippingPlaneMin) discard;
+				if(slicePosition.y>yClippingPlaneMax) discard;
+				if(slicePosition.z<zClippingPlaneMin) discard;
+				if(slicePosition.z>zClippingPlaneMax) discard;
+			
+				#include <clipping_planes_fragment>
+			
+				vec4 diffuseColor = vec4( diffuse, opacity );
+				ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+				vec3 totalEmissiveRadiance = emissive;
+			
+				#include <logdepthbuf_fragment>
+				#include <map_fragment>
+				#include <color_fragment>
+				#include <alphamap_fragment>
+				#include <alphatest_fragment>
+				#include <specularmap_fragment>
+				#include <emissivemap_fragment>
+			
+				// accumulation
+				reflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );
+			
+				#ifdef DOUBLE_SIDED
+			
+					reflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;
+			
+				#else
+			
+					reflectedLight.indirectDiffuse += vIndirectFront;
+			
+				#endif
+			
+				#include <lightmap_fragment>
+			
+				reflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );
+			
+				#ifdef DOUBLE_SIDED
+			
+					reflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;
+			
+				#else
+			
+					reflectedLight.directDiffuse = vLightFront;
+			
+				#endif
+			
+				reflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();
+			
+				// modulation
+				#include <aomap_fragment>
+			
+				vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
+			
+				#include <envmap_fragment>
+			
+				gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+			
+				#include <tonemapping_fragment>
+				#include <encodings_fragment>
+				#include <fog_fragment>
+				#include <premultiplied_alpha_fragment>
+				#include <dithering_fragment>
+			}
+			`;
+		materialShader = shader;
 	};
 
-	return material;
+	console.log(material, material.uniforms,materialShader)
+	// material.uniforms = uniforms;
+	// console.log(material, material.uniforms)
+
+	return {materialShader, material};
 }
 
 
@@ -266,6 +322,150 @@ export var shaderMaterial2 = new THREE.ShaderMaterial( {
 });
 
 
+
+export function getMoleculeAtomSpriteMaterialInstanced(options) {
+	var uniforms = {
+
+		color:     { value: new THREE.Color( 0xffffff ) },
+		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/ball.png" ) },
+
+		xClippingPlaneMax: { type: 'f', value: options.x_high },
+		xClippingPlaneMin: { type: 'f', value: options.x_low  },
+		yClippingPlaneMax: { type: 'f', value: options.y_high },
+		yClippingPlaneMin: { type: 'f', value: options.y_low  },
+		zClippingPlaneMax: { type: 'f', value: options.z_high },
+		zClippingPlaneMin: { type: 'f', value: options.z_low  },
+
+	};
+
+
+	var pointCloudMaterialInstanced = new THREE.RawShaderMaterial( {
+
+		uniforms:       uniforms,
+		vertexShader:   `
+			precision highp float;
+
+			uniform mat4 modelViewMatrix;
+			uniform mat4 projectionMatrix;
+
+			attribute vec3 position;
+
+			attribute float size;
+			attribute vec3 customColor;
+			attribute vec3 offset;
+			attribute float alpha;
+
+			varying vec3 slicePosition;
+			varying float vAlpha;
+			varying vec3 vColor;
+
+			void main() {
+			vColor = customColor;
+			vAlpha = alpha;
+			vec3 newPosition = position + offset;
+			slicePosition = newPosition;
+			vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+			gl_PointSize = size * ( 300.0 / -mvPosition.z );
+			gl_Position = projectionMatrix * mvPosition;
+
+			}`,
+		fragmentShader: `
+			precision highp float;
+			uniform vec3 color;
+			uniform sampler2D texture;
+
+			varying vec3 vColor;
+			varying float vAlpha;
+			varying vec3 slicePosition;
+			uniform float xClippingPlaneMax;
+			uniform float xClippingPlaneMin;
+			uniform float yClippingPlaneMax;
+			uniform float yClippingPlaneMin;
+			uniform float zClippingPlaneMax;
+			uniform float zClippingPlaneMin;
+
+			void main() {
+				if(slicePosition.x<xClippingPlaneMin) discard;
+				if(slicePosition.x>xClippingPlaneMax) discard;
+				if(slicePosition.y<yClippingPlaneMin) discard;
+				if(slicePosition.y>yClippingPlaneMax) discard;
+				if(slicePosition.z<zClippingPlaneMin) discard;
+				if(slicePosition.z>zClippingPlaneMax) discard;
+
+				gl_FragColor = vec4( color * vColor, vAlpha );
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+			}`,
+		depthTest:      true,
+		transparent:    true,
+		alphaTest: 0.5,
+		blending: THREE.NormalBlending,
+		// depthTest: false,
+		/// transparent: true
+
+	});
+
+	return pointCloudMaterialInstanced;
+
+}
+
+
+export function getMoleculeBondLineMaterialInstanced(options) {
+	var uniforms = {
+
+		xClippingPlaneMax: { type: 'f', value: options.x_high },
+		xClippingPlaneMin: { type: 'f', value: options.x_low  },
+		yClippingPlaneMax: { type: 'f', value: options.y_high },
+		yClippingPlaneMin: { type: 'f', value: options.y_low  },
+		zClippingPlaneMax: { type: 'f', value: options.z_high },
+		zClippingPlaneMin: { type: 'f', value: options.z_low  },
+
+	};
+
+	var materialInstanced = new THREE.ShaderMaterial( {
+		vertexColors: THREE.VertexColors,
+		uniforms:       uniforms,
+		vertexShader:   `
+			attribute vec3 offset;
+
+			varying vec3 slicePosition;
+			varying vec4 vcolor;
+		
+			void main() {
+				vcolor = vec4(color, 1.0);
+				vec3 newPosition = position + offset;
+				slicePosition = newPosition;
+				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+			}`,
+		fragmentShader: `
+			varying vec4 vcolor;
+			varying vec3 slicePosition;
+
+			uniform float xClippingPlaneMax;
+			uniform float xClippingPlaneMin;
+			uniform float yClippingPlaneMax;
+			uniform float yClippingPlaneMin;
+			uniform float zClippingPlaneMax;
+			uniform float zClippingPlaneMin;
+	
+			void main() {
+				if(slicePosition.x<xClippingPlaneMin) discard;
+				if(slicePosition.x>xClippingPlaneMax) discard;
+				if(slicePosition.y<yClippingPlaneMin) discard;
+				if(slicePosition.y>yClippingPlaneMax) discard;
+				if(slicePosition.z<zClippingPlaneMin) discard;
+				if(slicePosition.z>zClippingPlaneMax) discard;
+				gl_FragColor = vcolor;
+			}`,
+		
+
+	});
+
+	return materialInstanced;
+
+}
+
+/*
 export var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial( {
 
 	uniforms:       uniforms2,
@@ -311,4 +511,4 @@ export var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial( {
 	depthTest:      false,
 	transparent:    true
 
-});
+});*/

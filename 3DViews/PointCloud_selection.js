@@ -70,9 +70,9 @@ export function getPointCloudGeometry(view){
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
 				
-				if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
+				if (	/*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
 						(y >= options.y_low) 	&& (y <= options.y_high)	&&
-						(z >= options.z_low) 	&& (z <= options.z_high)	&& spatiallyResolvedData[k].selected)
+						(z >= options.z_low) 	&& (z <= options.z_high)	&&*/ spatiallyResolvedData[k].selected)
 					{
 						alphas[ i ] = options.pointCloudAlpha;
 						if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
@@ -111,8 +111,11 @@ export function getPointCloudGeometry(view){
 	var z_start = -1 * ((options.zPBC-1)/2);
 	var z_end = ((options.zPBC-1)/2) + 1;
 	
+	var counter = 0;
+	var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+    sumDisplacement.fill(0);
 	var xStep, yStep, zStep;
-	var sumDisplacement = [];
+	// var sumDisplacement = [];
 	for ( var i = x_start; i < x_end; i ++) {
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
@@ -120,7 +123,11 @@ export function getPointCloudGeometry(view){
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 				
-				sumDisplacement.push(xStep, yStep, zStep);
+				// sumDisplacement.push(xStep, yStep, zStep);
+				sumDisplacement[counter * 3 + 0] = xStep;
+				sumDisplacement[counter * 3 + 1] = yStep;
+				sumDisplacement[counter * 3 + 2] = zStep;
+				counter++;
 			}
 		}
 	}
@@ -133,11 +140,13 @@ export function getPointCloudGeometry(view){
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 	geometry.parentBlockMap = parentBlock;
 	console.log(sumDisplacement);
-	const sumDisp = new Float32Array(sumDisplacement);
-	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+	// const sumDisp = new Float32Array(sumDisplacement);
+	// geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3 ));
+	geometry.maxInstancedCount = counter;
 
-	var System = new THREE.Points( geometry, getPointCloudMaterialInstanced() );
-	System.frustumCulled = false
+	var System = new THREE.Points( geometry, getPointCloudMaterialInstanced(options) );
+	System.frustumCulled = false;
 	view.System = System;
 	scene.add( System );
 
@@ -335,9 +344,9 @@ export function updatePointCloudGeometry(view){
 		colors[ i3 + 1 ] = color.g;
 		colors[ i3 + 2 ] = color.b;
 
-		if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
+		if (	/*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
 				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	spatiallyResolvedData[k].selected)
+				(z >= options.z_low) 	&& (z <= options.z_high)	&&*/ 	spatiallyResolvedData[k].selected)
 		{
 			alphas[ i ] = options.pointCloudAlpha;
 			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
@@ -376,11 +385,12 @@ export function updatePointCloudGeometry(view){
 					'y': systemDimension.z * latticeVectors.u32, 
 					'z': systemDimension.z * latticeVectors.u33};
 
-// 	var periodicReplicateSystemGroup = new THREE.Group();
 	
 	var xStep, yStep, zStep;
 
-	const sumDisplacement = []
+	// const sumDisplacement = []
+	var sumDisplacement = view.System.geometry.attributes.offset.array;
+	var counter = 0
 	for ( var i = x_start; i < x_end; i ++) {
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
@@ -388,17 +398,28 @@ export function updatePointCloudGeometry(view){
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
 				
-				sumDisplacement.push(xStep, yStep, zStep); 
+				// sumDisplacement.push(xStep, yStep, zStep);
+				sumDisplacement[counter * 3 + 0] = xStep;
+				sumDisplacement[counter * 3 + 1] = yStep;
+				sumDisplacement[counter * 3 + 2] = zStep;
+				counter++;
 			}
 		}
 	}
-	console.log(sumDisplacement);
-	const sumDisp = new Float32Array(sumDisplacement);
-	view.System.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+	// console.log(sumDisplacement);
+	view.System.geometry.attributes.offset.needsUpdate = true;
+	view.System.geometry.maxInstancedCount = counter;
+	// const sumDisp = new Float32Array(sumDisplacement);
+	// view.System.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 
-	// if (options.PBCBoolean){
-	// 	changePointCloudPeriodicReplicates(view);
-	// }
+	// console.log(view.System, view.System.shaderMaterial);
+	view.System.material.uniforms.xClippingPlaneMax.value = options.x_high;
+	view.System.material.uniforms.xClippingPlaneMin.value = options.x_low;
+	view.System.material.uniforms.yClippingPlaneMax.value = options.y_high;
+	view.System.material.uniforms.yClippingPlaneMin.value = options.y_low;
+	view.System.material.uniforms.zClippingPlaneMax.value = options.z_high;
+	view.System.material.uniforms.zClippingPlaneMin.value = options.z_low;
+
 }
 
 

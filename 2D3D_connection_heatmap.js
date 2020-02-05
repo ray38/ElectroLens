@@ -1,3 +1,5 @@
+
+
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {initialize2DHeatmapSetup} from "./2DHeatmaps/initialize2DHeatmapSetup.js";
 import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.js";
@@ -7,7 +9,7 @@ import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometr
 import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip} from "./3DViews/tooltip.js";
-import {readCSV,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
 
@@ -131,7 +133,6 @@ function main(views,plotSetup) {
 	console.log(plotSetup);
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-
 	var container, stats, renderer, effect;
 	var mouseX = 0, mouseY = 0;
 	var windowWidth, windowHeight;
@@ -176,6 +177,7 @@ function main(views,plotSetup) {
 			}
 			else{
 				queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
 			}
 
 			if(view.moleculeData != null && view.moleculeData.data != null){
@@ -199,6 +201,7 @@ function main(views,plotSetup) {
 		htmlUI.parentNode.removeChild(htmlUI);
 		animate();
 	});
+
 
 	function init() {
 		console.log('started initialization')
