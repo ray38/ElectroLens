@@ -4244,14 +4244,15 @@ function getMoleculeMaterialInstanced(options) {
 		shader.uniforms.zClippingPlaneMin = { type: 'f', value: options.z_low };
 		shader.vertexShader = '\n\t\t\t#define LAMBERT\n\t\t\n\t\t\t// instanced\n\t\t\tattribute vec3 offset;\n\t\t\t// attribute vec3 instanceColor;\n\t\t\t// attribute float instanceScale;\n\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\t\t\tvarying vec3 slicePosition;\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <fog_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\t\t\n\t\t\tvoid main() {\n\t\t\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\t\t\n\t\t\t\t// vertex colors instanced\n\t\t\t\t// #ifdef USE_COLOR\n\t\t\t\t// \tvColor.xyz = instanceColor.xyz;\n\t\t\t\t// #endif\n\t\t\n\t\t\t\t#include <beginnormal_vertex>\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\t\t\n\t\t\t\t#include <begin_vertex>\n\t\t\n\t\t\t\t// position instanced\n\t\t\t\t// transformed *= instanceScale;\n\t\t\t\t// transformed = transformed + instanceOffset;\n\t\t\t\ttransformed = transformed + offset;\n\t\t\t\tslicePosition = transformed;\n\t\t\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\t\t\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <lights_lambert_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\t\t\t\t#include <fog_vertex>\n\t\t\n\t\t\t}\n\t\t\t';
 		shader.fragmentShader = '\n\t\t\tuniform vec3 diffuse;\n\t\t\tuniform vec3 emissive;\n\t\t\tuniform float opacity;\n\t\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\t\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\t\n\t\t\t\n\t\t\t#include <common>\n\t\t\t#include <packing>\n\t\t\t#include <dithering_pars_fragment>\n\t\t\t#include <color_pars_fragment>\n\t\t\t#include <uv_pars_fragment>\n\t\t\t#include <uv2_pars_fragment>\n\t\t\t#include <map_pars_fragment>\n\t\t\t#include <alphamap_pars_fragment>\n\t\t\t#include <aomap_pars_fragment>\n\t\t\t#include <lightmap_pars_fragment>\n\t\t\t#include <emissivemap_pars_fragment>\n\t\t\t#include <envmap_common_pars_fragment>\n\t\t\t#include <envmap_pars_fragment>\n\t\t\t#include <cube_uv_reflection_fragment>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <fog_pars_fragment>\n\t\t\t#include <shadowmap_pars_fragment>\n\t\t\t#include <shadowmask_pars_fragment>\n\t\t\t#include <specularmap_pars_fragment>\n\t\t\t#include <logdepthbuf_pars_fragment>\n\t\t\t#include <clipping_planes_pars_fragment>\n\t\t\t\n\t\t\tvoid main() {\n\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\t\t\t\n\t\t\t\t#include <clipping_planes_fragment>\n\t\t\t\n\t\t\t\tvec4 diffuseColor = vec4( diffuse, opacity );\n\t\t\t\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\t\t\t\tvec3 totalEmissiveRadiance = emissive;\n\t\t\t\n\t\t\t\t#include <logdepthbuf_fragment>\n\t\t\t\t#include <map_fragment>\n\t\t\t\t#include <color_fragment>\n\t\t\t\t#include <alphamap_fragment>\n\t\t\t\t#include <alphatest_fragment>\n\t\t\t\t#include <specularmap_fragment>\n\t\t\t\t#include <emissivemap_fragment>\n\t\t\t\n\t\t\t\t// accumulation\n\t\t\t\treflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += vIndirectFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\t#include <lightmap_fragment>\n\t\t\t\n\t\t\t\treflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = vLightFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\treflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();\n\t\t\t\n\t\t\t\t// modulation\n\t\t\t\t#include <aomap_fragment>\n\t\t\t\n\t\t\t\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;\n\t\t\t\n\t\t\t\t#include <envmap_fragment>\n\t\t\t\n\t\t\t\tgl_FragColor = vec4( outgoingLight, diffuseColor.a );\n\t\t\t\n\t\t\t\t#include <tonemapping_fragment>\n\t\t\t\t#include <encodings_fragment>\n\t\t\t\t#include <fog_fragment>\n\t\t\t\t#include <premultiplied_alpha_fragment>\n\t\t\t\t#include <dithering_fragment>\n\t\t\t}\n\t\t\t';
-		materialShader = shader;
+		material.userData.shader = shader;
+		console.log('material on before complie', materialShader);
 	};
 
-	console.log(material, material.uniforms, materialShader);
+	console.log('material on before complie initialization', material, material.uniforms, materialShader);
 	// material.uniforms = uniforms;
 	// console.log(material, material.uniforms)
 
-	return { materialShader: materialShader, material: material };
+	return material;
 }
 
 var uniforms2 = {
@@ -4576,8 +4577,7 @@ function addAtoms(view, moleculeData, lut) {
 		var sumDisp = new Float32Array(sumDisplacement);
 		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
 		atomsGeometry.maxInstancedCount = counter;
-		var atoms = new THREE.Mesh(atomsGeometry, material.material);
-		atoms.userData.materialShader = material.materialShader;
+		var atoms = new THREE.Mesh(atomsGeometry, material);
 		// var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
 	}
 	console.log(atoms, atoms.userData);
@@ -4665,8 +4665,7 @@ function addBonds(view, moleculeData, neighborsData) {
 		var sumDisp = new Float32Array(sumDisplacement);
 		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
 		bondsGeometry.maxInstancedCount = counter;
-		var bonds = new THREE.Mesh(bondsGeometry, material.material);
-		bonds.userData.materialShader = material.materialShader;
+		var bonds = new THREE.Mesh(bondsGeometry, material);
 
 		// var bondsGeometry = combineGeometry(bondList, bondColorList);
 		// var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
@@ -5032,6 +5031,7 @@ function updateMoleculeGeometry(view) {
 	var options = view.options;
 
 	if (options.showAtoms) {
+		console.log("updating atoms", view.molecule.atoms);
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
@@ -5053,7 +5053,6 @@ function updateMoleculeGeometry(view) {
 			'z': systemDimension.z * latticeVectors.u33 };
 
 		var xStep, yStep, zStep;
-		console.log(view.molecule.atoms)
 
 		var sumDisplacement = view.molecule.atoms.geometry.attributes.offset.array;
 		var counter = 0;
@@ -5081,8 +5080,8 @@ function updateMoleculeGeometry(view) {
 			view.molecule.atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
 			view.molecule.atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
 			view.molecule.atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
-		} else if (options.atomStyle == "ball") {
-			var atomsMaterialShader = view.molecule.atoms.userData.materialShader;
+		} else if (options.atomsStyle == "ball") {
+			var atomsMaterialShader = view.molecule.atoms.material.userData.shader;
 			atomsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
 			atomsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
 			atomsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
@@ -5093,6 +5092,7 @@ function updateMoleculeGeometry(view) {
 	}
 
 	if (options.showBonds) {
+		console.log("updating bonds", view.molecule.atoms);
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
@@ -5134,14 +5134,14 @@ function updateMoleculeGeometry(view) {
 		view.molecule.bonds.geometry.attributes.offset.needsUpdate = true;
 		view.molecule.bonds.geometry.maxInstancedCount = counter;
 		if (options.bondsStyle == "line") {
-			view.molecule.atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
-			view.molecule.atoms.material.uniforms.xClippingPlaneMin.value = options.x_low;
-			view.molecule.atoms.material.uniforms.yClippingPlaneMax.value = options.y_high;
-			view.molecule.atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
-			view.molecule.atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
-			view.molecule.atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
+			view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
+			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
+			view.molecule.bonds.material.uniforms.yClippingPlaneMax.value = options.y_high;
+			view.molecule.bonds.material.uniforms.yClippingPlaneMin.value = options.y_low;
+			view.molecule.bonds.material.uniforms.zClippingPlaneMax.value = options.z_high;
+			view.molecule.bonds.material.uniforms.zClippingPlaneMin.value = options.z_low;
 		} else if (options.bondsStyle == "tube") {
-			var bondsMaterialShader = view.molecule.bonds.userData.materialShader;
+			var bondsMaterialShader = view.molecule.bonds.material.userData.shader;
 			bondsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
 			bondsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
 			bondsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
@@ -5294,7 +5294,6 @@ function getPointCloudGeometry(view) {
 
 	for (var k = 0; k < num_blocks; k++) {
 		var num_points = Math.min(Math.floor(spatiallyResolvedData[k][options.density] * pointCloudDensity * voxelVolume), options.pointCloudMaxPointPerBlock);
-		// var num_points  = Math.min(Math.floor((spatiallyResolvedData[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -5343,9 +5342,7 @@ function getPointCloudGeometry(view) {
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
 
-				if ( /*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-         (y >= options.y_low) 	&& (y <= options.y_high)	&&
-         (z >= options.z_low) 	&& (z <= options.z_high)	&&*/spatiallyResolvedData[k].selected) {
+				if (spatiallyResolvedData[k].selected) {
 					alphas[i] = options.pointCloudAlpha;
 					if (options.animate) {
 						sizes[i] = Math.random() * options.pointCloudSize;
@@ -5436,43 +5433,6 @@ function getPointCloudGeometry(view) {
  }
  */
 }
-
-/*
-Float32Array.prototype.concat = function() {
-	var bytesPerIndex = 4,
-		buffers = Array.prototype.slice.call(arguments);
-	
-	// add self
-	buffers.unshift(this);
-
-	buffers = buffers.map(function (item) {
-		if (item instanceof Float32Array) {
-			return item.buffer;
-		} else if (item instanceof ArrayBuffer) {
-			if (item.byteLength / bytesPerIndex % 1 !== 0) {
-				throw new Error('One of the ArrayBuffers is not from a Float32Array');	
-			}
-			return item;
-		} else {
-			throw new Error('You can only concat Float32Array, or ArrayBuffers');
-		}
-	});
-
-	var concatenatedByteLength = buffers
-		.map(function (a) {return a.byteLength;})
-		.reduce(function (a,b) {return a + b;}, 0);
-
-	var concatenatedArray = new Float32Array(concatenatedByteLength / bytesPerIndex);
-
-	var offset = 0;
-	buffers.forEach(function (buffer, index) {
-		concatenatedArray.set(new Float32Array(buffer), offset);
-		offset += buffer.byteLength / bytesPerIndex;
-	});
-
-	return concatenatedArray;
-};
-*/
 
 function getPositionArrayAfterTranslation(positions, count, x, y, z) {
 	var result = new Float32Array(count * 3);
@@ -5609,9 +5569,7 @@ function updatePointCloudGeometry(view) {
 		colors[i3 + 1] = color.g;
 		colors[i3 + 2] = color.b;
 
-		if ( /*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-       (y >= options.y_low) 	&& (y <= options.y_high)	&&
-       (z >= options.z_low) 	&& (z <= options.z_high)	&&*/spatiallyResolvedData[k].selected) {
+		if (spatiallyResolvedData[k].selected) {
 			alphas[i] = options.pointCloudAlpha;
 			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}
 			if (options.animate) {
@@ -5844,10 +5802,6 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		controllerZoom: true,
 		controllerRotate: true,
 		controllerPan: true,
-		// xPlotScale : d3.scaleLinear().domain([xCoordMin,xCoordMax]).range([xPlotMin,xPlotMax]),
-		// yPlotScale : d3.scaleLinear().domain([yCoordMin,yCoordMax]).range([yPlotMin,yPlotMax]),
-		// zPlotScale : d3.scaleLinear().domain([zCoordMin,zCoordMax]).range([zPlotMin,zPlotMax]),
-		// gridSpacing: gridSpacing,
 		systemLatticeVectors: systemLatticeVectors,
 		systemDimension: systemDimension,
 		xPlotMin: xPlotMin,
@@ -5856,12 +5810,6 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		yPlotMax: yPlotMax,
 		zPlotMin: zPlotMin,
 		zPlotMax: zPlotMax,
-		/* xCoordMin : xCoordMin,
-  xCoordMax : xCoordMax,
-  yCoordMin : yCoordMin,
-  yCoordMax : yCoordMax,
-  zCoordMin : zCoordMin,
-  zCoordMax : zCoordMax, */
 		options: new function () {
 			this.cameraFov = 50;
 			this.backgroundColor = "#000000";
@@ -5886,18 +5834,18 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.yPBC = 1;
 			this.zPBC = 1;
 			this.PBCBoolean = false;
-			/* this.x_low =  xPlotMin;
-   this.x_high = xPlotMax;
-   this.y_low =  yPlotMin;
-   this.y_high = yPlotMax;
-   this.z_low =  zPlotMin;
-   this.z_high = zPlotMax; */
-			this.x_low = -100;
-			this.x_high = 100;
-			this.y_low = -100;
-			this.y_high = 100;
-			this.z_low = -100;
-			this.z_high = 100;
+			this.x_low = xPlotMin;
+			this.x_high = xPlotMax;
+			this.y_low = yPlotMin;
+			this.y_high = yPlotMax;
+			this.z_low = zPlotMin;
+			this.z_high = zPlotMax;
+			/*this.x_low =  -100;
+   this.x_high = 100;
+   this.y_low =  -100;
+   this.y_high = 100;
+   this.z_low =  -100;
+   this.z_high = 100;*/
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;

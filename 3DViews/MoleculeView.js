@@ -186,15 +186,12 @@ function addAtoms(view, moleculeData, lut){
 
 		var material = getMoleculeMaterialInstanced(options);
 
-		console.log(sumDisplacement);
 		const sumDisp = new Float32Array(sumDisplacement);
 		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 		atomsGeometry.maxInstancedCount = counter;
-		var atoms = new THREE.Mesh( atomsGeometry, material.material );
-		atoms.userData.materialShader = material.materialShader;
+		var atoms = new THREE.Mesh( atomsGeometry, material);
 		// var atoms = new THREE.Mesh( atomsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
 	}
-	console.log(atoms, atoms.userData)
 	view.molecule.atoms = atoms;
 	view.scene.add(atoms);
 }
@@ -283,8 +280,7 @@ function addBonds(view, moleculeData, neighborsData){
 		const sumDisp = new Float32Array(sumDisplacement);
 		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
 		bondsGeometry.maxInstancedCount = counter;
-		var bonds = new THREE.Mesh( bondsGeometry, material.material );
-		bonds.userData.materialShader = material.materialShader;
+		var bonds = new THREE.Mesh( bondsGeometry, material );
 
 		// var bondsGeometry = combineGeometry(bondList, bondColorList);
 		// var bonds = new THREE.Mesh( bondsGeometry, new THREE.MeshPhongMaterial( { transparent: true, opacity: options.moleculeAlpha, vertexColors: THREE.VertexColors} ) );
@@ -714,8 +710,8 @@ export function updateMoleculeGeometry(view){
 			view.molecule.atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
 			view.molecule.atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
 
-		} else if (options.atomStyle == "ball") {
-			var atomsMaterialShader = view.molecule.atoms.userData.materialShader;
+		} else if (options.atomsStyle == "ball") {
+			var atomsMaterialShader = view.molecule.atoms.material.userData.shader;
 			atomsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
 			atomsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
 			atomsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
@@ -769,15 +765,15 @@ export function updateMoleculeGeometry(view){
 		view.molecule.bonds.geometry.attributes.offset.needsUpdate = true;
 		view.molecule.bonds.geometry.maxInstancedCount = counter;
 		if (options.bondsStyle == "line") {
-			view.molecule.atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
-			view.molecule.atoms.material.uniforms.xClippingPlaneMin.value = options.x_low;
-			view.molecule.atoms.material.uniforms.yClippingPlaneMax.value = options.y_high;
-			view.molecule.atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
-			view.molecule.atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
-			view.molecule.atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
+			view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
+			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
+			view.molecule.bonds.material.uniforms.yClippingPlaneMax.value = options.y_high;
+			view.molecule.bonds.material.uniforms.yClippingPlaneMin.value = options.y_low;
+			view.molecule.bonds.material.uniforms.zClippingPlaneMax.value = options.z_high;
+			view.molecule.bonds.material.uniforms.zClippingPlaneMin.value = options.z_low;
 
 		} else if (options.bondsStyle == "tube") {
-			var bondsMaterialShader = view.molecule.bonds.userData.materialShader;
+			var bondsMaterialShader = view.molecule.bonds.material.userData.shader;
 			bondsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
 			bondsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
 			bondsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
@@ -786,19 +782,6 @@ export function updateMoleculeGeometry(view){
 			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
 		}
 	}
-
-	
-
-
-	
-
-	
-
-	
-
-
-	// removeMoleculeGeometry(view);
-	// getMoleculeGeometry(view);
 
 }
 

@@ -83,10 +83,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		controllerZoom : true,
 		controllerRotate : true,
 		controllerPan : true,
-		// xPlotScale : d3.scaleLinear().domain([xCoordMin,xCoordMax]).range([xPlotMin,xPlotMax]),
-		// yPlotScale : d3.scaleLinear().domain([yCoordMin,yCoordMax]).range([yPlotMin,yPlotMax]),
-		// zPlotScale : d3.scaleLinear().domain([zCoordMin,zCoordMax]).range([zPlotMin,zPlotMax]),
-		// gridSpacing: gridSpacing,
 		systemLatticeVectors: systemLatticeVectors,
 		systemDimension: systemDimension,
 		xPlotMin : xPlotMin,
@@ -95,12 +91,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		yPlotMax : yPlotMax,
 		zPlotMin : zPlotMin,
 		zPlotMax : zPlotMax,
-		/* xCoordMin : xCoordMin,
-		xCoordMax : xCoordMax,
-		yCoordMin : yCoordMin,
-		yCoordMax : yCoordMax,
-		zCoordMin : zCoordMin,
-		zCoordMax : zCoordMax, */
 		options: new function(){
 			this.cameraFov = 50;
 			this.backgroundColor = "#000000";
@@ -125,18 +115,18 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.yPBC = 1;
 			this.zPBC = 1;
 			this.PBCBoolean = false;
-			/* this.x_low =  xPlotMin;
+			this.x_low =  xPlotMin;
 			this.x_high = xPlotMax;
 			this.y_low =  yPlotMin;
 			this.y_high = yPlotMax;
 			this.z_low =  zPlotMin;
-			this.z_high = zPlotMax; */
-			this.x_low =  -100;
+			this.z_high = zPlotMax;
+			/*this.x_low =  -100;
 			this.x_high = 100;
 			this.y_low =  -100;
 			this.y_high = 100;
 			this.z_low =  -100;
-			this.z_high = 100;
+			this.z_high = 100;*/
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;

@@ -20,7 +20,6 @@ export function getPointCloudGeometry(view){
 
 	for ( var k = 0; k < num_blocks; k ++) {
 		var num_points  = Math.min(Math.floor(spatiallyResolvedData[k][options.density] * pointCloudDensity * voxelVolume), options.pointCloudMaxPointPerBlock);
-		// var num_points  = Math.min(Math.floor((spatiallyResolvedData[k][options.density] / total) * particles), options.pointCloudMaxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
@@ -70,9 +69,7 @@ export function getPointCloudGeometry(view){
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
 				
-				if (	/*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-						(y >= options.y_low) 	&& (y <= options.y_high)	&&
-						(z >= options.z_low) 	&& (z <= options.z_high)	&&*/ spatiallyResolvedData[k].selected)
+				if (spatiallyResolvedData[k].selected)
 					{
 						alphas[ i ] = options.pointCloudAlpha;
 						if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
@@ -167,42 +164,6 @@ export function getPointCloudGeometry(view){
  */
 }
 
-/*
-Float32Array.prototype.concat = function() {
-	var bytesPerIndex = 4,
-		buffers = Array.prototype.slice.call(arguments);
-	
-	// add self
-	buffers.unshift(this);
-
-	buffers = buffers.map(function (item) {
-		if (item instanceof Float32Array) {
-			return item.buffer;
-		} else if (item instanceof ArrayBuffer) {
-			if (item.byteLength / bytesPerIndex % 1 !== 0) {
-				throw new Error('One of the ArrayBuffers is not from a Float32Array');	
-			}
-			return item;
-		} else {
-			throw new Error('You can only concat Float32Array, or ArrayBuffers');
-		}
-	});
-
-	var concatenatedByteLength = buffers
-		.map(function (a) {return a.byteLength;})
-		.reduce(function (a,b) {return a + b;}, 0);
-
-	var concatenatedArray = new Float32Array(concatenatedByteLength / bytesPerIndex);
-
-	var offset = 0;
-	buffers.forEach(function (buffer, index) {
-		concatenatedArray.set(new Float32Array(buffer), offset);
-		offset += buffer.byteLength / bytesPerIndex;
-	});
-
-	return concatenatedArray;
-};
-*/
 
 function getPositionArrayAfterTranslation(positions, count, x, y, z){
 	var result = new Float32Array(count*3)
@@ -344,9 +305,7 @@ export function updatePointCloudGeometry(view){
 		colors[ i3 + 1 ] = color.g;
 		colors[ i3 + 2 ] = color.b;
 
-		if (	/*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&&*/ 	spatiallyResolvedData[k].selected)
+		if (spatiallyResolvedData[k].selected)
 		{
 			alphas[ i ] = options.pointCloudAlpha;
 			//if (options.animate) {sizes[ i ] = Math.random() *(options.pointCloudSize-0.5) + 0.5;}

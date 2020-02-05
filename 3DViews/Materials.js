@@ -289,14 +289,10 @@ export function getMoleculeMaterialInstanced(options) {
 				#include <dithering_fragment>
 			}
 			`;
-		materialShader = shader;
+		material.userData.shader = shader;
 	};
 
-	console.log(material, material.uniforms,materialShader)
-	// material.uniforms = uniforms;
-	// console.log(material, material.uniforms)
-
-	return {materialShader, material};
+	return material;
 }
 
 
