@@ -1,4 +1,5 @@
 import {getPointCloudMaterialInstanced} from "./Materials.js";
+import {getOffsetArray, updateOffsetArray} from "./Utilities.js";
 
 export function getPointCloudGeometry(view){
 
@@ -32,6 +33,7 @@ export function getPointCloudGeometry(view){
 	var sizes = new Float32Array( count);
 	var alphas = new Float32Array( count);
 	var parentBlock = new Float32Array( count);
+	var pointVoxelMap = new Uint32Array(count);
 
 	var colorMap = options.colorMap;
 	var numberOfColors = 512;
@@ -51,6 +53,8 @@ export function getPointCloudGeometry(view){
 			
 			for (var j = 0; j < temp_num_points; j ++){
 
+				pointVoxelMap[ i ] = k;
+
 				xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
 				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
 				zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
@@ -68,12 +72,21 @@ export function getPointCloudGeometry(view){
 				colors[ i3 + 0 ] = color.r;
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
+
 				
 				if (spatiallyResolvedData[k].selected)
 					{
 						alphas[ i ] = options.pointCloudAlpha;
-						if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
-						else { sizes[ i ] = options.pointCloudSize; }
+						if (options.animate) {
+							sizes[ i ] = Math.random() * options.pointCloudSize;
+						} else { 
+							sizes[ i ] = options.pointCloudSize; 
+						}
+
+						if (spatiallyResolvedData[k].highlighted) {
+							sizes[ i ] = sizes[ i ] * 3;
+							alphas[ i ] = 1;
+						}
 					}
 				else {
 					alphas[ i ] = 0;
@@ -89,56 +102,20 @@ export function getPointCloudGeometry(view){
 	}
 
 	
-	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-					'y': systemDimension.x * latticeVectors.u12, 
-					'z': systemDimension.x * latticeVectors.u13};
-	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-					'y': systemDimension.y * latticeVectors.u22, 
-					'z': systemDimension.y * latticeVectors.u23};
-	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-					'y': systemDimension.z * latticeVectors.u32, 
-					'z': systemDimension.z * latticeVectors.u33};
-	
-	
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
-	
-	var counter = 0;
-	var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-    sumDisplacement.fill(0);
-	var xStep, yStep, zStep;
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
-				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-				
-				sumDisplacement[counter * 3 + 0] = xStep;
-				sumDisplacement[counter * 3 + 1] = yStep;
-				sumDisplacement[counter * 3 + 2] = zStep;
-				counter++;
-			}
-		}
-	}
-	
-
 	var geometry = new THREE.InstancedBufferGeometry();
 	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 	geometry.parentBlockMap = parentBlock;
-	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3 ));
-	geometry.maxInstancedCount = counter;
+	var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
+	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+	geometry.maxInstancedCount = offsetResult.counter;
 
 	var System = new THREE.Points( geometry, getPointCloudMaterialInstanced(options) );
 	System.frustumCulled = false;
 	view.System = System;
+	view.pointVoxelMap = pointVoxelMap;
 	scene.add( System );
 }
 
@@ -178,13 +155,19 @@ export function updatePointCloudGeometry(view){
 		colors[ i3 + 1 ] = color.g;
 		colors[ i3 + 2 ] = color.b;
 
-		if (spatiallyResolvedData[k].selected)
-		{
+		if (spatiallyResolvedData[k].selected){
 			alphas[ i ] = options.pointCloudAlpha;
-			if (options.animate) {sizes[ i ] = Math.random() *options.pointCloudSize;}
-			else { sizes[ i ] = options.pointCloudSize; }
-		}
-		else {
+			if (options.animate) {
+				sizes[ i ] = Math.random() * options.pointCloudSize;
+			} else { 
+				sizes[ i ] = options.pointCloudSize; 
+			}
+
+			if (spatiallyResolvedData[k].highlighted) {
+				sizes[ i ] = sizes[ i ] * 3;
+				alphas[ i ] = 1;
+			}
+		} else {
 			alphas[ i ] = 0;
 			sizes[ i ] = 0;
 		}
@@ -199,44 +182,7 @@ export function updatePointCloudGeometry(view){
 	var systemDimension = view.systemDimension;
 	var latticeVectors = view.systemLatticeVectors;
 
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
-
-	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-					'y': systemDimension.x * latticeVectors.u12, 
-					'z': systemDimension.x * latticeVectors.u13};
-	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-					'y': systemDimension.y * latticeVectors.u22, 
-					'z': systemDimension.y * latticeVectors.u23};
-	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-					'y': systemDimension.z * latticeVectors.u32, 
-					'z': systemDimension.z * latticeVectors.u33};
-
-	
-	var xStep, yStep, zStep;
-
-	var sumDisplacement = view.System.geometry.attributes.offset.array;
-	var counter = 0
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
-				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-				
-				sumDisplacement[counter * 3 + 0] = xStep;
-				sumDisplacement[counter * 3 + 1] = yStep;
-				sumDisplacement[counter * 3 + 2] = zStep;
-				counter++;
-			}
-		}
-	}
-	view.System.geometry.attributes.offset.needsUpdate = true;
-	view.System.geometry.maxInstancedCount = counter;
+	updateOffsetArray(systemDimension, latticeVectors, view.System.geometry, options);
 
 	view.System.material.uniforms.xClippingPlaneMax.value = options.x_high;
 	view.System.material.uniforms.xClippingPlaneMin.value = options.x_low;
@@ -276,9 +222,9 @@ export function animatePointCloudGeometry(view){
 		var z = positionArray[ i3 + 2 ]/10;
 		var k = parentBlock[i];
 	
-		if (	(x >= options.x_low) 	&& (x <= options.x_high) 	&&
+		if (	/*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
 				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&& 	spatiallyResolvedData[k].selected)
+				(z >= options.z_low) 	&& (z <= options.z_high)	&& */ spatiallyResolvedData[k].selected)
 		{
 			var temp = sizeArray[i]-0.1;
 			if (temp >= 0.0) {sizeArray[i] = temp;}

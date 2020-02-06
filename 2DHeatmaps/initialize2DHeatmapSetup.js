@@ -29,6 +29,7 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		overallSpatiallyResolvedDataBoolean: false,
 		overallMoleculeDataBoolean: false,
 		options: new function(){
+			this.plotID = "";
 			this.plotType = "Undefined";
 			this.backgroundColor = "#000000";
 			this.backgroundAlpha = 0.0;

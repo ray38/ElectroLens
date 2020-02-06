@@ -2,6 +2,7 @@ import {addTitle,changeTitle} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
 import {getAxis} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
+import {getHeatmapMaterial} from "./Materials.js";
 
 export function arrangeDataToHeatmap(view){
 
@@ -21,14 +22,7 @@ export function arrangeDataToHeatmap(view){
 		var Data = view.overallMoleculeData;
 	}
 
-	//console.log(view.spatiallyResolvedData);
-	//console.log(view.overallMoleculeData);
-	//console.log(Data);
 
-
-
-
-	
 	var numPerSide = view.options.numPerSide;
 
 	var heatmapStep = [];
@@ -128,53 +122,25 @@ export function arrangeDataToHeatmap(view){
 	view.xScale = xScale;
 	view.yScale = yScale;
 
-	//console.log(xScale.invertExtent(""+50))
-	
+	// var voxelToHeatmapMap = new Uint32Array(Data.length);
 	for (var i=0; i<Data.length; i++){
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 		
 		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true, highlight: false};
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 	
-	//console.log(view.data);
 			
 }
 
 
 export function getHeatmap(view){
-	var uniforms = {
 
-		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
-
-	};
-
-	var shaderMaterial = new THREE.ShaderMaterial( {
-
-		uniforms:       uniforms,
-		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-		blending:       THREE.AdditiveBlending,
-		depthTest:      false,
-		transparent:    true
-
-	});
+	
 
 	var options = view.options;
-	var scene = view.scene;
-
-	if (options.plotData == 'spatiallyResolvedData'){
-		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
-	}
-
-	if (options.plotData == 'moleculeData'){
-		var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
-	}
-
 	
 	
 	var data = view.data;
@@ -189,8 +155,6 @@ export function getHeatmap(view){
 	var alphas = new Float32Array(num);
 
 	var heatmapInformation = [];
-	//console.log(spatiallyResolvedData.length);
-	//console.log(num);
 	
 	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
@@ -221,14 +185,17 @@ export function getHeatmap(view){
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
 			}
 			else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha/2;
 			}
-			sizes[i] = options.pointCloudSize;
-			alphas[i] = options.pointCloudAlpha;
+			
 			
 			i++;
 			i3 += 3;
@@ -239,9 +206,9 @@ export function getHeatmap(view){
 							xStart: view.xScale.invertExtent(x)[0],
 							xEnd: 	view.xScale.invertExtent(x)[1],
 							yStart: view.yScale.invertExtent(y)[0],
-							yEnd: 	view.yScale.invertExtent(y)[1]/*,
+							yEnd: 	view.yScale.invertExtent(y)[1],
 							heatmapX: x,
-							heatmapY: y*/
+							heatmapY: y
 							};
 			//console.log(tempInfo);
 			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
@@ -255,15 +222,8 @@ export function getHeatmap(view){
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
-	var System = new THREE.Points(geometry, shaderMaterial);
-	//return System;
-
-	//particles.name = 'scatterPoints';
-			
-	// view.heatmapPlot = System;
-	//view.attributes = particles.attributes;
-	//view.geometry = particles.geometry;
-	//scene.add(System);
+	var material = getHeatmapMaterial();
+	var System = new THREE.Points(geometry, material);
 
 	return System
 	
@@ -303,6 +263,9 @@ export function updateHeatmap(view){
 				colors[i3 + 2] = 1;
 				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha/2;
+			}
+			if (data[x][y].highlighted) {
+				sizes[i] = 3* sizes[i];
 			}
 			i++;
 			i3 += 3;
@@ -404,6 +367,7 @@ export function replotHeatmap(view){
 	heatmap.add(heatmapAxis);
 	//heatmap.add(heatmapLabels)
 
+	view.heatmapPlot = heatmapPlot;
 	view.heatmap = heatmap;
 	view.scene.add( heatmap );
 	changeLegend(view);

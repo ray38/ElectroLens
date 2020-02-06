@@ -25,7 +25,7 @@ import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./
 import {setupHUD} from "./MultiviewControl/HUDControl.js";
 import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis, addTitle, update2DHeatmapTitlesLocation} from "./2DHeatmaps/Utilities.js";
-import {initialize2DPlotTooltip,updateHeatmapTooltip, updateCovarianceTooltip} from "./2DHeatmaps/tooltip.js";
+import {initialize2DPlotTooltip,updateHeatmapTooltip, updateCovarianceTooltip, hoverHeatmap} from "./2DHeatmaps/tooltip.js";
 import {selectionControl, updatePlaneSelection} from "./2DHeatmaps/selection.js";
 import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap} from "./2DHeatmaps/Selection/Utilities.js";
 
@@ -171,8 +171,8 @@ function main(views,plotSetup) {
 				queue.defer(processSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
 			}
 			else{
-				// queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
-				queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
+				queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
 			}
 
 			if(view.moleculeData != null && view.moleculeData.data != null){
@@ -293,7 +293,9 @@ function main(views,plotSetup) {
 			}
 			if (view.viewType == '2DHeatmap'){
 
-				view.controller.enableRotate=false;
+				view.controller.enableRotate = false;
+				view.options.plotID = "2D_Plot_" + ii;
+				 
 
 				if (overallSpatiallyResolvedData.length > 0){
 					view.overallSpatiallyResolvedDataBoolean = true;
@@ -411,6 +413,7 @@ function main(views,plotSetup) {
 			
 			views.push(temp_view);
 			initialize2DHeatmapSetup(temp_view,views,plotSetup);
+			temp_view.options.plotID = "2D_Plot_" + views.length;
 			calculateViewportSizes(views);
 
 			temp_view.overallSpatiallyResolvedData = overallSpatiallyResolvedData;
@@ -465,11 +468,12 @@ function main(views,plotSetup) {
 	}
 
 
-	function onDocumentMouseMove( event ) {
-		mouseX = event.clientX;
-		mouseY = event.clientY;
+	function onDocumentMouseMove( mouseEvent ) {
+		mouseX = mouseEvent.clientX;
+		mouseY = mouseEvent.clientY;
 		if (mouseHold == false){updateController(views, windowWidth, windowHeight, mouseX, mouseY);}
 		activeView = updateActiveView(views);
+		
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
@@ -480,16 +484,23 @@ function main(views,plotSetup) {
 				// var height = Math.floor( windowHeight * view.height ) + top;
 				var vector = new THREE.Vector3();
 			
-				vector.set(	(((event.clientX-left)/Math.floor( windowWidth  * view.width )) * 2 - 1),
-							(-((event.clientY-top)/Math.floor( windowHeight * view.height )) * 2 + 1),
+				vector.set(	(((mouseEvent.clientX-left)/Math.floor( windowWidth  * view.width )) * 2 - 1),
+							(-((mouseEvent.clientY-top)/Math.floor( windowHeight * view.height )) * 2 + 1),
 							0.1);
 				vector.unproject( view.camera );
 				var dir = vector.sub( view.camera.position ).normalize();
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
 				if (view.viewType == "2DHeatmap"){
-					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){updateHeatmapTooltip(view);}
-					if (view.options.plotType == "Correlation" && typeof view.covariancePlot != "undefined"){updateCovarianceTooltip(view);}
+					console.log(view.options.plotType == "Heatmap", view.heatmapPlot)
+					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){
+						hoverHeatmap(view,mouseEvent);
+						updateAllPlots(views);
+						// updateHeatmapTooltip(view);
+					}
+					if (view.options.plotType == "Correlation" && typeof view.covariancePlot != "undefined"){
+						updateCovarianceTooltip(view);
+					}
 				}
 				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}

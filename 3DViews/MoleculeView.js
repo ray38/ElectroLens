@@ -55,42 +55,6 @@ function addAtoms(view, moleculeData, lut){
 			i3 +=3;
 		}
 
-		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-						'y': systemDimension.x * latticeVectors.u12, 
-						'z': systemDimension.x * latticeVectors.u13};
-		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-						'y': systemDimension.y * latticeVectors.u22, 
-						'z': systemDimension.y * latticeVectors.u23};
-		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-						'y': systemDimension.z * latticeVectors.u32, 
-						'z': systemDimension.z * latticeVectors.u33};
-		
-		
-		var x_start = -1 * ((options.xPBC-1)/2);
-		var x_end = ((options.xPBC-1)/2) + 1;
-		var y_start = -1 * ((options.yPBC-1)/2);
-		var y_end = ((options.yPBC-1)/2) + 1;
-		var z_start = -1 * ((options.zPBC-1)/2);
-		var z_end = ((options.zPBC-1)/2) + 1;
-		
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for ( var i = x_start; i < x_end; i ++) {
-			for ( var j = y_start; j < y_end; j ++) {
-				for ( var k = z_start; k < z_end; k ++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-					
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}*/
 
 		var geometry = new THREE.InstancedBufferGeometry();
 		geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
@@ -136,53 +100,12 @@ function addAtoms(view, moleculeData, lut){
 		}
 		var atomsGeometry = combineGeometry(atomList, atomColorList);
 
-		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-						'y': systemDimension.x * latticeVectors.u12, 
-						'z': systemDimension.x * latticeVectors.u13};
-		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-						'y': systemDimension.y * latticeVectors.u22, 
-						'z': systemDimension.y * latticeVectors.u23};
-		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-						'y': systemDimension.z * latticeVectors.u32, 
-						'z': systemDimension.z * latticeVectors.u33};
-		
-		
-		var x_start = -1 * ((options.xPBC-1)/2);
-		var x_end = ((options.xPBC-1)/2) + 1;
-		var y_start = -1 * ((options.yPBC-1)/2);
-		var y_end = ((options.yPBC-1)/2) + 1;
-		var z_start = -1 * ((options.zPBC-1)/2);
-		var z_end = ((options.zPBC-1)/2) + 1;
-		
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for ( var i = x_start; i < x_end; i ++) {
-			for ( var j = y_start; j < y_end; j ++) {
-				for ( var k = z_start; k < z_end; k ++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-					
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
-		const sumDisp = new Float32Array(sumDisplacement);*/
-
 		var material = getMoleculeMaterialInstanced(options);
-
 		
 		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
 		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
 		atomsGeometry.maxInstancedCount = offsetResult.counter;
 
-		// atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
-		// atomsGeometry.maxInstancedCount = counter;
 		var atoms = new THREE.Mesh( atomsGeometry, material);
 	}
 	view.molecule.atoms = atoms;
@@ -229,47 +152,6 @@ function addBonds(view, moleculeData, neighborsData){
 			}
 		}
 		var bondsGeometry = combineGeometry(bondList, bondColorList);
-
-		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-						'y': systemDimension.x * latticeVectors.u12, 
-						'z': systemDimension.x * latticeVectors.u13};
-		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-						'y': systemDimension.y * latticeVectors.u22, 
-						'z': systemDimension.y * latticeVectors.u23};
-		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-						'y': systemDimension.z * latticeVectors.u32, 
-						'z': systemDimension.z * latticeVectors.u33};
-		
-		
-		var x_start = -1 * ((options.xPBC-1)/2);
-		var x_end = ((options.xPBC-1)/2) + 1;
-		var y_start = -1 * ((options.yPBC-1)/2);
-		var y_end = ((options.yPBC-1)/2) + 1;
-		var z_start = -1 * ((options.zPBC-1)/2);
-		var z_end = ((options.zPBC-1)/2) + 1;
-		
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for ( var i = x_start; i < x_end; i ++) {
-			for ( var j = y_start; j < y_end; j ++) {
-				for ( var k = z_start; k < z_end; k ++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-					
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
-		console.log(sumDisplacement);
-		const sumDisp = new Float32Array(sumDisplacement);
-		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
-		bondsGeometry.maxInstancedCount = counter;*/
 
 		var material = getMoleculeMaterialInstanced(options);
 		
@@ -327,50 +209,6 @@ function addBonds(view, moleculeData, neighborsData){
 		    colors[i * 3 + 2] = verticesColors[i].b;
 
 		}
-
-		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-						'y': systemDimension.x * latticeVectors.u12, 
-						'z': systemDimension.x * latticeVectors.u13};
-		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-						'y': systemDimension.y * latticeVectors.u22, 
-						'z': systemDimension.y * latticeVectors.u23};
-		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-						'y': systemDimension.z * latticeVectors.u32, 
-						'z': systemDimension.z * latticeVectors.u33};
-		
-		
-		var x_start = -1 * ((options.xPBC-1)/2);
-		var x_end = ((options.xPBC-1)/2) + 1;
-		var y_start = -1 * ((options.yPBC-1)/2);
-		var y_end = ((options.yPBC-1)/2) + 1;
-		var z_start = -1 * ((options.zPBC-1)/2);
-		var z_end = ((options.zPBC-1)/2) + 1;
-		
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for ( var i = x_start; i < x_end; i ++) {
-			for ( var j = y_start; j < y_end; j ++) {
-				for ( var k = z_start; k < z_end; k ++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-					
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
-
-		var geometry = new THREE.InstancedBufferGeometry();
-		geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-		geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
-		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3 ));
-		geometry.maxInstancedCount = counter;*/
 
 		var geometry = new THREE.InstancedBufferGeometry();
 		geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
@@ -520,45 +358,6 @@ export function updateMoleculeGeometry(view){
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
-		/*var x_start = -1 * ((options.xPBC-1)/2);
-		var x_end = ((options.xPBC-1)/2) + 1;
-		var y_start = -1 * ((options.yPBC-1)/2);
-		var y_end = ((options.yPBC-1)/2) + 1;
-		var z_start = -1 * ((options.zPBC-1)/2);
-		var z_end = ((options.zPBC-1)/2) + 1;
-
-		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-						'y': systemDimension.x * latticeVectors.u12, 
-						'z': systemDimension.x * latticeVectors.u13};
-		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-						'y': systemDimension.y * latticeVectors.u22, 
-						'z': systemDimension.y * latticeVectors.u23};
-		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-						'y': systemDimension.z * latticeVectors.u32, 
-						'z': systemDimension.z * latticeVectors.u33};
-
-		
-		var xStep, yStep, zStep;
-
-		var sumDisplacement = view.molecule.atoms.geometry.attributes.offset.array;
-		var counter = 0
-		for ( var i = x_start; i < x_end; i ++) {
-			for ( var j = y_start; j < y_end; j ++) {
-				for ( var k = z_start; k < z_end; k ++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-					
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
-		view.molecule.atoms.geometry.attributes.offset.needsUpdate = true;
-		view.molecule.atoms.geometry.maxInstancedCount = counter;*/
-
 		updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
 		
 		if (options.atomsStyle == "sprite") {
@@ -586,45 +385,8 @@ export function updateMoleculeGeometry(view){
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
-		/*var x_start = -1 * ((options.xPBC-1)/2);
-		var x_end = ((options.xPBC-1)/2) + 1;
-		var y_start = -1 * ((options.yPBC-1)/2);
-		var y_end = ((options.yPBC-1)/2) + 1;
-		var z_start = -1 * ((options.zPBC-1)/2);
-		var z_end = ((options.zPBC-1)/2) + 1;
-
-		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
-						'y': systemDimension.x * latticeVectors.u12, 
-						'z': systemDimension.x * latticeVectors.u13};
-		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
-						'y': systemDimension.y * latticeVectors.u22, 
-						'z': systemDimension.y * latticeVectors.u23};
-		var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
-						'y': systemDimension.z * latticeVectors.u32, 
-						'z': systemDimension.z * latticeVectors.u33};
-
-		
-		var xStep, yStep, zStep;
-
-		var sumDisplacement = view.molecule.bonds.geometry.attributes.offset.array;
-		var counter = 0
-		for ( var i = x_start; i < x_end; i ++) {
-			for ( var j = y_start; j < y_end; j ++) {
-				for ( var k = z_start; k < z_end; k ++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-					
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
-		view.molecule.bonds.geometry.attributes.offset.needsUpdate = true;
-		view.molecule.bonds.geometry.maxInstancedCount = counter;*/
 		updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
+
 		if (options.bondsStyle == "line") {
 			view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
 			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;

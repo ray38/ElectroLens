@@ -110,35 +110,6 @@
                   </div>
                 </div>
 
-                <!-- <div class="form-row">
-                  <div class="col">
-                    <label for="view1XMin">x min: </label>
-                    <input type="number" step=any class="input" id="view1XMin" name="view1XMin" value="-5.0">
-                  </div>
-                  <div class="col">
-                    <label for="view1YMin">y min: </label>
-                    <input type="number" step=any class="input" id="view1YMin" name="view1YMin" value="-5.0" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1ZMin">z min: </label>
-                    <input type="number" step=any class="input" id="view1ZMin" name="view1ZMin" value="-5.0" disabled>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="col">
-                    <label for="view1XMax">x max: </label>
-                    <input type="number" step=any class="input" id="view1XMax" name="view1XMax" value="4.9">
-                  </div>
-                  <div class="col">
-                    <label for="view1YMax">y max: </label>
-                    <input type="number" step=any class="input" id="view1YMax" name="view1YMax" value="4.9" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1ZMax">z max: </label>
-                    <input type="number" step=any class="input" id="view1ZMax" name="view1ZMax" value="4.9" disabled>
-                  </div>
-                </div> -->
 
                 <div class="form-row">
                   <div class="col">
@@ -415,12 +386,6 @@
             //$("#field" + next).attr('data-source',$(addto).attr('data-source'));
             $("#count").val(next);  
 
-            /* document.getElementById('boolView' + next + 'CubicCell').onchange = function() {
-              document.getElementById('view' + next + 'YMax').disabled = this.checked;
-              document.getElementById('view' + next + 'ZMax').disabled = this.checked;
-              document.getElementById('view' + next + 'YMin').disabled = this.checked;
-              document.getElementById('view' + next + 'ZMin').disabled = this.checked;
-            }; */
             document.getElementById('boolView' + next + 'CubicCell').onchange = function() {
               document.getElementById('view' + next + 'YDim').disabled = this.checked;
               document.getElementById('view' + next + 'ZDim').disabled = this.checked;
@@ -442,18 +407,6 @@
             document.getElementById('view' + next + 'LatVec33').disabled = this.checked;
           };
 
-            /* document.getElementById('view' + next + 'XMin').onchange = function(){
-              if (document.getElementById('boolView' + next + 'CubicCell').checked){
-                document.getElementById('view' + next + 'YMin').value = document.getElementById('view' + next + 'XMin').value;
-                document.getElementById('view' + next + 'ZMin').value = document.getElementById('view' + next + 'XMin').value;
-              }
-            }
-            document.getElementById('view' + next + 'XMax').onchange = function(){
-              if (document.getElementById('boolView' + next + 'CubicCell').checked){
-                document.getElementById('view' + next + 'YMax').value = document.getElementById('view' + next + 'XMax').value;
-                document.getElementById('view' + next + 'ZMax').value = document.getElementById('view' + next + 'XMax').value;
-              }
-            } */
 
             document.getElementById('view' + next + 'XDim').onchange = function(){
               if (document.getElementById('boolView' + next + 'CubicCell').checked){
@@ -621,12 +574,6 @@
         }
       };
 
-     /*  document.getElementById('boolView1CubicCell').onchange = function() {
-        document.getElementById('view1YMax').disabled = this.checked;
-        document.getElementById('view1ZMax').disabled = this.checked;
-        document.getElementById('view1YMin').disabled = this.checked;
-        document.getElementById('view1ZMin').disabled = this.checked;
-      }; */
 
       document.getElementById('boolView1CubicCell').onchange = function() {
         document.getElementById('view1YDim').disabled = this.checked;
@@ -649,18 +596,6 @@
         document.getElementById('view1LatVec33').disabled = this.checked;
       };
 
-      /* document.getElementById('view1XMin').onchange = function(){
-        if (document.getElementById('boolView1CubicCell').checked){
-          document.getElementById('view1YMin').value = document.getElementById('view1XMin').value;
-          document.getElementById('view1ZMin').value = document.getElementById('view1XMin').value;
-        }
-      }
-      document.getElementById('view1XMax').onchange = function(){
-        if (document.getElementById('boolView1CubicCell').checked){
-          document.getElementById('view1YMax').value = document.getElementById('view1XMax').value;
-          document.getElementById('view1ZMax').value = document.getElementById('view1XMax').value;
-        }
-      } */
       document.getElementById('view1XDim').onchange = function(){
         if (document.getElementById('boolView1CubicCell').checked){
           document.getElementById('view1YDim').value = document.getElementById('view1XDim').value;
@@ -759,61 +694,6 @@
     <script src='js/Wireframe.js'></script>
     -->
 
-    <script type="x-shader/x-vertex" id="vertexshader">
-      attribute float size;
-      attribute vec3 customColor;
-      attribute float alpha;
-
-        varying float vAlpha;
-      varying vec3 vColor;
-
-      void main() {
-        vColor = customColor;
-        vAlpha = alpha;
-        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-        gl_PointSize = size * ( 300.0 / -mvPosition.z );
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    </script>
-
-    <script type="x-shader/x-fragment" id="fragmentshader">
-      uniform vec3 color;
-      uniform sampler2D texture;
-
-      varying vec3 vColor;
-      varying float vAlpha;
-
-      void main() {
-        gl_FragColor = vec4( color * vColor, vAlpha );
-        gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-      }
-    </script>
-    <script type="x-shader/x-vertex" id="vertexshader_molecule">
-      attribute float size;
-      attribute vec3 customColor;
-
-      varying vec3 vColor;
-
-      void main() {
-        vColor = customColor;
-        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-        gl_PointSize = size * ( 300.0 / -mvPosition.z );
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    </script>
-
-    <script type="x-shader/x-fragment" id="fragmentshader_molecule">
-      uniform vec3 color;
-      uniform sampler2D texture;
-
-      varying vec3 vColor;
-
-      void main() {
-        gl_FragColor = vec4( color * vColor, 1.0 );
-        gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-        if ( gl_FragColor.a < ALPHATEST ) discard;
-      }
-    </script>
 
 
 

@@ -23,6 +23,7 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 					y:+d.y,
 					z:+d.z,
 					selected: true,
+					highlighted: false,
 					name: systemName
 				}
 			for (var i = 0; i < propertyList.length; i++) {
@@ -69,6 +70,7 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 					y:+d.y,
 					z:+d.z,
 					selected: true,
+					highlighted: false,
 					name: systemName
 				};
 
@@ -136,6 +138,7 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 							y:+d.y,
 							z:+d.z,
 							selected: true,
+							highlighted: false,
 							name: systemName
 						}
 					for (var i = 0; i < propertyList.length; i++) {
@@ -198,6 +201,7 @@ export function readCSVSpatiallyResolvedDataPapaparse(view,overallSpatiallyResol
 								y:+d.y,
 								z:+d.z,
 								selected: true,
+								highlighted: false,
 								name: systemName
 							}
 						for (var i = 0; i < propertyList.length; i++) {
@@ -267,6 +271,7 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 							y:+d.y,
 							z:+d.z,
 							selected: true,
+							highlighted: false,
 							name: systemName
 						};
 

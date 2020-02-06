@@ -297,28 +297,6 @@ export function getMoleculeMaterialInstanced(options) {
 
 
 
-export var uniforms2 = {
-
-		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/ball.png" ) }
-
-	};
-
-export var shaderMaterial2 = new THREE.ShaderMaterial( {
-
-	uniforms:       uniforms2,
-	vertexShader:   document.getElementById( 'vertexshader_molecule' ).textContent,
-	fragmentShader: document.getElementById( 'fragmentshader_molecule' ).textContent,
-
-	/*blending:       THREE.AdditiveBlending,
-	depthTest:      false,
-	transparent:    true*/
-	alphaTest: 0.5
-
-});
-
-
-
 export function getMoleculeAtomSpriteMaterialInstanced(options) {
 	var uniforms = {
 

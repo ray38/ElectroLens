@@ -117,3 +117,60 @@ export function update3DViewTooltip(view){
 			view.INTERSECTED = null;
 	}
 }*/
+
+
+
+
+function highlightHeatmapPoints(index, view) {
+	var pointVoxelMap = view.pointVoxelMap;
+	var voxelIndex = view.pointVoxelMap[index];
+
+
+	/*var heatmapX = view.heatmapInformation[index].heatmapX;
+	var heatmapY = view.heatmapInformation[index].heatmapY;
+
+	var dataset = view.data[heatmapX][heatmapY];
+	dataset.highlighted = true;
+
+	dataset.list.forEach(datapoint => {
+		datapoint.highlighted = true;
+	});*/
+}
+
+function unhighlightHeatmapPoints(index, view) {
+	/*var heatmapX = view.heatmapInformation[index].heatmapX;
+	var heatmapY = view.heatmapInformation[index].heatmapY;
+	
+	var dataset = view.data[heatmapX][heatmapY];
+	dataset.highlighted = false;
+
+	dataset.list.forEach(datapoint => {
+		datapoint.highlighted = false;
+	});*/
+}
+export function hoverHeatmap(view, mouseEvent){
+	var mouse = new THREE.Vector2();
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+	var intersects = view.raycaster.intersectObject( view.System );
+	if ( intersects.length > 0 ) {
+		
+		if ( view.INTERSECTED != intersects[ 0 ].index ) {
+			if (view.INTERSECTED != null){
+				unhighlightHeatmapPoints(view.INTERSECTED, view);
+			}
+			view.INTERSECTED = intersects[ 0 ].index;
+			highlightHeatmapPoints(view.INTERSECTED, view);
+		}
+
+	}
+	else {
+		if (view.INTERSECTED != null){
+			unhighlightHeatmapPoints(view.INTERSECTED, view);
+		}
+		view.INTERSECTED = null;
+	}
+
+
+}

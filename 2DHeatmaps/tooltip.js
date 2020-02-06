@@ -18,8 +18,74 @@ export function initialize2DPlotTooltip(view){
 	document.body.appendChild(tempTooltip);
 }
 
+function highlightHeatmapPoints(index, view) {
+	var heatmapX = view.heatmapInformation[index].heatmapX;
+	var heatmapY = view.heatmapInformation[index].heatmapY;
+
+	var dataset = view.data[heatmapX][heatmapY];
+	dataset.highlighted = true;
+
+	dataset.list.forEach(datapoint => {
+		datapoint.highlighted = true;
+	});
+}
+
+function unhighlightHeatmapPoints(index, view) {
+	var heatmapX = view.heatmapInformation[index].heatmapX;
+	var heatmapY = view.heatmapInformation[index].heatmapY;
+	
+	var dataset = view.data[heatmapX][heatmapY];
+	dataset.highlighted = false;
+
+	dataset.list.forEach(datapoint => {
+		datapoint.highlighted = false;
+	});
+}
+export function hoverHeatmap(view, mouseEvent){
+	var mouse = new THREE.Vector2();
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+	var intersects = view.raycaster.intersectObject( view.heatmapPlot );
+	if ( intersects.length > 0 ) {
+		
+		if ( view.INTERSECTED != intersects[ 0 ].index ) {
+			if (view.INTERSECTED != null){
+				unhighlightHeatmapPoints(view.INTERSECTED, view);
+			}
+			view.INTERSECTED = intersects[ 0 ].index;
+			highlightHeatmapPoints(view.INTERSECTED, view);
+		}
+
+	}
+	else {
+		if (view.INTERSECTED != null){
+			unhighlightHeatmapPoints(view.INTERSECTED, view);
+		}
+		view.INTERSECTED = null;
+	}
+
+	updateHeatmapTooltip(view)
+
+}
 
 export function updateHeatmapTooltip(view){
+	if (view.INTERSECTED) {
+		view.tooltip.style.top = event.clientY + 5  + 'px';
+		view.tooltip.style.left = event.clientX + 5  + 'px';
+
+		var interesctIndex = view.INTERSECTED;
+		view.tooltip.innerHTML = 	"x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
+									"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
+									"# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
+	} else {
+		view.tooltip.innerHTML = '';
+	}
+}
+
+
+
+/*export function updateHeatmapTooltip(view){
 
 	var mouse = new THREE.Vector2();
 	mouse.set(	(((event.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
@@ -61,7 +127,7 @@ export function updateHeatmapTooltip(view){
 			}
 			view.INTERSECTED = null;
 	}
-}
+}*/
 
 export function updateCovarianceTooltip(view){
 

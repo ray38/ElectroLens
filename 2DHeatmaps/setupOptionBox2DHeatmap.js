@@ -26,14 +26,10 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	console.log(view.overallMoleculeDataBoolean);
 	console.log(view.overallSpatiallyResolvedDataBoolean);
 
-
-	
-
-
-
 	gui.width = 200;
 	//gui.height = 10;
 
+	gui.add( options, 'plotID');
 	gui.add( options, 'plotType', {'Heatmap': 'Heatmap', 'Comparison':'Comparison', 'Correlation': 'Correlation','Dim. Reduction':'Dim. Reduction'})
 	.name( 'Plot Type' )
 	.onChange( function( value ) {
