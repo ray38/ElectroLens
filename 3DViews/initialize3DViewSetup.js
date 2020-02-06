@@ -39,24 +39,13 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	} 
 
 	var roughSystemSize = Math.sqrt(systemDimension.x * systemDimension.x + systemDimension.y * systemDimension.y + systemDimension.z * systemDimension.z);
-	var xPlotMin = systemDimension.x * -10;
-	var yPlotMin = systemDimension.y * -10;
-	var zPlotMin = systemDimension.z * -10;
-	var xPlotMax = systemDimension.x * 10;
-	var yPlotMax = systemDimension.y * 10;
-	var zPlotMax = systemDimension.z * 10;
+	var xPlotMin = systemDimension.x * -6;
+	var yPlotMin = systemDimension.y * -6;
+	var zPlotMin = systemDimension.z * -6;
+	var xPlotMax = systemDimension.x * 6;
+	var yPlotMax = systemDimension.y * 6;
+	var zPlotMax = systemDimension.z * 6;
 	
-	/* var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
-	var yCoordMin = systemDimension["y"][0], yCoordMax = systemDimension["y"][1];
-	var zCoordMin = systemDimension["z"][0], zCoordMax = systemDimension["z"][1];
-	var xSteps = (xCoordMax - xCoordMin)/gridSpacing.x;
-	var ySteps = (yCoordMax - yCoordMin)/gridSpacing.y;
-	var zSteps = (zCoordMax - zCoordMin)/gridSpacing.z; 
-	var xPlotMin = 0.0 - (xSteps/2.0), xPlotMax =  0.0 + (xSteps/2.0);
-	var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
-	var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0); */
-
-	//plot gridspacing is 1
 
 
 
@@ -73,9 +62,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		up: [ 0, 1, 0 ],
 		//fov: 100,
 		mousePosition: [0,0],
-		//viewType: '3Dview',
-		//moleculeName: 'CO2',
-		//dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv",
 		systemSpatiallyResolvedDataBoolean : false,
 		systemMoleculeDataBoolean : false,
 		controllerEnabled: false,
@@ -120,12 +106,6 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.y_high = yPlotMax;
 			this.z_low =  zPlotMin;
 			this.z_high = zPlotMax;
-			/*this.x_low =  -100;
-			this.x_high = 100;
-			this.y_low =  -100;
-			this.y_high = 100;
-			this.z_low =  -100;
-			this.z_high = 100;*/
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;
@@ -149,11 +129,9 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.toggleSystemEdge = function(){
 										if(viewSetup.options.systemEdgeBoolean){
 											addSystemEdge(viewSetup);
-											//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
 										}
 										else {
 											removeSystemEdge(viewSetup);
-											//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
 										}
 									};
 			this.fullscreenBoolean = false;

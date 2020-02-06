@@ -1,5 +1,6 @@
 import {colorSetup, atomRadius} from "./AtomSetup.js";
 import {hexToRgb, colorToRgb, rgbToHex} from "../Utilities/other.js";
+import {getOffsetArray, updateOffsetArray} from "./Utilities.js";
 import {shaderMaterial2, MoleculeMaterial, MoleculeMaterialInstanced, getMoleculeMaterialInstanced, getMoleculeAtomSpriteMaterialInstanced, getMoleculeBondLineMaterialInstanced} from "./Materials.js";
 
 function addAtoms(view, moleculeData, lut){
@@ -37,11 +38,11 @@ function addAtoms(view, moleculeData, lut){
 
 			if (moleculeData[i].selected) {
 				if (sizeCode == "atom") {
-					sizes[i] = options.atomSize*atomRadius[atomData.atom] * 15;
+					sizes[i] = options.atomSize*atomRadius[atomData.atom] * 10;
 				}
 				else {
 					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-					sizes[i] = options.atomSize*tempSize* 15;
+					sizes[i] = options.atomSize*tempSize* 10;
 				}
 
 				alphas[i] = options.moleculeAlpha;
@@ -54,7 +55,7 @@ function addAtoms(view, moleculeData, lut){
 			i3 +=3;
 		}
 
-		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 						'y': systemDimension.x * latticeVectors.u12, 
 						'z': systemDimension.x * latticeVectors.u13};
 		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
@@ -89,16 +90,17 @@ function addAtoms(view, moleculeData, lut){
 					counter++;
 				}
 			}
-		}
+		}*/
 
 		var geometry = new THREE.InstancedBufferGeometry();
 		geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 		geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 		geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 		geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-		console.log(sumDisplacement);
-		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3 ));
-		geometry.maxInstancedCount = counter;
+		// console.log(sumDisplacement);
+		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+		geometry.maxInstancedCount = offsetResult.counter;
 
 		var atoms = new THREE.Points( geometry, getMoleculeAtomSpriteMaterialInstanced(options) );
 		atoms.frustumCulled = false;
@@ -134,7 +136,7 @@ function addAtoms(view, moleculeData, lut){
 		}
 		var atomsGeometry = combineGeometry(atomList, atomColorList);
 
-		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 						'y': systemDimension.x * latticeVectors.u12, 
 						'z': systemDimension.x * latticeVectors.u13};
 		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
@@ -170,12 +172,17 @@ function addAtoms(view, moleculeData, lut){
 				}
 			}
 		}
+		const sumDisp = new Float32Array(sumDisplacement);*/
 
 		var material = getMoleculeMaterialInstanced(options);
 
-		const sumDisp = new Float32Array(sumDisplacement);
-		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
-		atomsGeometry.maxInstancedCount = counter;
+		
+		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
+		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+		atomsGeometry.maxInstancedCount = offsetResult.counter;
+
+		// atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+		// atomsGeometry.maxInstancedCount = counter;
 		var atoms = new THREE.Mesh( atomsGeometry, material);
 	}
 	view.molecule.atoms = atoms;
@@ -223,7 +230,7 @@ function addBonds(view, moleculeData, neighborsData){
 		}
 		var bondsGeometry = combineGeometry(bondList, bondColorList);
 
-		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 						'y': systemDimension.x * latticeVectors.u12, 
 						'z': systemDimension.x * latticeVectors.u13};
 		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
@@ -259,11 +266,16 @@ function addBonds(view, moleculeData, neighborsData){
 				}
 			}
 		}
-		var material = getMoleculeMaterialInstanced(options);
 		console.log(sumDisplacement);
 		const sumDisp = new Float32Array(sumDisplacement);
 		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
-		bondsGeometry.maxInstancedCount = counter;
+		bondsGeometry.maxInstancedCount = counter;*/
+
+		var material = getMoleculeMaterialInstanced(options);
+		
+		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
+		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+		bondsGeometry.maxInstancedCount = offsetResult.counter;
 		var bonds = new THREE.Mesh( bondsGeometry, material );
 	}
 
@@ -316,7 +328,7 @@ function addBonds(view, moleculeData, neighborsData){
 
 		}
 
-		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 						'y': systemDimension.x * latticeVectors.u12, 
 						'z': systemDimension.x * latticeVectors.u13};
 		var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
@@ -358,7 +370,16 @@ function addBonds(view, moleculeData, neighborsData){
 		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 		geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
 		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3 ));
-		geometry.maxInstancedCount = counter;
+		geometry.maxInstancedCount = counter;*/
+
+		var geometry = new THREE.InstancedBufferGeometry();
+		geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+		geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
+
+		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+		geometry.maxInstancedCount = offsetResult.counter;
 
 		var bonds = new THREE.LineSegments( geometry, getMoleculeBondLineMaterialInstanced(options) );
 		bonds.frustumCulled = false;
@@ -499,7 +520,7 @@ export function updateMoleculeGeometry(view){
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
-		var x_start = -1 * ((options.xPBC-1)/2);
+		/*var x_start = -1 * ((options.xPBC-1)/2);
 		var x_end = ((options.xPBC-1)/2) + 1;
 		var y_start = -1 * ((options.yPBC-1)/2);
 		var y_end = ((options.yPBC-1)/2) + 1;
@@ -536,7 +557,10 @@ export function updateMoleculeGeometry(view){
 			}
 		}
 		view.molecule.atoms.geometry.attributes.offset.needsUpdate = true;
-		view.molecule.atoms.geometry.maxInstancedCount = counter;
+		view.molecule.atoms.geometry.maxInstancedCount = counter;*/
+
+		updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
+		
 		if (options.atomsStyle == "sprite") {
 			
 			view.molecule.atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
@@ -562,7 +586,7 @@ export function updateMoleculeGeometry(view){
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
-		var x_start = -1 * ((options.xPBC-1)/2);
+		/*var x_start = -1 * ((options.xPBC-1)/2);
 		var x_end = ((options.xPBC-1)/2) + 1;
 		var y_start = -1 * ((options.yPBC-1)/2);
 		var y_end = ((options.yPBC-1)/2) + 1;
@@ -599,7 +623,8 @@ export function updateMoleculeGeometry(view){
 			}
 		}
 		view.molecule.bonds.geometry.attributes.offset.needsUpdate = true;
-		view.molecule.bonds.geometry.maxInstancedCount = counter;
+		view.molecule.bonds.geometry.maxInstancedCount = counter;*/
+		updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
 		if (options.bondsStyle == "line") {
 			view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
 			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;

@@ -171,8 +171,8 @@ function main(views,plotSetup) {
 				queue.defer(processSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
 			}
 			else{
-				queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
-				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
+				// queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+				queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
 			}
 
 			if(view.moleculeData != null && view.moleculeData.data != null){

@@ -177,7 +177,6 @@ export function readCSVSpatiallyResolvedDataPapaparse(view,overallSpatiallyResol
 		}
 		console.log('started loading')
 		var filename = view.spatiallyResolvedData.dataFilename;
-		console.log(filename)
 		var propertyList = plotSetup.spatiallyResolvedPropertyList;
 		var density = plotSetup.pointcloudDensity;
 		var densityCutoffLow = plotSetup.densityCutoffLow;
@@ -189,6 +188,7 @@ export function readCSVSpatiallyResolvedDataPapaparse(view,overallSpatiallyResol
 			header: true,
 			download: true,
 			chunk: function(chunk) {
+				console.log('loading chunk');
 				for (var ii = 0; ii < chunk.length; ii++) {
 					d = chunck.data[ii];
 					n = +d[density];

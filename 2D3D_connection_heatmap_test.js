@@ -74,7 +74,6 @@ if (typeof data !== 'undefined') {
 		var divider = document.getElementById("divider");
 
 		$(".save-config").click(function (e) {
-			console.log("calling save config");
 			var CONFIG = _UtilitiesReadFormJs.readInputForm();
 			_UtilitiesSaveDataJs.download(CONFIG, 'config.json', 'text/plain');
 		});
@@ -82,7 +81,6 @@ if (typeof data !== 'undefined') {
 		$("form").submit(function (event) {
 
 			var CONFIG = _UtilitiesReadFormJs.readInputForm();
-			console.log(CONFIG);
 			console.log("read input form");
 			event.preventDefault();
 			uploader.parentNode.removeChild(uploader);
@@ -103,8 +101,6 @@ function handleFiles() {
 	uploader_wrapper.parentNode.removeChild(uploader_wrapper);
 	configForm.parentNode.removeChild(configForm);
 	divider.parentNode.removeChild(divider);
-	console.log(file);
-	console.log(this);
 
 	$.ajax({
 		url: file.path,
@@ -135,7 +131,6 @@ function handleViewSetup(data) {
 }
 
 function main(views, plotSetup) {
-	console.log(plotSetup);
 	if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 	var container, stats, renderer, effect;
@@ -178,8 +173,8 @@ function main(views, plotSetup) {
 			if (view.spatiallyResolvedData != null && view.spatiallyResolvedData.data != null) {
 				queue.defer(_UtilitiesReadDataFileJs.processSpatiallyResolvedData, view, overallSpatiallyResolvedData, plotSetup);
 			} else {
-				queue.defer(_UtilitiesReadDataFileJs.readCSVSpatiallyResolvedData, view, overallSpatiallyResolvedData, plotSetup);
-				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
+				// queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+				queue.defer(_UtilitiesReadDataFileJs.readCSVSpatiallyResolvedDataPapaparse, view, overallSpatiallyResolvedData, plotSetup);
 			}
 
 			if (view.moleculeData != null && view.moleculeData.data != null) {
@@ -592,7 +587,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":4,"./2DHeatmaps/Utilities.js":5,"./2DHeatmaps/initialize2DHeatmapSetup.js":8,"./2DHeatmaps/selection.js":9,"./2DHeatmaps/setupOptionBox2DHeatmap.js":10,"./2DHeatmaps/tooltip.js":11,"./3DViews/MoleculeView.js":14,"./3DViews/PointCloud_selection.js":15,"./3DViews/setupOptionBox3DView.js":17,"./3DViews/systemEdge.js":18,"./3DViews/tooltip.js":19,"./MultiviewControl/HUDControl.js":20,"./MultiviewControl/calculateViewportSizes.js":21,"./MultiviewControl/colorLegend.js":22,"./MultiviewControl/controllerControl.js":23,"./MultiviewControl/initializeViewSetups.js":24,"./MultiviewControl/optionBoxControl.js":25,"./MultiviewControl/setupViewBasic.js":26,"./Utilities/arrangeData.js":27,"./Utilities/readDataFile.js":30,"./Utilities/readForm.js":31,"./Utilities/saveData.js":32,"./Utilities/scale.js":33}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":4,"./2DHeatmaps/Utilities.js":5,"./2DHeatmaps/initialize2DHeatmapSetup.js":8,"./2DHeatmaps/selection.js":9,"./2DHeatmaps/setupOptionBox2DHeatmap.js":10,"./2DHeatmaps/tooltip.js":11,"./3DViews/MoleculeView.js":14,"./3DViews/PointCloud_selection.js":15,"./3DViews/setupOptionBox3DView.js":18,"./3DViews/systemEdge.js":19,"./3DViews/tooltip.js":20,"./MultiviewControl/HUDControl.js":21,"./MultiviewControl/calculateViewportSizes.js":22,"./MultiviewControl/colorLegend.js":23,"./MultiviewControl/controllerControl.js":24,"./MultiviewControl/initializeViewSetups.js":25,"./MultiviewControl/optionBoxControl.js":26,"./MultiviewControl/setupViewBasic.js":27,"./Utilities/arrangeData.js":28,"./Utilities/readDataFile.js":31,"./Utilities/readForm.js":32,"./Utilities/saveData.js":33,"./Utilities/scale.js":34}],2:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1051,7 +1046,7 @@ function heatmapPointCount(data) {
 	return count;
 }
 
-},{"../MultiviewControl/colorLegend.js":22,"../Utilities/other.js":29,"./Utilities.js":5}],3:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":23,"../Utilities/other.js":30,"./Utilities.js":5}],3:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1597,7 +1592,7 @@ function initializePCATooltip(view) {
 	}
 }
 
-},{"../MultiviewControl/colorLegend.js":22,"../Utilities/other.js":29,"./Utilities.js":5,"ml-pca":40}],4:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":23,"../Utilities/other.js":30,"./Utilities.js":5,"ml-pca":41}],4:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2256,7 +2251,7 @@ function comparisonPointCount(data) {
 	return count;
 }
 
-},{"../MultiviewControl/colorLegend.js":22,"../Utilities/other.js":29,"./Utilities.js":5}],7:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":23,"../Utilities/other.js":30,"./Utilities.js":5}],7:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2556,7 +2551,7 @@ function replotCovariance(view) {
 	_UtilitiesJs.changeTitle(view);
 }
 
-},{"../MultiviewControl/colorLegend.js":22,"../Utilities/other.js":29,"./Utilities.js":5}],8:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":23,"../Utilities/other.js":30,"./Utilities.js":5}],8:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2719,7 +2714,7 @@ function extendObject(obj, src) {
 			return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":21,"../MultiviewControl/colorLegend.js":22,"../Utilities/saveData.js":32,"./HeatmapView.js":2,"./PCAView.js":3,"./Selection/Utilities.js":4,"./comparisonView.js":6,"./covarianceView.js":7}],9:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":22,"../MultiviewControl/colorLegend.js":23,"../Utilities/saveData.js":33,"./HeatmapView.js":2,"./PCAView.js":3,"./Selection/Utilities.js":4,"./comparisonView.js":6,"./covarianceView.js":7}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3843,7 +3838,7 @@ function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 	folder.open();
 }
 
-},{"../MultiviewControl/colorLegend.js":22,"../Utilities/colorMap.js":28,"../Utilities/other.js":29,"./HeatmapView.js":2,"./PCAView.js":3,"./comparisonView.js":6,"./covarianceView.js":7}],11:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":23,"../Utilities/colorMap.js":29,"../Utilities/other.js":30,"./HeatmapView.js":2,"./PCAView.js":3,"./comparisonView.js":6,"./covarianceView.js":7}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4286,13 +4281,13 @@ function getMoleculeAtomSpriteMaterialInstanced(options) {
 
 		uniforms: uniforms,
 		vertexShader: '\n\t\t\tprecision highp float;\n\n\t\t\tuniform mat4 modelViewMatrix;\n\t\t\tuniform mat4 projectionMatrix;\n\n\t\t\tattribute vec3 position;\n\n\t\t\tattribute float size;\n\t\t\tattribute vec3 customColor;\n\t\t\tattribute vec3 offset;\n\t\t\tattribute float alpha;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tvarying float vAlpha;\n\t\t\tvarying vec3 vColor;\n\n\t\t\tvoid main() {\n\t\t\tvColor = customColor;\n\t\t\tvAlpha = alpha;\n\t\t\tvec3 newPosition = position + offset;\n\t\t\tslicePosition = newPosition;\n\t\t\tvec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t\t\tgl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t\t\tgl_Position = projectionMatrix * mvPosition;\n\n\t\t\t}',
-		fragmentShader: '\n\t\t\tprecision highp float;\n\t\t\tuniform vec3 color;\n\t\t\tuniform sampler2D texture;\n\n\t\t\tvarying vec3 vColor;\n\t\t\tvarying float vAlpha;\n\t\t\tvarying vec3 slicePosition;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\n\t\t\tvoid main() {\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\n\t\t\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\t\t\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t\t\t}',
-		depthTest: true,
-		transparent: true,
-		alphaTest: 0.5,
-		blending: THREE.NormalBlending
+		fragmentShader: '\n\t\t\tprecision highp float;\n\t\t\tuniform vec3 color;\n\t\t\tuniform sampler2D texture;\n\n\t\t\tvarying vec3 vColor;\n\t\t\tvarying float vAlpha;\n\t\t\tvarying vec3 slicePosition;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\n\t\t\tvoid main() {\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\n\t\t\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\t\t\tvec4 texColor = texture2D( texture, gl_PointCoord );\n\t\t\t\tif (texColor.a < 0.5) discard;\n\t\t\t\tgl_FragColor = gl_FragColor * texColor;\n\t\t\t}',
+		// depthTest:      true,
+		// transparent:    true,
+		alphaTest: 0.5
 	});
 
+	// blending: THREE.NormalBlending,
 	// depthTest: false,
 	/// transparent: true
 
@@ -4322,6 +4317,54 @@ function getMoleculeBondLineMaterialInstanced(options) {
 	return materialInstanced;
 }
 
+/*
+export var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial( {
+
+	uniforms:       uniforms2,
+	vertexShader:   `
+	precision highp float;
+
+	uniform mat4 modelViewMatrix;
+	uniform mat4 projectionMatrix;
+
+	attribute vec3 position;
+
+	attribute float size;
+	attribute vec3 customColor;
+	attribute vec3 offset;
+	attribute float alpha;
+
+	varying float vAlpha;
+	varying vec3 vColor;
+
+	void main() {
+	  vColor = customColor;
+	  vAlpha = alpha;
+	  vec3 newPosition = position + offset;
+	  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+	  gl_PointSize = size * ( 300.0 / -mvPosition.z );
+	  gl_Position = projectionMatrix * mvPosition;
+
+	}`,
+	fragmentShader: `
+	precision highp float;
+	uniform vec3 color;
+	uniform sampler2D texture;
+
+	varying vec3 vColor;
+	varying float vAlpha;
+
+	void main() {
+	gl_FragColor = vec4( color * vColor, vAlpha );
+	gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+	}`,
+
+	blending:       THREE.AdditiveBlending,
+	depthTest:      false,
+	transparent:    true
+
+});*/
+
 },{}],14:[function(require,module,exports){
 "use strict";
 
@@ -4334,6 +4377,8 @@ exports.removeMoleculeGeometry = removeMoleculeGeometry;
 var _AtomSetupJs = require("./AtomSetup.js");
 
 var _UtilitiesOtherJs = require("../Utilities/other.js");
+
+var _UtilitiesJs = require("./Utilities.js");
 
 var _MaterialsJs = require("./Materials.js");
 
@@ -4371,10 +4416,10 @@ function addAtoms(view, moleculeData, lut) {
 
 			if (moleculeData[i].selected) {
 				if (sizeCode == "atom") {
-					sizes[i] = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 15;
+					sizes[i] = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 10;
 				} else {
 					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-					sizes[i] = options.atomSize * tempSize * 15;
+					sizes[i] = options.atomSize * tempSize * 10;
 				}
 
 				alphas[i] = options.moleculeAlpha;
@@ -4386,50 +4431,52 @@ function addAtoms(view, moleculeData, lut) {
 			i3 += 3;
 		}
 
-		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-			'y': systemDimension.x * latticeVectors.u12,
-			'z': systemDimension.x * latticeVectors.u13 };
-		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-			'y': systemDimension.y * latticeVectors.u22,
-			'z': systemDimension.y * latticeVectors.u23 };
-		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-			'y': systemDimension.z * latticeVectors.u32,
-			'z': systemDimension.z * latticeVectors.u33 };
-
-		var x_start = -1 * ((options.xPBC - 1) / 2);
-		var x_end = (options.xPBC - 1) / 2 + 1;
-		var y_start = -1 * ((options.yPBC - 1) / 2);
-		var y_end = (options.yPBC - 1) / 2 + 1;
-		var z_start = -1 * ((options.zPBC - 1) / 2);
-		var z_end = (options.zPBC - 1) / 2 + 1;
-
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+  				'y': systemDimension.x * latticeVectors.u12, 
+  				'z': systemDimension.x * latticeVectors.u13};
+  var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+  				'y': systemDimension.y * latticeVectors.u22, 
+  				'z': systemDimension.y * latticeVectors.u23};
+  var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+  				'y': systemDimension.z * latticeVectors.u32, 
+  				'z': systemDimension.z * latticeVectors.u33};
+  
+  
+  var x_start = -1 * ((options.xPBC-1)/2);
+  var x_end = ((options.xPBC-1)/2) + 1;
+  var y_start = -1 * ((options.yPBC-1)/2);
+  var y_end = ((options.yPBC-1)/2) + 1;
+  var z_start = -1 * ((options.zPBC-1)/2);
+  var z_end = ((options.zPBC-1)/2) + 1;
+  
+  var counter = 0;
+  var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+  sumDisplacement.fill(0);
+  var xStep, yStep, zStep;
+  for ( var i = x_start; i < x_end; i ++) {
+  	for ( var j = y_start; j < y_end; j ++) {
+  		for ( var k = z_start; k < z_end; k ++) {
+  			xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+  			yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+  			zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+  			
+  			sumDisplacement[counter * 3 + 0] = xStep;
+  			sumDisplacement[counter * 3 + 1] = yStep;
+  			sumDisplacement[counter * 3 + 2] = zStep;
+  			counter++;
+  		}
+  	}
+  }*/
 
 		var geometry = new THREE.InstancedBufferGeometry();
 		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 		geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 		geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 		geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
-		console.log(sumDisplacement);
-		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3));
-		geometry.maxInstancedCount = counter;
+		// console.log(sumDisplacement);
+		var offsetResult = _UtilitiesJs.getOffsetArray(systemDimension, latticeVectors, options);
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3));
+		geometry.maxInstancedCount = offsetResult.counter;
 
 		var atoms = new THREE.Points(geometry, _MaterialsJs.getMoleculeAtomSpriteMaterialInstanced(options));
 		atoms.frustumCulled = false;
@@ -4461,47 +4508,52 @@ function addAtoms(view, moleculeData, lut) {
 		}
 		var atomsGeometry = combineGeometry(atomList, atomColorList);
 
-		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-			'y': systemDimension.x * latticeVectors.u12,
-			'z': systemDimension.x * latticeVectors.u13 };
-		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-			'y': systemDimension.y * latticeVectors.u22,
-			'z': systemDimension.y * latticeVectors.u23 };
-		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-			'y': systemDimension.z * latticeVectors.u32,
-			'z': systemDimension.z * latticeVectors.u33 };
-
-		var x_start = -1 * ((options.xPBC - 1) / 2);
-		var x_end = (options.xPBC - 1) / 2 + 1;
-		var y_start = -1 * ((options.yPBC - 1) / 2);
-		var y_end = (options.yPBC - 1) / 2 + 1;
-		var z_start = -1 * ((options.zPBC - 1) / 2);
-		var z_end = (options.zPBC - 1) / 2 + 1;
-
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+  				'y': systemDimension.x * latticeVectors.u12, 
+  				'z': systemDimension.x * latticeVectors.u13};
+  var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+  				'y': systemDimension.y * latticeVectors.u22, 
+  				'z': systemDimension.y * latticeVectors.u23};
+  var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+  				'y': systemDimension.z * latticeVectors.u32, 
+  				'z': systemDimension.z * latticeVectors.u33};
+  
+  
+  var x_start = -1 * ((options.xPBC-1)/2);
+  var x_end = ((options.xPBC-1)/2) + 1;
+  var y_start = -1 * ((options.yPBC-1)/2);
+  var y_end = ((options.yPBC-1)/2) + 1;
+  var z_start = -1 * ((options.zPBC-1)/2);
+  var z_end = ((options.zPBC-1)/2) + 1;
+  
+  var counter = 0;
+  var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+  sumDisplacement.fill(0);
+  var xStep, yStep, zStep;
+  for ( var i = x_start; i < x_end; i ++) {
+  	for ( var j = y_start; j < y_end; j ++) {
+  		for ( var k = z_start; k < z_end; k ++) {
+  			xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+  			yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+  			zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+  			
+  			sumDisplacement[counter * 3 + 0] = xStep;
+  			sumDisplacement[counter * 3 + 1] = yStep;
+  			sumDisplacement[counter * 3 + 2] = zStep;
+  			counter++;
+  		}
+  	}
+  }
+  const sumDisp = new Float32Array(sumDisplacement);*/
 
 		var material = _MaterialsJs.getMoleculeMaterialInstanced(options);
 
-		var sumDisp = new Float32Array(sumDisplacement);
-		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
-		atomsGeometry.maxInstancedCount = counter;
+		var offsetResult = _UtilitiesJs.getOffsetArray(systemDimension, latticeVectors, options);
+		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3));
+		atomsGeometry.maxInstancedCount = offsetResult.counter;
+
+		// atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+		// atomsGeometry.maxInstancedCount = counter;
 		var atoms = new THREE.Mesh(atomsGeometry, material);
 	}
 	view.molecule.atoms = atoms;
@@ -4546,46 +4598,52 @@ function addBonds(view, moleculeData, neighborsData) {
 		}
 		var bondsGeometry = combineGeometry(bondList, bondColorList);
 
-		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-			'y': systemDimension.x * latticeVectors.u12,
-			'z': systemDimension.x * latticeVectors.u13 };
-		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-			'y': systemDimension.y * latticeVectors.u22,
-			'z': systemDimension.y * latticeVectors.u23 };
-		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-			'y': systemDimension.z * latticeVectors.u32,
-			'z': systemDimension.z * latticeVectors.u33 };
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+  				'y': systemDimension.x * latticeVectors.u12, 
+  				'z': systemDimension.x * latticeVectors.u13};
+  var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+  				'y': systemDimension.y * latticeVectors.u22, 
+  				'z': systemDimension.y * latticeVectors.u23};
+  var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+  				'y': systemDimension.z * latticeVectors.u32, 
+  				'z': systemDimension.z * latticeVectors.u33};
+  
+  
+  var x_start = -1 * ((options.xPBC-1)/2);
+  var x_end = ((options.xPBC-1)/2) + 1;
+  var y_start = -1 * ((options.yPBC-1)/2);
+  var y_end = ((options.yPBC-1)/2) + 1;
+  var z_start = -1 * ((options.zPBC-1)/2);
+  var z_end = ((options.zPBC-1)/2) + 1;
+  
+  var counter = 0;
+  var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+  sumDisplacement.fill(0);
+  var xStep, yStep, zStep;
+  for ( var i = x_start; i < x_end; i ++) {
+  	for ( var j = y_start; j < y_end; j ++) {
+  		for ( var k = z_start; k < z_end; k ++) {
+  			xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+  			yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+  			zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+  			
+  			sumDisplacement[counter * 3 + 0] = xStep;
+  			sumDisplacement[counter * 3 + 1] = yStep;
+  			sumDisplacement[counter * 3 + 2] = zStep;
+  			counter++;
+  		}
+  	}
+  }
+  console.log(sumDisplacement);
+  const sumDisp = new Float32Array(sumDisplacement);
+  bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3 ));
+  bondsGeometry.maxInstancedCount = counter;*/
 
-		var x_start = -1 * ((options.xPBC - 1) / 2);
-		var x_end = (options.xPBC - 1) / 2 + 1;
-		var y_start = -1 * ((options.yPBC - 1) / 2);
-		var y_end = (options.yPBC - 1) / 2 + 1;
-		var z_start = -1 * ((options.zPBC - 1) / 2);
-		var z_end = (options.zPBC - 1) / 2 + 1;
-
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
 		var material = _MaterialsJs.getMoleculeMaterialInstanced(options);
-		console.log(sumDisplacement);
-		var sumDisp = new Float32Array(sumDisplacement);
-		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisp, 3));
-		bondsGeometry.maxInstancedCount = counter;
+
+		var offsetResult = _UtilitiesJs.getOffsetArray(systemDimension, latticeVectors, options);
+		bondsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3));
+		bondsGeometry.maxInstancedCount = offsetResult.counter;
 		var bonds = new THREE.Mesh(bondsGeometry, material);
 	} else if (options.bondsStyle == "line") {
 
@@ -4636,48 +4694,57 @@ function addBonds(view, moleculeData, neighborsData) {
 			colors[i * 3 + 2] = verticesColors[i].b;
 		}
 
-		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-			'y': systemDimension.x * latticeVectors.u12,
-			'z': systemDimension.x * latticeVectors.u13 };
-		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-			'y': systemDimension.y * latticeVectors.u22,
-			'z': systemDimension.y * latticeVectors.u23 };
-		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-			'y': systemDimension.z * latticeVectors.u32,
-			'z': systemDimension.z * latticeVectors.u33 };
-
-		var x_start = -1 * ((options.xPBC - 1) / 2);
-		var x_end = (options.xPBC - 1) / 2 + 1;
-		var y_start = -1 * ((options.yPBC - 1) / 2);
-		var y_end = (options.yPBC - 1) / 2 + 1;
-		var z_start = -1 * ((options.zPBC - 1) / 2);
-		var z_end = (options.zPBC - 1) / 2 + 1;
-
-		var counter = 0;
-		var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
-		sumDisplacement.fill(0);
-		var xStep, yStep, zStep;
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
+		/*var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+  				'y': systemDimension.x * latticeVectors.u12, 
+  				'z': systemDimension.x * latticeVectors.u13};
+  var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+  				'y': systemDimension.y * latticeVectors.u22, 
+  				'z': systemDimension.y * latticeVectors.u23};
+  var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+  				'y': systemDimension.z * latticeVectors.u32, 
+  				'z': systemDimension.z * latticeVectors.u33};
+  
+  
+  var x_start = -1 * ((options.xPBC-1)/2);
+  var x_end = ((options.xPBC-1)/2) + 1;
+  var y_start = -1 * ((options.yPBC-1)/2);
+  var y_end = ((options.yPBC-1)/2) + 1;
+  var z_start = -1 * ((options.zPBC-1)/2);
+  var z_end = ((options.zPBC-1)/2) + 1;
+  
+  var counter = 0;
+  var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+  sumDisplacement.fill(0);
+  var xStep, yStep, zStep;
+  for ( var i = x_start; i < x_end; i ++) {
+  	for ( var j = y_start; j < y_end; j ++) {
+  		for ( var k = z_start; k < z_end; k ++) {
+  			xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+  			yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+  			zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+  			
+  			sumDisplacement[counter * 3 + 0] = xStep;
+  			sumDisplacement[counter * 3 + 1] = yStep;
+  			sumDisplacement[counter * 3 + 2] = zStep;
+  			counter++;
+  		}
+  	}
+  }
+  		var geometry = new THREE.InstancedBufferGeometry();
+  geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
+  geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3 ));
+  geometry.maxInstancedCount = counter;*/
 
 		var geometry = new THREE.InstancedBufferGeometry();
 		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 		geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
-		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(sumDisplacement, 3));
-		geometry.maxInstancedCount = counter;
+
+		var offsetResult = _UtilitiesJs.getOffsetArray(systemDimension, latticeVectors, options);
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3));
+		geometry.maxInstancedCount = offsetResult.counter;
 
 		var bonds = new THREE.LineSegments(geometry, _MaterialsJs.getMoleculeBondLineMaterialInstanced(options));
 		bonds.frustumCulled = false;
@@ -4811,43 +4878,44 @@ function updateMoleculeGeometry(view) {
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
-		var x_start = -1 * ((options.xPBC - 1) / 2);
-		var x_end = (options.xPBC - 1) / 2 + 1;
-		var y_start = -1 * ((options.yPBC - 1) / 2);
-		var y_end = (options.yPBC - 1) / 2 + 1;
-		var z_start = -1 * ((options.zPBC - 1) / 2);
-		var z_end = (options.zPBC - 1) / 2 + 1;
+		/*var x_start = -1 * ((options.xPBC-1)/2);
+  var x_end = ((options.xPBC-1)/2) + 1;
+  var y_start = -1 * ((options.yPBC-1)/2);
+  var y_end = ((options.yPBC-1)/2) + 1;
+  var z_start = -1 * ((options.zPBC-1)/2);
+  var z_end = ((options.zPBC-1)/2) + 1;
+  		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+  				'y': systemDimension.x * latticeVectors.u12, 
+  				'z': systemDimension.x * latticeVectors.u13};
+  var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+  				'y': systemDimension.y * latticeVectors.u22, 
+  				'z': systemDimension.y * latticeVectors.u23};
+  var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+  				'y': systemDimension.z * latticeVectors.u32, 
+  				'z': systemDimension.z * latticeVectors.u33};
+  		
+  var xStep, yStep, zStep;
+  		var sumDisplacement = view.molecule.atoms.geometry.attributes.offset.array;
+  var counter = 0
+  for ( var i = x_start; i < x_end; i ++) {
+  	for ( var j = y_start; j < y_end; j ++) {
+  		for ( var k = z_start; k < z_end; k ++) {
+  			xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+  			yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+  			zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+  			
+  			sumDisplacement[counter * 3 + 0] = xStep;
+  			sumDisplacement[counter * 3 + 1] = yStep;
+  			sumDisplacement[counter * 3 + 2] = zStep;
+  			counter++;
+  		}
+  	}
+  }
+  view.molecule.atoms.geometry.attributes.offset.needsUpdate = true;
+  view.molecule.atoms.geometry.maxInstancedCount = counter;*/
 
-		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-			'y': systemDimension.x * latticeVectors.u12,
-			'z': systemDimension.x * latticeVectors.u13 };
-		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-			'y': systemDimension.y * latticeVectors.u22,
-			'z': systemDimension.y * latticeVectors.u23 };
-		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-			'y': systemDimension.z * latticeVectors.u32,
-			'z': systemDimension.z * latticeVectors.u33 };
+		_UtilitiesJs.updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
 
-		var xStep, yStep, zStep;
-
-		var sumDisplacement = view.molecule.atoms.geometry.attributes.offset.array;
-		var counter = 0;
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
-		view.molecule.atoms.geometry.attributes.offset.needsUpdate = true;
-		view.molecule.atoms.geometry.maxInstancedCount = counter;
 		if (options.atomsStyle == "sprite") {
 
 			view.molecule.atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
@@ -4871,43 +4939,42 @@ function updateMoleculeGeometry(view) {
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
-		var x_start = -1 * ((options.xPBC - 1) / 2);
-		var x_end = (options.xPBC - 1) / 2 + 1;
-		var y_start = -1 * ((options.yPBC - 1) / 2);
-		var y_end = (options.yPBC - 1) / 2 + 1;
-		var z_start = -1 * ((options.zPBC - 1) / 2);
-		var z_end = (options.zPBC - 1) / 2 + 1;
-
-		var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
-			'y': systemDimension.x * latticeVectors.u12,
-			'z': systemDimension.x * latticeVectors.u13 };
-		var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
-			'y': systemDimension.y * latticeVectors.u22,
-			'z': systemDimension.y * latticeVectors.u23 };
-		var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
-			'y': systemDimension.z * latticeVectors.u32,
-			'z': systemDimension.z * latticeVectors.u33 };
-
-		var xStep, yStep, zStep;
-
-		var sumDisplacement = view.molecule.bonds.geometry.attributes.offset.array;
-		var counter = 0;
-		for (var i = x_start; i < x_end; i++) {
-			for (var j = y_start; j < y_end; j++) {
-				for (var k = z_start; k < z_end; k++) {
-					xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
-					yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
-					zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-
-					sumDisplacement[counter * 3 + 0] = xStep;
-					sumDisplacement[counter * 3 + 1] = yStep;
-					sumDisplacement[counter * 3 + 2] = zStep;
-					counter++;
-				}
-			}
-		}
-		view.molecule.bonds.geometry.attributes.offset.needsUpdate = true;
-		view.molecule.bonds.geometry.maxInstancedCount = counter;
+		/*var x_start = -1 * ((options.xPBC-1)/2);
+  var x_end = ((options.xPBC-1)/2) + 1;
+  var y_start = -1 * ((options.yPBC-1)/2);
+  var y_end = ((options.yPBC-1)/2) + 1;
+  var z_start = -1 * ((options.zPBC-1)/2);
+  var z_end = ((options.zPBC-1)/2) + 1;
+  		var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+  				'y': systemDimension.x * latticeVectors.u12, 
+  				'z': systemDimension.x * latticeVectors.u13};
+  var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+  				'y': systemDimension.y * latticeVectors.u22, 
+  				'z': systemDimension.y * latticeVectors.u23};
+  var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+  				'y': systemDimension.z * latticeVectors.u32, 
+  				'z': systemDimension.z * latticeVectors.u33};
+  		
+  var xStep, yStep, zStep;
+  		var sumDisplacement = view.molecule.bonds.geometry.attributes.offset.array;
+  var counter = 0
+  for ( var i = x_start; i < x_end; i ++) {
+  	for ( var j = y_start; j < y_end; j ++) {
+  		for ( var k = z_start; k < z_end; k ++) {
+  			xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+  			yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+  			zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+  			
+  			sumDisplacement[counter * 3 + 0] = xStep;
+  			sumDisplacement[counter * 3 + 1] = yStep;
+  			sumDisplacement[counter * 3 + 2] = zStep;
+  			counter++;
+  		}
+  	}
+  }
+  view.molecule.bonds.geometry.attributes.offset.needsUpdate = true;
+  view.molecule.bonds.geometry.maxInstancedCount = counter;*/
+		_UtilitiesJs.updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
 		if (options.bondsStyle == "line") {
 			view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
 			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
@@ -4942,7 +5009,7 @@ function removeMoleculeGeometry(view) {
 	}
 }
 
-},{"../Utilities/other.js":29,"./AtomSetup.js":12,"./Materials.js":13}],15:[function(require,module,exports){
+},{"../Utilities/other.js":30,"./AtomSetup.js":12,"./Materials.js":13,"./Utilities.js":16}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -5247,6 +5314,132 @@ function changePointCloudGeometry(view) {
 }
 
 },{"./Materials.js":13}],16:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.getOffsetArray = getOffsetArray;
+exports.updateOffsetArray = updateOffsetArray;
+
+function getOffsetArray(systemDimension, latticeVectors, options) {
+
+	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+		'y': systemDimension.x * latticeVectors.u12,
+		'z': systemDimension.x * latticeVectors.u13 };
+	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+		'y': systemDimension.y * latticeVectors.u22,
+		'z': systemDimension.y * latticeVectors.u23 };
+	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+		'y': systemDimension.z * latticeVectors.u32,
+		'z': systemDimension.z * latticeVectors.u33 };
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+
+	var counter = 0;
+	var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+	sumDisplacement.fill(0);
+	var xStep, yStep, zStep;
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+				sumDisplacement[counter * 3 + 0] = xStep;
+				sumDisplacement[counter * 3 + 1] = yStep;
+				sumDisplacement[counter * 3 + 2] = zStep;
+				counter++;
+			}
+		}
+	}
+	return { sumDisplacement: sumDisplacement, counter: counter };
+}
+
+function updateOffsetArray(systemDimension, latticeVectors, geometry, options) {
+	var sumDisplacement = geometry.attributes.offset.array;
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+
+	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+		'y': systemDimension.x * latticeVectors.u12,
+		'z': systemDimension.x * latticeVectors.u13 };
+	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+		'y': systemDimension.y * latticeVectors.u22,
+		'z': systemDimension.y * latticeVectors.u23 };
+	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+		'y': systemDimension.z * latticeVectors.u32,
+		'z': systemDimension.z * latticeVectors.u33 };
+
+	var xStep, yStep, zStep;
+
+	var counter = 0;
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+
+				sumDisplacement[counter * 3 + 0] = xStep;
+				sumDisplacement[counter * 3 + 1] = yStep;
+				sumDisplacement[counter * 3 + 2] = zStep;
+				counter++;
+			}
+		}
+	}
+	geometry.attributes.offset.needsUpdate = true;
+	geometry.maxInstancedCount = counter;
+}
+
+function changeGeometry(options) {
+	scene.remove(System);
+	System = getGeometry(options);
+	scene.add(System);
+}
+
+function getGeometry(options) {
+	var temp;
+	if (options.view == 'pointCloud') {
+		temp = getPointCloudGeometry(options);
+	} else if (options.view == 'box') {
+		temp = getBoxGeometry(options);
+	} else if (options.view == 'pointMatrix') {
+		temp = getPointMatrixGeometry(options);
+	} else {
+		temp = getPointCloudGeometry(options);
+	}
+
+	return temp;
+}
+
+function updateGeometry(options) {
+	if (options.view == 'pointCloud') {
+		updatePointCloudGeometry(options);
+	} else if (options.view == 'box') {
+		changeGeometry(options);
+	} else if (options.view == 'pointMatrix') {
+		updatePointMatrixGeometry(options);
+	} else {
+		updatePointCloudGeometry(options);
+	}
+}
+
+function updateOptionFilenames() {
+	options.dataFilename = "data/" + options.moleculeName + "_B3LYP_0_0_0_all_descriptors.csv";
+	console.log(options.densityFilename, options.targetFilename);
+}
+
+},{}],17:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -5265,7 +5458,6 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 	var systemDimension = viewSetup.systemDimension;
 
 	if (viewSetup.systemLatticeVectors == null || viewSetup.systemLatticeVectors == undefined) {
-		console.log('assigning default lattice vector');
 		viewSetup.systemLatticeVectors = { "u11": 1,
 			"u12": 0,
 			"u13": 0,
@@ -5298,24 +5490,12 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 	}
 
 	var roughSystemSize = Math.sqrt(systemDimension.x * systemDimension.x + systemDimension.y * systemDimension.y + systemDimension.z * systemDimension.z);
-	var xPlotMin = systemDimension.x * -10;
-	var yPlotMin = systemDimension.y * -10;
-	var zPlotMin = systemDimension.z * -10;
-	var xPlotMax = systemDimension.x * 10;
-	var yPlotMax = systemDimension.y * 10;
-	var zPlotMax = systemDimension.z * 10;
-
-	/* var xCoordMin = systemDimension["x"][0], xCoordMax = systemDimension["x"][1];
- var yCoordMin = systemDimension["y"][0], yCoordMax = systemDimension["y"][1];
- var zCoordMin = systemDimension["z"][0], zCoordMax = systemDimension["z"][1];
- var xSteps = (xCoordMax - xCoordMin)/gridSpacing.x;
- var ySteps = (yCoordMax - yCoordMin)/gridSpacing.y;
- var zSteps = (zCoordMax - zCoordMin)/gridSpacing.z; 
- var xPlotMin = 0.0 - (xSteps/2.0), xPlotMax =  0.0 + (xSteps/2.0);
- var yPlotMin = 0.0 - (ySteps/2.0), yPlotMax =  0.0 + (ySteps/2.0);
- var zPlotMin = 0.0 - (zSteps/2.0), zPlotMax =  0.0 + (zSteps/2.0); */
-
-	//plot gridspacing is 1
+	var xPlotMin = systemDimension.x * -6;
+	var yPlotMin = systemDimension.y * -6;
+	var zPlotMin = systemDimension.z * -6;
+	var xPlotMax = systemDimension.x * 6;
+	var yPlotMax = systemDimension.y * 6;
+	var zPlotMax = systemDimension.z * 6;
 
 	var defaultSetting = {
 		//left: 0,
@@ -5330,9 +5510,6 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		up: [0, 1, 0],
 		//fov: 100,
 		mousePosition: [0, 0],
-		//viewType: '3Dview',
-		//moleculeName: 'CO2',
-		//dataFilename: "data/CO2_B3LYP_0_0_0_all_descriptors.csv",
 		systemSpatiallyResolvedDataBoolean: false,
 		systemMoleculeDataBoolean: false,
 		controllerEnabled: false,
@@ -5377,12 +5554,6 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.y_high = yPlotMax;
 			this.z_low = zPlotMin;
 			this.z_high = zPlotMax;
-			/*this.x_low =  -100;
-   this.x_high = 100;
-   this.y_low =  -100;
-   this.y_high = 100;
-   this.z_low =  -100;
-   this.z_high = 100;*/
 			this.x_slider = 0;
 			this.y_slider = 0;
 			this.z_slider = 0;
@@ -5408,11 +5579,9 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.toggleSystemEdge = function () {
 				if (viewSetup.options.systemEdgeBoolean) {
 					_systemEdgeJs.addSystemEdge(viewSetup);
-					//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
 				} else {
-						_systemEdgeJs.removeSystemEdge(viewSetup);
-						//viewSetup.options.systemEdgeBoolean = !viewSetup.options.systemEdgeBoolean;
-					}
+					_systemEdgeJs.removeSystemEdge(viewSetup);
+				}
 			};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function () {
@@ -5496,7 +5665,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":21,"../MultiviewControl/colorLegend.js":22,"../Utilities/saveData.js":32,"./systemEdge.js":18}],17:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":22,"../MultiviewControl/colorLegend.js":23,"../Utilities/saveData.js":33,"./systemEdge.js":19}],18:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -5528,7 +5697,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	if (view.systemMoleculeDataBoolean) {
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
 		//if (moleculeDataFeatureList.includes('atom') == false){
-		console.log(moleculeDataFeatureList.indexOf("atom"));
+		// console.log(moleculeDataFeatureList.indexOf("atom"))
 		if (moleculeDataFeatureList.indexOf("atom") < 0) {
 			moleculeDataFeatureList.push("atom");
 		}
@@ -5941,7 +6110,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":22,"../MultiviewControl/setupViewBasic.js":26,"../Utilities/colorMap.js":28,"../Utilities/other.js":29,"../Utilities/scale.js":33,"./MoleculeView.js":14,"./PointCloud_selection.js":15}],18:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":23,"../MultiviewControl/setupViewBasic.js":27,"../Utilities/colorMap.js":29,"../Utilities/other.js":30,"../Utilities/scale.js":34,"./MoleculeView.js":14,"./PointCloud_selection.js":15}],19:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -5962,22 +6131,6 @@ function addSystemEdge(view) {
 	var wireframe = new THREE.LineSegments(geo, mat);
 	view.systemEdge = wireframe;
 	scene.add(wireframe);
-
-	/* var geometry = new THREE.BoxGeometry(	( view.xPlotMax - view.xPlotMin ), 
- 										( view.yPlotMax - view.yPlotMin ),  
- 										( view.zPlotMax - view.zPlotMin ) );
- 
- 
- 
-    var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
- 
- var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
- 
- var wireframe = new THREE.LineSegments( geo, mat );
- 
- view.systemEdge = wireframe; 
- 
- scene.add( wireframe ); */
 }
 
 function removeSystemEdge(view) {
@@ -6022,7 +6175,7 @@ function transformPositionArray(array, U) {
 	return result;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6145,7 +6298,7 @@ export function update3DViewTooltip(view){
 	}
 }*/
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6173,7 +6326,7 @@ function setupHUD(view) {
 	view.border = border;
 }
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6327,7 +6480,7 @@ function deFullscreen(views) {
 	_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 }
 
-},{"../2DHeatmaps/Utilities.js":5,"./optionBoxControl.js":25}],22:[function(require,module,exports){
+},{"../2DHeatmaps/Utilities.js":5,"./optionBoxControl.js":26}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6409,7 +6562,7 @@ function changeLegendMolecule(view) {
 	//if (view.options.moleculeColorCodeBasis != "atom"){insertLegendMolecule(view);}
 }
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6458,7 +6611,7 @@ function disableController(view, controller) {
 	view.border.material.needsUpdate = true;
 }
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6484,7 +6637,7 @@ function initializeViewSetups(views, plotSetup) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":8,"../3DViews/initialize3DViewSetup.js":16,"../MultiviewControl/calculateViewportSizes.js":21}],25:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":8,"../3DViews/initialize3DViewSetup.js":17,"../MultiviewControl/calculateViewportSizes.js":22}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6538,7 +6691,7 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 	}
 }
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6610,7 +6763,7 @@ function updateCameraFov(view) {
 	view.camera.updateProjectionMatrix();
 }
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6724,7 +6877,7 @@ function euclideanDistnace(a, b) {
 	return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2);
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6814,7 +6967,7 @@ var colorMapDict = {
     'gist_ncar': 'gist_ncar' };
 exports.colorMapDict = colorMapDict;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7110,7 +7263,7 @@ function getCanvasColor(color) {
         return "rgba(" + color.r + "," + color.g + "," + color.b + "," + color.a + ")";
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7289,7 +7442,6 @@ function readCSVSpatiallyResolvedDataPapaparse(view, overallSpatiallyResolvedDat
 		}
 		console.log('started loading');
 		var filename = view.spatiallyResolvedData.dataFilename;
-		console.log(filename);
 		var propertyList = plotSetup.spatiallyResolvedPropertyList;
 		var density = plotSetup.pointcloudDensity;
 		var densityCutoffLow = plotSetup.densityCutoffLow;
@@ -7301,6 +7453,7 @@ function readCSVSpatiallyResolvedDataPapaparse(view, overallSpatiallyResolvedDat
 			header: true,
 			download: true,
 			chunk: function chunk(_chunk) {
+				console.log('loading chunk');
 				for (var ii = 0; ii < _chunk.length; ii++) {
 					d = chunck.data[ii];
 					n = +d[density];
@@ -7504,7 +7657,7 @@ function loadJSON(filename,callback) {
 	xobj.send(null);  
 }*/
 
-},{"fs":34,"papaparse":41}],31:[function(require,module,exports){
+},{"fs":35,"papaparse":42}],32:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7644,7 +7797,7 @@ function normalizeLatticeVectors(U) {
     return result;
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7762,7 +7915,7 @@ function convertArrayOfObjectsToCSV(data, keys) {
 				}
 }
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7825,9 +7978,9 @@ function adjustScaleAccordingToDefaultMoleculeData(view) {
 	}
 }
 
-},{}],34:[function(require,module,exports){
-
 },{}],35:[function(require,module,exports){
+
+},{}],36:[function(require,module,exports){
 'use strict';
 
 const toString = Object.prototype.toString;
@@ -7838,7 +7991,7 @@ function isAnyArray(object) {
 
 module.exports = isAnyArray;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -7868,7 +8021,7 @@ function max(input) {
 
 module.exports = max;
 
-},{"is-any-array":35}],37:[function(require,module,exports){
+},{"is-any-array":36}],38:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -7898,7 +8051,7 @@ function min(input) {
 
 module.exports = min;
 
-},{"is-any-array":35}],38:[function(require,module,exports){
+},{"is-any-array":36}],39:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -7952,7 +8105,7 @@ function rescale(input, options = {}) {
 
 module.exports = rescale;
 
-},{"is-any-array":35,"ml-array-max":36,"ml-array-min":37}],39:[function(require,module,exports){
+},{"is-any-array":36,"ml-array-max":37,"ml-array-min":38}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -13030,7 +13183,7 @@ exports.pseudoInverse = pseudoInverse;
 exports.solve = solve;
 exports.wrap = wrap;
 
-},{"ml-array-rescale":38}],40:[function(require,module,exports){
+},{"ml-array-rescale":39}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -13310,7 +13463,7 @@ class PCA {
 
 exports.PCA = PCA;
 
-},{"ml-matrix":39}],41:[function(require,module,exports){
+},{"ml-matrix":40}],42:[function(require,module,exports){
 /* @license
 Papa Parse
 v4.6.3

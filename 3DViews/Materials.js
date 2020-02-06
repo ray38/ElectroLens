@@ -389,12 +389,14 @@ export function getMoleculeAtomSpriteMaterialInstanced(options) {
 				if(slicePosition.z>zClippingPlaneMax) discard;
 
 				gl_FragColor = vec4( color * vColor, vAlpha );
-				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+				vec4 texColor = texture2D( texture, gl_PointCoord );
+				if (texColor.a < 0.5) discard;
+				gl_FragColor = gl_FragColor * texColor;
 			}`,
-		depthTest:      true,
-		transparent:    true,
+		// depthTest:      true,
+		// transparent:    true,
 		alphaTest: 0.5,
-		blending: THREE.NormalBlending,
+		// blending: THREE.NormalBlending,
 		// depthTest: false,
 		/// transparent: true
 
@@ -460,3 +462,51 @@ export function getMoleculeBondLineMaterialInstanced(options) {
 	return materialInstanced;
 
 }
+
+/*
+export var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial( {
+
+	uniforms:       uniforms2,
+	vertexShader:   `
+	precision highp float;
+
+	uniform mat4 modelViewMatrix;
+	uniform mat4 projectionMatrix;
+
+	attribute vec3 position;
+
+	attribute float size;
+	attribute vec3 customColor;
+	attribute vec3 offset;
+	attribute float alpha;
+
+	varying float vAlpha;
+	varying vec3 vColor;
+
+	void main() {
+	  vColor = customColor;
+	  vAlpha = alpha;
+	  vec3 newPosition = position + offset;
+	  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+	  gl_PointSize = size * ( 300.0 / -mvPosition.z );
+	  gl_Position = projectionMatrix * mvPosition;
+
+	}`,
+	fragmentShader: `
+	precision highp float;
+	uniform vec3 color;
+	uniform sampler2D texture;
+
+	varying vec3 vColor;
+	varying float vAlpha;
+
+	void main() {
+	gl_FragColor = vec4( color * vColor, vAlpha );
+	gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+	}`,
+
+	blending:       THREE.AdditiveBlending,
+	depthTest:      false,
+	transparent:    true
+
+});*/
