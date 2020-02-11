@@ -510,7 +510,7 @@ function main(views, plotSetup) {
 					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule) {
 
 						var needsUpdate = _DViewsTooltipJs.hover3DViewMolecule(view, plotSetup, mouseEvent);
-						console.log('picking m', needsUpdate);
+						console.log('picking', needsUpdate);
 						if (needsUpdate) {
 							console.log('updating plots');
 							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
@@ -519,7 +519,7 @@ function main(views, plotSetup) {
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
 						var needsUpdate = _DViewsTooltipJs.hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
-						console.log('picking sp', needsUpdate);
+						console.log('picking', needsUpdate);
 						if (needsUpdate) {
 							console.log('updating plots');
 							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
@@ -1739,11 +1739,16 @@ function updateSelectionFromHeatmap(view) {
 	var data = view.data;
 	for (var x in data) {
 		for (var y in data[x]) {
-			if (data[x][y].selected) {
+			if (data[x][y].highlighted) {
 				for (var i = 0; i < data[x][y]['list'].length; i++) {
-					data[x][y]['list'][i].selected = true;
+					data[x][y]['list'][i].highlighted = true;
 				}
 			}
+			/* if (data[x][y].selected) {
+   	for (var i = 0; i < data[x][y]['list'].length; i++) {
+   		data[x][y]['list'][i].selected = true;
+   	}
+   } */
 			/*else {
    	for (var i = 0; i < data[x][y]['list'].length; i++) {
    		data[x][y]['list'][i].selected = false;
@@ -2892,9 +2897,11 @@ function updatePlaneSelection(views, view) {
 					tempx = xPlotScale(parseFloat(x));
 					tempy = yPlotScale(parseFloat(y));
 					if (tempx > xmin && tempx < xmax && tempy > ymin && tempy < ymax) {
+						data[x][y].highlighted = true;
 						// data[x][y].selected = true;
 						for (var i = 0; i < data[x][y]['list'].length; i++) {
-							data[x][y]['list'][i].selected = true;
+							data[x][y]['list'][i].highlighted = true;
+							// data[x][y]['list'][i].selected = true;
 						}
 					}
 					// else { data[x][y].selected = false;}
@@ -2968,9 +2975,8 @@ function updateBrushSelection(views, view) {
 				temp_dist2 = Math.pow(tempx - location.x, 2) + Math.pow(tempy - location.y, 2);
 				if (temp_dist2 < radius2) {
 					data[x][y].selected = true;
-				} else {
-					data[x][y].selected = false;
 				}
+				// else { data[x][y].selected = false;}
 			}
 		}
 		_SelectionUtilitiesJs.updateSelectionFromHeatmap(view);

@@ -96,11 +96,16 @@ export function updateSelectionFromHeatmap(view){
 	var data = view.data;
 	for (var x in data){
 		for (var y in data[x]){
-			if (data[x][y].selected) {
+			if (data[x][y].highlighted) {
+				for (var i = 0; i < data[x][y]['list'].length; i++) {
+					data[x][y]['list'][i].highlighted = true;
+				}
+			}
+			/* if (data[x][y].selected) {
 				for (var i = 0; i < data[x][y]['list'].length; i++) {
 					data[x][y]['list'][i].selected = true;
 				}
-			}
+			} */
 			/*else {
 				for (var i = 0; i < data[x][y]['list'].length; i++) {
 					data[x][y]['list'][i].selected = false;

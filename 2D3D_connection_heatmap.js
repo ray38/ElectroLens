@@ -510,7 +510,7 @@ function main(views,plotSetup) {
 						updateCovarianceTooltip(view);
 					}
 				} else if (view.viewType == "3DView") {
-					if (view.systemMoleculeDataBoolean && view.options.interactiveSpatiallyResolved ) {
+					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
 						
 						var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
 						console.log('picking', needsUpdate);

@@ -116,9 +116,11 @@ export function updatePlaneSelection(views,view) {
 					tempx = xPlotScale(parseFloat(x));
 					tempy = yPlotScale(parseFloat(y));
 					if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
+						data[x][y].highlighted = true;
 						// data[x][y].selected = true;
 						for (var i = 0; i < data[x][y]['list'].length; i++) {
-							data[x][y]['list'][i].selected = true;
+							data[x][y]['list'][i].highlighted = true;
+							// data[x][y]['list'][i].selected = true;
 						}
 					}
 					// else { data[x][y].selected = false;}
@@ -184,7 +186,7 @@ export function updateBrushSelection(views,view) {
 				if (temp_dist2 < radius2){
 					data[x][y].selected = true;
 				}
-				else { data[x][y].selected = false;}
+				// else { data[x][y].selected = false;}
 			}
 		}
 		updateSelectionFromHeatmap(view);							
