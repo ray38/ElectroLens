@@ -4,7 +4,7 @@ import {updateComparison} from "../comparisonView.js"
 //import {updatePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
 
 import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
-import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry} from "../../3DViews/MoleculeView.js";
+import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry,updateMoleculeGeometry} from "../../3DViews/MoleculeView.js";
 
 
 /*export function heatmapsResetSelection(views){
@@ -82,6 +82,7 @@ export function updateAllPlots(views){
 				updatePointCloudGeometry(view);
 			}
 			if (view.systemMoleculeDataBoolean) {
+				// updateMoleculeGeometry(view)
 				changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}

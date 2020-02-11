@@ -3,6 +3,7 @@ import {arrangeDataForCovariance, getCovariance, updateCovariance, replotCovaria
 import {arrangeDataForPCA, getPCAHeatmap, updatePCAHeatmap, replotPCAHeatmap} from "./PCAView.js";
 import {replotComparison} from './comparisonView.js'
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
+import {activate2DPlotSpatiallyResolved, deactivate2DPlotsSpatiallyResolved,activate2DPlotMolecule,deactivate2DPlotsMolecule} from "../MultiviewControl/active2DView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, deselectAllMoleculeData, selectAllMoleculeData, updateAllPlots} from "./Selection/Utilities.js";
 import {saveOverallMoleculeData, saveOverallSpatiallyResolvedData} from "../Utilities/saveData.js";
@@ -28,9 +29,15 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		yPlotScale : d3.scaleLinear().domain([0, 100]).range([-50,50]),
 		overallSpatiallyResolvedDataBoolean: false,
 		overallMoleculeDataBoolean: false,
+		activate2DPlotSpatiallyResolved: function() {activate2DPlotSpatiallyResolved(plotSetup, viewSetup, views);},
+		deactivate2DPlotSpatiallyResolved: function() {deactivate2DPlotsSpatiallyResolved(plotSetup, views);},
+		activate2DPlotMolecule: function() {activate2DPlotMolecule(plotSetup, viewSetup, views);},
+		deactivate2DPlotMolecule: function() {deactivate2DPlotsMolecule(plotSetup, views);},
 		options: new function(){
 			this.plotID = "";
 			this.plotType = "Undefined";
+			this.activePlotSpatiallyResolved = false;
+			this.activePlotMolecule = false;
 			this.backgroundColor = "#000000";
 			this.backgroundAlpha = 0.0;
 			this.plotData = "spatiallyResolvedData";
@@ -116,6 +123,8 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.replotPCAHeatmap = function(){replotPCAHeatmap(viewSetup)};
 
 			this.replotComparison = function() {replotComparison(viewSetup)};
+
+			
 
 
 		}

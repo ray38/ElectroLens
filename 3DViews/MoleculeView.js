@@ -19,6 +19,8 @@ function addAtoms(view, moleculeData, lut){
 		var alphas = new Float32Array( moleculeData.length );
 
 		var i3 = 0;
+		var atomSize;
+		var t0 = performance.now()
 		for (var i = 0; i < moleculeData.length; i++) {
 			var atomData = moleculeData[i];
 			positions[i3+0] = atomData.x;
@@ -38,13 +40,18 @@ function addAtoms(view, moleculeData, lut){
 
 			if (moleculeData[i].selected) {
 				if (sizeCode == "atom") {
-					sizes[i] = options.atomSize*atomRadius[atomData.atom] * 10;
+					atomSize = options.atomSize*atomRadius[atomData.atom] * 10;
 				}
 				else {
 					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-					sizes[i] = options.atomSize*tempSize* 10;
+					atomSize = options.atomSize*tempSize* 10;
 				}
 
+				if (moleculeData[i].highlighted) {
+					atomSize = atomSize * 2.5;
+				} 
+
+				sizes[i] = atomSize;
 				alphas[i] = options.moleculeAlpha;
 			}
 			else{
@@ -54,6 +61,7 @@ function addAtoms(view, moleculeData, lut){
 
 			i3 +=3;
 		}
+		console.log('sprite atoms', performance.now() - t0, cloneTime);
 
 
 		var geometry = new THREE.InstancedBufferGeometry();
@@ -75,10 +83,16 @@ function addAtoms(view, moleculeData, lut){
 		var atomList = [];
 		var atomColorList = [];
 
+		var sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, options.atomModelSegments);
+
+		var t0 = performance.now();
+		var cloneTime = 0;
+		var atomSelectionList = new Float32Array(moleculeData.length);
+		atomSelectionList.fill(1);
 		for (var i = 0; i < moleculeData.length; i++) {
 			var atomData = moleculeData[i];
 
-			if (moleculeData[i].selected) {
+			// if (moleculeData[i].selected) {
 				if (colorCode == "atom") {
 					var color = colorSetup[atomData.atom];
 				}
@@ -92,21 +106,38 @@ function addAtoms(view, moleculeData, lut){
 					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
 					var atomSize = options.atomSize * tempSize;
 				}
-				atomList.push(new THREE.SphereBufferGeometry(atomSize, options.atomModelSegments, options.atomModelSegments).translate(atomData.x, atomData.y,atomData.z));
+
+				if (moleculeData[i].highlighted) {
+					atomList.push(sphereTemplate.clone().scale(atomSize * 2, atomSize * 2, atomSize * 2).translate(atomData.x, atomData.y,atomData.z));
+				} else {
+					// atomList.push(new THREE.SphereBufferGeometry(atomSize, options.atomModelSegments, options.atomModelSegments).translate(atomData.x, atomData.y,atomData.z));
+					// atomList.push(sphereTemplate.clone().scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y,atomData.z));
+					var at0 = performance.now()
+					var temp = sphereTemplate.clone();
+					cloneTime += performance.now() - at0;
+					atomList.push(temp.scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y,atomData.z));
+				}
+				
 				var tempColor = new THREE.Color( color );
 				atomColorList.push([tempColor.r, tempColor.g, tempColor.b]);
 
-			}
+			// }
+			if (moleculeData[i].selected == false) {
+				atomSelectionList[i] = 0;
+			} 
 		}
-		var atomsGeometry = combineGeometry(atomList, atomColorList);
-
+		console.log('individual balls', performance.now() - t0, cloneTime);
+		var atomsGeometry = combineGeometry(atomList, atomColorList, atomSelectionList);
+		console.log('combine balls', performance.now() - t0);
 		var material = getMoleculeMaterialInstanced(options);
 		
 		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
 		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+		// atomsGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(atomSelectionArray, 1 ));
 		atomsGeometry.maxInstancedCount = offsetResult.counter;
 
 		var atoms = new THREE.Mesh( atomsGeometry, material);
+		atoms.userData.numVerticesPerAtom = sphereTemplate.attributes.position.count;
 	}
 	view.molecule.atoms = atoms;
 	view.scene.add(atoms);
@@ -125,8 +156,9 @@ function addBonds(view, moleculeData, neighborsData){
 		var bondList = [];
 		var bondColorList = [];
 		
+		var bondSelectionList = [];
 		for (var i = 0; i < moleculeData.length; i++) {
-			if (moleculeData[i].selected) {
+			// if (moleculeData[i].selected) {
 				var tempNeighborObject = neighborsData[i];
 				var neighborsList = tempNeighborObject.neighborsList;
 				var distancesList = tempNeighborObject.distancesList;
@@ -143,15 +175,18 @@ function addBonds(view, moleculeData, neighborsData){
 
 			    for (var j = 0; j < neighborsList.length; j++) {
 			    	var point2 = coordinatesList[j];
-				    if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength &&  neighborsList[j].selected ) {
+				    if (distancesList[j] < options.maxBondLength && distancesList[j] > options.minBondLength /*&&  neighborsList[j].selected*/ ) {
 						bondList.push(createBond(options, point1, point2));
 						var tempColor = new THREE.Color( color );
-				    	bondColorList.push([tempColor.r, tempColor.g, tempColor.b]);
+						bondColorList.push([tempColor.r, tempColor.g, tempColor.b]);
+						if (moleculeData[i].selected && neighborsList[j].selected ){
+							bondSelectionList.push(1);
+						} else {bondSelectionList.push(0);}
 				    }
 				}
-			}
+			// }
 		}
-		var bondsGeometry = combineGeometry(bondList, bondColorList);
+		var bondsGeometry = combineGeometry(bondList, bondColorList,bondSelectionList);
 
 		var material = getMoleculeMaterialInstanced(options);
 		
@@ -228,7 +263,7 @@ function addBonds(view, moleculeData, neighborsData){
 	view.scene.add(bonds);
 }
 
-function combineGeometry(geoarray, colorarray) {
+function combineGeometry(geoarray, colorarray, selectionList) {
 	let posArrLength = 0;
 	let normArrLength = 0;
 	let uvArrLength = 0;
@@ -245,6 +280,8 @@ function combineGeometry(geoarray, colorarray) {
 	const sumNormArr = new Float32Array(normArrLength);
 	const sumUvArr = new Float32Array(uvArrLength);
 	const sumIndexArr = new Uint32Array(indexArrLength);
+	const sumSelectionArr = new Float32Array(indexArrLength);
+	//sumSelectionArr.fill(0);
 
 	const postotalarr = [];
 
@@ -283,6 +320,8 @@ function combineGeometry(geoarray, colorarray) {
 		}
 		sumIndexCursor += indexArr.length;
 		sumIndexCursor2 += posAttArr.length / 3;
+
+		sumSelectionArr.fill(selectionList[a], a * indexArr.length, (a+1) * indexArr.length);
 	}
 
 	const combinedGeometry = new THREE.InstancedBufferGeometry();
@@ -290,6 +329,7 @@ function combineGeometry(geoarray, colorarray) {
 	combinedGeometry.setAttribute('normal', new THREE.BufferAttribute(sumNormArr, 3 ));
 	combinedGeometry.setAttribute('uv', new THREE.BufferAttribute(sumUvArr, 2 ));
 	combinedGeometry.setAttribute('color', new THREE.BufferAttribute(sumColorArr, 3 ));
+	combinedGeometry.setAttribute('selection', new THREE.BufferAttribute(sumSelectionArr, 1 ));
 	combinedGeometry.setIndex(new THREE.BufferAttribute(sumIndexArr, 1));
 	return combinedGeometry;
 }
@@ -350,10 +390,194 @@ export function getMoleculeGeometry(view){
 }
 
 
+
+/*function updateMoleculeGeometrySpriteAtom(view) {
+	var options = view.options;
+	var sizeCode = options.moleculeSizeCodeBasis;
+	var colorCode = options.moleculeColorCodeBasis;
+	var currentFrame = options.currentFrame.toString();
+
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+	var atoms = view.molecule.atoms;
+	var geometry = atoms.geometry;
+
+	var positions = new Float32Array(moleculeData.length * 3);
+	var colors = new Float32Array( moleculeData.length* 3);
+	var sizes = new Float32Array(moleculeData.length);
+	var alphas = new Float32Array(moleculeData.length);
+
+	var numVerticesPerAtom = atoms.userData.numVerticesPerAtom;
+
+	var i3 = 0;
+	var atomSize;
+	var atomX, atomY, atomZ;
+	for (var i = 0; i < moleculeData.length; i++) {
+		var atomData = moleculeData[i];
+		atomX = atomData.x;
+		atomY = atomData.y;
+		atomZ = atomData.z;
+
+		if (colorCode == "atom") {
+			var color = colorToRgb(colorSetup[atomData.atom]);
+		}
+		else {
+			var color = lut.getColor( atomData[colorCode] );
+		}
+
+		colors[ i3+0 ] = color.r;
+		colors[ i3+1 ] = color.g;
+		colors[ i3+2 ] = color.b;
+
+		if (moleculeData[i].selected) {
+			if (sizeCode == "atom") {
+				atomSize = options.atomSize*atomRadius[atomData.atom] * 10;
+			}
+			else {
+				var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+				atomSize = options.atomSize*tempSize* 10;
+			}
+
+			if (moleculeData[i].highlighted) {
+				atomSize = atomSize * 2.5;
+			} 
+
+			sizes[i] = atomSize;
+			alphas[i] = options.moleculeAlpha;
+		}
+		else{
+			sizes[i] = 0;
+			alphas[i] = 0;
+		}
+
+		i3 +=3;
+	}
+
+	
+	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+	atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
+	atoms.material.uniforms.xClippingPlaneMin.value = options.x_low;
+	atoms.material.uniforms.yClippingPlaneMax.value = options.y_high;
+	atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
+	atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
+	atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
+}
+
+function updateMoleculeGeometryBallAtom(view) {
+	var options = view.options;
+	var sizeCode = options.moleculeSizeCodeBasis;
+	var colorCode = options.moleculeColorCodeBasis;
+	var currentFrame = options.currentFrame.toString();
+
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+	var atoms = view.molecule.atoms;
+	var numVerticesPerAtom = atoms.userData.numVerticesPerAtom;
+	var geometry = atoms.geometry;
+
+	var positions = geometry.attributes.position.array;
+	var colors = geometry.attributes.color.array;
+	var selections = geometry.attributes.selection.array;
+
+
+	var atomSize, currentAtomGeometry, currentPositionArray;
+	var sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, options.atomModelSegments);
+	for (var i = 0; i < moleculeData.length; i++) {
+		var atomData = moleculeData[i];
+
+		if (colorCode == "atom") {
+			var color = colorToRgb(colorSetup[atomData.atom]);
+		}
+		else {
+			var color = lut.getColor( atomData[colorCode] );
+		}
+
+
+		if (colorCode == "atom") {
+			var color = colorSetup[atomData.atom];
+		}
+		else {
+			var color = lut.getColor( atomData[colorCode] );
+		}
+		if (sizeCode == "atom") {
+			var atomSize = options.atomSize*atomRadius[atomData.atom];
+		}
+		else {
+			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+			var atomSize = options.atomSize * tempSize;
+		}
+
+		if (moleculeData[i].highlighted) {
+			currentAtomGeometry = sphereTemplate.clone().scale(atomSize * 2, atomSize * 2, atomSize * 2).translate(atomData.x, atomData.y,atomData.z);
+		} else {
+			// atomList.push(new THREE.SphereBufferGeometry(atomSize, options.atomModelSegments, options.atomModelSegments).translate(atomData.x, atomData.y,atomData.z));
+			currentAtomGeometry = sphereTemplate.clone().scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y,atomData.z);
+		}
+
+		positions.set(currentAtomGeometry.attributes.position.array, i*numVerticesPerAtom);
+
+		if (atomData.selected) {
+			selections.fill(1, i * numVerticesPerAtom, (i+1) * numVerticesPerAtom);
+		} else {
+			selections.fill(0, i * numVerticesPerAtom, (i+1) * numVerticesPerAtom);
+		}
+
+		for (var j = 0; j < numVerticesPerAtom; j++) {
+			colors[i * numVerticesPerAtom + j * 3 + 0] = color.r;
+			colors[i * numVerticesPerAtom + j * 3 + 1] = color.g;
+			colors[i * numVerticesPerAtom + j * 3 + 2] = color.b;
+		}
+		
+	}
+
+	geometry.attributes.position.needsUpdate = true;
+	geometry.attributes.color.needsUpdate = true;
+	geometry.attributes.selection.needsUpdate = true;
+	
+	// geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	// geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	// geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+	var atomsMaterialShader = atoms.material.userData.shader;
+	atomsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
+	atomsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
+	atomsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
+	atomsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
+	atomsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
+	atomsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
+}*/
+
+
+function updateClippingPlaneBallAtom(view) {
+	var atoms = view.molecule.atoms;
+	var atomsMaterialShader = atoms.material.userData.shader;
+	atomsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
+	atomsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
+	atomsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
+	atomsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
+	atomsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
+	atomsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
+}
+
+function updateClippingPlaneSpriteAtom(view) {
+	var atoms = view.molecule.atoms;
+	atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
+	atoms.material.uniforms.xClippingPlaneMin.value = options.x_low;
+	atoms.material.uniforms.yClippingPlaneMax.value = options.y_high;
+	atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
+	atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
+	atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
+}
+
+
+
 export function updateMoleculeGeometry(view){
 
 	var options = view.options;
 
+	var t0 = performance.now();
 	if(options.showAtoms) {
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
@@ -362,21 +586,11 @@ export function updateMoleculeGeometry(view){
 		
 		if (options.atomsStyle == "sprite") {
 			
-			view.molecule.atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
-			view.molecule.atoms.material.uniforms.xClippingPlaneMin.value = options.x_low;
-			view.molecule.atoms.material.uniforms.yClippingPlaneMax.value = options.y_high;
-			view.molecule.atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
-			view.molecule.atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
-			view.molecule.atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
+			updateClippingPlaneSpriteAtom(view);
+			
 
 		} else if (options.atomsStyle == "ball") {
-			var atomsMaterialShader = view.molecule.atoms.material.userData.shader;
-			atomsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
-			atomsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
-			atomsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
-			atomsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
-			atomsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
-			atomsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
+			updateClippingPlaneBallAtom(view);
 		}
 
 	}
@@ -405,7 +619,7 @@ export function updateMoleculeGeometry(view){
 			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
 		}
 	}
-
+	console.log('update molecule replicate took: ', performance.now() - t0);
 }
 
 

@@ -121,6 +121,8 @@ export function arrangeDataToHeatmap(view){
 
 	view.xScale = xScale;
 	view.yScale = yScale;
+	view.xValue = xValue;
+	view.yValue = yValue;
 
 	// var voxelToHeatmapMap = new Uint32Array(Data.length);
 	for (var i=0; i<Data.length; i++){

@@ -130,6 +130,16 @@ export function setupOptionBox3DView(view,plotSetup){
 
 	if (view.systemMoleculeDataBoolean) {
 
+		moleculeFolder.add( options, 'interactiveMolecule')
+		.name( 'Interactive?' )
+		.onChange( function( value ) {
+			if (value == true && view.options.interactiveSpatiallyResolved) {
+				view.options.interactiveSpatiallyResolved = false;
+			}
+			gui.updateDisplay();
+		});
+
+
 		moleculeFolder.add( options, 'showAtoms')
 		.name( 'Show Atoms' )
 		.onChange( function( value ) {
@@ -297,6 +307,14 @@ export function setupOptionBox3DView(view,plotSetup){
 	
 
 	if (view.systemSpatiallyResolvedDataBoolean) {
+		pointCloudFolder.add( options, 'interactiveSpatiallyResolved')
+		.name( 'Interactive?' )
+		.onChange( function( value ) {
+			if (value == true && view.options.interactiveMolecule) {
+				view.options.interactiveMolecule = false;
+			}
+			gui.updateDisplay();
+		});
 		pointCloudFolder.add( options, 'propertyOfInterest', propertyChoiceObject)
 		.name( 'Color Basis' )
 		.onChange( function( value ) {

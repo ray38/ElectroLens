@@ -90,22 +90,23 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 		plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})
 		.name( 'Plot Data' )
 		.onChange( function( value ) {
-			if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
-				if (value == 'spatiallyResolvedData') {
-					moleculeFolder.close();
-					spatiallyResolvedFolder.open();
-				}
-				if (value == 'moleculeData') {
-					moleculeFolder.open();
-					spatiallyResolvedFolder.close();
-				}
+			if (value == 'spatiallyResolvedData') {
+				moleculeFolder.close();
+				spatiallyResolvedFolder.open();
 			}
+			if (value == 'moleculeData') {
+				moleculeFolder.open();
+				spatiallyResolvedFolder.close();
+			}
+
 		});
 	}
 	else {
 		plotFolder.add( options, 'plotData')
 		.name( 'Plot Data' );
 	}
+
+	
 
 
 	plotFolder.add( options, 'numPerSide', 10, 10000).step( 1 )
@@ -121,6 +122,14 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 	
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
+		plotFolder.add(options, 'activePlotMolecule').name('active plot')
+		.onChange( function(value) {
+			if (value == true) {
+				view.activate2DPlotMolecule();
+			} else {
+				view.deactivate2DPlotMolecule()
+			}
+		});
 		plotFolder.add( options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
@@ -150,6 +159,14 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 	}
 
 	if (view.overallMoleculeDataBoolean  == false && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add(options, 'activePlotSpatiallyResolved').name('active plot')
+		.onChange( function(value) {
+			if (value == true) {
+				view.activate2DPlotSpatiallyResolved();
+			} else {
+				view.deactivate2DPlotSpatiallyResolved()
+			}
+		});
 		plotFolder.add( options, 'plotXSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
@@ -233,6 +250,14 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean){
+		moleculeFolder.add(options, 'activePlotMolecule').name('active plot')
+		.onChange( function(value) {
+			if (value == true) {
+				view.activate2DPlotMolecule();
+			} else {
+				view.deactivate2DPlotMolecule()
+			}
+		});
 		moleculeFolder.add( options, 'plotXMoleculeData', moleculeDataFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
@@ -262,7 +287,14 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 
 		moleculeFolder.close();
 
-
+		spatiallyResolvedFolder.add(options, 'activePlotSpatiallyResolved').name('active plot')
+		.onChange( function(value) {
+			if (value == true) {
+				view.activate2DPlotSpatiallyResolved();
+			} else {
+				view.deactivate2DPlotSpatiallyResolved()
+			}
+		});
 		spatiallyResolvedFolder.add( options, 'plotXSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {

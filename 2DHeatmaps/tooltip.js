@@ -45,6 +45,7 @@ export function hoverHeatmap(view, mouseEvent){
 	var mouse = new THREE.Vector2();
 	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
 	var intersects = view.raycaster.intersectObject( view.heatmapPlot );
 	if ( intersects.length > 0 ) {
@@ -55,17 +56,24 @@ export function hoverHeatmap(view, mouseEvent){
 			}
 			view.INTERSECTED = intersects[ 0 ].index;
 			highlightHeatmapPoints(view.INTERSECTED, view);
+			updateHeatmapTooltip(view)
+			return true;
 		}
-
+		updateHeatmapTooltip(view)
+		return false
 	}
 	else {
 		if (view.INTERSECTED != null){
 			unhighlightHeatmapPoints(view.INTERSECTED, view);
+			view.INTERSECTED = null;
+			updateHeatmapTooltip(view)
+			return true;
 		}
-		view.INTERSECTED = null;
+		return false;
+		
 	}
 
-	updateHeatmapTooltip(view)
+	
 
 }
 

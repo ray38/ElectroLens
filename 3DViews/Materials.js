@@ -117,6 +117,9 @@ export function getMoleculeMaterialInstanced(options) {
 			varying vec3 vLightFront;
 			varying vec3 vIndirectFront;
 			varying vec3 slicePosition;
+			
+			attribute float selection;
+			varying float vSelection;
 		
 			#ifdef DOUBLE_SIDED
 				varying vec3 vLightBack;
@@ -161,6 +164,8 @@ export function getMoleculeMaterialInstanced(options) {
 				// transformed = transformed + instanceOffset;
 				transformed = transformed + offset;
 				slicePosition = transformed;
+
+				vSelection = selection;
 		
 				#include <morphtarget_vertex>
 				#include <skinning_vertex>
@@ -185,6 +190,7 @@ export function getMoleculeMaterialInstanced(options) {
 			varying vec3 vIndirectFront;
 
 			varying vec3 slicePosition;
+			varying float vSelection;
 			uniform float xClippingPlaneMax;
 			uniform float xClippingPlaneMin;
 			uniform float yClippingPlaneMax;
@@ -223,6 +229,7 @@ export function getMoleculeMaterialInstanced(options) {
 			
 			void main() {
 
+				if(vSelection==0.0) discard;
 				if(slicePosition.x<xClippingPlaneMin) discard;
 				if(slicePosition.x>xClippingPlaneMax) discard;
 				if(slicePosition.y<yClippingPlaneMin) discard;

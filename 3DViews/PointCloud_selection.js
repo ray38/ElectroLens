@@ -32,7 +32,8 @@ export function getPointCloudGeometry(view){
 	var colors = new Float32Array(count *3);
 	var sizes = new Float32Array( count);
 	var alphas = new Float32Array( count);
-	var parentBlock = new Float32Array( count);
+	// var parentBlock = new Float32Array( count);
+	var voxelPointDict = {};
 	var pointVoxelMap = new Uint32Array(count);
 
 	var colorMap = options.colorMap;
@@ -49,11 +50,13 @@ export function getPointCloudGeometry(view){
 	var xTempBeforeTransform, yTempBeforeTransform, zTempBeforeTransform, x, y, z, color;
 	for ( var k = 0; k < num_blocks; k ++) {
 		temp_num_points  =  points_in_block[k];
+		voxelPointDict[ k ] = [];
 		if (temp_num_points > 0){
 			
 			for (var j = 0; j < temp_num_points; j ++){
 
-				pointVoxelMap[ i ] = k;
+				
+				
 
 				xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
 				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
@@ -93,8 +96,9 @@ export function getPointCloudGeometry(view){
 					sizes[ i ] = 0;
 				}
 
-				parentBlock[i] = k;
-				
+				// parentBlock[i] = k;
+				pointVoxelMap[ i ] = k;
+				voxelPointDict[k].push(i);
 				i++;
 				i3+=3;
 			}
@@ -107,15 +111,18 @@ export function getPointCloudGeometry(view){
 	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-	geometry.parentBlockMap = parentBlock;
+	// geometry.parentBlockMap = parentBlock;
 	var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
 	geometry.maxInstancedCount = offsetResult.counter;
 
 	var System = new THREE.Points( geometry, getPointCloudMaterialInstanced(options) );
+	System.userData.pointVoxelMap = pointVoxelMap;
+	System.userData.voxelPointDict = voxelPointDict;
 	System.frustumCulled = false;
 	view.System = System;
 	view.pointVoxelMap = pointVoxelMap;
+
 	scene.add( System );
 }
 
@@ -123,7 +130,8 @@ export function getPointCloudGeometry(view){
 export function updatePointCloudGeometry(view){
 
 	var options = view.options;
-	var parentBlock = view.System.geometry.parentBlockMap;
+	// var parentBlock = view.System.geometry.parentBlockMap;
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
 	var currentFrame = options.currentFrame.toString();
 	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 	var positionArray = view.System.geometry.attributes.position.array;
@@ -147,7 +155,7 @@ export function updatePointCloudGeometry(view){
 		var x = positionArray[i3 + 0];
 		var y = positionArray[i3 + 1];
 		var z = positionArray[i3 + 2];
-		var k = parentBlock[i];
+		var k = pointVoxelMap[i];
 
 		var color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
 				
@@ -204,7 +212,8 @@ export function animatePointCloudGeometry(view){
 	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 	var positionArray = view.System.geometry.attributes.position.array;
 	var sizeArray = view.System.geometry.attributes.size.array;
-	var parentBlock = view.System.geometry.parentBlockMap;
+	// var parentBlock = view.System.geometry.parentBlockMap;
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
 
 
 	var particles = options.pointCloudParticles;
@@ -220,7 +229,7 @@ export function animatePointCloudGeometry(view){
 		var x = positionArray[ i3 + 0 ]/10;
 		var y = positionArray[ i3 + 1 ]/10;
 		var z = positionArray[ i3 + 2 ]/10;
-		var k = parentBlock[i];
+		var k = pointVoxelMap[i];
 	
 		if (	/*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
 				(y >= options.y_low) 	&& (y <= options.y_high)	&&

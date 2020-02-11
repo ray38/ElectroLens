@@ -200,6 +200,9 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.saveSystemMoleculeData = function(){saveSystemMoleculeData(viewSetup,plotSetup)};
 			this.saveSystemSpatiallyResolvedData = function(){saveSystemSpatiallyResolvedData(viewSetup,plotSetup)};
 
+			this.interactiveSpatiallyResolved = false;
+			this.interactiveMolecule = false;
+
 			this.cameraLightPositionX = 0;
 			this.cameraLightPositionY = 0;
 			this.cameraLightPositionZ = 0;

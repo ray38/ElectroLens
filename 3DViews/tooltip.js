@@ -3,7 +3,7 @@ export function initialize3DViewTooltip(view){
 	view.raycaster = tempRaycaster;
 	view.INTERSECTED = null;
 
-	var tempTooltip = document.createElement('div');
+	/*var tempTooltip = document.createElement('div');
 	tempTooltip.setAttribute('style', 'cursor: pointer; text-align: left; display:block;');
 	tempTooltip.style.position = 'absolute';
 	tempTooltip.innerHTML = "";
@@ -15,7 +15,7 @@ export function initialize3DViewTooltip(view){
 	tempTooltip.style.top = 0 + 'px';
 	tempTooltip.style.left = 0 + 'px';
 	view.tooltip = tempTooltip;
-	document.body.appendChild(tempTooltip);
+	document.body.appendChild(tempTooltip);*/
 
 }
 
@@ -121,56 +121,245 @@ export function update3DViewTooltip(view){
 
 
 
-function highlightHeatmapPoints(index, view) {
-	var pointVoxelMap = view.pointVoxelMap;
-	var voxelIndex = view.pointVoxelMap[index];
+function highlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
+	//var voxelGlobalIndex = view.
+	var voxelPointDict = view.System.userData.voxelPointDict;
 
-	/*var heatmapX = view.heatmapInformation[index].heatmapX;
-	var heatmapY = view.heatmapInformation[index].heatmapY;
+	if (plotSetup.active2DPlotSpatiallyResolved && 
+		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
+		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
 
-	var dataset = view.data[heatmapX][heatmapY];
-	dataset.highlighted = true;
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
 
-	dataset.list.forEach(datapoint => {
-		datapoint.highlighted = true;
-	});*/
+		var heatmapX = xMap(highlightDataPoint);
+		var heatmapY = yMap(highlightDataPoint);
+
+		var dataset = twoDPlot.data[heatmapX][heatmapY];
+		dataset.highlighted = true;
+
+		dataset.list.forEach(datapoint => {
+			datapoint.highlighted = true;
+		})
+	} else {
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
+		highlightDataPoint.highlighted = true;
+	}
 }
 
-function unhighlightHeatmapPoints(index, view) {
-	/*var heatmapX = view.heatmapInformation[index].heatmapX;
-	var heatmapY = view.heatmapInformation[index].heatmapY;
-	
-	var dataset = view.data[heatmapX][heatmapY];
-	dataset.highlighted = false;
+function unhighlight3DViewPointsSpatiallyResolved(index, view,plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 
-	dataset.list.forEach(datapoint => {
-		datapoint.highlighted = false;
-	});*/
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
+	//var voxelGlobalIndex = view.
+	var voxelPointDict = view.System.userData.voxelPointDict;
+
+	if (plotSetup.active2DPlotSpatiallyResolved && 
+		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
+		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
+
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
+
+		var heatmapX = xMap(highlightDataPoint);
+		var heatmapY = yMap(highlightDataPoint);
+
+		var dataset = twoDPlot.data[heatmapX][heatmapY];
+		dataset.highlighted = false;
+
+		dataset.list.forEach(datapoint => {
+			datapoint.highlighted = false;
+		})
+	} else {
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
+		highlightDataPoint.highlighted = false;
+	}
 }
-export function hoverHeatmap(view, mouseEvent){
+
+export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
 	var mouse = new THREE.Vector2();
 	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
+	console.log(view.raycaster);
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
 	var intersects = view.raycaster.intersectObject( view.System );
 	if ( intersects.length > 0 ) {
 		
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {
 			if (view.INTERSECTED != null){
-				unhighlightHeatmapPoints(view.INTERSECTED, view);
+				unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
 			}
 			view.INTERSECTED = intersects[ 0 ].index;
-			highlightHeatmapPoints(view.INTERSECTED, view);
+			highlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
+			return true;
 		}
+		return false;
 
 	}
 	else {
 		if (view.INTERSECTED != null){
-			unhighlightHeatmapPoints(view.INTERSECTED, view);
+			unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
+			view.INTERSECTED = null;
+			return true;
+		} else {
+			return false;
 		}
-		view.INTERSECTED = null;
+		
 	}
 
+}
+
+
+
+
+
+function highlight3DViewPointsMolecule(index, view, plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+
+	if (plotSetup.active2DPlotMolecule && 
+		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
+		plotSetup.active2DPlotMolecule.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotMolecule;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = moleculeData[index];
+
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
+
+		var heatmapX = xMap(highlightDataPoint);
+		var heatmapY = yMap(highlightDataPoint);
+
+		var dataset = twoDPlot.data[heatmapX][heatmapY];
+		dataset.highlighted = true;
+
+		dataset.list.forEach(datapoint => {
+			datapoint.highlighted = true;
+		})
+	} else {
+		var highlightDataPoint = moleculeData[index];
+		highlightDataPoint.highlighted = true;
+	}
+}
+
+function unhighlight3DViewPointsMolecule(index, view,plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+
+	if (plotSetup.active2DPlotMolecule && 
+		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
+		plotSetup.active2DPlotMolecule.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotMolecule;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = moleculeData[index];
+
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
+
+		var heatmapX = xMap(highlightDataPoint);
+		var heatmapY = yMap(highlightDataPoint);
+
+		var dataset = twoDPlot.data[heatmapX][heatmapY];
+		dataset.highlighted = false;
+
+		dataset.list.forEach(datapoint => {
+			datapoint.highlighted = false;
+		})
+	} else {
+		var highlightDataPoint = moleculeData[index];
+		highlightDataPoint.highlighted = false;
+	}
+}
+
+export function hover3DViewMolecule(view, plotSetup, mouseEvent){
+	var mouse = new THREE.Vector2();
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 2.5;
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+
+	if (view.options.atomsStyle == "ball") {
+		
+		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
+		if ( intersects.length > 0 ) {
+			var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
+			console.log('intersect', intersectIndex);
+			if ( view.INTERSECTED != intersectIndex ) {
+				if (view.INTERSECTED != null){
+					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				}
+				view.INTERSECTED = intersectIndex;
+				// console.log(intersects[0],view.molecule.atoms.userData.numVerticesPerAtom, view.INTERSECTED);
+				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				return true;
+			}
+			return false;
+	
+		}
+		else {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				view.INTERSECTED = null;
+				return true;
+			}
+			return false;
+			
+		}
+
+	}
+
+	if (view.options.atomsStyle == "sprite") {
+		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
+		if ( intersects.length > 0 ) {
+		
+			if ( view.INTERSECTED != intersects[ 0 ].index ) {
+				if (view.INTERSECTED != null){
+					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				}
+				view.INTERSECTED = intersects[ 0 ].index;
+				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				return true;
+			}
+			return false;
+	
+		}
+		else {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				view.INTERSECTED = null;
+				return true;
+			}
+			return false
+			
+		}
+	}
 
 }

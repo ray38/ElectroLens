@@ -42,7 +42,7 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 
 			view.systemSpatiallyResolvedData.push(temp);
 			view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
-			overallSpatiallyResolvedData.push(temp);
+			// overallSpatiallyResolvedData.push(temp);
 
 		}
 	})
@@ -50,7 +50,7 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 	callback(null);
 }
 
-export function processMoleculeData(view,overallMoleculeData,plotSetup,callback){
+export function processMoleculeData(view,plotSetup,callback){
 	view.systemMoleculeData = [];
 	view.systemMoleculeDataFramed = {};
 	console.log('started processing molecule data')
@@ -92,15 +92,13 @@ export function processMoleculeData(view,overallMoleculeData,plotSetup,callback)
 
 		view.systemMoleculeData.push(temp);
 		view.systemMoleculeDataFramed[currentFrame].push(temp);
-		overallMoleculeData.push(temp);
 
 	})
-	console.log(view.systemMoleculeDataFramed);
 	console.log('end processing molecule data');
 	callback(null);
 }
 
-export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
+export function readCSVSpatiallyResolvedData(view,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
 	view.systemSpatiallyResolvedDataFramed = {};
 
@@ -157,7 +155,6 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 
 					view.systemSpatiallyResolvedData.push(temp);
 					view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
-					overallSpatiallyResolvedData.push(temp);
 
 				}
 			})
@@ -167,7 +164,7 @@ export function readCSVSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 	}
 }
 
-export function readCSVSpatiallyResolvedDataPapaparse(view,overallSpatiallyResolvedData,plotSetup,callback){
+export function readCSVSpatiallyResolvedDataPapaparse(view,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
 	view.systemSpatiallyResolvedDataFramed = {};
 
@@ -220,13 +217,12 @@ export function readCSVSpatiallyResolvedDataPapaparse(view,overallSpatiallyResol
 
 						view.systemSpatiallyResolvedData.push(temp);
 						view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
-						overallSpatiallyResolvedData.push(temp);
 
 					}
 				}
 			},
 			complete: function() {
-				console.log('papa load complete',overallSpatiallyResolvedData);
+				console.log('papa load complete');
 				callback(null);
 			}
 		});
@@ -235,7 +231,7 @@ export function readCSVSpatiallyResolvedDataPapaparse(view,overallSpatiallyResol
 }
 
 
-export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback){
+export function readCSVMoleculeData(view,plotSetup,callback){
 
 	view.systemMoleculeData = [];
 	view.systemMoleculeDataFramed = {};
@@ -293,25 +289,6 @@ export function readCSVMoleculeData(view,overallMoleculeData,plotSetup,callback)
 
 				view.systemMoleculeData.push(temp);
 				view.systemMoleculeDataFramed[currentFrame].push(temp);
-				overallMoleculeData.push(temp);
-
-				/*var n = +d[density];
-				if (n >densityCutoff){
-					var temp = {
-							xPlot: xPlotScale(+d.x),
-							yPlot: yPlotScale(+d.y),
-							zPlot: zPlotScale(+d.z),
-							selected: true,
-							name: systemName
-						}
-					for (var i = 0; i < propertyList.length; i++) {
-					    temp[propertyList[i]] = +d[propertyList[i]];
-					}
-
-
-					view.data.push(temp);
-					plotData.push(temp);
-				}*/
 			})
 			console.log('end parsing')
 			callback(null);
@@ -407,3 +384,44 @@ function loadJSON(filename,callback) {
 	};
 	xobj.send(null);  
 }*/
+
+function addViewDataToOverallDataSpatiallyResolved(view, overallSpatiallyResolvedData) {
+	var map = new Uint32Array(view.systemSpatiallyResolvedData.length);
+	var counterCurrent = 0;
+	var counterOverall = overallSpatiallyResolvedData.length;
+	view.systemSpatiallyResolvedData.forEach(datapoint => {
+		overallSpatiallyResolvedData.push(datapoint);
+		map[counterCurrent] = counterOverall;
+		counterOverall++;
+		counterCurrent++;
+	});
+	view.spatiallyResolvedDataToOverallMap = map;
+}
+
+function addViewDataToOverallDataMolecule(view, overallMoleculeData) {
+	var map = new Uint32Array(view.systemMoleculeData.length);
+	var counterCurrent = 0;
+	var counterOverall = overallMoleculeData.length;
+	view.systemMoleculeData.forEach(datapoint => {
+		overallMoleculeData.push(datapoint);
+		map[counterCurrent] = counterOverall;
+		counterOverall++;
+		counterCurrent++;
+	});
+	view.moleculeDataToOverallMap = map;
+}
+
+export function combineData(views, overallSpatiallyResolvedData,overallMoleculeData){
+	for (var ii =  0; ii < views.length; ++ii ) {
+		var view = views[ii];
+		
+		if (view.viewType == '3DView'){
+			if(view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length != 0){
+				addViewDataToOverallDataSpatiallyResolved(view, overallSpatiallyResolvedData);
+			}
+			if(view.systemMoleculeData != null && view.systemMoleculeData.length != 0){
+				addViewDataToOverallDataMolecule(view, overallMoleculeData);
+			}	
+		}			
+	}
+}

@@ -8,8 +8,9 @@ import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap, addHeatm
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
-import {initialize3DViewTooltip,update3DViewTooltip} from "./3DViews/tooltip.js";
-import {readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {initialize3DViewTooltip,update3DViewTooltip,hover3DViewSpatiallyResolved, hover3DViewMolecule} from "./3DViews/tooltip.js";
+import {combineData, readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
 
@@ -139,13 +140,12 @@ function main(views,plotSetup) {
 	var activeView = views[0];
 
 	var showOptionBoxesBool = true;
+	var overallSpatiallyResolvedData = [];
+	var overallMoleculeData = [];
 
 	//initializeViewSetups(views,plotSetup);
 
 	
-
-	var overallSpatiallyResolvedData = [];
-	var overallMoleculeData = [];
 	var queue=d3.queue();
 
 	for (var ii =  0; ii < views.length; ++ii ) {
@@ -168,18 +168,18 @@ function main(views,plotSetup) {
 			//queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
 
 			if(view.spatiallyResolvedData != null && view.spatiallyResolvedData.data != null){
-				queue.defer(processSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+				queue.defer(processSpatiallyResolvedData,view,plotSetup);
 			}
 			else{
-				queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
+				queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
 				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
 			}
 
 			if(view.moleculeData != null && view.moleculeData.data != null){
-				queue.defer(processMoleculeData,view,overallMoleculeData,plotSetup);
+				queue.defer(processMoleculeData,view,plotSetup);
 			}
 			else{
-				queue.defer(readCSVMoleculeData,view,overallMoleculeData,plotSetup);
+				queue.defer(readCSVMoleculeData,view,plotSetup);
 			}	
 		}			
 	}
@@ -188,10 +188,10 @@ function main(views,plotSetup) {
 		if (error) throw error;
 		/*console.log("updating progress bar");
 		progressBar.animate(80);*/
-
+		combineData(views, overallSpatiallyResolvedData,overallMoleculeData);
 		init();
 		/*console.log("updating progress bar");
-		progressBar.animate(100);*/
+		progressBar.animate(100);)*/
 		var htmlUI = document.getElementById("UI");
 		htmlUI.parentNode.removeChild(htmlUI);
 		animate();
@@ -199,6 +199,7 @@ function main(views,plotSetup) {
 
 
 	function init() {
+		
 		console.log('started initialization')
 		container = document.getElementById( 'container' );
 		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1 } );
@@ -223,6 +224,9 @@ function main(views,plotSetup) {
 		renderer.shadowMapHeight = 1024;
 
 		container.appendChild( renderer.domElement );
+
+		plotSetup.active2DPlotSpatiallyResolved = null;
+		plotSetup.active2DPlotMolecule = null;
 
 		if (overallSpatiallyResolvedData.length > 0){
 			var defaultScalesSpatiallyResolvedData = calcDefaultScalesSpatiallyResolvedData(plotSetup,overallSpatiallyResolvedData);
@@ -285,11 +289,12 @@ function main(views,plotSetup) {
 					arrangeMoleculeDataToFrame2(view);
 					getMoleculeGeometry(view);
 					//insertLegend(view);
-					//initialize3DViewTooltip(view);
+					
 				}
 
 				setupOptionBox3DView(view,plotSetup);
 				addSystemEdge(view);
+				initialize3DViewTooltip(view);
 			}
 			if (view.viewType == '2DHeatmap'){
 
@@ -323,7 +328,7 @@ function main(views,plotSetup) {
 		
 		//stats = new Stats();
 		//container.appendChild( stats.dom );
-		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+		window.addEventListener( 'mousemove', throttle(onDocumentMouseMove, 15), false );
 		window.addEventListener( 'mousedown', function( event ) {
 			mouseHold = true;
 			if (event.button == 0){
@@ -348,17 +353,8 @@ function main(views,plotSetup) {
 			}
 		}, false );
 
-		
-		/*window.addEventListener( 'dblclick', function( event ) {
-			//selectAll();
-			//updateAllPlots();
-			//continuousSelection = false;
-			deselectAll(views, spatiallyResolvedData);
-		}, false );*/
 
 		window.addEventListener( "keydown", onKeyDown, true);
-
-
 		
 	}
 
@@ -467,13 +463,23 @@ function main(views,plotSetup) {
 		}
 	}
 
+	function throttle(callback, interval) {
+		let enableCall = true;
+	  
+		return function(...args) {
+		  if (!enableCall) return;
+	  
+		  enableCall = false;
+		  callback.apply(this, args);
+		  setTimeout(() => enableCall = true, interval);
+		}
+	  }
 
-	function onDocumentMouseMove( mouseEvent ) {
+	  function onDocumentMouseMove( mouseEvent ) {
 		mouseX = mouseEvent.clientX;
 		mouseY = mouseEvent.clientY;
 		if (mouseHold == false){updateController(views, windowWidth, windowHeight, mouseX, mouseY);}
 		activeView = updateActiveView(views);
-		
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
@@ -492,15 +498,37 @@ function main(views,plotSetup) {
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
 				if (view.viewType == "2DHeatmap"){
-					console.log(view.options.plotType == "Heatmap", view.heatmapPlot)
 					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){
-						hoverHeatmap(view,mouseEvent);
-						updateAllPlots(views);
+						var needsUpdate = hoverHeatmap(view,mouseEvent);
+						if (needsUpdate) {
+							console.log('updating plots');
+							updateAllPlots(views);
+						}
 						// updateHeatmapTooltip(view);
 					}
 					if (view.options.plotType == "Correlation" && typeof view.covariancePlot != "undefined"){
 						updateCovarianceTooltip(view);
 					}
+				} else if (view.viewType == "3DView") {
+					if (view.systemMoleculeDataBoolean && view.options.interactiveSpatiallyResolved ) {
+						
+						var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
+						console.log('picking', needsUpdate);
+						if (needsUpdate) {
+							console.log('updating plots');
+							updateAllPlots(views);
+						}
+					}
+
+					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
+						var needsUpdate = hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
+						console.log('picking', needsUpdate);
+						if (needsUpdate) {
+							console.log('updating plots');
+							updateAllPlots(views);
+						}
+					}
+					
 				}
 				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
