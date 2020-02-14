@@ -8,7 +8,8 @@ import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap, addHeatm
 import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
 import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
-import {initialize3DViewTooltip,update3DViewTooltip,hover3DViewSpatiallyResolved, hover3DViewMolecule} from "./3DViews/tooltip.js";
+import {initialize3DViewTooltip,update3DViewTooltip,/*hover3DViewSpatiallyResolved, hover3DViewMolecule*/} from "./3DViews/tooltip.js";
+import {hover3DViewSpatiallyResolved, hover3DViewMolecule, click3DViewSpatiallyResolved} from "./3DViews/selection.js";
 import {combineData, readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 
@@ -26,8 +27,8 @@ import {addOptionBox, updateOptionBoxLocation, showHideAllOptionBoxes } from "./
 import {setupHUD} from "./MultiviewControl/HUDControl.js";
 import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis, addTitle, update2DHeatmapTitlesLocation} from "./2DHeatmaps/Utilities.js";
-import {initialize2DPlotTooltip,updateHeatmapTooltip, updateCovarianceTooltip, hoverHeatmap} from "./2DHeatmaps/tooltip.js";
-import {selectionControl, updatePlaneSelection} from "./2DHeatmaps/selection.js";
+import {initialize2DPlotTooltip,updateHeatmapTooltip,  updateCovarianceTooltip/*, hoverHeatmap,clickHeatmap */} from "./2DHeatmaps/tooltip.js";
+import {selectionControl, updatePlaneSelection, hoverHeatmap,clickHeatmap} from "./2DHeatmaps/selection.js";
 import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap} from "./2DHeatmaps/Selection/Utilities.js";
 
 import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
@@ -134,6 +135,7 @@ function main(views,plotSetup) {
 	var windowWidth, windowHeight;
 	var clickRequest = false;
 	var mouseHold = false;
+	var mouseDrag = false;
 	
 	var continuousSelection = false;
 
@@ -328,15 +330,17 @@ function main(views,plotSetup) {
 		
 		//stats = new Stats();
 		//container.appendChild( stats.dom );
-		window.addEventListener( 'mousemove', throttle(onDocumentMouseMove, 15), false );
-		window.addEventListener( 'mousedown', function( event ) {
+		container.addEventListener( 'mousemove', throttle(onDocumentMouseMove, 20), false );
+		container.addEventListener( 'click', onDocumentMouseClick,  false );
+		container.addEventListener( 'mousedown', function( event ) {
 			mouseHold = true;
 			if (event.button == 0){
 				clickRequest = true;
 			}
 		}, false );
-		window.addEventListener( 'mouseup', function( event ) {
+		container.addEventListener( 'mouseup', function( event ) {
 			mouseHold = false;
+			mouseDrag = false;
 			if (event.button == 0){
 				if (activeView.viewType == '2DHeatmap') {
 					if (activeView.options.planeSelection){
@@ -473,12 +477,13 @@ function main(views,plotSetup) {
 		  callback.apply(this, args);
 		  setTimeout(() => enableCall = true, interval);
 		}
-	  }
+	}
 
-	  function onDocumentMouseMove( mouseEvent ) {
+	function onDocumentMouseMove( mouseEvent ) {
 		mouseX = mouseEvent.clientX;
 		mouseY = mouseEvent.clientY;
 		if (mouseHold == false){updateController(views, windowWidth, windowHeight, mouseX, mouseY);}
+		else {mouseDrag = true;}
 		activeView = updateActiveView(views);
 
 		for ( var ii = 0; ii < views.length; ++ii ){
@@ -501,7 +506,7 @@ function main(views,plotSetup) {
 					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){
 						var needsUpdate = hoverHeatmap(view,mouseEvent);
 						if (needsUpdate) {
-							console.log('updating plots');
+							// console.log('updating plots');
 							updateAllPlots(views);
 						}
 						// updateHeatmapTooltip(view);
@@ -510,21 +515,21 @@ function main(views,plotSetup) {
 						updateCovarianceTooltip(view);
 					}
 				} else if (view.viewType == "3DView") {
-					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
+					/*if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
 						
 						var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
-						console.log('picking', needsUpdate);
+						// console.log('picking', needsUpdate);
 						if (needsUpdate) {
-							console.log('updating plots');
+							// console.log('updating plots');
 							updateAllPlots(views);
 						}
-					}
+					}*/
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
 						var needsUpdate = hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
-						console.log('picking', needsUpdate);
+						// console.log('picking', needsUpdate);
 						if (needsUpdate) {
-							console.log('updating plots');
+							// console.log('updating plots');
 							updateAllPlots(views);
 						}
 					}
@@ -534,6 +539,52 @@ function main(views,plotSetup) {
 			}
 		}
 	}
+
+	function onDocumentMouseClick( mouseEvent ) {
+		if (mouseDrag) {
+			return;
+		}
+		console.log('mouse clicked')
+		for ( var ii = 0; ii < views.length; ++ii ){
+			var view = views[ii];
+			if (view.controllerEnabled){
+				if (view.viewType == "2DHeatmap"){
+					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){
+						console.log('2d map mouse clicked event')
+						var needsUpdate = clickHeatmap(view, views);
+						if (needsUpdate) {
+							console.log('updating plots');
+							updateAllPlots(views);
+						}
+						// updateHeatmapTooltip(view);
+					}
+				} 
+				else if (view.viewType == "3DView") {
+					/* if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
+						
+						var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
+						console.log('picking', needsUpdate);
+						if (needsUpdate) {
+							console.log('updating plots');
+							updateAllPlots(views);
+						}
+					} */
+
+					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
+						var needsUpdate = click3DViewSpatiallyResolved(view, views, plotSetup);
+						// console.log('picking', needsUpdate);
+						if (needsUpdate) {
+							// console.log('updating plots');
+							updateAllPlots(views);
+						}
+					}
+					
+				}
+				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);} 
+			}
+		}
+	}
+
 	function updateSize() {
 		if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
 			windowWidth  = window.innerWidth;
@@ -581,7 +632,7 @@ function main(views,plotSetup) {
 		for ( var ii = 0; ii < views.length; ++ii ) {
 
 			var view = views[ii];
-			if (view.viewType == '3DView' ) {
+			/*if (view.viewType == '3DView' ) {
 				if (view.options.animate){
 					animatePointCloudGeometry(view);
 					view.System.geometry.attributes.size.needsUpdate = true;
@@ -590,7 +641,7 @@ function main(views,plotSetup) {
 				//	updateLineBond(view);
 				//}
 				
-			}
+			}*/
 			//view.controller.update();
 			
 			var camera = view.camera;
@@ -624,6 +675,8 @@ function main(views,plotSetup) {
 			renderer.render( view.sceneHUD, view.cameraHUD );
 		}
 	}
+
+	
 
 	function processSelection(){
 		if (activeView != null){

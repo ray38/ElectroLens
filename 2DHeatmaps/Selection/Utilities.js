@@ -61,8 +61,10 @@ export function selectAllMoleculeData(views,overallMoleculeData){
 		}
 }
 
+
+
 export function updateAllPlots(views){
-	for (var ii =  0; ii < views.length; ++ii ) {
+	for (var ii =  0; ii < views.length; ii++ ) {
 		var view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
 			updateHeatmap(view);
@@ -73,17 +75,14 @@ export function updateAllPlots(views){
 		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Dim. Reduction'){
 			updatePCAHeatmap(view);
 		}
-	}
-	
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+
 		if (view.viewType == '3DView'){
 			if (view.systemSpatiallyResolvedDataBoolean) {
 				updatePointCloudGeometry(view);
 			}
 			if (view.systemMoleculeDataBoolean) {
-				// updateMoleculeGeometry(view)
-				changeMoleculeGeometry(view);
+				updateMoleculeGeometry(view)
+				// changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
 		}

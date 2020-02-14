@@ -5,6 +5,7 @@ import {replotComparison} from './comparisonView.js'
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {activate2DPlotSpatiallyResolved, deactivate2DPlotsSpatiallyResolved,activate2DPlotMolecule,deactivate2DPlotsMolecule} from "../MultiviewControl/active2DView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
+import {selectHighlightedSpatiallyResolvedData, deselectHighlightedSpatiallyResolvedData, selectHighlightedMoleculeData, deselectHighlightedMoleculeData} from "./selection.js";
 import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, deselectAllMoleculeData, selectAllMoleculeData, updateAllPlots} from "./Selection/Utilities.js";
 import {saveOverallMoleculeData, saveOverallSpatiallyResolvedData} from "../Utilities/saveData.js";
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
@@ -29,6 +30,9 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		yPlotScale : d3.scaleLinear().domain([0, 100]).range([-50,50]),
 		overallSpatiallyResolvedDataBoolean: false,
 		overallMoleculeDataBoolean: false,
+		highlightedIndexList: [],
+		IntersectState: null,
+		INTERSECT: null,
 		activate2DPlotSpatiallyResolved: function() {activate2DPlotSpatiallyResolved(plotSetup, viewSetup, views);},
 		deactivate2DPlotSpatiallyResolved: function() {deactivate2DPlotsSpatiallyResolved(plotSetup, views);},
 		activate2DPlotMolecule: function() {activate2DPlotMolecule(plotSetup, viewSetup, views);},
@@ -98,6 +102,12 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 
 			this.selectAllMoleculeData   = function(){selectAllMoleculeData(views, viewSetup.overallMoleculeData); updateAllPlots(views);}; 
 			this.deselectAllMoleculeData = function(){deselectAllMoleculeData(views, viewSetup.overallMoleculeData);updateAllPlots(views);};
+
+			this.selectHighlightedSpatiallyResolvedData   = function(){selectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData); updateAllPlots(views);}; 
+			this.deselectHighlightedSpatiallyResolvedData = function(){deselectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);updateAllPlots(views);};
+
+			this.selectHighlightedMoleculeData   = function(){selectHighlightedMoleculeData(views, viewSetup.overallMoleculeData); updateAllPlots(views);}; 
+			this.deselectHighlightedMoleculeData = function(){deselectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);updateAllPlots(views);};
 
 			this.saveOverallMoleculeData = function(){saveOverallMoleculeData(viewSetup,plotSetup)};
 			this.saveOverallSpatiallyResolvedData = function(){saveOverallSpatiallyResolvedData(viewSetup,plotSetup)};

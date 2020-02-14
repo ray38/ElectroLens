@@ -76,22 +76,18 @@ export function getPointCloudGeometry(view){
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
 
-				
-				if (spatiallyResolvedData[k].selected)
-					{
-						alphas[ i ] = options.pointCloudAlpha;
-						if (options.animate) {
-							sizes[ i ] = Math.random() * options.pointCloudSize;
-						} else { 
-							sizes[ i ] = options.pointCloudSize; 
-						}
-
-						if (spatiallyResolvedData[k].highlighted) {
-							sizes[ i ] = sizes[ i ] * 3;
-							alphas[ i ] = 1;
-						}
+				if (spatiallyResolvedData[k].highlighted) {
+					// console.log('found highlighted point', k );
+					sizes[ i ] = options.pointCloudSize * 3;
+					alphas[ i ] = 1;
+				} else if (spatiallyResolvedData[k].selected){
+					alphas[ i ] = options.pointCloudAlpha;
+					if (options.animate) {
+						sizes[ i ] = Math.random() * options.pointCloudSize;
+					} else { 
+						sizes[ i ] = options.pointCloudSize; 
 					}
-				else {
+				} else {
 					alphas[ i ] = 0;
 					sizes[ i ] = 0;
 				}
@@ -163,17 +159,16 @@ export function updatePointCloudGeometry(view){
 		colors[ i3 + 1 ] = color.g;
 		colors[ i3 + 2 ] = color.b;
 
-		if (spatiallyResolvedData[k].selected){
+		if (spatiallyResolvedData[k].highlighted) {
+			// console.log('found highlighted point', k );
+			sizes[ i ] = options.pointCloudSize * 3;
+			alphas[ i ] = 1;
+		} else if (spatiallyResolvedData[k].selected){
 			alphas[ i ] = options.pointCloudAlpha;
 			if (options.animate) {
 				sizes[ i ] = Math.random() * options.pointCloudSize;
 			} else { 
 				sizes[ i ] = options.pointCloudSize; 
-			}
-
-			if (spatiallyResolvedData[k].highlighted) {
-				sizes[ i ] = sizes[ i ] * 3;
-				alphas[ i ] = 1;
 			}
 		} else {
 			alphas[ i ] = 0;
@@ -203,7 +198,7 @@ export function updatePointCloudGeometry(view){
 
 
 
-export function animatePointCloudGeometry(view){
+/* export function animatePointCloudGeometry(view){
 	//console.log('updated')
 
 	var options = view.options;
@@ -231,9 +226,7 @@ export function animatePointCloudGeometry(view){
 		var z = positionArray[ i3 + 2 ]/10;
 		var k = pointVoxelMap[i];
 	
-		if (	/*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-				(y >= options.y_low) 	&& (y <= options.y_high)	&&
-				(z >= options.z_low) 	&& (z <= options.z_high)	&& */ spatiallyResolvedData[k].selected)
+		if ( spatiallyResolvedData[k].selected)
 		{
 			var temp = sizeArray[i]-0.1;
 			if (temp >= 0.0) {sizeArray[i] = temp;}
@@ -247,7 +240,7 @@ export function animatePointCloudGeometry(view){
 	i3 += 3;
 
 	
-}
+} */
 
 export function removePointCloudGeometry(view){
 	view.scene.remove(view.System);

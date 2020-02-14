@@ -18,7 +18,7 @@ export function initialize2DPlotTooltip(view){
 	document.body.appendChild(tempTooltip);
 }
 
-function highlightHeatmapPoints(index, view) {
+/*function highlightHeatmapPoints(index, view) {
 	var heatmapX = view.heatmapInformation[index].heatmapX;
 	var heatmapY = view.heatmapInformation[index].heatmapY;
 
@@ -51,7 +51,7 @@ export function hoverHeatmap(view, mouseEvent){
 	if ( intersects.length > 0 ) {
 		
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			if (view.INTERSECTED != null){
+			if (view.INTERSECTED != null && view.highlightedIndexList.indexOf(view.INTERSECTED) == -1){
 				unhighlightHeatmapPoints(view.INTERSECTED, view);
 			}
 			view.INTERSECTED = intersects[ 0 ].index;
@@ -63,21 +63,28 @@ export function hoverHeatmap(view, mouseEvent){
 		return false
 	}
 	else {
-		if (view.INTERSECTED != null){
+		// no intersection
+		if (view.INTERSECTED != null && view.highlightedIndexList.indexOf(view.INTERSECTED) == -1){
+			// has previous intersection and previous interesction not in list
 			unhighlightHeatmapPoints(view.INTERSECTED, view);
 			view.INTERSECTED = null;
-			updateHeatmapTooltip(view)
+			updateHeatmapTooltip(view);
 			return true;
+		} else if (view.INTERSECTED != null) {
+			// has previous intersection and previous interesction in list
+			view.INTERSECTED = null;
+			updateHeatmapTooltip(view);
+			return true;
+		}else {
+			updateHeatmapTooltip(view);
+			return false;
 		}
-		return false;
 		
 	}
-
-	
-
-}
+}*/
 
 export function updateHeatmapTooltip(view){
+	// console.log('updating 2d map tooltip',view.INTERSECTED);
 	if (view.INTERSECTED) {
 		view.tooltip.style.top = event.clientY + 5  + 'px';
 		view.tooltip.style.left = event.clientX + 5  + 'px';
@@ -90,6 +97,44 @@ export function updateHeatmapTooltip(view){
 		view.tooltip.innerHTML = '';
 	}
 }
+
+
+
+
+
+/* export function clickHeatmap(view){
+
+	if (view.INTERSECTED != null){
+		console.log('currently heatmap point under mouse', view.highlightedIndexList)
+		//currently heatmap point under mouse
+		var indexInList = view.highlightedIndexList.indexOf(view.INTERSECTED);
+		if ( indexInList > -1){
+			console.log('already in list, remove from list')
+			// was highlighted
+			view.highlightedIndexList.splice(indexInList, 1);
+			return false;
+		} else {
+			console.log('not in list, add to list')
+			// not yet highlighted
+			view.highlightedIndexList.push(view.INTERSECTED);
+			return false;
+		}
+	} else {
+		console.log('currently No heatmap point under mouse')
+		// currently no heatmap point under mouse
+		if (view.highlightedIndexList.length > 0) {
+			view.highlightedIndexList.forEach(index => {
+				unhighlightHeatmapPoints(index, view);	
+			});
+			view.highlightedIndexList = [];
+			return true;
+		}
+		else {
+			return false;
+		}
+		
+	}
+} */
 
 
 

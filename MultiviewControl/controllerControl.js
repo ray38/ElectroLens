@@ -6,8 +6,8 @@ export function updateController(views, windowWidth, windowHeight, mouseX, mouse
 		var right  = Math.floor( windowWidth  * view.width ) + left;
 		var bottom = Math.floor( windowHeight * view.height ) + top;
 		
-		// console.log(left, right, top, bottom)
-		if (mouseX > left && mouseX < right && (windowHeight - mouseY) > top && (windowHeight - mouseY) < bottom){
+		// console.log(left, right, top, bottom, mouseX, mouseY)
+		if (mouseX > left && mouseX < right && mouseY > top && mouseY < bottom){
 			enableController(view, view.controller);
 		}
 		else{

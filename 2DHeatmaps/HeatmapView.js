@@ -130,7 +130,7 @@ export function arrangeDataToHeatmap(view){
 		var heatmapY = yMap(Data[i]);
 		
 		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true, highlight: false};
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true, highlighted: false};
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 	
@@ -170,9 +170,14 @@ export function getHeatmap(view){
 	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
 	var xPlotScale = view.xPlotScale;
 	var yPlotScale = view.yPlotScale;
+
+	var XYtoHeatmapMap = {}
 	
 	for (var x in data){
 		for (var y in data[x]){
+			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			XYtoHeatmapMap[x][y] = i;
+
 			var xPlot = xPlotScale(parseFloat(x));
 			var yPlot = yPlotScale(parseFloat(y));
 			
@@ -197,6 +202,16 @@ export function getHeatmap(view){
 				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha/2;
 			}
+
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			}
+			else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
 			
 			
 			i++;
@@ -219,6 +234,7 @@ export function getHeatmap(view){
 	}
 	
 	view.heatmapInformation = heatmapInformation;
+	view.XYtoHeatmapMap = XYtoHeatmapMap;
 	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
@@ -266,8 +282,14 @@ export function updateHeatmap(view){
 				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha/2;
 			}
-			if (data[x][y].highlighted) {
-				sizes[i] = 3* sizes[i];
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			}
+			else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
 			}
 			i++;
 			i3 += 3;
@@ -384,6 +406,15 @@ function countListSelected(list) {
 		if (list[i].selected){ count += 1;}
 	}
 	return count;
+}
+
+function isAnyHighlighted(list) {
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted){ return true; }
+	}
+	return false;
+	
 }
 
 function heatmapPointCount(data){

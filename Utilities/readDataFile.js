@@ -386,29 +386,29 @@ function loadJSON(filename,callback) {
 }*/
 
 function addViewDataToOverallDataSpatiallyResolved(view, overallSpatiallyResolvedData) {
-	var map = new Uint32Array(view.systemSpatiallyResolvedData.length);
-	var counterCurrent = 0;
-	var counterOverall = overallSpatiallyResolvedData.length;
+	// var map = new Uint32Array(view.systemSpatiallyResolvedData.length);
+	// var counterCurrent = 0;
+	// var counterOverall = overallSpatiallyResolvedData.length;
 	view.systemSpatiallyResolvedData.forEach(datapoint => {
 		overallSpatiallyResolvedData.push(datapoint);
-		map[counterCurrent] = counterOverall;
-		counterOverall++;
-		counterCurrent++;
+		// map[counterCurrent] = counterOverall;
+		// counterOverall++;
+		// counterCurrent++;
 	});
-	view.spatiallyResolvedDataToOverallMap = map;
+	// view.spatiallyResolvedDataToOverallMap = map;
 }
 
 function addViewDataToOverallDataMolecule(view, overallMoleculeData) {
-	var map = new Uint32Array(view.systemMoleculeData.length);
-	var counterCurrent = 0;
-	var counterOverall = overallMoleculeData.length;
+	// var map = new Uint32Array(view.systemMoleculeData.length);
+	// var counterCurrent = 0;
+	// var counterOverall = overallMoleculeData.length;
 	view.systemMoleculeData.forEach(datapoint => {
 		overallMoleculeData.push(datapoint);
-		map[counterCurrent] = counterOverall;
-		counterOverall++;
-		counterCurrent++;
+		// map[counterCurrent] = counterOverall;
+		// counterOverall++;
+		// counterCurrent++;
 	});
-	view.moleculeDataToOverallMap = map;
+	// view.moleculeDataToOverallMap = map;
 }
 
 export function combineData(views, overallSpatiallyResolvedData,overallMoleculeData){

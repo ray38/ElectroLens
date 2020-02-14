@@ -15,7 +15,9 @@ var _DViewsMoleculeViewJs = require("./3DViews/MoleculeView.js");
 
 var _DViewsSystemEdgeJs = require("./3DViews/systemEdge.js");
 
-var _DViewsTooltipJs = require("./3DViews/tooltip.js");
+var _DViewsTooltipJs = require( /*hover3DViewSpatiallyResolved, hover3DViewMolecule*/"./3DViews/tooltip.js");
+
+var _DViewsSelectionJs = require("./3DViews/selection.js");
 
 var _UtilitiesReadDataFileJs = require( /*,readCSVPapaparse, readViewsSetup*/"./Utilities/readDataFile.js");
 
@@ -39,7 +41,7 @@ var _MultiviewControlControllerControlJs = require("./MultiviewControl/controlle
 
 var _DHeatmapsUtilitiesJs = require("./2DHeatmaps/Utilities.js");
 
-var _DHeatmapsTooltipJs = require("./2DHeatmaps/tooltip.js");
+var _DHeatmapsTooltipJs = require( /*, hoverHeatmap,clickHeatmap */"./2DHeatmaps/tooltip.js");
 
 var _DHeatmapsSelectionJs = require("./2DHeatmaps/selection.js");
 
@@ -139,6 +141,7 @@ function main(views, plotSetup) {
 	var windowWidth, windowHeight;
 	var clickRequest = false;
 	var mouseHold = false;
+	var mouseDrag = false;
 
 	var continuousSelection = false;
 
@@ -323,15 +326,17 @@ function main(views, plotSetup) {
 
 		//stats = new Stats();
 		//container.appendChild( stats.dom );
-		window.addEventListener('mousemove', throttle(onDocumentMouseMove, 15), false);
-		window.addEventListener('mousedown', function (event) {
+		container.addEventListener('mousemove', throttle(onDocumentMouseMove, 20), false);
+		container.addEventListener('click', onDocumentMouseClick, false);
+		container.addEventListener('mousedown', function (event) {
 			mouseHold = true;
 			if (event.button == 0) {
 				clickRequest = true;
 			}
 		}, false);
-		window.addEventListener('mouseup', function (event) {
+		container.addEventListener('mouseup', function (event) {
 			mouseHold = false;
+			mouseDrag = false;
 			if (event.button == 0) {
 				if (activeView.viewType == '2DHeatmap') {
 					if (activeView.options.planeSelection) {
@@ -477,6 +482,8 @@ function main(views, plotSetup) {
 		mouseY = mouseEvent.clientY;
 		if (mouseHold == false) {
 			_MultiviewControlControllerControlJs.updateController(views, windowWidth, windowHeight, mouseX, mouseY);
+		} else {
+			mouseDrag = true;
 		}
 		activeView = updateActiveView(views);
 
@@ -496,9 +503,9 @@ function main(views, plotSetup) {
 				view.mousePosition = view.camera.position.clone().add(dir.multiplyScalar(distance));
 				if (view.viewType == "2DHeatmap") {
 					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
-						var needsUpdate = _DHeatmapsTooltipJs.hoverHeatmap(view, mouseEvent);
+						var needsUpdate = _DHeatmapsSelectionJs.hoverHeatmap(view, mouseEvent);
 						if (needsUpdate) {
-							console.log('updating plots');
+							// console.log('updating plots');
 							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
 						}
 						// updateHeatmapTooltip(view);
@@ -507,21 +514,21 @@ function main(views, plotSetup) {
 						_DHeatmapsTooltipJs.updateCovarianceTooltip(view);
 					}
 				} else if (view.viewType == "3DView") {
-					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule) {
-
-						var needsUpdate = _DViewsTooltipJs.hover3DViewMolecule(view, plotSetup, mouseEvent);
-						console.log('picking', needsUpdate);
-						if (needsUpdate) {
-							console.log('updating plots');
-							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
-						}
-					}
+					/*if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
+     	
+     	var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
+     	// console.log('picking', needsUpdate);
+     	if (needsUpdate) {
+     		// console.log('updating plots');
+     		updateAllPlots(views);
+     	}
+     }*/
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
-						var needsUpdate = _DViewsTooltipJs.hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
-						console.log('picking', needsUpdate);
+						var needsUpdate = _DViewsSelectionJs.hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
+						// console.log('picking', needsUpdate);
 						if (needsUpdate) {
-							console.log('updating plots');
+							// console.log('updating plots');
 							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
 						}
 					}
@@ -530,6 +537,50 @@ function main(views, plotSetup) {
 			}
 		}
 	}
+
+	function onDocumentMouseClick(mouseEvent) {
+		if (mouseDrag) {
+			return;
+		}
+		console.log('mouse clicked');
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
+			if (view.controllerEnabled) {
+				if (view.viewType == "2DHeatmap") {
+					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
+						console.log('2d map mouse clicked event');
+						var needsUpdate = _DHeatmapsSelectionJs.clickHeatmap(view, views);
+						if (needsUpdate) {
+							console.log('updating plots');
+							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
+						}
+						// updateHeatmapTooltip(view);
+					}
+				} else if (view.viewType == "3DView") {
+						/* if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
+      	
+      	var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
+      	console.log('picking', needsUpdate);
+      	if (needsUpdate) {
+      		console.log('updating plots');
+      		updateAllPlots(views);
+      	}
+      } */
+
+						if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
+							var needsUpdate = _DViewsSelectionJs.click3DViewSpatiallyResolved(view, views, plotSetup);
+							// console.log('picking', needsUpdate);
+							if (needsUpdate) {
+								// console.log('updating plots');
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
+							}
+						}
+					}
+				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
+			}
+		}
+	}
+
 	function updateSize() {
 		if (windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
 			windowWidth = window.innerWidth;
@@ -577,15 +628,16 @@ function main(views, plotSetup) {
 		for (var ii = 0; ii < views.length; ++ii) {
 
 			var view = views[ii];
-			if (view.viewType == '3DView') {
-				if (view.options.animate) {
-					_DViewsPointCloud_selectionJs.animatePointCloudGeometry(view);
-					view.System.geometry.attributes.size.needsUpdate = true;
-				}
-				//if (view.systemMoleculeDataBoolean) {
-				//	updateLineBond(view);
-				//}
-			}
+			/*if (view.viewType == '3DView' ) {
+   	if (view.options.animate){
+   		animatePointCloudGeometry(view);
+   		view.System.geometry.attributes.size.needsUpdate = true;
+   	}
+   	//if (view.systemMoleculeDataBoolean) {
+   	//	updateLineBond(view);
+   	//}
+   	
+   }*/
 			//view.controller.update();
 
 			var camera = view.camera;
@@ -629,7 +681,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":5,"./2DHeatmaps/Utilities.js":6,"./2DHeatmaps/initialize2DHeatmapSetup.js":9,"./2DHeatmaps/selection.js":10,"./2DHeatmaps/setupOptionBox2DHeatmap.js":11,"./2DHeatmaps/tooltip.js":12,"./3DViews/MoleculeView.js":15,"./3DViews/PointCloud_selection.js":16,"./3DViews/setupOptionBox3DView.js":19,"./3DViews/systemEdge.js":20,"./3DViews/tooltip.js":21,"./MultiviewControl/HUDControl.js":22,"./MultiviewControl/calculateViewportSizes.js":24,"./MultiviewControl/colorLegend.js":25,"./MultiviewControl/controllerControl.js":26,"./MultiviewControl/initializeViewSetups.js":27,"./MultiviewControl/optionBoxControl.js":28,"./MultiviewControl/setupViewBasic.js":29,"./Utilities/arrangeData.js":30,"./Utilities/readDataFile.js":33,"./Utilities/readForm.js":34,"./Utilities/saveData.js":35,"./Utilities/scale.js":36}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":5,"./2DHeatmaps/Utilities.js":6,"./2DHeatmaps/initialize2DHeatmapSetup.js":9,"./2DHeatmaps/selection.js":10,"./2DHeatmaps/setupOptionBox2DHeatmap.js":11,"./2DHeatmaps/tooltip.js":12,"./3DViews/MoleculeView.js":15,"./3DViews/PointCloud_selection.js":16,"./3DViews/selection.js":19,"./3DViews/setupOptionBox3DView.js":20,"./3DViews/systemEdge.js":21,"./3DViews/tooltip.js":22,"./MultiviewControl/HUDControl.js":23,"./MultiviewControl/calculateViewportSizes.js":25,"./MultiviewControl/colorLegend.js":26,"./MultiviewControl/controllerControl.js":27,"./MultiviewControl/initializeViewSetups.js":28,"./MultiviewControl/optionBoxControl.js":29,"./MultiviewControl/setupViewBasic.js":30,"./Utilities/arrangeData.js":31,"./Utilities/readDataFile.js":34,"./Utilities/readForm.js":35,"./Utilities/saveData.js":36,"./Utilities/scale.js":37}],2:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -800,7 +852,7 @@ function arrangeDataToHeatmap(view) {
 		var heatmapY = yMap(Data[i]);
 
 		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true, highlight: false };
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true, highlighted: false };
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 }
@@ -834,8 +886,13 @@ function getHeatmap(view) {
 	var xPlotScale = view.xPlotScale;
 	var yPlotScale = view.yPlotScale;
 
+	var XYtoHeatmapMap = {};
+
 	for (var x in data) {
 		for (var y in data[x]) {
+			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			XYtoHeatmapMap[x][y] = i;
+
 			var xPlot = xPlotScale(parseFloat(x));
 			var yPlot = yPlotScale(parseFloat(y));
 
@@ -860,6 +917,15 @@ function getHeatmap(view) {
 				alphas[i] = options.pointCloudAlpha / 2;
 			}
 
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			} else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
+
 			i++;
 			i3 += 3;
 
@@ -880,6 +946,7 @@ function getHeatmap(view) {
 	}
 
 	view.heatmapInformation = heatmapInformation;
+	view.XYtoHeatmapMap = XYtoHeatmapMap;
 	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 	geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
@@ -924,8 +991,13 @@ function updateHeatmap(view) {
 				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha / 2;
 			}
-			if (data[x][y].highlighted) {
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
 				sizes[i] = 3 * sizes[i];
+			} else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
 			}
 			i++;
 			i3 += 3;
@@ -1043,6 +1115,16 @@ function countListSelected(list) {
 	return count;
 }
 
+function isAnyHighlighted(list) {
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function heatmapPointCount(data) {
 	var count = 0;
 	for (var x in data) {
@@ -1053,7 +1135,7 @@ function heatmapPointCount(data) {
 	return count;
 }
 
-},{"../MultiviewControl/colorLegend.js":25,"../Utilities/other.js":32,"./Materials.js":3,"./Utilities.js":6}],3:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Materials.js":3,"./Utilities.js":6}],3:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1628,7 +1710,7 @@ function initializePCATooltip(view) {
 	}
 }
 
-},{"../MultiviewControl/colorLegend.js":25,"../Utilities/other.js":32,"./Utilities.js":6,"ml-pca":43}],5:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Utilities.js":6,"ml-pca":44}],5:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1706,7 +1788,7 @@ function selectAllMoleculeData(views, overallMoleculeData) {
 }
 
 function updateAllPlots(views) {
-	for (var ii = 0; ii < views.length; ++ii) {
+	for (var ii = 0; ii < views.length; ii++) {
 		var view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap") {
 			_HeatmapViewJs.updateHeatmap(view);
@@ -1717,17 +1799,14 @@ function updateAllPlots(views) {
 		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Dim. Reduction') {
 			_PCAViewJs.updatePCAHeatmap(view);
 		}
-	}
 
-	for (var ii = 0; ii < views.length; ++ii) {
-		var view = views[ii];
 		if (view.viewType == '3DView') {
 			if (view.systemSpatiallyResolvedDataBoolean) {
 				_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
 			}
 			if (view.systemMoleculeDataBoolean) {
-				// updateMoleculeGeometry(view)
-				_DViewsMoleculeViewJs.changeMoleculeGeometry(view);
+				_DViewsMoleculeViewJs.updateMoleculeGeometry(view);
+				// changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
 		}
@@ -2293,7 +2372,7 @@ function comparisonPointCount(data) {
 	return count;
 }
 
-},{"../MultiviewControl/colorLegend.js":25,"../Utilities/other.js":32,"./Utilities.js":6}],8:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Utilities.js":6}],8:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2593,7 +2672,7 @@ function replotCovariance(view) {
 	_UtilitiesJs.changeTitle(view);
 }
 
-},{"../MultiviewControl/colorLegend.js":25,"../Utilities/other.js":32,"./Utilities.js":6}],9:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Utilities.js":6}],9:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2612,6 +2691,8 @@ var _MultiviewControlCalculateViewportSizesJs = require("../MultiviewControl/cal
 var _MultiviewControlActive2DViewJs = require("../MultiviewControl/active2DView.js");
 
 var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
+
+var _selectionJs = require("./selection.js");
 
 var _SelectionUtilitiesJs = require("./Selection/Utilities.js");
 
@@ -2639,6 +2720,9 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 						yPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
 						overallSpatiallyResolvedDataBoolean: false,
 						overallMoleculeDataBoolean: false,
+						highlightedIndexList: [],
+						IntersectState: null,
+						INTERSECT: null,
 						activate2DPlotSpatiallyResolved: function activate2DPlotSpatiallyResolved() {
 									_MultiviewControlActive2DViewJs.activate2DPlotSpatiallyResolved(plotSetup, viewSetup, views);
 						},
@@ -2727,6 +2811,20 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 												_SelectionUtilitiesJs.deselectAllMoleculeData(views, viewSetup.overallMoleculeData);_SelectionUtilitiesJs.updateAllPlots(views);
 									};
 
+									this.selectHighlightedSpatiallyResolvedData = function () {
+												_selectionJs.selectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
+									};
+									this.deselectHighlightedSpatiallyResolvedData = function () {
+												_selectionJs.deselectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
+									};
+
+									this.selectHighlightedMoleculeData = function () {
+												_selectionJs.selectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);_SelectionUtilitiesJs.updateAllPlots(views);
+									};
+									this.deselectHighlightedMoleculeData = function () {
+												_selectionJs.deselectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);_SelectionUtilitiesJs.updateAllPlots(views);
+									};
+
 									this.saveOverallMoleculeData = function () {
 												_UtilitiesSaveDataJs.saveOverallMoleculeData(viewSetup, plotSetup);
 									};
@@ -2773,15 +2871,28 @@ function extendObject(obj, src) {
 			return obj;
 }
 
-},{"../MultiviewControl/active2DView.js":23,"../MultiviewControl/calculateViewportSizes.js":24,"../MultiviewControl/colorLegend.js":25,"../Utilities/saveData.js":35,"./HeatmapView.js":2,"./PCAView.js":4,"./Selection/Utilities.js":5,"./comparisonView.js":7,"./covarianceView.js":8}],10:[function(require,module,exports){
-'use strict';
+},{"../MultiviewControl/active2DView.js":24,"../MultiviewControl/calculateViewportSizes.js":25,"../MultiviewControl/colorLegend.js":26,"../Utilities/saveData.js":36,"./HeatmapView.js":2,"./PCAView.js":4,"./Selection/Utilities.js":5,"./comparisonView.js":7,"./covarianceView.js":8,"./selection.js":10}],10:[function(require,module,exports){
+"use strict";
 
 exports.__esModule = true;
 exports.updatePlaneSelection = updatePlaneSelection;
 exports.updateBrushSelection = updateBrushSelection;
 exports.selectionControl = selectionControl;
+exports.clickHeatmap = clickHeatmap;
+exports.hoverHeatmap = hoverHeatmap;
+exports.highlightVia2DHeatmap = highlightVia2DHeatmap;
+exports.unhighlightVia2DHeatmap = unhighlightVia2DHeatmap;
+exports.clickUpdateVia2DHeatmap = clickUpdateVia2DHeatmap;
+exports.unhighlightAll = unhighlightAll;
+exports.deselectHighlightedSpatiallyResolvedData = deselectHighlightedSpatiallyResolvedData;
+exports.selectHighlightedSpatiallyResolvedData = selectHighlightedSpatiallyResolvedData;
+exports.deselectHighlightedMoleculeData = deselectHighlightedMoleculeData;
+exports.selectHighlightedMoleculeData = selectHighlightedMoleculeData;
+exports.clickUpdateAll2DHeatmaps = clickUpdateAll2DHeatmaps;
 
 var _SelectionUtilitiesJs = require("./Selection/Utilities.js");
+
+var _tooltipJs = require("./tooltip.js");
 
 function spawnPlane(view) {
 
@@ -2907,6 +3018,7 @@ function updatePlaneSelection(views, view) {
 					// else { data[x][y].selected = false;}
 				}
 			}
+			clickUpdateAll2DHeatmaps(views);
 			// updateSelectionFromHeatmap(view);
 		}
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
@@ -2949,6 +3061,7 @@ function updatePlaneSelection(views, view) {
 			})();
 		}
 	}
+
 	_SelectionUtilitiesJs.updateAllPlots(views);
 }
 
@@ -3068,7 +3181,457 @@ function processClick() {
 
 }*/
 
-},{"./Selection/Utilities.js":5}],11:[function(require,module,exports){
+function clickHeatmap(view, views) {
+
+	if (view.INTERSECTED != null) {
+		// console.log('currently heatmap point under mouse', view.highlightedIndexList)
+		//currently heatmap point under mouse
+		var indexInList = view.highlightedIndexList.indexOf(view.INTERSECTED);
+		var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+		var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+		if (indexInList > -1) {
+			console.log('was highlighted');
+			// was highlighted
+			//if (areAllHighlighted(view.data[heatmapX][heatmapY].list)) {
+			if (areAllTrue(view.IntersectState)) {
+				console.log('all are selected, thus unhighlight all');
+				// all are selected, thus unhighlight all
+				unhighlightHeatmapPoints(view.INTERSECTED, view);
+				console.log(view.highlightedIndexList);
+				view.highlightedIndexList.splice(indexInList, 1);
+				view.IntersectState = null;
+				clickUpdateAll2DHeatmaps(views);
+				console.log(view.highlightedIndexList);
+				return false;
+			} else {
+				// console.log('not all are selected, select all')
+				// not all are selected, select all
+				view.data[heatmapX][heatmapY].highlighted = true;
+				highlightAll(view.data[heatmapX][heatmapY].list);
+				view.IntersectState = null;
+				clickUpdateAll2DHeatmaps(views);
+				return true;
+			}
+		} else {
+			// console.log('not in list, add to list')
+			// not yet highlighted
+			highlightAll(view.data[heatmapX][heatmapY].list);
+			view.data[heatmapX][heatmapY].highlighted = true;
+			view.highlightedIndexList.push(view.INTERSECTED);
+			clickUpdateAll2DHeatmaps(views);
+			return false;
+		}
+	} else {
+		// console.log('currently No heatmap point under mouse')
+		// currently no heatmap point under mouse
+		unhighlightAll(views);
+		return true;
+	}
+}
+
+function hoverHeatmap(view, mouseEvent) {
+	var mouse = new THREE.Vector2();
+	mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
+	view.raycaster.setFromCamera(mouse.clone(), view.camera);
+	var intersects = view.raycaster.intersectObject(view.heatmapPlot);
+	if (intersects.length > 0) {
+		// has intersection
+		if (view.INTERSECTED != intersects[0].index) {
+			// changed intersection
+			if (view.INTERSECTED != null) {
+				// previously has intersection,
+				if (view.highlightedIndexList.indexOf(view.INTERSECTED) == -1) {
+					// previously hovered was not in highlight list, unhighlight all;
+					unhighlightHeatmapPoints(view.INTERSECTED, view);
+				} else {
+					// previously hovered was in highlight list, back to its original state
+					var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+					var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+					// console.log('calling restore 1', view.IntersectState);
+					if (view.IntersectState) {
+						restoreState(view.data[heatmapX][heatmapY].list, view.IntersectState);
+						view.IntersectState = null;
+					} /*else {
+       unhighlightHeatmapPoints(view.INTERSECTED, view);
+       }*/
+				}
+			}
+			// current intersection
+			view.INTERSECTED = intersects[0].index;
+			var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+			var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+			if (view.highlightedIndexList.indexOf(view.INTERSECTED) > -1) {
+				// if current intersection in highlight list, store current state, and highlight all
+				view.IntersectState = getCurrentState(view.data[heatmapX][heatmapY].list);
+				highlightHeatmapPoints(view.INTERSECTED, view);
+			} else {
+				// current  intersection not in highlight list, just highlight all;
+				highlightHeatmapPoints(view.INTERSECTED, view);
+			}
+
+			_tooltipJs.updateHeatmapTooltip(view);
+			return true;
+		} else {
+			//same intersection as before, nothing to do;
+			_tooltipJs.updateHeatmapTooltip(view);
+			return false;
+		}
+	} else {
+		// no intersection
+		if (view.INTERSECTED != null) {
+			// console.log('hover, previously has interaction')
+			// previously has intersection,
+			if (view.highlightedIndexList.indexOf(view.INTERSECTED) == -1) {
+				// previously hovered was not in highlight list, unhighlight all;
+				unhighlightHeatmapPoints(view.INTERSECTED, view);
+			} else {
+				// previously hovered was in highlight list, back to its original state
+				var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+				var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+				// console.log('calling restore 2', view.IntersectState);
+				if (view.IntersectState) {
+					restoreState(view.data[heatmapX][heatmapY].list, view.IntersectState);
+					view.IntersectState = null;
+				} /*else {
+      unhighlightHeatmapPoints(view.INTERSECTED, view);
+      }*/
+			}
+			view.INTERSECTED = null;
+			_tooltipJs.updateHeatmapTooltip(view);
+			return true;
+		} else {
+			_tooltipJs.updateHeatmapTooltip(view);
+			return false;
+		}
+	}
+}
+
+function highlightVia2DHeatmap(heatmapPointIndex, twoDPlot) {
+	var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
+	var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
+	if (twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex) > -1) {
+		// if current intersection in highlight list, store current state, and highlight all
+		twoDPlot.IntersectState = getCurrentState(twoDPlot.data[heatmapX][heatmapY].list);
+		highlightHeatmapPoints(heatmapPointIndex, twoDPlot);
+	} else {
+		// current  intersection not in highlight list, just highlight all;
+		highlightHeatmapPoints(heatmapPointIndex, twoDPlot);
+	}
+}
+
+function unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot) {
+	var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
+	var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
+	if (twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex) == -1) {
+		// previously hovered was not in highlight list, unhighlight all;
+		unhighlightHeatmapPoints(heatmapPointIndex, twoDPlot);
+	} else {
+		// previously hovered was in highlight list, back to its original state
+		if (twoDPlot.IntersectState) {
+			restoreState(twoDPlot.data[heatmapX][heatmapY].list, twoDPlot.IntersectState);
+			twoDPlot.IntersectState = null;
+		}
+		// restoreState(twoDPlot.data[heatmapX][heatmapY].list, twoDPlot.IntersectState);
+		// twoDPlot.IntersectState = null;
+	}
+}
+
+function clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views) {
+	var indexInList = twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex);
+	var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
+	var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
+
+	if (indexInList > -1) {
+		console.log('was highlighted');
+		// was highlighted
+		//if (areAllHighlighted(view.data[heatmapX][heatmapY].list)) {
+		if (areAllTrue(twoDPlot.IntersectState)) {
+			console.log('all are selected, thus unhighlight all');
+			// all are selected, thus unhighlight all
+			unhighlightHeatmapPoints(heatmapPointIndex, twoDPlot);
+			console.log(twoDPlot.highlightedIndexList);
+			twoDPlot.highlightedIndexList.splice(indexInList, 1);
+			twoDPlot.IntersectState = null;
+			clickUpdateAll2DHeatmaps(views);
+			console.log(twoDPlot.highlightedIndexList);
+		} else {
+			// console.log('not all are selected, select all')
+			// not all are selected, select all
+			twoDPlot.data[heatmapX][heatmapY].highlighted = true;
+			highlightHeatmapPoints(heatmapPointIndex, twoDPlot);
+			// highlightAll(twoDPlot.data[heatmapX][heatmapY].list);
+			twoDPlot.IntersectState = null;
+			clickUpdateAll2DHeatmaps(views);
+		}
+	} else {
+		console.log('not in list, add to list');
+		// not yet highlighted
+		highlightHeatmapPoints(heatmapPointIndex, twoDPlot);
+		// highlightAll(twoDPlot.data[heatmapX][heatmapY].list)
+		twoDPlot.data[heatmapX][heatmapY].highlighted = true;
+		twoDPlot.highlightedIndexList.push(heatmapPointIndex);
+		clickUpdateAll2DHeatmaps(views);
+	}
+
+	/*	if ( indexInList > -1){
+ 		// was highlighted
+ 		if (areAllHighlighted(twoDPlot.data[heatmapX][heatmapY].list)) {
+ 			// all are selected, thus unhighlight all
+ 			twoDPlot.highlightedIndexList.splice(indexInList, 1);
+ 			clickUpdateAll2DHeatmaps(views);
+ 		} else {
+ 			// not all are selected, select all
+ 			highlightAll(twoDPlot.data[heatmapX][heatmapY].list)
+ 			clickUpdateAll2DHeatmaps(views);
+ 		}
+ 	} else {
+ 		// console.log('not in list, add to list')
+ 		// not yet highlighted
+ 		twoDPlot.highlightedIndexList.push(heatmapPointIndex);
+ 		clickUpdateAll2DHeatmaps(views);
+ 	}
+ */
+
+	/*var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
+ var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
+ if (twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex) == -1) {
+ 	// previously hovered was not in highlight list, unhighlight all;
+ 	unhighlightHeatmapPoints(heatmapPointIndex, twoDPlot);
+ } else {
+ 	// previously hovered was in highlight list, back to its original state
+ 	if (twoDPlot.IntersectState){
+ 		restoreState(twoDPlot.data[heatmapX][heatmapY].list, twoDPlot.IntersectState);
+ 		twoDPlot.IntersectState = null;
+ 	}
+ 	// restoreState(twoDPlot.data[heatmapX][heatmapY].list, twoDPlot.IntersectState);
+ 	// twoDPlot.IntersectState = null;
+ }*/
+}
+
+function getCurrentState(list) {
+	var result = [];
+	for (var i = 0; i < list.length; i++) {
+		result.push(list[i].highlighted);
+	}
+	return result;
+}
+
+function restoreState(list, state) {
+
+	for (var i = 0; i < list.length; i++) {
+		list[i].highlighted = state[i];
+	}
+}
+
+function highlightHeatmapPoints(index, view) {
+	var heatmapX = view.heatmapInformation[index].heatmapX;
+	var heatmapY = view.heatmapInformation[index].heatmapY;
+
+	var dataset = view.data[heatmapX][heatmapY];
+	//dataset.highlighted = true;
+
+	dataset.list.forEach(function (datapoint) {
+		datapoint.highlighted = true;
+	});
+}
+
+function unhighlightHeatmapPoints(index, view) {
+	var heatmapX = view.heatmapInformation[index].heatmapX;
+	var heatmapY = view.heatmapInformation[index].heatmapY;
+
+	var dataset = view.data[heatmapX][heatmapY];
+	//dataset.highlighted = false;
+
+	dataset.list.forEach(function (datapoint) {
+		datapoint.highlighted = false;
+	});
+}
+
+function unhighlightAll(views) {
+	for (var ii = 0; ii < views.length; ++ii) {
+		var view = views[ii];
+		if (view.viewType == "3DView") {
+			if (view.systemMoleculeDataBoolean) {
+				view.systemMoleculeData.forEach(function (datapoint) {
+					datapoint.highlighted = false;
+				});
+			}
+
+			if (view.systemSpatiallyResolvedDataBoolean) {
+				view.systemSpatiallyResolvedData.forEach(function (datapoint) {
+					datapoint.highlighted = false;
+				});
+			}
+		} else if (view.viewType == "2DHeatmap") {
+			if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
+				view.highlightedIndexList = [];
+				for (var x in view.data) {
+					for (var y in view.data[x]) {
+						view.data[x][y].highlighted = false;
+					}
+				}
+			}
+		}
+	}
+}
+
+/* export function clickHighlightOther2DHeatmaps(currentViewID, views) {
+	for ( var ii = 0; ii < views.length; ++ii ){
+		var view = views[ii];
+		if (view.viewType == "2DHeatmap" &&
+			view.options.plotType == "Heatmap" &&
+			typeof view.heatmapPlot != "undefined" &&
+			view.options.plotID != currentViewID
+			){
+			var i = 0;
+			for (var x in view.data){
+				for (var y in view.data[x]){
+					for (var datapoint in view.data[x][y].list) {
+						if (datapoint.highlighted){
+							view.data[x][y].highlighted = true;
+							if (view.highlightedIndexList.indexOf(i) == -1) {view.highlightedIndexList.push(i);}
+							break;
+						}
+					}
+					i++;
+				}
+			}
+		}
+	}
+} */
+
+function deselectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData) {
+	for (var i = 0; i < overallSpatiallyResolvedData.length; i++) {
+		if (overallSpatiallyResolvedData[i].highlighted == false) {
+			overallSpatiallyResolvedData[i].selected = false;
+		};
+		overallSpatiallyResolvedData[i].highlighted = false;
+	}
+	clickUpdateAll2DHeatmaps(views);
+	// updateAllPlots(views);
+}
+
+function selectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData) {
+	for (var i = 0; i < overallSpatiallyResolvedData.length; i++) {
+		if (overallSpatiallyResolvedData[i].highlighted) {
+			overallSpatiallyResolvedData[i].selected = true;
+		};
+		overallSpatiallyResolvedData[i].highlighted = false;
+	}
+	clickUpdateAll2DHeatmaps(views);
+	// updateAllPlots(views);
+}
+
+function deselectHighlightedMoleculeData(views, overallMoleculeData) {
+	for (var i = 0; i < overallMoleculeData.length; i++) {
+		if (overallMoleculeData[i].highlighted == false) {
+			overallMoleculeData[i].selected = false;
+		};
+		overallMoleculeData[i].highlighted = false;
+	}
+	clickUpdateAll2DHeatmaps(views);
+	// updateAllPlots(views);
+}
+
+function selectHighlightedMoleculeData(views, overallMoleculeData) {
+	for (var i = 0; i < overallMoleculeData.length; i++) {
+		if (overallMoleculeData[i].highlighted) {
+			overallMoleculeData[i].selected = true;
+		};
+		overallMoleculeData[i].highlighted = false;
+	}
+	clickUpdateAll2DHeatmaps(views);
+	// updateAllPlots(views);
+}
+
+function clickUpdateAll2DHeatmaps(views) {
+	for (var ii = 0; ii < views.length; ++ii) {
+		var view = views[ii];
+		if (view.viewType == "2DHeatmap" && view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
+			var i = 0;
+			for (var x in view.data) {
+				for (var y in view.data[x]) {
+					var highlightedFound = isAnyHighlighted(view.data[x][y].list);
+					if (highlightedFound) {
+						view.data[x][y].highlighted = true;
+						if (view.highlightedIndexList.indexOf(i) == -1) {
+							view.highlightedIndexList.push(i);
+						}
+					} else {
+						view.data[x][y].highlighted = false;
+						var indexInList = view.highlightedIndexList.indexOf(i);
+						if (indexInList != -1) {
+							view.highlightedIndexList.splice(i, 1);
+						}
+					}
+
+					i++;
+				}
+			}
+		}
+	}
+}
+
+function isAnyHighlighted(list) {
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted) {
+			return true;
+		}
+	}
+	return false;
+}
+//function findListHighlighted(list) {
+
+function highlightAll(list) {
+	for (var i = 0; i < list.length; i++) {
+		list[i].highlighted = true;
+	}
+}
+function areAllHighlighted(list) {
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted == false) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function areAllTrue(list) {
+	for (var i = 0; i < list.length; i++) {
+		if (list[i] == false) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/* export function clickUnhighlightOther2DHeatmaps(currentViewID, views) {
+	for ( var ii = 0; ii < views.length; ++ii ){
+		var view = views[ii];
+		if (view.viewType == "2DHeatmap" &&
+			view.options.plotType == "Heatmap" &&
+			typeof view.heatmapPlot != "undefined" &&
+			view.options.plotID != currentViewID
+			){
+			var i = 0;
+			for (var x in view.data){
+				for (var y in view.data[x]){
+					for (var datapoint in view.data[x][y].list) {
+						if (datapoint.highlighted){
+							view.data[x][y].highlighted = true;
+							
+							break;
+						}
+					}
+					i++;
+				}
+			}
+		}
+	}
+} */
+
+},{"./Selection/Utilities.js":5,"./tooltip.js":12}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -3223,6 +3786,9 @@ function setupOptionBox2DHeatmapFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean == false && view.overallSpatiallyResolvedDataBoolean) {
@@ -3251,6 +3817,9 @@ function setupOptionBox2DHeatmapFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 	}
 
 	plotFolder.add(options, 'replotHeatmap').name("Plot");
@@ -3318,6 +3887,9 @@ function setupOptionBox2DHeatmapFolder(view, plotSetup, folder) {
 		moleculeFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
 
+		moleculeFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
+
 		moleculeFolder.close();
 
 		spatiallyResolvedFolder.add(options, 'activePlotSpatiallyResolved').name('active plot').onChange(function (value) {
@@ -3345,6 +3917,9 @@ function setupOptionBox2DHeatmapFolder(view, plotSetup, folder) {
 
 		spatiallyResolvedFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 	}
@@ -3925,12 +4500,11 @@ function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 	folder.open();
 }
 
-},{"../MultiviewControl/colorLegend.js":25,"../Utilities/colorMap.js":31,"../Utilities/other.js":32,"./HeatmapView.js":2,"./PCAView.js":4,"./comparisonView.js":7,"./covarianceView.js":8}],12:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":26,"../Utilities/colorMap.js":32,"../Utilities/other.js":33,"./HeatmapView.js":2,"./PCAView.js":4,"./comparisonView.js":7,"./covarianceView.js":8}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 exports.initialize2DPlotTooltip = initialize2DPlotTooltip;
-exports.hoverHeatmap = hoverHeatmap;
 exports.updateHeatmapTooltip = updateHeatmapTooltip;
 exports.updateCovarianceTooltip = updateCovarianceTooltip;
 
@@ -3954,14 +4528,14 @@ function initialize2DPlotTooltip(view) {
 	document.body.appendChild(tempTooltip);
 }
 
-function highlightHeatmapPoints(index, view) {
+/*function highlightHeatmapPoints(index, view) {
 	var heatmapX = view.heatmapInformation[index].heatmapX;
 	var heatmapY = view.heatmapInformation[index].heatmapY;
 
 	var dataset = view.data[heatmapX][heatmapY];
 	dataset.highlighted = true;
 
-	dataset.list.forEach(function (datapoint) {
+	dataset.list.forEach(datapoint => {
 		datapoint.highlighted = true;
 	});
 }
@@ -3969,46 +4543,58 @@ function highlightHeatmapPoints(index, view) {
 function unhighlightHeatmapPoints(index, view) {
 	var heatmapX = view.heatmapInformation[index].heatmapX;
 	var heatmapY = view.heatmapInformation[index].heatmapY;
-
+	
 	var dataset = view.data[heatmapX][heatmapY];
 	dataset.highlighted = false;
 
-	dataset.list.forEach(function (datapoint) {
+	dataset.list.forEach(datapoint => {
 		datapoint.highlighted = false;
 	});
 }
-
-function hoverHeatmap(view, mouseEvent) {
+export function hoverHeatmap(view, mouseEvent){
 	var mouse = new THREE.Vector2();
-	mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
 	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
-	view.raycaster.setFromCamera(mouse.clone(), view.camera);
-	var intersects = view.raycaster.intersectObject(view.heatmapPlot);
-	if (intersects.length > 0) {
-
-		if (view.INTERSECTED != intersects[0].index) {
-			if (view.INTERSECTED != null) {
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+	var intersects = view.raycaster.intersectObject( view.heatmapPlot );
+	if ( intersects.length > 0 ) {
+		
+		if ( view.INTERSECTED != intersects[ 0 ].index ) {
+			if (view.INTERSECTED != null && view.highlightedIndexList.indexOf(view.INTERSECTED) == -1){
 				unhighlightHeatmapPoints(view.INTERSECTED, view);
 			}
-			view.INTERSECTED = intersects[0].index;
+			view.INTERSECTED = intersects[ 0 ].index;
 			highlightHeatmapPoints(view.INTERSECTED, view);
-			updateHeatmapTooltip(view);
+			updateHeatmapTooltip(view)
 			return true;
 		}
-		updateHeatmapTooltip(view);
-		return false;
-	} else {
-		if (view.INTERSECTED != null) {
+		updateHeatmapTooltip(view)
+		return false
+	}
+	else {
+		// no intersection
+		if (view.INTERSECTED != null && view.highlightedIndexList.indexOf(view.INTERSECTED) == -1){
+			// has previous intersection and previous interesction not in list
 			unhighlightHeatmapPoints(view.INTERSECTED, view);
 			view.INTERSECTED = null;
 			updateHeatmapTooltip(view);
 			return true;
+		} else if (view.INTERSECTED != null) {
+			// has previous intersection and previous interesction in list
+			view.INTERSECTED = null;
+			updateHeatmapTooltip(view);
+			return true;
+		}else {
+			updateHeatmapTooltip(view);
+			return false;
 		}
-		return false;
+		
 	}
-}
+}*/
 
 function updateHeatmapTooltip(view) {
+	// console.log('updating 2d map tooltip',view.INTERSECTED);
 	if (view.INTERSECTED) {
 		view.tooltip.style.top = event.clientY + 5 + 'px';
 		view.tooltip.style.left = event.clientX + 5 + 'px';
@@ -4019,6 +4605,40 @@ function updateHeatmapTooltip(view) {
 		view.tooltip.innerHTML = '';
 	}
 }
+
+/* export function clickHeatmap(view){
+
+	if (view.INTERSECTED != null){
+		console.log('currently heatmap point under mouse', view.highlightedIndexList)
+		//currently heatmap point under mouse
+		var indexInList = view.highlightedIndexList.indexOf(view.INTERSECTED);
+		if ( indexInList > -1){
+			console.log('already in list, remove from list')
+			// was highlighted
+			view.highlightedIndexList.splice(indexInList, 1);
+			return false;
+		} else {
+			console.log('not in list, add to list')
+			// not yet highlighted
+			view.highlightedIndexList.push(view.INTERSECTED);
+			return false;
+		}
+	} else {
+		console.log('currently No heatmap point under mouse')
+		// currently no heatmap point under mouse
+		if (view.highlightedIndexList.length > 0) {
+			view.highlightedIndexList.forEach(index => {
+				unhighlightHeatmapPoints(index, view);	
+			});
+			view.highlightedIndexList = [];
+			return true;
+		}
+		else {
+			return false;
+		}
+		
+	}
+} */
 
 /*export function updateHeatmapTooltip(view){
 
@@ -4343,6 +4963,7 @@ exports.getPointCloudMaterialInstanced = getPointCloudMaterialInstanced;
 exports.getMoleculeMaterialInstanced = getMoleculeMaterialInstanced;
 exports.getMoleculeAtomSpriteMaterialInstanced = getMoleculeAtomSpriteMaterialInstanced;
 exports.getMoleculeBondLineMaterialInstanced = getMoleculeBondLineMaterialInstanced;
+exports.getMoleculeAtomsMaterialInstanced = getMoleculeAtomsMaterialInstanced;
 
 function getPointCloudMaterialInstanced(options) {
 	var uniforms = {
@@ -4375,8 +4996,6 @@ function getPointCloudMaterialInstanced(options) {
 }
 
 function getMoleculeMaterialInstanced(options) {
-
-	var materialShader;
 
 	var material = new THREE.MeshLambertMaterial({
 		// uniforms: uniforms,
@@ -4502,11 +5121,36 @@ export var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial( {
 
 });*/
 
+function getMoleculeAtomsMaterialInstanced(options) {
+
+	var material = new THREE.MeshLambertMaterial({
+		color: 0xffffff,
+		combine: THREE.MultiplyOperation,
+		vertexColors: THREE.VertexColors
+	});
+
+	material.onBeforeCompile = function (shader) {
+
+		shader.uniforms.xClippingPlaneMax = { type: 'f', value: options.x_high };
+		shader.uniforms.xClippingPlaneMin = { type: 'f', value: options.x_low };
+		shader.uniforms.yClippingPlaneMax = { type: 'f', value: options.y_high };
+		shader.uniforms.yClippingPlaneMin = { type: 'f', value: options.y_low };
+		shader.uniforms.zClippingPlaneMax = { type: 'f', value: options.z_high };
+		shader.uniforms.zClippingPlaneMin = { type: 'f', value: options.z_low };
+		shader.vertexShader = '\n\t\t\t#define LAMBERT\n\t\t\n\t\t\t// instanced\n\t\t\tattribute vec3 instanceOffset;\n\t\t\tattribute float instanceScale;\n\t\t\tattribute vec3 instanceColor;\n\t\t\t// attribute vec3 instanceColor;\n\t\t\t// attribute float instanceScale;\n\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\t\t\tvarying vec3 slicePosition;\n\t\t\t\n\t\t\tattribute float selection;\n\t\t\tvarying float vSelection;\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <fog_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\t\t\n\t\t\tvoid main() {\n\t\t\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\t\t\n\t\t\t\t// vertex colors instanced\n\t\t\t\t#ifdef USE_COLOR\n\t\t\t\t\tvColor.xyz = instanceColor.xyz;\n\t\t\t\t#endif\n\t\t\n\t\t\t\t#include <beginnormal_vertex>\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\t\t\n\t\t\t\t#include <begin_vertex>\n\t\t\n\t\t\t\t// position instanced\n\t\t\t\t// transformed *= instanceScale;\n\t\t\t\t// transformed = transformed + instanceOffset;\n\t\t\t\ttransformed *= instanceScale;\n\t\t\t\ttransformed = transformed + instanceOffset;\n\t\t\t\tslicePosition = transformed;\n\n\t\t\t\tvSelection = selection;\n\t\t\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\t\t\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <lights_lambert_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\t\t\t\t#include <fog_vertex>\n\t\t\n\t\t\t}\n\t\t\t';
+		shader.fragmentShader = '\n\t\t\tuniform vec3 diffuse;\n\t\t\tuniform vec3 emissive;\n\t\t\tuniform float opacity;\n\t\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tvarying float vSelection;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\t\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\t\n\t\t\t\n\t\t\t#include <common>\n\t\t\t#include <packing>\n\t\t\t#include <dithering_pars_fragment>\n\t\t\t#include <color_pars_fragment>\n\t\t\t#include <uv_pars_fragment>\n\t\t\t#include <uv2_pars_fragment>\n\t\t\t#include <map_pars_fragment>\n\t\t\t#include <alphamap_pars_fragment>\n\t\t\t#include <aomap_pars_fragment>\n\t\t\t#include <lightmap_pars_fragment>\n\t\t\t#include <emissivemap_pars_fragment>\n\t\t\t#include <envmap_common_pars_fragment>\n\t\t\t#include <envmap_pars_fragment>\n\t\t\t#include <cube_uv_reflection_fragment>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <fog_pars_fragment>\n\t\t\t#include <shadowmap_pars_fragment>\n\t\t\t#include <shadowmask_pars_fragment>\n\t\t\t#include <specularmap_pars_fragment>\n\t\t\t#include <logdepthbuf_pars_fragment>\n\t\t\t#include <clipping_planes_pars_fragment>\n\t\t\t\n\t\t\tvoid main() {\n\n\t\t\t\tif(vSelection==0.0) discard;\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\t\t\t\n\t\t\t\t#include <clipping_planes_fragment>\n\t\t\t\n\t\t\t\tvec4 diffuseColor = vec4( diffuse, opacity );\n\t\t\t\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\t\t\t\tvec3 totalEmissiveRadiance = emissive;\n\t\t\t\n\t\t\t\t#include <logdepthbuf_fragment>\n\t\t\t\t#include <map_fragment>\n\t\t\t\t#include <color_fragment>\n\t\t\t\t#include <alphamap_fragment>\n\t\t\t\t#include <alphatest_fragment>\n\t\t\t\t#include <specularmap_fragment>\n\t\t\t\t#include <emissivemap_fragment>\n\t\t\t\n\t\t\t\t// accumulation\n\t\t\t\treflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += vIndirectFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\t#include <lightmap_fragment>\n\t\t\t\n\t\t\t\treflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = vLightFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\treflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();\n\t\t\t\n\t\t\t\t// modulation\n\t\t\t\t#include <aomap_fragment>\n\t\t\t\n\t\t\t\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;\n\t\t\t\n\t\t\t\t#include <envmap_fragment>\n\t\t\t\n\t\t\t\tgl_FragColor = vec4( outgoingLight, diffuseColor.a );\n\t\t\t\n\t\t\t\t#include <tonemapping_fragment>\n\t\t\t\t#include <encodings_fragment>\n\t\t\t\t#include <fog_fragment>\n\t\t\t\t#include <premultiplied_alpha_fragment>\n\t\t\t\t#include <dithering_fragment>\n\t\t\t}\n\t\t\t';
+		material.userData.shader = shader;
+	};
+
+	return material;
+}
+
 },{}],15:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
 exports.getMoleculeGeometry = getMoleculeGeometry;
+exports.updateMoleculeGeometrySlider = updateMoleculeGeometrySlider;
 exports.updateMoleculeGeometry = updateMoleculeGeometry;
 exports.changeMoleculeGeometry = changeMoleculeGeometry;
 exports.removeMoleculeGeometry = removeMoleculeGeometry;
@@ -4518,6 +5162,146 @@ var _UtilitiesOtherJs = require("../Utilities/other.js");
 var _UtilitiesJs = require("./Utilities.js");
 
 var _MaterialsJs = require("./Materials.js");
+
+/*function addAtoms(view, moleculeData, lut){
+
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
+	var options = view.options;
+	var sizeCode = options.moleculeSizeCodeBasis;
+	var colorCode = options.moleculeColorCodeBasis;
+
+	if (options.atomsStyle == "sprite"){
+		var geometry = new THREE.InstancedBufferGeometry();
+		var positions = new Float32Array(moleculeData.length * 3);
+		var colors = new Float32Array( moleculeData.length* 3);
+		var sizes = new Float32Array( moleculeData.length );
+		var alphas = new Float32Array( moleculeData.length );
+
+		var i3 = 0;
+		var atomSize;
+		var t0 = performance.now()
+		for (var i = 0; i < moleculeData.length; i++) {
+			var atomData = moleculeData[i];
+			positions[i3+0] = atomData.x;
+			positions[i3+1] = atomData.y;
+			positions[i3+2] = atomData.z;
+
+			if (colorCode == "atom") {
+				var color = colorToRgb(colorSetup[atomData.atom]);
+			}
+			else {
+				var color = lut.getColor( atomData[colorCode] );
+			}
+
+			colors[ i3+0 ] = color.r;
+			colors[ i3+1 ] = color.g;
+			colors[ i3+2 ] = color.b;
+
+			if (moleculeData[i].selected) {
+				if (sizeCode == "atom") {
+					atomSize = options.atomSize*atomRadius[atomData.atom] * 10;
+				}
+				else {
+					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+					atomSize = options.atomSize*tempSize* 10;
+				}
+
+				if (moleculeData[i].highlighted) {
+					atomSize = atomSize * 2;
+				} 
+
+				sizes[i] = atomSize;
+				alphas[i] = options.moleculeAlpha;
+			}
+			else{
+				sizes[i] = 0;
+				alphas[i] = 0;
+			}
+
+			i3 +=3;
+		}
+		// console.log('sprite atoms', performance.now() - t0, cloneTime);
+
+
+		var geometry = new THREE.InstancedBufferGeometry();
+		geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+		geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+		geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+		geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+		// console.log(sumDisplacement);
+		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
+		geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+		geometry.maxInstancedCount = offsetResult.counter;
+
+		var atoms = new THREE.Points( geometry, getMoleculeAtomSpriteMaterialInstanced(options) );
+		atoms.frustumCulled = false;
+
+	}
+
+	if (options.atomsStyle == "ball"){
+		var atomList = [];
+		var atomColorList = [];
+
+		var sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, options.atomModelSegments);
+
+		var t0 = performance.now();
+		var cloneTime = 0;
+		var atomSelectionList = new Float32Array(moleculeData.length);
+		atomSelectionList.fill(1);
+		for (var i = 0; i < moleculeData.length; i++) {
+			var atomData = moleculeData[i];
+
+			// if (moleculeData[i].selected) {
+				if (colorCode == "atom") {
+					var color = colorSetup[atomData.atom];
+				}
+				else {
+					var color = lut.getColor( atomData[colorCode] );
+				}
+				if (sizeCode == "atom") {
+					var atomSize = options.atomSize*atomRadius[atomData.atom];
+				}
+				else {
+					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+					var atomSize = options.atomSize * tempSize;
+				}
+
+				if (moleculeData[i].highlighted) {
+					atomList.push(sphereTemplate.clone().scale(atomSize * 2, atomSize * 2, atomSize * 2).translate(atomData.x, atomData.y,atomData.z));
+				} else {
+					// atomList.push(new THREE.SphereBufferGeometry(atomSize, options.atomModelSegments, options.atomModelSegments).translate(atomData.x, atomData.y,atomData.z));
+					// atomList.push(sphereTemplate.clone().scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y,atomData.z));
+					var at0 = performance.now()
+					var temp = sphereTemplate.clone();
+					cloneTime += performance.now() - at0;
+					atomList.push(temp.scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y,atomData.z));
+				}
+				
+				var tempColor = new THREE.Color( color );
+				atomColorList.push([tempColor.r, tempColor.g, tempColor.b]);
+
+			// }
+			if (moleculeData[i].selected == false) {
+				atomSelectionList[i] = 0;
+			} 
+		}
+		// console.log('individual balls', performance.now() - t0, cloneTime);
+		var atomsGeometry = combineGeometry(atomList, atomColorList, atomSelectionList);
+		// console.log('combine balls', performance.now() - t0);
+		var material = getMoleculeMaterialInstanced(options);
+		
+		var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
+		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
+		// atomsGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(atomSelectionArray, 1 ));
+		atomsGeometry.maxInstancedCount = offsetResult.counter;
+
+		var atoms = new THREE.Mesh( atomsGeometry, material);
+		atoms.userData.numVerticesPerAtom = sphereTemplate.attributes.position.count;
+	}
+	view.molecule.atoms = atoms;
+	view.scene.add(atoms);
+}*/
 
 function addAtoms(view, moleculeData, lut) {
 
@@ -4553,17 +5337,18 @@ function addAtoms(view, moleculeData, lut) {
 			colors[i3 + 1] = color.g;
 			colors[i3 + 2] = color.b;
 
-			if (moleculeData[i].selected) {
-				if (sizeCode == "atom") {
-					atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 10;
-				} else {
-					var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-					atomSize = options.atomSize * tempSize * 10;
-				}
+			if (sizeCode == "atom") {
+				atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 10;
+			} else {
+				var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+				atomSize = options.atomSize * tempSize * 10;
+			}
 
-				if (moleculeData[i].highlighted) {
-					atomSize = atomSize * 2.5;
-				}
+			if (moleculeData[i].highlighted) {
+				atomSize = atomSize * 2;
+				sizes[i] = atomSize;
+				alphas[i] = options.moleculeAlpha;
+			} else if (moleculeData[i].selected) {
 
 				sizes[i] = atomSize;
 				alphas[i] = options.moleculeAlpha;
@@ -4574,7 +5359,6 @@ function addAtoms(view, moleculeData, lut) {
 
 			i3 += 3;
 		}
-		console.log('sprite atoms', performance.now() - t0, cloneTime);
 
 		var geometry = new THREE.InstancedBufferGeometry();
 		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -4591,19 +5375,18 @@ function addAtoms(view, moleculeData, lut) {
 	}
 
 	if (options.atomsStyle == "ball") {
-		var atomList = [];
-		var atomColorList = [];
 
-		var sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, options.atomModelSegments);
-
+		var unitCellScaleArr = new Float32Array(moleculeData.length);
+		var unitCellOffsetArr = new Float32Array(moleculeData.length * 3);
+		var unitCellColorArr = new Float32Array(moleculeData.length * 3);
+		var unitCellSelectionArr = new Float32Array(moleculeData.length);
+		var unitCellIndexArr = new Float32Array(moleculeData.length);
 		var t0 = performance.now();
-		var cloneTime = 0;
-		var atomSelectionList = new Float32Array(moleculeData.length);
-		atomSelectionList.fill(1);
+		unitCellSelectionArr.fill(0);
 		for (var i = 0; i < moleculeData.length; i++) {
 			var atomData = moleculeData[i];
+			unitCellIndexArr[i] = i;
 
-			// if (moleculeData[i].selected) {
 			if (colorCode == "atom") {
 				var color = _AtomSetupJs.colorSetup[atomData.atom];
 			} else {
@@ -4616,37 +5399,31 @@ function addAtoms(view, moleculeData, lut) {
 				var atomSize = options.atomSize * tempSize;
 			}
 
+			unitCellOffsetArr[i * 3 + 0] = atomData.x;
+			unitCellOffsetArr[i * 3 + 1] = atomData.y;
+			unitCellOffsetArr[i * 3 + 2] = atomData.z;
+
 			if (moleculeData[i].highlighted) {
-				atomList.push(sphereTemplate.clone().scale(atomSize * 2, atomSize * 2, atomSize * 2).translate(atomData.x, atomData.y, atomData.z));
+				unitCellScaleArr[i] = atomSize * 2;
 			} else {
-				// atomList.push(new THREE.SphereBufferGeometry(atomSize, options.atomModelSegments, options.atomModelSegments).translate(atomData.x, atomData.y,atomData.z));
-				// atomList.push(sphereTemplate.clone().scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y,atomData.z));
-				var at0 = performance.now();
-				var temp = sphereTemplate.clone();
-				cloneTime += performance.now() - at0;
-				atomList.push(temp.scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y, atomData.z));
+				unitCellScaleArr[i] = atomSize;
 			}
 
 			var tempColor = new THREE.Color(color);
-			atomColorList.push([tempColor.r, tempColor.g, tempColor.b]);
+			unitCellColorArr[i * 3 + 0] = tempColor.r;
+			unitCellColorArr[i * 3 + 1] = tempColor.g;
+			unitCellColorArr[i * 3 + 2] = tempColor.b;
 
-			// }
-			if (moleculeData[i].selected == false) {
-				atomSelectionList[i] = 0;
+			if (moleculeData[i].selected || moleculeData[i].highlighted) {
+				unitCellSelectionArr[i] = 1;
 			}
 		}
-		console.log('individual balls', performance.now() - t0, cloneTime);
-		var atomsGeometry = combineGeometry(atomList, atomColorList, atomSelectionList);
-		console.log('combine balls', performance.now() - t0);
-		var material = _MaterialsJs.getMoleculeMaterialInstanced(options);
-
-		var offsetResult = _UtilitiesJs.getOffsetArray(systemDimension, latticeVectors, options);
-		atomsGeometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3));
-		// atomsGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(atomSelectionArray, 1 ));
-		atomsGeometry.maxInstancedCount = offsetResult.counter;
-
+		console.log('single cell', performance.now() - t0);
+		var atomsGeometry = _UtilitiesJs.getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr, unitCellIndexArr, systemDimension, latticeVectors, options);
+		console.log('geometry', performance.now() - t0);
+		var material = _MaterialsJs.getMoleculeAtomsMaterialInstanced(options);
 		var atoms = new THREE.Mesh(atomsGeometry, material);
-		atoms.userData.numVerticesPerAtom = sphereTemplate.attributes.position.count;
+		// atoms.userData.numVerticesPerAtom = sphereTemplate.attributes.position.count;
 	}
 	view.molecule.atoms = atoms;
 	view.scene.add(atoms);
@@ -5047,9 +5824,134 @@ function updateMoleculeGeometryBallAtom(view) {
 	atomsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
 }*/
 
+function updateMoleculeGeometrySpriteAtom(view) {
+	var options = view.options;
+	var sizeCode = options.moleculeSizeCodeBasis;
+	var colorCode = options.moleculeColorCodeBasis;
+	var currentFrame = options.currentFrame.toString();
+
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+	var atoms = view.molecule.atoms;
+	var geometry = atoms.geometry;
+
+	var positions = new Float32Array(moleculeData.length * 3);
+	var colors = new Float32Array(moleculeData.length * 3);
+	var sizes = new Float32Array(moleculeData.length);
+	var alphas = new Float32Array(moleculeData.length);
+
+	var i3 = 0;
+	var atomSize;
+	for (var i = 0; i < moleculeData.length; i++) {
+		var atomData = moleculeData[i];
+		atomX = atomData.x;
+		atomY = atomData.y;
+		atomZ = atomData.z;
+
+		if (colorCode == "atom") {
+			var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[atomData.atom]);
+		} else {
+			var color = lut.getColor(atomData[colorCode]);
+		}
+
+		colors[i3 + 0] = color.r;
+		colors[i3 + 1] = color.g;
+		colors[i3 + 2] = color.b;
+
+		if (sizeCode == "atom") {
+			atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom] * 10;
+		} else {
+			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+			atomSize = options.atomSize * tempSize * 10;
+		}
+
+		if (moleculeData[i].highlighted) {
+			atomSize = atomSize * 2;
+			sizes[i] = atomSize;
+			alphas[i] = options.moleculeAlpha;
+		} else if (moleculeData[i].selected) {
+
+			sizes[i] = atomSize;
+			alphas[i] = options.moleculeAlpha;
+		} else {
+			sizes[i] = 0;
+			alphas[i] = 0;
+		}
+
+		i3 += 3;
+	}
+
+	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+	geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+	geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+
+	geometry.attributes.position.needsUpdate = true;
+	geometry.attributes.customColor.needsUpdate = true;
+	geometry.attributes.size.needsUpdate = true;
+	geometry.attributes.alpha.needsUpdate = true;
+}
+
+function updateMoleculeGeometryBallAtom(view) {
+	var atoms = view.molecule.atoms;
+	var geometry = atoms.geometry;
+	var systemDimension = view.systemDimension;
+	var latticeVectors = view.systemLatticeVectors;
+	var options = view.options;
+	var sizeCode = options.moleculeSizeCodeBasis;
+	var colorCode = options.moleculeColorCodeBasis;
+	var currentFrame = options.currentFrame.toString();
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+	var unitCellOffsetArr = new Float32Array(moleculeData.length * 3);
+	var unitCellScaleArr = new Float32Array(moleculeData.length);
+	var unitCellColorArr = new Float32Array(moleculeData.length * 3);
+	var unitCellSelectionArr = new Float32Array(moleculeData.length);
+	var unitCellIndexArr = new Float32Array(moleculeData.length);
+	var t0 = performance.now();
+	unitCellSelectionArr.fill(0);
+	for (var i = 0; i < moleculeData.length; i++) {
+		var atomData = moleculeData[i];
+		unitCellIndexArr[i] = i;
+
+		if (colorCode == "atom") {
+			var color = _AtomSetupJs.colorSetup[atomData.atom];
+		} else {
+			var color = lut.getColor(atomData[colorCode]);
+		}
+		if (sizeCode == "atom") {
+			var atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom];
+		} else {
+			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+			var atomSize = options.atomSize * tempSize;
+		}
+
+		unitCellOffsetArr[i * 3 + 0] = atomData.x;
+		unitCellOffsetArr[i * 3 + 1] = atomData.y;
+		unitCellOffsetArr[i * 3 + 2] = atomData.z;
+
+		if (moleculeData[i].highlighted) {
+			unitCellScaleArr[i] = atomSize * 2;
+		} else {
+			unitCellScaleArr[i] = atomSize;
+		}
+
+		var tempColor = new THREE.Color(color);
+		unitCellColorArr[i * 3 + 0] = tempColor.r;
+		unitCellColorArr[i * 3 + 1] = tempColor.g;
+		unitCellColorArr[i * 3 + 2] = tempColor.b;
+
+		if (moleculeData[i].selected || moleculeData[i].highlighted) {
+			unitCellSelectionArr[i] = 1;
+		}
+	}
+
+	_UtilitiesJs.updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr, unitCellIndexArr, systemDimension, latticeVectors, options);
+}
+
 function updateClippingPlaneBallAtom(view) {
 	var atoms = view.molecule.atoms;
 	var atomsMaterialShader = atoms.material.userData.shader;
+	var options = view.options;
 	atomsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
 	atomsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
 	atomsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
@@ -5060,12 +5962,56 @@ function updateClippingPlaneBallAtom(view) {
 
 function updateClippingPlaneSpriteAtom(view) {
 	var atoms = view.molecule.atoms;
+	var options = view.options;
 	atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
 	atoms.material.uniforms.xClippingPlaneMin.value = options.x_low;
 	atoms.material.uniforms.yClippingPlaneMax.value = options.y_high;
 	atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
 	atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
 	atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
+}
+
+function updateMoleculeGeometrySlider(view) {
+
+	var options = view.options;
+
+	var t0 = performance.now();
+	if (options.showAtoms) {
+		var systemDimension = view.systemDimension;
+		var latticeVectors = view.systemLatticeVectors;
+
+		if (options.atomsStyle == "sprite") {
+			_UtilitiesJs.updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
+			updateClippingPlaneSpriteAtom(view);
+		} else if (options.atomsStyle == "ball") {
+			updateClippingPlaneBallAtom(view);
+		}
+	}
+
+	if (options.showBonds) {
+		var systemDimension = view.systemDimension;
+		var latticeVectors = view.systemLatticeVectors;
+
+		_UtilitiesJs.updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
+
+		if (options.bondsStyle == "line") {
+			view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
+			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
+			view.molecule.bonds.material.uniforms.yClippingPlaneMax.value = options.y_high;
+			view.molecule.bonds.material.uniforms.yClippingPlaneMin.value = options.y_low;
+			view.molecule.bonds.material.uniforms.zClippingPlaneMax.value = options.z_high;
+			view.molecule.bonds.material.uniforms.zClippingPlaneMin.value = options.z_low;
+		} else if (options.bondsStyle == "tube") {
+			var bondsMaterialShader = view.molecule.bonds.material.userData.shader;
+			bondsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
+			bondsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
+			bondsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
+			bondsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
+			bondsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
+			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
+		}
+	}
+	console.log('update molecule replicate took: ', performance.now() - t0);
 }
 
 function updateMoleculeGeometry(view) {
@@ -5077,12 +6023,12 @@ function updateMoleculeGeometry(view) {
 		var systemDimension = view.systemDimension;
 		var latticeVectors = view.systemLatticeVectors;
 
-		_UtilitiesJs.updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
-
 		if (options.atomsStyle == "sprite") {
-
+			updateMoleculeGeometrySpriteAtom(view);
+			_UtilitiesJs.updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
 			updateClippingPlaneSpriteAtom(view);
 		} else if (options.atomsStyle == "ball") {
+			updateMoleculeGeometryBallAtom(view);
 			updateClippingPlaneBallAtom(view);
 		}
 	}
@@ -5128,13 +6074,12 @@ function removeMoleculeGeometry(view) {
 	}
 }
 
-},{"../Utilities/other.js":32,"./AtomSetup.js":13,"./Materials.js":14,"./Utilities.js":17}],16:[function(require,module,exports){
+},{"../Utilities/other.js":33,"./AtomSetup.js":13,"./Materials.js":14,"./Utilities.js":17}],16:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
 exports.getPointCloudGeometry = getPointCloudGeometry;
 exports.updatePointCloudGeometry = updatePointCloudGeometry;
-exports.animatePointCloudGeometry = animatePointCloudGeometry;
 exports.removePointCloudGeometry = removePointCloudGeometry;
 exports.changePointCloudGeometry = changePointCloudGeometry;
 
@@ -5213,17 +6158,16 @@ function getPointCloudGeometry(view) {
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
 
-				if (spatiallyResolvedData[k].selected) {
+				if (spatiallyResolvedData[k].highlighted) {
+					// console.log('found highlighted point', k );
+					sizes[i] = options.pointCloudSize * 3;
+					alphas[i] = 1;
+				} else if (spatiallyResolvedData[k].selected) {
 					alphas[i] = options.pointCloudAlpha;
 					if (options.animate) {
 						sizes[i] = Math.random() * options.pointCloudSize;
 					} else {
 						sizes[i] = options.pointCloudSize;
-					}
-
-					if (spatiallyResolvedData[k].highlighted) {
-						sizes[i] = sizes[i] * 3;
-						alphas[i] = 1;
 					}
 				} else {
 					alphas[i] = 0;
@@ -5294,17 +6238,16 @@ function updatePointCloudGeometry(view) {
 		colors[i3 + 1] = color.g;
 		colors[i3 + 2] = color.b;
 
-		if (spatiallyResolvedData[k].selected) {
+		if (spatiallyResolvedData[k].highlighted) {
+			// console.log('found highlighted point', k );
+			sizes[i] = options.pointCloudSize * 3;
+			alphas[i] = 1;
+		} else if (spatiallyResolvedData[k].selected) {
 			alphas[i] = options.pointCloudAlpha;
 			if (options.animate) {
 				sizes[i] = Math.random() * options.pointCloudSize;
 			} else {
 				sizes[i] = options.pointCloudSize;
-			}
-
-			if (spatiallyResolvedData[k].highlighted) {
-				sizes[i] = sizes[i] * 3;
-				alphas[i] = 1;
 			}
 		} else {
 			alphas[i] = 0;
@@ -5330,7 +6273,7 @@ function updatePointCloudGeometry(view) {
 	view.System.material.uniforms.zClippingPlaneMin.value = options.z_low;
 }
 
-function animatePointCloudGeometry(view) {
+/* export function animatePointCloudGeometry(view){
 	//console.log('updated')
 
 	var options = view.options;
@@ -5340,37 +6283,39 @@ function animatePointCloudGeometry(view) {
 	var positionArray = view.System.geometry.attributes.position.array;
 	var sizeArray = view.System.geometry.attributes.size.array;
 	// var parentBlock = view.System.geometry.parentBlockMap;
-	var pointVoxelMap = view.System.userData.pointVoxelMap;
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
+
 
 	var particles = options.pointCloudParticles;
 	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
 	var count = view.System.geometry.attributes.size.array.length;
 
+
 	//var colors = new Float32Array(count *3);
-	var sizes = new Float32Array(count);
+	var sizes = new Float32Array( count);
 
-	for (var i = 0, i3 = 0; i < count; i++) {
-		var x = positionArray[i3 + 0] / 10;
-		var y = positionArray[i3 + 1] / 10;
-		var z = positionArray[i3 + 2] / 10;
+	for (var i = 0, i3 = 0; i < count; i++){
+		var x = positionArray[ i3 + 0 ]/10;
+		var y = positionArray[ i3 + 1 ]/10;
+		var z = positionArray[ i3 + 2 ]/10;
 		var k = pointVoxelMap[i];
-
-		if ( /*(x >= options.x_low) 	&& (x <= options.x_high) 	&&
-       (y >= options.y_low) 	&& (y <= options.y_high)	&&
-       (z >= options.z_low) 	&& (z <= options.z_high)	&& */spatiallyResolvedData[k].selected) {
-			var temp = sizeArray[i] - 0.1;
-			if (temp >= 0.0) {
-				sizeArray[i] = temp;
-			} else {
-				sizeArray[i] = options.pointCloudSize;
-			}
-		} else {
-			sizes[i] = 0;
+	
+		if ( spatiallyResolvedData[k].selected)
+		{
+			var temp = sizeArray[i]-0.1;
+			if (temp >= 0.0) {sizeArray[i] = temp;}
+			else {sizeArray[i] = options.pointCloudSize;}
 		}
+		else {
+			sizes[ i ] = 0;
+		}
+
 	}
 	i3 += 3;
-}
+
+	
+} */
 
 function removePointCloudGeometry(view) {
 	view.scene.remove(view.System);
@@ -5390,6 +6335,8 @@ function changePointCloudGeometry(view) {
 
 exports.__esModule = true;
 exports.getOffsetArray = getOffsetArray;
+exports.getPeriodicReplicatesInstancesMolecule = getPeriodicReplicatesInstancesMolecule;
+exports.updatePeriodicReplicatesInstancesMolecule = updatePeriodicReplicatesInstancesMolecule;
 exports.updateOffsetArray = updateOffsetArray;
 
 function getOffsetArray(systemDimension, latticeVectors, options) {
@@ -5430,6 +6377,141 @@ function getOffsetArray(systemDimension, latticeVectors, options) {
 		}
 	}
 	return { sumDisplacement: sumDisplacement, counter: counter };
+}
+
+function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr, unitCellIndexArr, systemDimension, latticeVectors, options) {
+	var sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
+	var sumOffsetArr = new Float32Array(unitCellOffsetArr.length * 9 * 9 * 9);
+	var sumColorArr = new Float32Array(unitCellColorArr.length * 9 * 9 * 9);
+	var sumSelectionArr = new Float32Array(unitCellSelectionArr.length * 9 * 9 * 9);
+	var sumIndexArr = new Float32Array(unitCellIndexArr.length * 9 * 9 * 9);
+
+	var numInstancePerUnitCell = unitCellScaleArr.length;
+
+	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+		'y': systemDimension.x * latticeVectors.u12,
+		'z': systemDimension.x * latticeVectors.u13 };
+	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+		'y': systemDimension.y * latticeVectors.u22,
+		'z': systemDimension.y * latticeVectors.u23 };
+	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+		'y': systemDimension.z * latticeVectors.u32,
+		'z': systemDimension.z * latticeVectors.u33 };
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+
+	var currentCellIndex = 0;
+	var xStep, yStep, zStep, currentStartingArrIndex;
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				//each unit cell
+				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex;
+				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
+				sumSelectionArr.set(unitCellSelectionArr, currentStartingArrIndex);
+				sumIndexArr.set(unitCellIndexArr, currentStartingArrIndex);
+				sumColorArr.set(unitCellColorArr, currentStartingArrIndex * 3);
+
+				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+				for (var ii = 0; ii < numInstancePerUnitCell; ii++) {
+					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 0] = unitCellOffsetArr[ii * 3 + 0] + xStep;
+					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 1] = unitCellOffsetArr[ii * 3 + 1] + yStep;
+					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 2] = unitCellOffsetArr[ii * 3 + 2] + zStep;
+				}
+
+				currentCellIndex++;
+			}
+		}
+	}
+	var totalNumInstances = currentCellIndex * numInstancePerUnitCell;
+
+	var sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, Math.ceil(options.atomModelSegments / 2));
+	var combinedGeometry = new THREE.InstancedBufferGeometry();
+	combinedGeometry.copy(sphereTemplate);
+	combinedGeometry.setAttribute('instanceOffset', new THREE.InstancedBufferAttribute(sumOffsetArr, 3));
+	combinedGeometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1));
+	combinedGeometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3));
+	combinedGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1));
+	combinedGeometry.setAttribute('index', new THREE.InstancedBufferAttribute(sumIndexArr, 1));
+	combinedGeometry.maxInstancedCount = totalNumInstances;
+	console.log('num instances', combinedGeometry.maxInstancedCount);
+
+	return combinedGeometry;
+}
+
+function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr, unitCellIndexArr, systemDimension, latticeVectors, options) {
+	var sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
+	var sumOffsetArr = new Float32Array(unitCellOffsetArr.length * 9 * 9 * 9);
+	var sumColorArr = new Float32Array(unitCellColorArr.length * 9 * 9 * 9);
+	var sumSelectionArr = new Float32Array(unitCellSelectionArr.length * 9 * 9 * 9);
+	var sumIndexArr = new Float32Array(unitCellIndexArr.length * 9 * 9 * 9);
+
+	var numInstancePerUnitCell = unitCellScaleArr.length;
+
+	var dim1Step = { 'x': systemDimension.x * latticeVectors.u11,
+		'y': systemDimension.x * latticeVectors.u12,
+		'z': systemDimension.x * latticeVectors.u13 };
+	var dim2Step = { 'x': systemDimension.y * latticeVectors.u21,
+		'y': systemDimension.y * latticeVectors.u22,
+		'z': systemDimension.y * latticeVectors.u23 };
+	var dim3Step = { 'x': systemDimension.z * latticeVectors.u31,
+		'y': systemDimension.z * latticeVectors.u32,
+		'z': systemDimension.z * latticeVectors.u33 };
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+
+	var currentCellIndex = 0;
+	var xStep, yStep, zStep, currentStartingArrIndex;
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				//each unit cell
+				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex;
+				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
+				sumSelectionArr.set(unitCellSelectionArr, currentStartingArrIndex);
+				sumIndexArr.set(unitCellIndexArr, currentStartingArrIndex);
+				sumColorArr.set(unitCellColorArr, currentStartingArrIndex * 3);
+
+				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
+				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
+				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
+				for (var ii = 0; ii < numInstancePerUnitCell; ii++) {
+					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 0] = unitCellOffsetArr[ii * 3 + 0] + xStep;
+					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 1] = unitCellOffsetArr[ii * 3 + 1] + yStep;
+					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 2] = unitCellOffsetArr[ii * 3 + 2] + zStep;
+				}
+
+				currentCellIndex++;
+			}
+		}
+	}
+	var totalNumInstances = currentCellIndex * numInstancePerUnitCell;
+
+	geometry.setAttribute('instanceOffset', new THREE.InstancedBufferAttribute(sumOffsetArr, 3));
+	geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1));
+	geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3));
+	geometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1));
+	geometry.setAttribute('index', new THREE.InstancedBufferAttribute(sumIndexArr, 1));
+	geometry.maxInstancedCount = totalNumInstances;
+
+	geometry.attributes.instanceOffset.needsUpdate = true;
+	geometry.attributes.instanceScale.needsUpdate = true;
+	geometry.attributes.instanceColor.needsUpdate = true;
+	geometry.attributes.selection.needsUpdate = true;
+	geometry.attributes.index.needsUpdate = true;
+	console.log('num instances', geometry.maxInstancedCount);
 }
 
 function updateOffsetArray(systemDimension, latticeVectors, geometry, options) {
@@ -5740,7 +6822,703 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":24,"../MultiviewControl/colorLegend.js":25,"../Utilities/saveData.js":35,"./systemEdge.js":20}],19:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":25,"../MultiviewControl/colorLegend.js":26,"../Utilities/saveData.js":36,"./systemEdge.js":21}],19:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.hover3DViewSpatiallyResolved = hover3DViewSpatiallyResolved;
+exports.click3DViewSpatiallyResolved = click3DViewSpatiallyResolved;
+exports.hover3DViewMolecule = hover3DViewMolecule;
+exports.click3DViewMolecule = click3DViewMolecule;
+
+var _DHeatmapsSelectionJs = require("../2DHeatmaps/selection.js");
+
+/*function highlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
+	//var voxelGlobalIndex = view.
+	// var voxelPointDict = view.System.userData.voxelPointDict;
+
+	if (plotSetup.active2DPlotSpatiallyResolved && 
+		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
+		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
+
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
+
+		var heatmapX = xMap(highlightDataPoint);
+        var heatmapY = yMap(highlightDataPoint);
+
+		var dataset = twoDPlot.data[heatmapX][heatmapY];
+		dataset.highlighted = true;
+
+		dataset.list.forEach(datapoint => {
+			datapoint.highlighted = true;
+		})
+	} else {
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
+		highlightDataPoint.highlighted = true;
+	}
+}
+
+
+
+function unhighlight3DViewPointsSpatiallyResolved(index, view,plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
+	//var voxelGlobalIndex = view.
+	// var voxelPointDict = view.System.userData.voxelPointDict;
+
+	if (plotSetup.active2DPlotSpatiallyResolved && 
+		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
+		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
+
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
+
+		var heatmapX = xMap(highlightDataPoint);
+        var heatmapY = yMap(highlightDataPoint);
+        
+        var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
+        var indexInList = twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex);
+
+        if (indexInList == -1) {
+            // not in index list
+            var dataset = twoDPlot.data[heatmapX][heatmapY];
+            dataset.highlighted = false;
+
+            dataset.list.forEach(datapoint => {
+                datapoint.highlighted = false;
+            })
+        }
+
+		
+	} else {
+		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
+		highlightDataPoint.highlighted = false;
+	}
+}
+
+ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
+	var mouse = new THREE.Vector2();
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
+	console.log(view.raycaster);
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+	var intersects = view.raycaster.intersectObject( view.System );
+	if ( intersects.length > 0 ) {
+		
+		if ( view.INTERSECTED != intersects[ 0 ].index ) {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
+			}
+			view.INTERSECTED = intersects[ 0 ].index;
+			highlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
+			return true;
+		}
+		return false;
+
+	}
+	else {
+		if (view.INTERSECTED != null){
+			unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
+			view.INTERSECTED = null;
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+
+} 
+
+
+export function click3DViewSpatiallyResolved(view, views, plotSetup){
+    var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+
+	if (view.INTERSECTED != null){
+		console.log('currently heatmap point under mouse', view.highlightedIndexList)
+        //currently heatmap point under mouse
+
+        if (plotSetup.active2DPlotSpatiallyResolved && 
+            plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
+            plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+            // has active 2D plot
+        
+            var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+            // var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+            var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+            var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+            var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[view.INTERSECTED]];
+
+            var xMap = function(d) {return xScale(xValue(d));};
+            var yMap = function(d) {return yScale(yValue(d));}; 
+
+            var heatmapX = xMap(highlightDataPoint);
+            var heatmapY = yMap(highlightDataPoint);
+            
+            var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
+            var indexInList = twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex);
+
+            if ( indexInList > -1){
+                console.log('already in list, remove from list')
+                // was highlighted
+                twoDPlot.highlightedIndexList.splice(indexInList, 1);
+
+                
+                return false;
+            } else {
+                console.log('not in list, add to list')
+                // not yet highlighted
+                twoDPlot.highlightedIndexList.push(heatmapPointIndex);
+                return false;
+            }
+
+
+        } else {
+            // no active 2D plot
+            var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[view.INTERSECTED]];
+            highlightedDataPoints.highlighted = false;
+            return false;
+        }
+
+
+		
+	} else {
+        console.log('currently No 3D point under mouse')
+        unhighlightAll(views);
+        return true;
+	}
+}
+
+
+
+
+*/
+
+function getCorrespondingHeatmapPointIndexSpatiallyResolved(view, voxelIndex, twoDPlot) {
+    var options = view.options;
+    var currentFrame = options.currentFrame.toString();
+    var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+
+    var xScale = twoDPlot.xScale,
+        yScale = twoDPlot.yScale;
+    var xValue = twoDPlot.xValue,
+        yValue = twoDPlot.yValue;
+    var highlightDataPoint = spatiallyResolvedData[voxelIndex];
+
+    var xMap = function xMap(d) {
+        return xScale(xValue(d));
+    };
+    var yMap = function yMap(d) {
+        return yScale(yValue(d));
+    };
+
+    var heatmapX = xMap(highlightDataPoint);
+    var heatmapY = yMap(highlightDataPoint);
+
+    var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
+    return heatmapPointIndex;
+}
+
+function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent) {
+    var options = view.options;
+    var currentFrame = options.currentFrame.toString();
+    var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+
+    var mouse = new THREE.Vector2();
+    mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
+
+    view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
+    view.raycaster.setFromCamera(mouse.clone(), view.camera);
+    var intersects = view.raycaster.intersectObject(view.System);
+    var pointVoxelMap = view.System.userData.pointVoxelMap;
+    if (intersects.length > 0) {
+        // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
+        // if there is intersection
+        if (view.INTERSECTED != intersects[0].index) {
+            // console.log('changed intersection, deal with previously hovered points')
+            // changed intersection, deal with previously hovered points
+            if (view.INTERSECTED != null) {
+                var indexIn3DView = pointVoxelMap[view.INTERSECTED];
+                // console.log('if there is previous intersection', indexIn3DView)
+                // if there is previous intersection
+
+                if (plotSetup.active2DPlotSpatiallyResolved && plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+                    // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                    // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                    var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+                    var heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view, indexIn3DView, twoDPlot);
+                    _DHeatmapsSelectionJs.unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+                } else {
+                    // console.log('no active 2Dplot, return to previous 3D view state')
+                    // no active 2Dplot, return to previous 3D view state
+                    spatiallyResolvedData[indexIn3DView].highlighted = view.intersectState;
+                    view.intersectState = null;
+                }
+            } else {
+                // console.log('no previous intersection, do nothing here')
+                // no previous intersection, do nothing here
+            }
+
+            view.INTERSECTED = intersects[0].index;
+            var indexIn3DView = pointVoxelMap[view.INTERSECTED];
+            // console.log('deal with currently intersected points', indexIn3DView)
+            // deal with currently intersected points
+
+            if (plotSetup.active2DPlotSpatiallyResolved && plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+                // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+                heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view, indexIn3DView, twoDPlot);
+                _DHeatmapsSelectionJs.highlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+            } else {
+                // console.log('if there is no active 2D plot, store current state, and highlight the voxel')
+                // if there is no active 2D plot, store current state, and highlight the voxel
+                view.intersectState = spatiallyResolvedData[indexIn3DView].highlighted;
+                spatiallyResolvedData[indexIn3DView].highlighted = true;
+            }
+            return true;
+        } else {
+            // console.log('same intersection, do nothing')
+            //same intersection, do nothing
+            return false;
+        }
+    } else {
+        // console.log('no current intersection ', view.INTERSECTED)
+        // no current intersection
+        if (view.INTERSECTED != null) {
+            var indexIn3DView = pointVoxelMap[view.INTERSECTED];
+            //console.log('if there is previous intersection ', indexIn3DView)
+            // if there is previous intersection
+
+            if (plotSetup.active2DPlotSpatiallyResolved && plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+                // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+                var heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view, indexIn3DView, twoDPlot);
+                _DHeatmapsSelectionJs.unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+            } else {
+                // console.log('no active 2Dplot, return to previous 3D view state')
+                // no active 2Dplot, return to previous 3D view state
+                spatiallyResolvedData[indexIn3DView].highlighted = view.intersectState;
+                view.intersectState = null;
+            }
+            view.INTERSECTED = null;
+            return true;
+        } else {
+            // console.log('no previous intersection, do nothing')
+            // no previous intersection, do nothing
+            view.INTERSECTED = null;
+            return false;
+        }
+    }
+}
+
+function click3DViewSpatiallyResolved(view, views, plotSetup) {
+    var options = view.options;
+    var currentFrame = options.currentFrame.toString();
+    var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+    var pointVoxelMap = view.System.userData.pointVoxelMap;
+    if (view.INTERSECTED != null) {
+        //currently point under mouse
+        var indexIn3DView = pointVoxelMap[view.INTERSECTED];
+        if (plotSetup.active2DPlotSpatiallyResolved && plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+            // has active 2D plot, handle it there
+            var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+            var heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view, indexIn3DView, twoDPlot);
+            _DHeatmapsSelectionJs.clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views);
+            return true;
+        } else {
+            // no active 2D plot
+            // var highlightDataPoint = spatiallyResolvedData[indexIn3DView];
+            // highlightDataPoint.highlighted = true;
+            if (view.intersectState == true) {
+                // if previously highlighted
+                view.intersectState = false;
+            } else {
+                // if previously not highlighted
+                view.intersectState = true;
+            }
+            // view.intersectState = spatiallyResolvedData[indexIn3DView].highlighted;
+            _DHeatmapsSelectionJs.clickUpdateAll2DHeatmaps(views);
+            return true;
+        }
+    } else {
+        // no point intersected, unhighlight all
+        _DHeatmapsSelectionJs.unhighlightAll(views);
+        return true;
+    }
+}
+
+/*function highlight3DViewPointsMolecule(index, view, plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+
+	if (plotSetup.active2DPlotMolecule && 
+		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
+		plotSetup.active2DPlotMolecule.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotMolecule;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = moleculeData[index];
+
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
+
+		var heatmapX = xMap(highlightDataPoint);
+		var heatmapY = yMap(highlightDataPoint);
+
+		var dataset = twoDPlot.data[heatmapX][heatmapY];
+		dataset.highlighted = true;
+
+		dataset.list.forEach(datapoint => {
+			datapoint.highlighted = true;
+		})
+	} else {
+		var highlightDataPoint = moleculeData[index];
+		highlightDataPoint.highlighted = true;
+	}
+}
+
+function unhighlight3DViewPointsMolecule(index, view,plotSetup) {
+	var options = view.options;
+	var currentFrame = options.currentFrame.toString();
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+
+	if (plotSetup.active2DPlotMolecule && 
+		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
+		plotSetup.active2DPlotMolecule.heatmapPlot) {
+		var twoDPlot = plotSetup.active2DPlotMolecule;
+		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+		var highlightDataPoint = moleculeData[index];
+
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
+
+		var heatmapX = xMap(highlightDataPoint);
+		var heatmapY = yMap(highlightDataPoint);
+
+		var dataset = twoDPlot.data[heatmapX][heatmapY];
+		dataset.highlighted = false;
+
+		dataset.list.forEach(datapoint => {
+			datapoint.highlighted = false;
+		})
+	} else {
+		var highlightDataPoint = moleculeData[index];
+		highlightDataPoint.highlighted = false;
+	}
+}
+
+export function hover3DViewMolecule(view, plotSetup, mouseEvent){
+	var mouse = new THREE.Vector2();
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 3.5;
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+
+	if (view.options.atomsStyle == "ball") {
+		
+		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
+		if ( intersects.length > 0 ) {
+			var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
+			// console.log('intersect', intersectIndex);
+			if ( view.INTERSECTED != intersectIndex ) {
+				if (view.INTERSECTED != null){
+					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				}
+				view.INTERSECTED = intersectIndex;
+				// console.log(intersects[0],view.molecule.atoms.userData.numVerticesPerAtom, view.INTERSECTED);
+				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				return true;
+			}
+			return false;
+		}
+		else {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				view.INTERSECTED = null;
+				return true;
+			}
+			return false;
+		}
+	}
+
+	if (view.options.atomsStyle == "sprite") {
+		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
+		if ( intersects.length > 0 ) {
+		
+			if ( view.INTERSECTED != intersects[ 0 ].index ) {
+				if (view.INTERSECTED != null){
+					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				}
+				view.INTERSECTED = intersects[ 0 ].index;
+				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				return true;
+			}
+			return false;
+	
+		}
+		else {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
+				view.INTERSECTED = null;
+				return true;
+			}
+			return false
+			
+		}
+	}
+}*/
+
+//Molecule
+
+function gpuPickMolecule(view, renderer, scene) {
+    var camera = view.camera;
+    var pickingTexture = new THREE.WebGLRenderTarget(1, 1, { type: THREE.FloatType });
+    var pixelBuffer = new Float32Array(4);
+
+    var width = Math.floor(windowWidth * view.width);
+    var height = Math.floor(windowHeight * view.height);
+    var left = Math.floor(windowWidth * view.left);
+    var top = Math.floor(windowHeight * (1 - view.top) - height);
+
+    camera.setViewOffset(renderer.domElement.width, renderer.domElement.height, pickingMouse.x * window.devicePixelRatio | 0, pickingMouse.y * window.devicePixelRatio | 0, 1, 1);
+    camera.updateProjectionMatrix();
+    renderer.setRenderTarget(pickingTexture);
+
+    renderer.setViewport(left, top, width, height);
+    renderer.setScissor(left, top, width, height);
+
+    renderer.render(scene, camera);
+
+    renderer.readRenderTargetPixels(pickingTexture, 0, 0, 1, 1, pixelBuffer);
+    // const t0 = performance.now();
+    var pickingResult = parsePixelBuffer(pixelBuffer);
+    // console.log("estimated time", (performance.now() - t0) * 1920*1080);
+    this.geometrySelector.parseGpuPickingResult(pickingResult);
+
+    camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+}
+
+function parsePixelBuffer(pixelBuffer) {
+
+    var encodedClass = null;
+    var encodedID = null;
+    var encodedID1 = null;
+    var encodedID2 = null;
+    var encodedID3 = null;
+
+    var rChannelInfo = Math.round(pixelBuffer[0] * 1e8);
+    var gChannelInfo = Math.round(pixelBuffer[1] * 1e8);
+    var bChannelInfo = Math.round(pixelBuffer[2] * 1e8);
+
+    if (Math.abs(rChannelInfo % 100 - 50) <= 8 && Math.abs(gChannelInfo % 100 - 50) <= 8 && Math.abs(bChannelInfo % 100 - 50) <= 8) {
+        encodedClass = Math.floor(rChannelInfo % 1000000 * 0.00001);
+        encodedID1 = Math.floor(rChannelInfo % 100000 * 0.01);
+        encodedID2 = Math.floor(gChannelInfo % 1000000 * 0.01);
+        encodedID3 = Math.floor(bChannelInfo % 1000000 * 0.01);
+        encodedID = Math.floor(encodedID1 * 100000000 + encodedID2 * 10000 + encodedID3);
+    }
+    return { encodedClass: encodedClass, encodedID: encodedID };
+}
+
+function getCorrespondingHeatmapPointIndexMolecule(view, voxelIndex, twoDPlot) {
+    var options = view.options;
+    var currentFrame = options.currentFrame.toString();
+    var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+    var xScale = twoDPlot.xScale,
+        yScale = twoDPlot.yScale;
+    var xValue = twoDPlot.xValue,
+        yValue = twoDPlot.yValue;
+    var highlightDataPoint = moleculeData[voxelIndex];
+
+    var xMap = function xMap(d) {
+        return xScale(xValue(d));
+    };
+    var yMap = function yMap(d) {
+        return yScale(yValue(d));
+    };
+
+    var heatmapX = xMap(highlightDataPoint);
+    var heatmapY = yMap(highlightDataPoint);
+
+    var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
+    return heatmapPointIndex;
+}
+
+function hover3DViewMolecule(view, plotSetup, mouseEvent) {
+    var options = view.options;
+    var currentFrame = options.currentFrame.toString();
+    var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+    var mouse = new THREE.Vector2();
+    mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
+
+    view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
+    view.raycaster.setFromCamera(mouse.clone(), view.camera);
+    //var intersects = view.raycaster.intersectObject( view.System );
+    var intersects = view.raycaster.intersectObject(view.molecule.atoms);
+    // var pointVoxelMap = view.System.userData.pointVoxelMap ;
+    if (intersects.length > 0) {
+        if (view.options.atomsStyle == "ball") {
+            var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
+        } else {
+            var intersectIndex = intersects[0].index;
+        }
+        // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
+        // if there is intersection
+        if (view.INTERSECTED != intersectIndex) {
+            // console.log('changed intersection, deal with previously hovered points')
+            // changed intersection, deal with previously hovered points
+            if (view.INTERSECTED != null) {
+                // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+                var indexIn3DView = intersectIndex;
+                // console.log('if there is previous intersection', indexIn3DView)
+                // if there is previous intersection
+
+                if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+                    // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                    // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                    var twoDPlot = plotSetup.active2DPlotMolecule;
+                    var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view, indexIn3DView, twoDPlot);
+                    _DHeatmapsSelectionJs.unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+                } else {
+                    // console.log('no active 2Dplot, return to previous 3D view state')
+                    // no active 2Dplot, return to previous 3D view state
+                    moleculeData[indexIn3DView].highlighted = view.intersectState;
+                    view.intersectState = null;
+                }
+            } else {
+                // console.log('no previous intersection, do nothing here')
+                // no previous intersection, do nothing here
+            }
+
+            view.INTERSECTED = intersectIndex;
+            // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+            var indexIn3DView = intersectIndex;
+            // console.log('deal with currently intersected points', indexIn3DView)
+            // deal with currently intersected points
+
+            if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+                // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                var twoDPlot = plotSetup.active2DPlotMolecule;
+                heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view, indexIn3DView, twoDPlot);
+                _DHeatmapsSelectionJs.highlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+            } else {
+                // console.log('if there is no active 2D plot, store current state, and highlight the voxel')
+                // if there is no active 2D plot, store current state, and highlight the voxel
+                view.intersectState = moleculeData[indexIn3DView].highlighted;
+                moleculeData[indexIn3DView].highlighted = true;
+            }
+            return true;
+        } else {
+            // console.log('same intersection, do nothing')
+            //same intersection, do nothing
+            return false;
+        }
+    } else {
+        // console.log('no current intersection ', view.INTERSECTED)
+        // no current intersection
+        if (view.INTERSECTED != null) {
+            // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+
+            var indexIn3DView = view.INTERSECTED;
+            //console.log('if there is previous intersection ', indexIn3DView)
+            // if there is previous intersection
+
+            if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+                // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                var twoDPlot = plotSetup.active2DPlotMolecule;
+                var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view, indexIn3DView, twoDPlot);
+                _DHeatmapsSelectionJs.unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+            } else {
+                // console.log('no active 2Dplot, return to previous 3D view state')
+                // no active 2Dplot, return to previous 3D view state
+                moleculeData[indexIn3DView].highlighted = view.intersectState;
+                view.intersectState = null;
+            }
+            view.INTERSECTED = null;
+            return true;
+        } else {
+            // console.log('no previous intersection, do nothing')
+            // no previous intersection, do nothing
+            view.INTERSECTED = null;
+            return false;
+        }
+    }
+}
+
+function click3DViewMolecule(view, views, plotSetup) {
+    var options = view.options;
+    var currentFrame = options.currentFrame.toString();
+    var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+    // var pointVoxelMap = view.System.userData.pointVoxelMap ;
+    if (view.INTERSECTED != null) {
+        //currently point under mouse
+        // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+        var indexIn3DView = intersectIndex;
+        if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+            // has active 2D plot, handle it there
+            var twoDPlot = plotSetup.active2DPlotMolecule;
+            var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view, indexIn3DView, twoDPlot);
+            _DHeatmapsSelectionJs.clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views);
+            return true;
+        } else {
+            // no active 2D plot
+            // var highlightDataPoint = spatiallyResolvedData[indexIn3DView];
+            // highlightDataPoint.highlighted = true;
+            if (view.intersectState == true) {
+                // if previously highlighted
+                view.intersectState = false;
+            } else {
+                // if previously not highlighted
+                view.intersectState = true;
+            }
+            // view.intersectState = spatiallyResolvedData[indexIn3DView].highlighted;
+            _DHeatmapsSelectionJs.clickUpdateAll2DHeatmaps(views);
+            return true;
+        }
+    } else {
+        // no point intersected, unhighlight all
+        _DHeatmapsSelectionJs.unhighlightAll(views);
+        return true;
+    }
+}
+
+},{"../2DHeatmaps/selection.js":10}],20:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -5853,7 +7631,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 		}
 	});
 
@@ -5862,7 +7640,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 		}
 	});
 
@@ -5871,7 +7649,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 		}
 	});
 	PBCFolder.close();
@@ -5907,7 +7685,7 @@ function setupOptionBox3DView(view, plotSetup) {
 				_MultiviewControlColorLegendJs.removeLegendMolecule(view);
 			}
 			_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 			if (value != "atom") {
 				_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 			}
@@ -5915,30 +7693,30 @@ function setupOptionBox3DView(view, plotSetup) {
 		});
 
 		moleculeFolder.add(options, 'moleculeColorSettingMin', -100, 100).step(0.1).name('Color Scale Min').onChange(function (value) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 		});
 		moleculeFolder.add(options, 'moleculeColorSettingMax', -100, 100).step(0.1).name('Color Scale Max').onChange(function (value) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 		});
 
 		moleculeFolder.add(options, 'moleculeSizeCodeBasis', moleculeDataFeatureChoiceObject).name('Size Basis').onChange(function (value) {
 			//adjustColorScaleAccordingToDefault(view);
 			_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 			gui.updateDisplay();
 		});
 
 		moleculeFolder.add(options, 'moleculeSizeSettingMin', -100, 100).step(0.1).name('Size Scale Min').onChange(function (value) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 		});
 		moleculeFolder.add(options, 'moleculeSizeSettingMax', -100, 100).step(0.1).name('Size Scale Max').onChange(function (value) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 		});
 
 		moleculeFolder.add(options, 'atomSize', 0.01, 2).step(0.01).name('Atom Size').onChange(function (value) {
-			_MoleculeViewJs.changeMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometry(view);
 		});
 		moleculeFolder.add(options, 'bondSize', 0.01, 0.5).step(0.01).name('Bond Size').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
@@ -5982,10 +7760,10 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		var moleculeAdditionalFolder = moleculeFolder.addFolder('Additional');
 
-		moleculeAdditionalFolder.add(options, 'atomModelSegments', 3, 200).step(1).name('Atom Resolution').onChange(function (value) {
+		moleculeAdditionalFolder.add(options, 'atomModelSegments', 4, 50).step(1).name('Atom Resolution').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 		});
-		moleculeAdditionalFolder.add(options, 'bondModelSegments', 3, 200).step(1).name('Bond Resolution').onChange(function (value) {
+		moleculeAdditionalFolder.add(options, 'bondModelSegments', 4, 30).step(1).name('Bond Resolution').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
 		});
 		moleculeAdditionalFolder.close();
@@ -6049,9 +7827,10 @@ function setupOptionBox3DView(view, plotSetup) {
 		pointCloudFolder.add(options, 'pointCloudMaxPointPerBlock', 10, 200).step(10).name('Max Density').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
 		});
-		pointCloudFolder.add(options, 'animate').onChange(function (value) {
-			_PointCloud_selectionJs.updatePointCloudGeometry(view);
-		});
+		// pointCloudFolder.add( options, 'animate')
+		// .onChange( function( value ) {
+		// 	updatePointCloudGeometry(view);
+		// });
 
 		pointCloudFolder.close();
 
@@ -6091,7 +7870,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 	});
@@ -6100,7 +7879,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 	});
@@ -6109,7 +7888,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			updateMoleculeGeometryPBCSlider(view);
 		}
 		//updatePlane(options);
 	});
@@ -6118,7 +7897,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 	});
@@ -6127,7 +7906,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 	});
@@ -6136,7 +7915,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 	});
@@ -6148,7 +7927,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 		gui.updateDisplay();
@@ -6160,7 +7939,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 		gui.updateDisplay();
@@ -6172,7 +7951,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			_MoleculeViewJs.updateMoleculeGeometry(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 		gui.updateDisplay();
@@ -6198,7 +7977,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":25,"../MultiviewControl/setupViewBasic.js":29,"../Utilities/colorMap.js":31,"../Utilities/other.js":32,"../Utilities/scale.js":36,"./MoleculeView.js":15,"./PointCloud_selection.js":16}],20:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":26,"../MultiviewControl/setupViewBasic.js":30,"../Utilities/colorMap.js":32,"../Utilities/other.js":33,"../Utilities/scale.js":37,"./MoleculeView.js":15,"./PointCloud_selection.js":16}],21:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6263,14 +8042,12 @@ function transformPositionArray(array, U) {
 	return result;
 }
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 exports.initialize3DViewTooltip = initialize3DViewTooltip;
 exports.update3DViewTooltip = update3DViewTooltip;
-exports.hover3DViewSpatiallyResolved = hover3DViewSpatiallyResolved;
-exports.hover3DViewMolecule = hover3DViewMolecule;
 
 function initialize3DViewTooltip(view) {
 	var tempRaycaster = new THREE.Raycaster();
@@ -6388,30 +8165,29 @@ export function update3DViewTooltip(view){
 	}
 }*/
 
+/* 
+
+
 function highlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
 	var options = view.options;
 	var currentFrame = options.currentFrame.toString();
 	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 
-	var pointVoxelMap = view.System.userData.pointVoxelMap;
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
 	//var voxelGlobalIndex = view.
 	var voxelPointDict = view.System.userData.voxelPointDict;
 
-	if (plotSetup.active2DPlotSpatiallyResolved && plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+	if (plotSetup.active2DPlotSpatiallyResolved && 
+		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
+		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
 		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
 		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale,
-		    yScale = twoDPlot.yScale;
-		var xValue = twoDPlot.xValue,
-		    yValue = twoDPlot.yValue;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
 		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
 
-		var xMap = function xMap(d) {
-			return xScale(xValue(d));
-		};
-		var yMap = function yMap(d) {
-			return yScale(yValue(d));
-		};
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
 
 		var heatmapX = xMap(highlightDataPoint);
 		var heatmapY = yMap(highlightDataPoint);
@@ -6419,39 +8195,35 @@ function highlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
 		var dataset = twoDPlot.data[heatmapX][heatmapY];
 		dataset.highlighted = true;
 
-		dataset.list.forEach(function (datapoint) {
+		dataset.list.forEach(datapoint => {
 			datapoint.highlighted = true;
-		});
+		})
 	} else {
 		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
 		highlightDataPoint.highlighted = true;
 	}
 }
 
-function unhighlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
+function unhighlight3DViewPointsSpatiallyResolved(index, view,plotSetup) {
 	var options = view.options;
 	var currentFrame = options.currentFrame.toString();
 	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 
-	var pointVoxelMap = view.System.userData.pointVoxelMap;
+	var pointVoxelMap = view.System.userData.pointVoxelMap ;
 	//var voxelGlobalIndex = view.
 	var voxelPointDict = view.System.userData.voxelPointDict;
 
-	if (plotSetup.active2DPlotSpatiallyResolved && plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
+	if (plotSetup.active2DPlotSpatiallyResolved && 
+		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
+		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
 		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
 		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale,
-		    yScale = twoDPlot.yScale;
-		var xValue = twoDPlot.xValue,
-		    yValue = twoDPlot.yValue;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
 		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
 
-		var xMap = function xMap(d) {
-			return xScale(xValue(d));
-		};
-		var yMap = function yMap(d) {
-			return yScale(yValue(d));
-		};
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
 
 		var heatmapX = xMap(highlightDataPoint);
 		var heatmapY = yMap(highlightDataPoint);
@@ -6459,65 +8231,71 @@ function unhighlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
 		var dataset = twoDPlot.data[heatmapX][heatmapY];
 		dataset.highlighted = false;
 
-		dataset.list.forEach(function (datapoint) {
+		dataset.list.forEach(datapoint => {
 			datapoint.highlighted = false;
-		});
+		})
 	} else {
 		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
 		highlightDataPoint.highlighted = false;
 	}
 }
 
-function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent) {
+export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
 	var mouse = new THREE.Vector2();
-	mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
-
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	
 	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
 	console.log(view.raycaster);
-	view.raycaster.setFromCamera(mouse.clone(), view.camera);
-	var intersects = view.raycaster.intersectObject(view.System);
-	if (intersects.length > 0) {
-
-		if (view.INTERSECTED != intersects[0].index) {
-			if (view.INTERSECTED != null) {
-				unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view, plotSetup);
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
+	var intersects = view.raycaster.intersectObject( view.System );
+	if ( intersects.length > 0 ) {
+		
+		if ( view.INTERSECTED != intersects[ 0 ].index ) {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
 			}
-			view.INTERSECTED = intersects[0].index;
-			highlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view, plotSetup);
+			view.INTERSECTED = intersects[ 0 ].index;
+			highlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
 			return true;
 		}
 		return false;
-	} else {
-		if (view.INTERSECTED != null) {
-			unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view, plotSetup);
+
+	}
+	else {
+		if (view.INTERSECTED != null){
+			unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
 			view.INTERSECTED = null;
 			return true;
 		} else {
 			return false;
 		}
+		
 	}
+
 }
+
+
+
+
 
 function highlight3DViewPointsMolecule(index, view, plotSetup) {
 	var options = view.options;
 	var currentFrame = options.currentFrame.toString();
 	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 
-	if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+
+	if (plotSetup.active2DPlotMolecule && 
+		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
+		plotSetup.active2DPlotMolecule.heatmapPlot) {
 		var twoDPlot = plotSetup.active2DPlotMolecule;
 		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale,
-		    yScale = twoDPlot.yScale;
-		var xValue = twoDPlot.xValue,
-		    yValue = twoDPlot.yValue;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
 		var highlightDataPoint = moleculeData[index];
 
-		var xMap = function xMap(d) {
-			return xScale(xValue(d));
-		};
-		var yMap = function yMap(d) {
-			return yScale(yValue(d));
-		};
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
 
 		var heatmapX = xMap(highlightDataPoint);
 		var heatmapY = yMap(highlightDataPoint);
@@ -6525,35 +8303,32 @@ function highlight3DViewPointsMolecule(index, view, plotSetup) {
 		var dataset = twoDPlot.data[heatmapX][heatmapY];
 		dataset.highlighted = true;
 
-		dataset.list.forEach(function (datapoint) {
+		dataset.list.forEach(datapoint => {
 			datapoint.highlighted = true;
-		});
+		})
 	} else {
 		var highlightDataPoint = moleculeData[index];
 		highlightDataPoint.highlighted = true;
 	}
 }
 
-function unhighlight3DViewPointsMolecule(index, view, plotSetup) {
+function unhighlight3DViewPointsMolecule(index, view,plotSetup) {
 	var options = view.options;
 	var currentFrame = options.currentFrame.toString();
 	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 
-	if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+
+	if (plotSetup.active2DPlotMolecule && 
+		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
+		plotSetup.active2DPlotMolecule.heatmapPlot) {
 		var twoDPlot = plotSetup.active2DPlotMolecule;
 		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale,
-		    yScale = twoDPlot.yScale;
-		var xValue = twoDPlot.xValue,
-		    yValue = twoDPlot.yValue;
+		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
 		var highlightDataPoint = moleculeData[index];
 
-		var xMap = function xMap(d) {
-			return xScale(xValue(d));
-		};
-		var yMap = function yMap(d) {
-			return yScale(yValue(d));
-		};
+		var xMap = function(d) {return xScale(xValue(d));};
+		var yMap = function(d) {return yScale(yValue(d));}; 
 
 		var heatmapX = xMap(highlightDataPoint);
 		var heatmapY = yMap(highlightDataPoint);
@@ -6561,41 +8336,43 @@ function unhighlight3DViewPointsMolecule(index, view, plotSetup) {
 		var dataset = twoDPlot.data[heatmapX][heatmapY];
 		dataset.highlighted = false;
 
-		dataset.list.forEach(function (datapoint) {
+		dataset.list.forEach(datapoint => {
 			datapoint.highlighted = false;
-		});
+		})
 	} else {
 		var highlightDataPoint = moleculeData[index];
 		highlightDataPoint.highlighted = false;
 	}
 }
 
-function hover3DViewMolecule(view, plotSetup, mouseEvent) {
+export function hover3DViewMolecule(view, plotSetup, mouseEvent){
 	var mouse = new THREE.Vector2();
-	mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
-
-	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 2.5;
-	view.raycaster.setFromCamera(mouse.clone(), view.camera);
+	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
+				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
+	
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 3.5;
+	view.raycaster.setFromCamera( mouse.clone(), view.camera );
 
 	if (view.options.atomsStyle == "ball") {
-
-		var intersects = view.raycaster.intersectObject(view.molecule.atoms);
-		if (intersects.length > 0) {
+		
+		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
+		if ( intersects.length > 0 ) {
 			var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
 			console.log('intersect', intersectIndex);
-			if (view.INTERSECTED != intersectIndex) {
-				if (view.INTERSECTED != null) {
-					unhighlight3DViewPointsMolecule(view.INTERSECTED, view, plotSetup);
+			if ( view.INTERSECTED != intersectIndex ) {
+				if (view.INTERSECTED != null){
+					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
 				}
 				view.INTERSECTED = intersectIndex;
 				// console.log(intersects[0],view.molecule.atoms.userData.numVerticesPerAtom, view.INTERSECTED);
-				highlight3DViewPointsMolecule(view.INTERSECTED, view, plotSetup);
+				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
 				return true;
 			}
 			return false;
-		} else {
-			if (view.INTERSECTED != null) {
-				unhighlight3DViewPointsMolecule(view.INTERSECTED, view, plotSetup);
+		}
+		else {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
 				view.INTERSECTED = null;
 				return true;
 			}
@@ -6604,30 +8381,35 @@ function hover3DViewMolecule(view, plotSetup, mouseEvent) {
 	}
 
 	if (view.options.atomsStyle == "sprite") {
-		var intersects = view.raycaster.intersectObject(view.molecule.atoms);
-		if (intersects.length > 0) {
-
-			if (view.INTERSECTED != intersects[0].index) {
-				if (view.INTERSECTED != null) {
-					unhighlight3DViewPointsMolecule(view.INTERSECTED, view, plotSetup);
+		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
+		if ( intersects.length > 0 ) {
+		
+			if ( view.INTERSECTED != intersects[ 0 ].index ) {
+				if (view.INTERSECTED != null){
+					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
 				}
-				view.INTERSECTED = intersects[0].index;
-				highlight3DViewPointsMolecule(view.INTERSECTED, view, plotSetup);
+				view.INTERSECTED = intersects[ 0 ].index;
+				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
 				return true;
 			}
 			return false;
-		} else {
-			if (view.INTERSECTED != null) {
-				unhighlight3DViewPointsMolecule(view.INTERSECTED, view, plotSetup);
+	
+		}
+		else {
+			if (view.INTERSECTED != null){
+				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
 				view.INTERSECTED = null;
 				return true;
 			}
-			return false;
+			return false
+			
 		}
 	}
-}
 
-},{}],22:[function(require,module,exports){
+}
+ */
+
+},{}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6655,7 +8437,7 @@ function setupHUD(view) {
 	view.border = border;
 }
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6708,7 +8490,7 @@ function deactivate2DPlotsMolecule(plotSetup, views) {
     console.log('deactivating view m', plotSetup.active2DPlotMolecule);
 }
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6862,7 +8644,7 @@ function deFullscreen(views) {
 	_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 }
 
-},{"../2DHeatmaps/Utilities.js":6,"./optionBoxControl.js":28}],25:[function(require,module,exports){
+},{"../2DHeatmaps/Utilities.js":6,"./optionBoxControl.js":29}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6944,7 +8726,7 @@ function changeLegendMolecule(view) {
 	//if (view.options.moleculeColorCodeBasis != "atom"){insertLegendMolecule(view);}
 }
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6958,8 +8740,8 @@ function updateController(views, windowWidth, windowHeight, mouseX, mouseY) {
 		var right = Math.floor(windowWidth * view.width) + left;
 		var bottom = Math.floor(windowHeight * view.height) + top;
 
-		// console.log(left, right, top, bottom)
-		if (mouseX > left && mouseX < right && windowHeight - mouseY > top && windowHeight - mouseY < bottom) {
+		// console.log(left, right, top, bottom, mouseX, mouseY)
+		if (mouseX > left && mouseX < right && mouseY > top && mouseY < bottom) {
 			enableController(view, view.controller);
 		} else {
 			disableController(view, view.controller);
@@ -6993,7 +8775,7 @@ function disableController(view, controller) {
 	view.border.material.needsUpdate = true;
 }
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7019,7 +8801,7 @@ function initializeViewSetups(views, plotSetup) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":9,"../3DViews/initialize3DViewSetup.js":18,"../MultiviewControl/calculateViewportSizes.js":24}],28:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":9,"../3DViews/initialize3DViewSetup.js":18,"../MultiviewControl/calculateViewportSizes.js":25}],29:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7073,7 +8855,7 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 	}
 }
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7145,7 +8927,7 @@ function updateCameraFov(view) {
 	view.camera.updateProjectionMatrix();
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7259,7 +9041,7 @@ function euclideanDistnace(a, b) {
 	return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2);
 }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7349,7 +9131,7 @@ var colorMapDict = {
     'gist_ncar': 'gist_ncar' };
 exports.colorMapDict = colorMapDict;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7645,7 +9427,7 @@ function getCanvasColor(color) {
         return "rgba(" + color.r + "," + color.g + "," + color.b + "," + color.a + ")";
 }
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8025,29 +9807,29 @@ function loadJSON(filename,callback) {
 }*/
 
 function addViewDataToOverallDataSpatiallyResolved(view, overallSpatiallyResolvedData) {
-	var map = new Uint32Array(view.systemSpatiallyResolvedData.length);
-	var counterCurrent = 0;
-	var counterOverall = overallSpatiallyResolvedData.length;
+	// var map = new Uint32Array(view.systemSpatiallyResolvedData.length);
+	// var counterCurrent = 0;
+	// var counterOverall = overallSpatiallyResolvedData.length;
 	view.systemSpatiallyResolvedData.forEach(function (datapoint) {
 		overallSpatiallyResolvedData.push(datapoint);
-		map[counterCurrent] = counterOverall;
-		counterOverall++;
-		counterCurrent++;
+		// map[counterCurrent] = counterOverall;
+		// counterOverall++;
+		// counterCurrent++;
 	});
-	view.spatiallyResolvedDataToOverallMap = map;
+	// view.spatiallyResolvedDataToOverallMap = map;
 }
 
 function addViewDataToOverallDataMolecule(view, overallMoleculeData) {
-	var map = new Uint32Array(view.systemMoleculeData.length);
-	var counterCurrent = 0;
-	var counterOverall = overallMoleculeData.length;
+	// var map = new Uint32Array(view.systemMoleculeData.length);
+	// var counterCurrent = 0;
+	// var counterOverall = overallMoleculeData.length;
 	view.systemMoleculeData.forEach(function (datapoint) {
 		overallMoleculeData.push(datapoint);
-		map[counterCurrent] = counterOverall;
-		counterOverall++;
-		counterCurrent++;
+		// map[counterCurrent] = counterOverall;
+		// counterOverall++;
+		// counterCurrent++;
 	});
-	view.moleculeDataToOverallMap = map;
+	// view.moleculeDataToOverallMap = map;
 }
 
 function combineData(views, overallSpatiallyResolvedData, overallMoleculeData) {
@@ -8065,7 +9847,7 @@ function combineData(views, overallSpatiallyResolvedData, overallMoleculeData) {
 	}
 }
 
-},{"fs":37,"papaparse":44}],34:[function(require,module,exports){
+},{"fs":38,"papaparse":45}],35:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8205,7 +9987,7 @@ function normalizeLatticeVectors(U) {
     return result;
 }
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -8323,7 +10105,7 @@ function convertArrayOfObjectsToCSV(data, keys) {
 				}
 }
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8386,9 +10168,9 @@ function adjustScaleAccordingToDefaultMoleculeData(view) {
 	}
 }
 
-},{}],37:[function(require,module,exports){
-
 },{}],38:[function(require,module,exports){
+
+},{}],39:[function(require,module,exports){
 'use strict';
 
 const toString = Object.prototype.toString;
@@ -8399,7 +10181,7 @@ function isAnyArray(object) {
 
 module.exports = isAnyArray;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -8429,7 +10211,7 @@ function max(input) {
 
 module.exports = max;
 
-},{"is-any-array":38}],40:[function(require,module,exports){
+},{"is-any-array":39}],41:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -8459,7 +10241,7 @@ function min(input) {
 
 module.exports = min;
 
-},{"is-any-array":38}],41:[function(require,module,exports){
+},{"is-any-array":39}],42:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -8513,7 +10295,7 @@ function rescale(input, options = {}) {
 
 module.exports = rescale;
 
-},{"is-any-array":38,"ml-array-max":39,"ml-array-min":40}],42:[function(require,module,exports){
+},{"is-any-array":39,"ml-array-max":40,"ml-array-min":41}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -13591,7 +15373,7 @@ exports.pseudoInverse = pseudoInverse;
 exports.solve = solve;
 exports.wrap = wrap;
 
-},{"ml-array-rescale":41}],43:[function(require,module,exports){
+},{"ml-array-rescale":42}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -13871,7 +15653,7 @@ class PCA {
 
 exports.PCA = PCA;
 
-},{"ml-matrix":42}],44:[function(require,module,exports){
+},{"ml-matrix":43}],45:[function(require,module,exports){
 /* @license
 Papa Parse
 v4.6.3

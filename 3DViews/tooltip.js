@@ -118,7 +118,7 @@ export function update3DViewTooltip(view){
 	}
 }*/
 
-
+/* 
 
 
 function highlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
@@ -303,7 +303,7 @@ export function hover3DViewMolecule(view, plotSetup, mouseEvent){
 	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
 	
-	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 2.5;
+	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 3.5;
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
 
 	if (view.options.atomsStyle == "ball") {
@@ -322,7 +322,6 @@ export function hover3DViewMolecule(view, plotSetup, mouseEvent){
 				return true;
 			}
 			return false;
-	
 		}
 		else {
 			if (view.INTERSECTED != null){
@@ -331,9 +330,7 @@ export function hover3DViewMolecule(view, plotSetup, mouseEvent){
 				return true;
 			}
 			return false;
-			
 		}
-
 	}
 
 	if (view.options.atomsStyle == "sprite") {
@@ -363,3 +360,4 @@ export function hover3DViewMolecule(view, plotSetup, mouseEvent){
 	}
 
 }
+ */

@@ -156,6 +156,9 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean  == false && view.overallSpatiallyResolvedDataBoolean) {
@@ -193,6 +196,9 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 	}
 
 	plotFolder.add(options, 'replotHeatmap').name("Plot");
@@ -285,6 +291,9 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 		moleculeFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
 
+		moleculeFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
+
 		moleculeFolder.close();
 
 		spatiallyResolvedFolder.add(options, 'activePlotSpatiallyResolved').name('active plot')
@@ -321,6 +330,9 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 
 		spatiallyResolvedFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 

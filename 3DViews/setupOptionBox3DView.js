@@ -1,5 +1,5 @@
 import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "./PointCloud_selection.js";
-import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, updateMoleculeGeometry} from "./MoleculeView.js";
+import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, updateMoleculeGeometry,updateMoleculeGeometrySlider} from "./MoleculeView.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
@@ -110,19 +110,19 @@ export function setupOptionBox3DView(view,plotSetup){
 	PBCFolder.add( options, 'xPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculeGeometry(view);}
+		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
 	});
 
 	PBCFolder.add( options, 'yPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculeGeometry(view);}
+		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
 	});
 
 	PBCFolder.add( options, 'zPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (options.showMolecule && view.systemMoleculeDataBoolean){changeMoleculeGeometry(view);}
+		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
 	});
 	PBCFolder.close();
 	
@@ -170,7 +170,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			//adjustColorScaleAccordingToDefault(view);
 			if (value == "atom"){removeLegendMolecule(view);}
 			adjustScaleAccordingToDefaultMoleculeData(view);
-			changeMoleculeGeometry(view);
+			updateMoleculeGeometry(view);
 			if (value != "atom"){changeLegendMolecule(view);}
 			gui.updateDisplay();
 		});
@@ -178,13 +178,13 @@ export function setupOptionBox3DView(view,plotSetup){
 		moleculeFolder.add( options, 'moleculeColorSettingMin', -100, 100 ).step( 0.1 )
 		.name( 'Color Scale Min' )
 		.onChange( function( value ) {
-			changeMoleculeGeometry(view);
+			updateMoleculeGeometry(view);
 			changeLegendMolecule(view);	
 		});
 		moleculeFolder.add( options, 'moleculeColorSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
-			changeMoleculeGeometry(view);
+			updateMoleculeGeometry(view);
 			changeLegendMolecule(view);	
 		});
 
@@ -193,25 +193,25 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			//adjustColorScaleAccordingToDefault(view);
 			adjustScaleAccordingToDefaultMoleculeData(view);
-			changeMoleculeGeometry(view);
+			updateMoleculeGeometry(view);
 			gui.updateDisplay();
 		});
 
 		moleculeFolder.add( options, 'moleculeSizeSettingMin', -100, 100 ).step( 0.1 )
 		.name( 'Size Scale Min' )
 		.onChange( function( value ) {
-			changeMoleculeGeometry(view);
+			updateMoleculeGeometry(view);
 		});
 		moleculeFolder.add( options, 'moleculeSizeSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Size Scale Max' )
 		.onChange( function( value ) {
-			changeMoleculeGeometry(view);
+			updateMoleculeGeometry(view);
 		});
 
 		moleculeFolder.add( options, 'atomSize', 0.01, 2 ).step( 0.01 )
 		.name( 'Atom Size' )
 		.onChange( function( value ) {
-			changeMoleculeGeometry(view);
+			updateMoleculeGeometry(view);
 		});
 		moleculeFolder.add( options, 'bondSize', 0.01, 0.5 ).step( 0.01 )
 		.name( 'Bond Size' )
@@ -264,12 +264,12 @@ export function setupOptionBox3DView(view,plotSetup){
 
 		var moleculeAdditionalFolder 	= moleculeFolder.addFolder( 'Additional' );
 
-		moleculeAdditionalFolder.add( options, 'atomModelSegments', 3, 200 ).step( 1 )
+		moleculeAdditionalFolder.add( options, 'atomModelSegments', 4, 50 ).step( 1 )
 		.name( 'Atom Resolution' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
 		});
-		moleculeAdditionalFolder.add( options, 'bondModelSegments', 3, 200 ).step( 1 )
+		moleculeAdditionalFolder.add( options, 'bondModelSegments', 4, 30 ).step( 1 )
 		.name( 'Bond Resolution' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
@@ -337,7 +337,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			changePointCloudGeometry(view);
 		});
 		
-		pointCloudFolder.add( options, 'pointCloudAlpha',     0, 1 ).step( 0.01 )
+		pointCloudFolder.add( options, 'pointCloudAlpha', 0, 1 ).step( 0.01 )
 		.name( 'Opacity' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
@@ -364,10 +364,10 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
 		});
-		pointCloudFolder.add( options, 'animate')
-		.onChange( function( value ) {
-			updatePointCloudGeometry(view);
-		});
+		// pointCloudFolder.add( options, 'animate')
+		// .onChange( function( value ) {
+		// 	updatePointCloudGeometry(view);
+		// });
 
 		pointCloudFolder.close();
 
@@ -409,42 +409,42 @@ export function setupOptionBox3DView(view,plotSetup){
 	.name( 'x low' )
 	.onChange( function( value ) {
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	});
 	sliderFolder.add( options, 'x_high', view.xPlotMin, view.xPlotMax ).step( 1 )
 	.name( 'x high' )
 	.onChange( function( value ) {
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	});
 	sliderFolder.add( options, 'y_low', view.yPlotMin, view.yPlotMax ).step( 1 )
 	.name( 'y low' )
 	.onChange( function( value ) {
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometryPBCSlider(view);}
 		//updatePlane(options);
 	});
 	sliderFolder.add( options, 'y_high', view.yPlotMin, view.yPlotMax ).step( 1 )
 	.name( 'y high' )
 	.onChange( function( value ) {
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	});
 	sliderFolder.add( options, 'z_low', view.zPlotMin, view.zPlotMax  ).step( 1 )
 	.name( 'z low' )
 	.onChange( function( value ) {
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	});
 	sliderFolder.add( options, 'z_high', view.zPlotMin, view.zPlotMax ).step( 1 )
 	.name( 'z high' )
 	.onChange( function( value ) {
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	});
 
@@ -452,7 +452,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		options.x_low = value-1;
 		options.x_high = value+1;
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
@@ -460,7 +460,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		options.y_low = value-1;
 		options.y_high = value+1;
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
@@ -468,7 +468,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		options.z_low = value-1;
 		options.z_high = value+1;
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	    gui.updateDisplay();
 	});
