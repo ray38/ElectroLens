@@ -483,7 +483,9 @@ function main(views,plotSetup) {
 		mouseX = mouseEvent.clientX;
 		mouseY = mouseEvent.clientY;
 		if (mouseHold == false){updateController(views, windowWidth, windowHeight, mouseX, mouseY);}
-		else {mouseDrag = true;}
+		else {
+			mouseDrag = true; 
+		}
 		activeView = updateActiveView(views);
 
 		for ( var ii = 0; ii < views.length; ++ii ){
@@ -549,7 +551,9 @@ function main(views,plotSetup) {
 			var view = views[ii];
 			if (view.controllerEnabled){
 				if (view.viewType == "2DHeatmap"){
-					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){
+					if (view.options.plotType == "Heatmap" && 
+						typeof view.heatmapPlot != "undefined" &&
+						!(view.options.planeSelection || view.options.brushSelection)){
 						console.log('2d map mouse clicked event')
 						var needsUpdate = clickHeatmap(view, views);
 						if (needsUpdate) {

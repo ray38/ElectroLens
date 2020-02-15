@@ -5,7 +5,7 @@ import {replotComparison} from './comparisonView.js'
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {activate2DPlotSpatiallyResolved, deactivate2DPlotsSpatiallyResolved,activate2DPlotMolecule,deactivate2DPlotsMolecule} from "../MultiviewControl/active2DView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
-import {selectHighlightedSpatiallyResolvedData, deselectHighlightedSpatiallyResolvedData, selectHighlightedMoleculeData, deselectHighlightedMoleculeData} from "./selection.js";
+import {selectHighlightedSpatiallyResolvedData, deselectHighlightedSpatiallyResolvedData, selectHighlightedMoleculeData, deselectHighlightedMoleculeData, clickUpdateAll2DHeatmaps} from "./selection.js";
 import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, deselectAllMoleculeData, selectAllMoleculeData, updateAllPlots} from "./Selection/Utilities.js";
 import {saveOverallMoleculeData, saveOverallSpatiallyResolvedData} from "../Utilities/saveData.js";
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
@@ -97,11 +97,27 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.plotXTransformMoleculeData = viewSetup.plotXTransformMoleculeData;
 			this.plotYTransformMoleculeData = viewSetup.plotYTransformMoleculeData;
 
-			this.selectAllSpatiallyResolvedData   = function(){selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData); updateAllPlots(views);}; 
-			this.deselectAllSpatiallyResolvedData = function(){deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);updateAllPlots(views);};
+			this.selectAllSpatiallyResolvedData   = function(){
+				selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+				clickUpdateAll2DHeatmaps(views);
+				updateAllPlots(views);
+			}; 
+			this.deselectAllSpatiallyResolvedData = function(){
+				deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+				clickUpdateAll2DHeatmaps(views);
+				updateAllPlots(views);
+			};
 
-			this.selectAllMoleculeData   = function(){selectAllMoleculeData(views, viewSetup.overallMoleculeData); updateAllPlots(views);}; 
-			this.deselectAllMoleculeData = function(){deselectAllMoleculeData(views, viewSetup.overallMoleculeData);updateAllPlots(views);};
+			this.selectAllMoleculeData   = function(){
+				selectAllMoleculeData(views, viewSetup.overallMoleculeData);
+				clickUpdateAll2DHeatmaps(views);
+				updateAllPlots(views);
+			}; 
+			this.deselectAllMoleculeData = function(){
+				deselectAllMoleculeData(views, viewSetup.overallMoleculeData);
+				clickUpdateAll2DHeatmaps(views);
+				updateAllPlots(views);
+			};
 
 			this.selectHighlightedSpatiallyResolvedData   = function(){selectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData); updateAllPlots(views);}; 
 			this.deselectHighlightedSpatiallyResolvedData = function(){deselectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);updateAllPlots(views);};

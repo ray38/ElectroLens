@@ -547,7 +547,7 @@ function main(views, plotSetup) {
 			var view = views[ii];
 			if (view.controllerEnabled) {
 				if (view.viewType == "2DHeatmap") {
-					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
+					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined" && !(view.options.planeSelection || view.options.brushSelection)) {
 						console.log('2d map mouse clicked event');
 						var needsUpdate = _DHeatmapsSelectionJs.clickHeatmap(view, views);
 						if (needsUpdate) {
@@ -1742,6 +1742,7 @@ var _DViewsMoleculeViewJs = require("../../3DViews/MoleculeView.js");
 function deselectAllSpatiallyResolvedData(views, spatiallyResolvedData) {
 	for (var i = 0; i < spatiallyResolvedData.length; i++) {
 		spatiallyResolvedData[i].selected = false;
+		spatiallyResolvedData[i].highlighted = false;
 	}
 
 	/*for (var ii =  0; ii < views.length; ++ii ) {
@@ -1760,6 +1761,7 @@ function deselectAllSpatiallyResolvedData(views, spatiallyResolvedData) {
 function selectAllSpatiallyResolvedData(views, spatiallyResolvedData) {
 	for (var i = 0; i < spatiallyResolvedData.length; i++) {
 		spatiallyResolvedData[i].selected = true;
+		spatiallyResolvedData[i].highlighted = false;
 	}
 
 	/*for (var ii =  0; ii < views.length; ++ii ) {
@@ -1778,12 +1780,14 @@ function selectAllSpatiallyResolvedData(views, spatiallyResolvedData) {
 function deselectAllMoleculeData(views, overallMoleculeData) {
 	for (var i = 0; i < overallMoleculeData.length; i++) {
 		overallMoleculeData[i].selected = false;
+		overallMoleculeData[i].highlighted = false;
 	}
 }
 
 function selectAllMoleculeData(views, overallMoleculeData) {
 	for (var i = 0; i < overallMoleculeData.length; i++) {
 		overallMoleculeData[i].selected = true;
+		overallMoleculeData[i].highlighted = false;
 	}
 }
 
@@ -2798,17 +2802,25 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 									this.plotYTransformMoleculeData = viewSetup.plotYTransformMoleculeData;
 
 									this.selectAllSpatiallyResolvedData = function () {
-												_SelectionUtilitiesJs.selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
+												_SelectionUtilitiesJs.selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+												_selectionJs.clickUpdateAll2DHeatmaps(views);
+												_SelectionUtilitiesJs.updateAllPlots(views);
 									};
 									this.deselectAllSpatiallyResolvedData = function () {
-												_SelectionUtilitiesJs.deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
+												_SelectionUtilitiesJs.deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+												_selectionJs.clickUpdateAll2DHeatmaps(views);
+												_SelectionUtilitiesJs.updateAllPlots(views);
 									};
 
 									this.selectAllMoleculeData = function () {
-												_SelectionUtilitiesJs.selectAllMoleculeData(views, viewSetup.overallMoleculeData);_SelectionUtilitiesJs.updateAllPlots(views);
+												_SelectionUtilitiesJs.selectAllMoleculeData(views, viewSetup.overallMoleculeData);
+												_selectionJs.clickUpdateAll2DHeatmaps(views);
+												_SelectionUtilitiesJs.updateAllPlots(views);
 									};
 									this.deselectAllMoleculeData = function () {
-												_SelectionUtilitiesJs.deselectAllMoleculeData(views, viewSetup.overallMoleculeData);_SelectionUtilitiesJs.updateAllPlots(views);
+												_SelectionUtilitiesJs.deselectAllMoleculeData(views, viewSetup.overallMoleculeData);
+												_selectionJs.clickUpdateAll2DHeatmaps(views);
+												_SelectionUtilitiesJs.updateAllPlots(views);
 									};
 
 									this.selectHighlightedSpatiallyResolvedData = function () {
@@ -2896,7 +2908,7 @@ var _tooltipJs = require("./tooltip.js");
 
 function spawnPlane(view) {
 
-	var selectionPlaneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide, needsUpdate: true });
+	var selectionPlaneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide });
 	var scene = view.scene;
 	var mousePosition = view.mousePosition;
 	var selectionPlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(1, 1), selectionPlaneMaterial);
@@ -2924,13 +2936,11 @@ function spawnPlane(view) {
 }
 
 function updatePlane(view, plane) {
-	var selectionPlaneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide, needsUpdate: true });
 	var scene = view.scene;
 
 	var mousePosition = view.mousePosition;
 
-	var selectionPlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(1, 1), selectionPlaneMaterial);
-	selectionPlane.geometry.attributes.position.needsUpdate = true;
+	var selectionPlane = view.currentSelectionPlane;
 
 	var pOriginal = plane.geometry.attributes.position.array;
 
@@ -2952,12 +2962,7 @@ function updatePlane(view, plane) {
 	p[i++] = mousePosition.x;
 	p[i++] = mousePosition.y;
 	p[i] = mousePosition.z;
-
-	scene.remove(plane);
-	selectionPlane.name = 'selectionPlane';
-	view.currentSelectionPlane = selectionPlane;
-	scene.add(selectionPlane);
-	//updateSelection();
+	selectionPlane.geometry.attributes.position.needsUpdate = true;
 }
 
 function spawnBrush(view) {
@@ -3009,17 +3014,14 @@ function updatePlaneSelection(views, view) {
 					tempy = yPlotScale(parseFloat(y));
 					if (tempx > xmin && tempx < xmax && tempy > ymin && tempy < ymax) {
 						data[x][y].highlighted = true;
-						// data[x][y].selected = true;
 						for (var i = 0; i < data[x][y]['list'].length; i++) {
 							data[x][y]['list'][i].highlighted = true;
-							// data[x][y]['list'][i].selected = true;
 						}
 					}
-					// else { data[x][y].selected = false;}
 				}
 			}
 			clickUpdateAll2DHeatmaps(views);
-			// updateSelectionFromHeatmap(view);
+			_SelectionUtilitiesJs.updateAllPlots(views);
 		}
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
 			var p;
@@ -3061,8 +3063,6 @@ function updatePlaneSelection(views, view) {
 			})();
 		}
 	}
-
-	_SelectionUtilitiesJs.updateAllPlots(views);
 }
 
 function updateBrushSelection(views, view) {
@@ -3087,12 +3087,16 @@ function updateBrushSelection(views, view) {
 				tempy = yPlotScale(parseFloat(y));
 				temp_dist2 = Math.pow(tempx - location.x, 2) + Math.pow(tempy - location.y, 2);
 				if (temp_dist2 < radius2) {
-					data[x][y].selected = true;
+					data[x][y].highlighted = true;
+					for (var i = 0; i < data[x][y]['list'].length; i++) {
+						data[x][y]['list'][i].highlighted = true;
+					}
 				}
 				// else { data[x][y].selected = false;}
 			}
 		}
-		_SelectionUtilitiesJs.updateSelectionFromHeatmap(view);
+		clickUpdateAll2DHeatmaps(views);
+		// updateSelectionFromHeatmap(view);							
 	}
 	_SelectionUtilitiesJs.updateAllPlots(views);
 }
@@ -3190,18 +3194,18 @@ function clickHeatmap(view, views) {
 		var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
 		var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
 		if (indexInList > -1) {
-			console.log('was highlighted');
+			// console.log('was highlighted')
 			// was highlighted
 			//if (areAllHighlighted(view.data[heatmapX][heatmapY].list)) {
 			if (areAllTrue(view.IntersectState)) {
-				console.log('all are selected, thus unhighlight all');
+				// console.log('all are selected, thus unhighlight all')
 				// all are selected, thus unhighlight all
 				unhighlightHeatmapPoints(view.INTERSECTED, view);
-				console.log(view.highlightedIndexList);
+				// console.log(view.highlightedIndexList)
 				view.highlightedIndexList.splice(indexInList, 1);
 				view.IntersectState = null;
 				clickUpdateAll2DHeatmaps(views);
-				console.log(view.highlightedIndexList);
+				// console.log(view.highlightedIndexList)
 				return false;
 			} else {
 				// console.log('not all are selected, select all')
@@ -3503,7 +3507,7 @@ function unhighlightAll(views) {
 
 function deselectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData) {
 	for (var i = 0; i < overallSpatiallyResolvedData.length; i++) {
-		if (overallSpatiallyResolvedData[i].highlighted == false) {
+		if (overallSpatiallyResolvedData[i].highlighted) {
 			overallSpatiallyResolvedData[i].selected = false;
 		};
 		overallSpatiallyResolvedData[i].highlighted = false;
@@ -3525,7 +3529,7 @@ function selectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedD
 
 function deselectHighlightedMoleculeData(views, overallMoleculeData) {
 	for (var i = 0; i < overallMoleculeData.length; i++) {
-		if (overallMoleculeData[i].highlighted == false) {
+		if (overallMoleculeData[i].highlighted) {
 			overallMoleculeData[i].selected = false;
 		};
 		overallMoleculeData[i].highlighted = false;
@@ -3556,12 +3560,14 @@ function clickUpdateAll2DHeatmaps(views) {
 					if (highlightedFound) {
 						view.data[x][y].highlighted = true;
 						if (view.highlightedIndexList.indexOf(i) == -1) {
+							// console.log('adding to from highlighted list')
 							view.highlightedIndexList.push(i);
 						}
 					} else {
 						view.data[x][y].highlighted = false;
 						var indexInList = view.highlightedIndexList.indexOf(i);
 						if (indexInList != -1) {
+							// console.log('removing from highlighted list')
 							view.highlightedIndexList.splice(i, 1);
 						}
 					}
