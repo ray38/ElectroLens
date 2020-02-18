@@ -198,12 +198,14 @@ function main(views, plotSetup) {
   progressBar.animate(100);)*/
 		var htmlUI = document.getElementById("UI");
 		htmlUI.parentNode.removeChild(htmlUI);
+		render();
 		animate();
 	});
 
 	function init() {
 
 		console.log('started initialization');
+		//const { UMAP } = require('umap-js');
 		container = document.getElementById('container');
 		renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, clearAlpha: 1 });
 		renderer.setPixelRatio(window.devicePixelRatio);
@@ -273,7 +275,9 @@ function main(views, plotSetup) {
 			_MultiviewControlOptionBoxControlJs.addOptionBox(view);
 			_MultiviewControlHUDControlJs.setupHUD(view);
 
-			view.controller.addEventListener('change', render);
+			view.controller.addEventListener('change', function (event) {
+				render();
+			});
 
 			if (view.viewType == '3DView') {
 				view.controller.autoRotate = false;
@@ -314,18 +318,12 @@ function main(views, plotSetup) {
 				_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(view, plotSetup);
 
 				_DHeatmapsUtilitiesJs.addTitle(view);
-
-				/*
-    getAxis(view);
-    arrangeDataToHeatmap(view)
-    getHeatmap(view);
-    addHeatmapLabels(view);
-    insertLegend(view);*/
 			}
 		}
 
-		//stats = new Stats();
-		//container.appendChild( stats.dom );
+		stats = new Stats();
+		container.appendChild(stats.dom);
+
 		container.addEventListener('mousemove', throttle(onDocumentMouseMove, 20), false);
 		container.addEventListener('click', onDocumentMouseClick, false);
 		container.addEventListener('mousedown', function (event) {
@@ -430,12 +428,16 @@ function main(views, plotSetup) {
 			_MultiviewControlSetupViewBasicJs.setupViewCameraSceneController(temp_view, renderer);
 			_MultiviewControlOptionBoxControlJs.addOptionBox(temp_view);
 			_MultiviewControlHUDControlJs.setupHUD(temp_view);
+			temp_view.controller.addEventListener('change', function (event) {
+				render();
+			});
 
 			temp_view.controller.enableRotate = false;
 			_DHeatmapsTooltipJs.initialize2DPlotTooltip(temp_view);
 			_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(temp_view, plotSetup);
 			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
 			_DHeatmapsUtilitiesJs.addTitle(temp_view);
+			render();
 
 			/*
    getAxis(temp_view);
@@ -502,83 +504,95 @@ function main(views, plotSetup) {
 				var distance = -view.camera.position.z / dir.z;
 				view.mousePosition = view.camera.position.clone().add(dir.multiplyScalar(distance));
 				if (view.viewType == "2DHeatmap") {
-					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
-						var needsUpdate = _DHeatmapsSelectionJs.hoverHeatmap(view, mouseEvent);
-						if (needsUpdate) {
-							// console.log('updating plots');
-							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
+					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison" || view.options.plotType == "PCA" || view.options.plotType == "Umap") && typeof view.heatmapPlot != "undefined") {
+
+						if (view.options.plotData == "spatiallyResolvedData") {
+							var needsUpdate = _DHeatmapsSelectionJs.hoverHeatmap(view, mouseEvent);
+							if (needsUpdate) {
+								console.log('updating plots');
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
+							}
+						} else if (view.options.plotData == "moleculeData") {
+							var needsUpdate = _DHeatmapsSelectionJs.hoverHeatmap(view, mouseEvent);
+							if (needsUpdate) {
+								console.log('updating plots');
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsMolecule(views);
+							}
 						}
-						// updateHeatmapTooltip(view);
 					}
 					if (view.options.plotType == "Correlation" && typeof view.covariancePlot != "undefined") {
 						_DHeatmapsTooltipJs.updateCovarianceTooltip(view);
 					}
 				} else if (view.viewType == "3DView") {
-					/*if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
-     	
-     	var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
-     	// console.log('picking', needsUpdate);
-     	if (needsUpdate) {
-     		// console.log('updating plots');
-     		updateAllPlots(views);
-     	}
-     }*/
+					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule) {
+						if (view.options.atomsStyle == "ball") {
+							var pickingResult = _DViewsSelectionJs.gpuPickMolecule(view, renderer, view.scene, mouseEvent, windowWidth, windowHeight);
+							var needsUpdate = _DViewsSelectionJs.hover3DViewMoleculeBall(view, plotSetup, pickingResult);
+							if (needsUpdate) {
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsMoleculeScale(views);
+							}
+						} else if (view.options.atomsStyle == "sprite") {
+							var needsUpdate = _DViewsSelectionJs.hover3DViewMoleculeSprite(view, plotSetup, mouseEvent);
+							if (needsUpdate) {
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsMoleculeScale(views);
+							}
+						}
+					}
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
 						var needsUpdate = _DViewsSelectionJs.hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
-						// console.log('picking', needsUpdate);
 						if (needsUpdate) {
-							// console.log('updating plots');
-							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
+							_DHeatmapsSelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
 						}
 					}
 				}
-				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
+		render();
 	}
 
 	function onDocumentMouseClick(mouseEvent) {
 		if (mouseDrag) {
 			return;
 		}
-		console.log('mouse clicked');
+
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
 			if (view.controllerEnabled) {
 				if (view.viewType == "2DHeatmap") {
-					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined" && !(view.options.planeSelection || view.options.brushSelection)) {
-						console.log('2d map mouse clicked event');
-						var needsUpdate = _DHeatmapsSelectionJs.clickHeatmap(view, views);
-						if (needsUpdate) {
-							console.log('updating plots');
-							_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
+					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison" || view.options.plotType == "PCA" || view.options.plotType == "Umap") && typeof view.heatmapPlot != "undefined" && !(view.options.planeSelection || view.options.brushSelection)) {
+						if (view.options.plotData == "spatiallyResolvedData") {
+							var needsUpdate = _DHeatmapsSelectionJs.clickHeatmap(view, views);
+							if (needsUpdate) {
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
+							}
+						} else if (view.options.plotData == "moleculeData") {
+							var needsUpdate = _DHeatmapsSelectionJs.clickHeatmap(view, views);
+							if (needsUpdate) {
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsMolecule(views);
+							}
 						}
+
 						// updateHeatmapTooltip(view);
 					}
 				} else if (view.viewType == "3DView") {
-						/* if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
-      	
-      	var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
-      	console.log('picking', needsUpdate);
-      	if (needsUpdate) {
-      		console.log('updating plots');
-      		updateAllPlots(views);
-      	}
-      } */
+						if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule) {
+							var needsUpdate = _DViewsSelectionJs.click3DViewMolecule(view, views, plotSetup);
+							if (needsUpdate) {
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsMolecule(views);
+							}
+						}
 
 						if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
 							var needsUpdate = _DViewsSelectionJs.click3DViewSpatiallyResolved(view, views, plotSetup);
-							// console.log('picking', needsUpdate);
 							if (needsUpdate) {
-								// console.log('updating plots');
-								_DHeatmapsSelectionUtilitiesJs.updateAllPlots(views);
+								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
 							}
 						}
 					}
-				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
+		render();
 	}
 
 	function updateSize() {
@@ -594,7 +608,6 @@ function main(views, plotSetup) {
 				var height = Math.floor(windowHeight * view.height);
 				var left = Math.floor(windowWidth * view.left);
 				var top = Math.floor(windowHeight * (1 - view.top) - height);
-				// console.log('top', view.top,(1-view.top), top)
 
 				view.windowLeft = left;
 				view.windowTop = windowHeight * view.top;
@@ -608,17 +621,17 @@ function main(views, plotSetup) {
 	}
 
 	function animate() {
-		render();
+		// render();
 		//processClick();
 		processSelection();
-		//stats.update();
+		stats.update();
 
-		for (var ii = 0; ii < views.length; ++ii) {
-			var view = views[ii];
-			if (view.viewType == '3DView') {
-				view.controller.update();
-			}
-		}
+		/*for ( var ii = 0; ii < views.length; ++ii ) {
+  	var view = views[ii];
+  	if (view.viewType == '3DView') {
+  		view.controller.update();
+  	}
+  }*/
 
 		requestAnimationFrame(animate);
 	}
@@ -681,7 +694,7 @@ function main(views, plotSetup) {
 	}
 }
 
-},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":5,"./2DHeatmaps/Utilities.js":6,"./2DHeatmaps/initialize2DHeatmapSetup.js":9,"./2DHeatmaps/selection.js":10,"./2DHeatmaps/setupOptionBox2DHeatmap.js":11,"./2DHeatmaps/tooltip.js":12,"./3DViews/MoleculeView.js":15,"./3DViews/PointCloud_selection.js":16,"./3DViews/selection.js":19,"./3DViews/setupOptionBox3DView.js":20,"./3DViews/systemEdge.js":21,"./3DViews/tooltip.js":22,"./MultiviewControl/HUDControl.js":23,"./MultiviewControl/calculateViewportSizes.js":25,"./MultiviewControl/colorLegend.js":26,"./MultiviewControl/controllerControl.js":27,"./MultiviewControl/initializeViewSetups.js":28,"./MultiviewControl/optionBoxControl.js":29,"./MultiviewControl/setupViewBasic.js":30,"./Utilities/arrangeData.js":31,"./Utilities/readDataFile.js":34,"./Utilities/readForm.js":35,"./Utilities/saveData.js":36,"./Utilities/scale.js":37}],2:[function(require,module,exports){
+},{"./2DHeatmaps/HeatmapView.js":2,"./2DHeatmaps/Selection/Utilities.js":5,"./2DHeatmaps/Utilities.js":7,"./2DHeatmaps/initialize2DHeatmapSetup.js":10,"./2DHeatmaps/selection.js":11,"./2DHeatmaps/setupOptionBox2DHeatmap.js":12,"./2DHeatmaps/tooltip.js":13,"./3DViews/MoleculeView.js":16,"./3DViews/PointCloud_selection.js":17,"./3DViews/selection.js":20,"./3DViews/setupOptionBox3DView.js":21,"./3DViews/systemEdge.js":22,"./3DViews/tooltip.js":23,"./MultiviewControl/HUDControl.js":24,"./MultiviewControl/calculateViewportSizes.js":26,"./MultiviewControl/colorLegend.js":27,"./MultiviewControl/controllerControl.js":28,"./MultiviewControl/initializeViewSetups.js":29,"./MultiviewControl/optionBoxControl.js":30,"./MultiviewControl/setupViewBasic.js":31,"./Utilities/arrangeData.js":32,"./Utilities/readDataFile.js":35,"./Utilities/readForm.js":36,"./Utilities/saveData.js":37,"./Utilities/scale.js":38}],2:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -944,7 +957,6 @@ function getHeatmap(view) {
 			heatmapInformation.push(tempInfo);
 		}
 	}
-
 	view.heatmapInformation = heatmapInformation;
 	view.XYtoHeatmapMap = XYtoHeatmapMap;
 	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -1076,6 +1088,11 @@ function replotHeatmap(view) {
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
 	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
+	}
 	/*var options = view.options;
  //var options = view.options;
  if (options.plotData == 'spatiallyResolvedData'){
@@ -1135,7 +1152,7 @@ function heatmapPointCount(data) {
 	return count;
 }
 
-},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Materials.js":3,"./Utilities.js":6}],3:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":27,"../Utilities/other.js":34,"./Materials.js":3,"./Utilities.js":7}],3:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1179,6 +1196,8 @@ var _UtilitiesJs = require("./Utilities.js");
 var _UtilitiesOtherJs = require("../Utilities/other.js");
 
 var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
+
+var _MaterialsJs = require("./Materials.js");
 
 function arrangeDataForPCA(view) {
 
@@ -1392,37 +1411,8 @@ function arrangeDataForPCA(view) {
 }
 
 function getPCAHeatmap(view) {
-	var uniforms = {
-
-		color: { value: new THREE.Color(0xffffff) },
-		texture: { value: new THREE.TextureLoader().load("textures/sprites/disc.png") }
-
-	};
-
-	var shaderMaterial = new THREE.ShaderMaterial({
-
-		uniforms: uniforms,
-		vertexShader: document.getElementById('vertexshader').textContent,
-		fragmentShader: document.getElementById('fragmentshader').textContent,
-
-		blending: THREE.AdditiveBlending,
-		depthTest: false,
-		transparent: true
-
-	});
 
 	var options = view.options;
-	var scene = view.scene;
-
-	if (options.plotData == 'spatiallyResolvedData') {
-		var X = view.options.plotPCAXSpatiallyResolvedData,
-		    Y = view.options.plotPCAYSpatiallyResolvedData;
-	}
-
-	if (options.plotData == 'moleculeData') {
-		var X = view.options.plotPCAXMoleculeData,
-		    Y = view.options.plotPCAYMoleculeData;
-	}
 
 	var data = view.data;
 
@@ -1434,9 +1424,7 @@ function getPCAHeatmap(view) {
 	var sizes = new Float32Array(num);
 	var alphas = new Float32Array(num);
 
-	var PCAHeatmapInformation = [];
-	//console.log(spatiallyResolvedData.length);
-	//console.log(num);
+	var heatmapInformation = [];
 
 	var lut = new THREE.Lut(options.colorMap, 500);
 	lut.setMax(1000);
@@ -1451,8 +1439,13 @@ function getPCAHeatmap(view) {
 	var xPlotScale = view.xPlotScale;
 	var yPlotScale = view.yPlotScale;
 
+	var XYtoHeatmapMap = {};
+
 	for (var x in data) {
 		for (var y in data[x]) {
+			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			XYtoHeatmapMap[x][y] = i;
+
 			var xPlot = xPlotScale(parseFloat(x));
 			var yPlot = yPlotScale(parseFloat(y));
 
@@ -1467,13 +1460,24 @@ function getPCAHeatmap(view) {
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
 			} else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha / 2;
 			}
-			sizes[i] = options.pointCloudSize;
-			alphas[i] = options.pointCloudAlpha;
+
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			} else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
 
 			i++;
 			i3 += 3;
@@ -1484,38 +1488,31 @@ function getPCAHeatmap(view) {
 				xStart: view.xScale.invertExtent(x)[0],
 				xEnd: view.xScale.invertExtent(x)[1],
 				yStart: view.yScale.invertExtent(y)[0],
-				yEnd: view.yScale.invertExtent(y)[1] /*,
-                                         heatmapX: x,
-                                         heatmapY: y*/
+				yEnd: view.yScale.invertExtent(y)[1],
+				heatmapX: x,
+				heatmapY: y
 			};
 			//console.log(tempInfo);
 			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
-			PCAHeatmapInformation.push(tempInfo);
+			heatmapInformation.push(tempInfo);
 		}
 	}
-
-	view.PCAHeatmapInformation = PCAHeatmapInformation;
+	view.heatmapInformation = heatmapInformation;
+	view.XYtoHeatmapMap = XYtoHeatmapMap;
 	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 	geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
-	var System = new THREE.Points(geometry, shaderMaterial);
-	//return System;
-
-	//particles.name = 'scatterPoints';
-
-	view.PCAHeatmapPlot = System;
-	//view.attributes = particles.attributes;
-	//view.geometry = particles.geometry;
-	//scene.add(System);
+	var material = _MaterialsJs.getHeatmapMaterial();
+	var System = new THREE.Points(geometry, material);
 
 	return System;
 }
 
 function updatePCAHeatmap(view) {
 	var options = view.options;
-	var System = view.PCAHeatmapPlot;
+	var System = view.heatmapPlot;
 	var data = view.data;
 	var num = heatmapPointCount(data);
 	var colors = new Float32Array(num * 3);
@@ -1540,13 +1537,20 @@ function updatePCAHeatmap(view) {
 				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha;
 			} else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
 				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha / 2;
 			}
-
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			} else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
 			i++;
 			i3 += 3;
 		}
@@ -1558,17 +1562,203 @@ function updatePCAHeatmap(view) {
 	System.geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 }
 
+/*export function getPCAHeatmap(view){
+	var uniforms = {
+
+		color:     { value: new THREE.Color( 0xffffff ) },
+		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
+
+	};
+
+	var shaderMaterial = new THREE.ShaderMaterial( {
+
+		uniforms:       uniforms,
+		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+
+		blending:       THREE.AdditiveBlending,
+		depthTest:      false,
+		transparent:    true
+
+	});
+
+	var options = view.options;
+	var scene = view.scene;
+
+	if (options.plotData == 'spatiallyResolvedData'){
+		var X = view.options.plotPCAXSpatiallyResolvedData, Y = view.options.plotPCAYSpatiallyResolvedData;
+	}
+
+	if (options.plotData == 'moleculeData'){
+		var X = view.options.plotPCAXMoleculeData, Y = view.options.plotPCAYMoleculeData;
+	}
+
+	
+	
+	var data = view.data;
+	
+	var num = heatmapPointCount(data);
+	
+	
+	var geometry = new THREE.BufferGeometry();
+	var colors = new Float32Array(num *3);
+	var positions = new Float32Array(num *3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
+
+	var PCAHeatmapInformation = [];
+	//console.log(spatiallyResolvedData.length);
+	//console.log(num);
+	
+	var lut = new THREE.Lut( options.colorMap, 500 );
+	lut.setMax( 1000);
+	lut.setMin( 0 );
+	view.lut = lut;
+	
+	var i = 0;
+	var i3 = 0;
+
+	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+	
+	for (var x in data){
+		for (var y in data[x]){
+			var xPlot = xPlotScale(parseFloat(x));
+			var yPlot = yPlotScale(parseFloat(y));
+			
+			positions[i3 + 0] = xPlot;
+			positions[i3 + 1] = yPlot;
+			positions[i3 + 2] = 0
+			
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor( numberDatapointsRepresented );
+			
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+			}
+			else {
+				colors[i3 + 0] = 100;
+				colors[i3 + 1] = 100;
+				colors[i3 + 2] = 100;
+			}
+			sizes[i] = options.pointCloudSize;
+			alphas[i] = options.pointCloudAlpha;
+			
+			i++;
+			i3 += 3;
+
+			var tempInfo = {x:xPlot-50, 
+							y:yPlot-50, 
+							numberDatapointsRepresented: numberDatapointsRepresented,
+							xStart: view.xScale.invertExtent(x)[0],
+							xEnd: 	view.xScale.invertExtent(x)[1],
+							yStart: view.yScale.invertExtent(y)[0],
+							yEnd: 	view.yScale.invertExtent(y)[1]
+							};
+			//console.log(tempInfo);
+			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
+			PCAHeatmapInformation.push(tempInfo)
+		}
+	}
+	
+	view.PCAHeatmapInformation = PCAHeatmapInformation;
+	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+	var System = new THREE.Points(geometry, shaderMaterial);
+	//return System;
+
+	//particles.name = 'scatterPoints';
+			
+	view.PCAHeatmapPlot = System;
+	//view.attributes = particles.attributes;
+	//view.geometry = particles.geometry;
+	//scene.add(System);
+
+	return System
+	
+}
+
+
+export function updatePCAHeatmap(view){
+	var options = view.options;
+	var System = view.PCAHeatmapPlot;
+	var data = view.data;
+	var num = heatmapPointCount(data);
+	var colors = new Float32Array(num *3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
+	var lut = new THREE.Lut( options.colorMap, 500 );
+	lut.setMax( 1000);
+	lut.setMin( 0 );
+	view.lut = lut;
+	var i = 0;
+	var i3 = 0;
+	for (var x in data){
+		for (var y in data[x]){
+			
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor( numberDatapointsRepresented );
+			
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
+			}
+			else {
+				colors[i3 + 0] = 100;
+				colors[i3 + 1] = 100;
+				colors[i3 + 2] = 100;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha/2;
+			}
+			
+			
+			
+			i++;
+			i3 += 3;
+		}
+	}
+	
+	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+}*/
+
 function replotPCAHeatmap(view) {
 	if ("covariance" in view) {
 		view.scene.remove(view.covariance);
+		delete view.covariance;
+	}
+
+	if ("comparison" in view) {
+		view.scene.remove(view.comparison);
+		delete view.comparison;
 	}
 
 	if ("heatmap" in view) {
 		view.scene.remove(view.heatmap);
+		delete view.heatmap;
 	}
 
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
+		delete view.PCAGroup;
+	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
 	}
 	/*var options = view.options;
  //var options = view.options;
@@ -1590,6 +1780,7 @@ function replotPCAHeatmap(view) {
 	PCAGroup.add(PCAPlot);
 	PCAGroup.add(PCAAxis);
 
+	view.heatmapPlot = PCAPlot;
 	view.PCAGroup = PCAGroup;
 	view.scene.add(PCAGroup);
 	_MultiviewControlColorLegendJs.changeLegend(view);
@@ -1681,6 +1872,16 @@ function countListSelected(list) {
 	return count;
 }
 
+function isAnyHighlighted(list) {
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function heatmapPointCount(data) {
 	var count = 0;
 	for (var x in data) {
@@ -1710,7 +1911,7 @@ function initializePCATooltip(view) {
 	}
 }
 
-},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Utilities.js":6,"ml-pca":44}],5:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":27,"../Utilities/other.js":34,"./Materials.js":3,"./Utilities.js":7,"ml-pca":47}],5:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1719,12 +1920,17 @@ exports.selectAllSpatiallyResolvedData = selectAllSpatiallyResolvedData;
 exports.deselectAllMoleculeData = deselectAllMoleculeData;
 exports.selectAllMoleculeData = selectAllMoleculeData;
 exports.updateAllPlots = updateAllPlots;
+exports.updateAllPlotsSpatiallyResolved = updateAllPlotsSpatiallyResolved;
+exports.updateAllPlotsMolecule = updateAllPlotsMolecule;
+exports.updateAllPlotsMoleculeScale = updateAllPlotsMoleculeScale;
 exports.updateSelectionFromHeatmap = updateSelectionFromHeatmap;
 exports.updateSelectionFromComparison = updateSelectionFromComparison;
 
 var _HeatmapViewJs = require("../HeatmapView.js");
 
 var _PCAViewJs = require("../PCAView.js");
+
+var _UmapViewJs = require("../UmapView.js");
 
 var _comparisonViewJs = require("../comparisonView.js");
 
@@ -1800,7 +2006,7 @@ function updateAllPlots(views) {
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
 			_comparisonViewJs.updateComparison(view);
 		}
-		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Dim. Reduction') {
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA') {
 			_PCAViewJs.updatePCAHeatmap(view);
 		}
 
@@ -1810,6 +2016,79 @@ function updateAllPlots(views) {
 			}
 			if (view.systemMoleculeDataBoolean) {
 				_DViewsMoleculeViewJs.updateMoleculeGeometry(view);
+				// changeMoleculeGeometry(view);
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+			}
+		}
+	}
+}
+
+function updateAllPlotsSpatiallyResolved(views) {
+	for (var ii = 0; ii < views.length; ii++) {
+		var view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap") {
+			_HeatmapViewJs.updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
+			_comparisonViewJs.updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA') {
+			_PCAViewJs.updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap') {
+			_UmapViewJs.updateUmapHeatmap(view);
+		}
+
+		if (view.viewType == '3DView') {
+			if (view.systemSpatiallyResolvedDataBoolean) {
+				_DViewsPointCloud_selectionJs.updatePointCloudGeometry(view);
+			}
+		}
+	}
+}
+
+function updateAllPlotsMolecule(views) {
+	for (var ii = 0; ii < views.length; ii++) {
+		var view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap") {
+			_HeatmapViewJs.updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
+			_comparisonViewJs.updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA') {
+			_PCAViewJs.updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap') {
+			_UmapViewJs.updateUmapHeatmap(view);
+		}
+
+		if (view.viewType == '3DView') {
+			if (view.systemMoleculeDataBoolean) {
+				_DViewsMoleculeViewJs.updateMoleculeGeometry(view);
+				// changeMoleculeGeometry(view);
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+			}
+		}
+	}
+}
+
+function updateAllPlotsMoleculeScale(views) {
+	for (var ii = 0; ii < views.length; ii++) {
+		var view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap") {
+			_HeatmapViewJs.updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
+			_comparisonViewJs.updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA') {
+			_PCAViewJs.updatePCAHeatmap(view);
+		}
+
+		if (view.viewType == '3DView') {
+			if (view.systemMoleculeDataBoolean) {
+				_DViewsMoleculeViewJs.updateMoleculeGeometryScale(view);
 				// changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
@@ -1860,7 +2139,491 @@ function updateSelectionFromComparison(view) {
 	});
 }
 
-},{"../../3DViews/MoleculeView.js":15,"../../3DViews/PointCloud_selection.js":16,"../HeatmapView.js":2,"../PCAView.js":4,"../comparisonView.js":7}],6:[function(require,module,exports){
+},{"../../3DViews/MoleculeView.js":16,"../../3DViews/PointCloud_selection.js":17,"../HeatmapView.js":2,"../PCAView.js":4,"../UmapView.js":6,"../comparisonView.js":8}],6:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+exports.arrangeDataForUmap = arrangeDataForUmap;
+exports.getUmapHeatmap = getUmapHeatmap;
+exports.updateUmapHeatmap = updateUmapHeatmap;
+exports.replotUmapHeatmap = replotUmapHeatmap;
+
+var _UtilitiesJs = require("./Utilities.js");
+
+var _UtilitiesOtherJs = require("../Utilities/other.js");
+
+var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
+
+var _MaterialsJs = require("./Materials.js");
+
+function arrangeDataForUmap(view) {
+
+	var options = view.options;
+	if (options.plotData == 'spatiallyResolvedData') {
+
+		var X = view.options.plotUmapXSpatiallyResolvedData,
+		    Y = view.options.plotUmapYSpatiallyResolvedData;
+
+		var Data = view.overallSpatiallyResolvedData;
+		var propertyList = view.plotSetup.spatiallyResolvedPropertyList;
+
+		console.log(view.UmapCalculatedSpatiallyResolved != true);
+
+		if (view.UmapCalculatedSpatiallyResolved != true) {
+
+			console.log("start PCA");
+
+			var _require = require('umap-js');
+
+			var UMAP = _require.UMAP;
+
+			var filtered = propertyList.filter(function (value, index, arr) {
+				return value != "atom" && value != "x" && value != "y" && value != "z";
+			});
+
+			var arrays = getArrays2(Data, filtered);
+
+			// const umap = new UMAP();
+			// const embedding = umap.fit(arrays);
+			var umap = new UMAP({
+				nComponents: 2,
+				nEpochs: 10,
+				nNeighbors: 15
+			});
+			var nEpochs = umap.initializeFit(arrays);
+			for (var _i4 = 0; _i4 < nEpochs; _i4++) {
+				console.log('start iteration: ', _i4);
+				umap.step();
+				// console.log('aftre', umap.getEmbedding())
+			}
+			var embedding = umap.getEmbedding();
+
+			console.log('after umap fitting', embedding);
+
+			for (var i = 0; i < Data.length; i++) {
+				for (var j = 1; j <= 2; j++) {
+					var tempName = "_Umap" + j.toString();
+					Data[i][tempName] = embedding[i][j - 1];
+				}
+			}
+			view.UmapCalculatedSpatiallyResolved = true;
+			view.UmapResult = umap;
+
+			console.log("Finished Storing umap");
+		}
+	}
+
+	if (options.plotData == 'moleculeData') {
+
+		var X = view.options.plotUmapXMoleculeData,
+		    Y = view.options.plotUmapYMoleculeData;
+
+		var Data = view.overallMoleculeData;
+		var propertyList = view.plotSetup.moleculePropertyList;
+
+		console.log(view.UmapCalculatedMolecule != true);
+
+		if (view.UmapCalculatedMolecule != true) {
+
+			console.log("start PCA");
+
+			var _require2 = require('umap-js');
+
+			var UMAP = _require2.UMAP;
+
+			var filtered = propertyList.filter(function (value, index, arr) {
+				return value != "atom" && value != "x" && value != "y" && value != "z";
+			});
+
+			var arrays = getArrays2(Data, filtered);
+
+			var umap = new UMAP({
+				nComponents: 2,
+				nEpochs: 10,
+				nNeighbors: 15
+			});
+			var nEpochs = umap.initializeFit(arrays);
+			for (var _i5 = 0; _i5 < nEpochs; _i5++) {
+				console.log('start iteration: ', _i5);
+				umap.step();
+				// console.log('aftre', umap.getEmbedding())
+			}
+			var embedding = umap.getEmbedding();
+
+			console.log('after umap fitting', embedding);
+
+			for (var i = 0; i < Data.length; i++) {
+				for (var j = 1; j <= 2; j++) {
+					var tempName = "_Umap" + j.toString();
+					Data[i][tempName] = embedding[i][j - 1];
+				}
+			}
+			view.UmapCalculatedSpatiallyResolved = true;
+			view.UmapResult = umap;
+
+			console.log("Finished Storing umap");
+		}
+	}
+
+	var numPerSide = view.options.numPerSide;
+
+	var heatmapStep = [];
+
+	for (var i = 1; i <= numPerSide; i++) {
+		heatmapStep.push("" + i);
+	}
+
+	var xValue = function xValue(d) {
+		return d[X];
+	};
+	var yValue = function yValue(d) {
+		return d[Y];
+	};
+
+	var xMin = d3.min(Data, xValue);
+	var xMax = d3.max(Data, xValue);
+	var yMin = d3.min(Data, yValue);
+	var yMax = d3.max(Data, yValue);
+
+	view.xMin = xMin;
+	view.xMax = xMax;
+	view.yMin = yMin;
+	view.yMax = yMax;
+
+	var xScale = d3.scaleQuantize().domain([xMin, xMax]).range(heatmapStep);
+
+	var yScale = d3.scaleQuantize().domain([yMin, yMax]).range(heatmapStep);
+
+	var xMap = function xMap(d) {
+		return xScale(xValue(d));
+	};
+	var yMap = function yMap(d) {
+		return yScale(yValue(d));
+	};
+
+	view.data = {};
+	view.dataXMin = d3.min(Data, xValue);
+	view.dataXMax = d3.max(Data, xValue);
+	view.dataYMin = d3.min(Data, yValue);
+	view.dataYMax = d3.max(Data, yValue);
+
+	view.xScale = xScale;
+	view.yScale = yScale;
+
+	//console.log(xScale.invertExtent(""+50))
+
+	for (var i = 0; i < Data.length; i++) {
+		var heatmapX = xMap(Data[i]);
+		var heatmapY = yMap(Data[i]);
+
+		view.data[heatmapX] = view.data[heatmapX] || {};
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true };
+		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
+	}
+}
+
+function getUmapHeatmap(view) {
+
+	var options = view.options;
+
+	var data = view.data;
+
+	var num = heatmapPointCount(data);
+
+	var geometry = new THREE.BufferGeometry();
+	var colors = new Float32Array(num * 3);
+	var positions = new Float32Array(num * 3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
+
+	var heatmapInformation = [];
+
+	var lut = new THREE.Lut(options.colorMap, 500);
+	lut.setMax(1000);
+	lut.setMin(0);
+	view.lut = lut;
+
+	var i = 0;
+	var i3 = 0;
+
+	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+
+	var XYtoHeatmapMap = {};
+
+	for (var x in data) {
+		for (var y in data[x]) {
+			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			XYtoHeatmapMap[x][y] = i;
+
+			var xPlot = xPlotScale(parseFloat(x));
+			var yPlot = yPlotScale(parseFloat(y));
+
+			positions[i3 + 0] = xPlot;
+			positions[i3 + 1] = yPlot;
+			positions[i3 + 2] = 0;
+
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor(numberDatapointsRepresented);
+
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
+			} else {
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha / 2;
+			}
+
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			} else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
+
+			i++;
+			i3 += 3;
+
+			var tempInfo = { x: xPlot - 50,
+				y: yPlot - 50,
+				numberDatapointsRepresented: numberDatapointsRepresented,
+				xStart: view.xScale.invertExtent(x)[0],
+				xEnd: view.xScale.invertExtent(x)[1],
+				yStart: view.yScale.invertExtent(y)[0],
+				yEnd: view.yScale.invertExtent(y)[1],
+				heatmapX: x,
+				heatmapY: y
+			};
+			//console.log(tempInfo);
+			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
+			heatmapInformation.push(tempInfo);
+		}
+	}
+	view.heatmapInformation = heatmapInformation;
+	view.XYtoHeatmapMap = XYtoHeatmapMap;
+	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+	geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+	geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+
+	var material = _MaterialsJs.getHeatmapMaterial();
+	var System = new THREE.Points(geometry, material);
+
+	return System;
+}
+
+function updateUmapHeatmap(view) {
+	var options = view.options;
+	var System = view.heatmapPlot;
+	var data = view.data;
+	var num = heatmapPointCount(data);
+	var colors = new Float32Array(num * 3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
+	var lut = new THREE.Lut(options.colorMap, 500);
+	lut.setMax(1000);
+	lut.setMin(0);
+	view.lut = lut;
+	var i = 0;
+	var i3 = 0;
+	for (var x in data) {
+		for (var y in data[x]) {
+
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor(numberDatapointsRepresented);
+
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
+			} else {
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha / 2;
+			}
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			} else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
+			i++;
+			i3 += 3;
+		}
+	}
+
+	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	System.geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+	System.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+	System.geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+}
+
+function replotUmapHeatmap(view) {
+	if ("covariance" in view) {
+		view.scene.remove(view.covariance);
+		delete view.covariance;
+	}
+
+	if ("comparison" in view) {
+		view.scene.remove(view.comparison);
+		delete view.comparison;
+	}
+
+	if ("heatmap" in view) {
+		view.scene.remove(view.heatmap);
+		delete view.heatmap;
+	}
+
+	if ("PCAGroup" in view) {
+		view.scene.remove(view.PCAGroup);
+		delete view.PCAGroup;
+	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
+	}
+
+	console.log("replotting Umap Heatmap");
+	//initializePCATooltip(view);
+	arrangeDataForUmap(view);
+	var UmapGroup = new THREE.Group();
+
+	var UmapPlot = getUmapHeatmap(view);
+	var UmapAxis = _UtilitiesJs.getAxis(view);
+
+	UmapGroup.add(UmapPlot);
+	UmapGroup.add(UmapAxis);
+
+	view.heatmapPlot = UmapPlot;
+	view.UmapGroup = UmapGroup;
+	view.scene.add(UmapGroup);
+	_MultiviewControlColorLegendJs.changeLegend(view);
+	_UtilitiesJs.changeTitle(view);
+}
+
+// Returns all values of an attribute or mapping function in an array of objects
+function pluck(arr, mapper) {
+	return arr.map(function (d) {
+		return typeof mapper === "string" ? d[mapper] : mapper(d);
+	});
+}
+
+// Given a data set (an array of objects)
+// and a list of columns (an array with a list of numeric columns),
+// calculate the Pearson correlation coeffient for each pair of columns
+// and return a correlation matrix, where each object takes the form
+// {column_a, column_a, correlation}
+// Dependencies: pluck
+
+function getArrays(data, cols) {
+	var result = [];
+	for (var _iterator = cols, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+		var _ref;
+
+		if (_isArray) {
+			if (_i >= _iterator.length) break;
+			_ref = _iterator[_i++];
+		} else {
+			_i = _iterator.next();
+			if (_i.done) break;
+			_ref = _i.value;
+		}
+
+		var col = _ref;
+
+		var temp = pluck(data, col);
+		result.push(temp);
+	}
+	return result;
+}
+
+function getArrays2(data, propertyList) {
+	var result = [];
+	for (var _iterator2 = data, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+		var _ref2;
+
+		if (_isArray2) {
+			if (_i2 >= _iterator2.length) break;
+			_ref2 = _iterator2[_i2++];
+		} else {
+			_i2 = _iterator2.next();
+			if (_i2.done) break;
+			_ref2 = _i2.value;
+		}
+
+		var datapoint = _ref2;
+
+		var temp = [];
+		for (var _iterator3 = propertyList, _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+			var _ref3;
+
+			if (_isArray3) {
+				if (_i3 >= _iterator3.length) break;
+				_ref3 = _iterator3[_i3++];
+			} else {
+				_i3 = _iterator3.next();
+				if (_i3.done) break;
+				_ref3 = _i3.value;
+			}
+
+			var property = _ref3;
+
+			temp.push(datapoint[property]);
+		}
+		result.push(temp);
+	}
+	return result;
+}
+
+function countListSelected(list) {
+	var count = 0;
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].selected) {
+			count += 1;
+		}
+	}
+	return count;
+}
+
+function isAnyHighlighted(list) {
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function heatmapPointCount(data) {
+	var count = 0;
+	for (var x in data) {
+		for (var y in data[x]) {
+			count = count + 1;
+		}
+	}
+	return count;
+}
+
+},{"../MultiviewControl/colorLegend.js":27,"../Utilities/other.js":34,"./Materials.js":3,"./Utilities.js":7,"umap-js":50}],7:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -1971,14 +2734,13 @@ function calculateTitlePositionLeft(view, elementWidth) {
 	return view.windowLeft + margin;
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
 exports.arrangeDataToComparison = arrangeDataToComparison;
 exports.getComparison = getComparison;
 exports.updateComparison = updateComparison;
-exports.getHeatmapLabels = getHeatmapLabels;
 exports.replotComparison = replotComparison;
 
 var _UtilitiesJs = require("./Utilities.js");
@@ -1986,6 +2748,8 @@ var _UtilitiesJs = require("./Utilities.js");
 var _UtilitiesOtherJs = require("../Utilities/other.js");
 
 var _MultiviewControlColorLegendJs = require("../MultiviewControl/colorLegend.js");
+
+var _MaterialsJs = require("./Materials.js");
 
 function arrangeDataToComparison(view) {
 
@@ -2066,10 +2830,6 @@ function arrangeDataToComparison(view) {
 
 	var yScale = d3.scaleQuantize().domain([yMin, yMax]).range(heatmapStep);
 
-	console.log(xMin, xMax, yMin, yMax, numPerSide);
-
-	console.log(xScale, yScale);
-
 	var xMap = function xMap(d) {
 		return xScale(xValue(d));
 	};
@@ -2085,245 +2845,231 @@ function arrangeDataToComparison(view) {
 
 	view.xScale = xScale;
 	view.yScale = yScale;
+	view.xValue = xValue;
+	view.yValue = yValue;
 
-	//console.log(xScale.invertExtent(""+50))
-	var colorArray = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]];
-	var count = 0;
-	Data.forEach(function (datapoint) {
-		var heatmapX = xMap(datapoint);
-		var heatmapY = yMap(datapoint);
+	//const colorArray = [[1, 0, 0],[0, 1, 0], [0, 0, 1], [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]];
+	var colorArray = [{ 'r': 1, 'g': 0, 'b': 0 }, { 'r': 0, 'g': 1, 'b': 0 }, { 'r': 0, 'g': 0, 'b': 1 }, { 'r': 1, 'g': 1, 'b': 0 }, { 'r': 1, 'g': 0, 'b': 1 }, { 'r': 0, 'g': 1, 'b': 1 }, { 'r': 1, 'g': 1, 'b': 1 }];
+	var colorDict = {};
+	var colorCounter = 0;
 
-		if (!view.data[datapoint.name]) {
-			view.data[datapoint.name] = { color: colorArray[count], data: {} };count += 1;
+	// var voxelToHeatmapMap = new Uint32Array(Data.length);
+	for (var i = 0; i < Data.length; i++) {
+		var systemName = Data[i].name;
+		if (!(systemName in colorDict)) {
+			colorDict[systemName] = colorArray[colorCounter];
+			colorCounter += 1;
 		}
-		if (!view.data[datapoint.name].data[heatmapX]) {
-			view.data[datapoint.name].data[heatmapX] = {};
+		var heatmapX = xMap(Data[i]);
+		var heatmapY = yMap(Data[i]);
+
+		view.data[heatmapX] = view.data[heatmapX] || {};
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true, highlighted: false };
+		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
+	}
+	view.colorDict = colorDict;
+}
+
+function getUniqueSelectedSystemList(list) {
+	var result = [];
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].selected) {
+			if (!result.includes(list[i].name)) {
+				result.push(list[i].name);
+			}
 		}
-		if (!view.data[datapoint.name].data[heatmapX][heatmapY]) {
-			view.data[datapoint.name].data[heatmapX][heatmapY] = { list: [], selected: true };
-		}
-		view.data[datapoint.name].data[heatmapX][heatmapY]['list'].push(datapoint);
+	}
+	return result;
+}
+
+function getColorAverage(systemList, colorDict) {
+	var weight = 1 / systemList.length;
+	var result = { 'r': 0, 'g': 0, 'b': 0 };
+	var tempColor;
+	systemList.forEach(function (systemName) {
+		tempColor = colorDict[systemName];
+		result.r += weight * tempColor.r;
+		result.g += weight * tempColor.g;
+		result.b += weight * tempColor.b;
 	});
+	//console.log('result color', result);
+	return result;
 }
 
 function getComparison(view) {
-	var uniforms = {
-
-		color: { value: new THREE.Color(0xffffff) },
-		texture: { value: new THREE.TextureLoader().load("textures/sprites/disc.png") }
-
-	};
-
-	var shaderMaterial = new THREE.ShaderMaterial({
-
-		uniforms: uniforms,
-		vertexShader: document.getElementById('vertexshader').textContent,
-		fragmentShader: document.getElementById('fragmentshader').textContent,
-
-		blending: THREE.AdditiveBlending,
-		depthTest: false,
-		transparent: true
-
-	});
 
 	var options = view.options;
-	var scene = view.scene;
 
-	if (options.plotData == 'spatiallyResolvedData') {
-		var X = view.options.plotXSpatiallyResolvedData,
-		    Y = view.options.plotYSpatiallyResolvedData;
-	}
+	var data = view.data;
 
-	if (options.plotData == 'moleculeData') {
-		var X = view.options.plotXMoleculeData,
-		    Y = view.options.plotYMoleculeData;
-	}
+	var num = heatmapPointCount(data);
 
-	var systemPlots = {};
-	var overallData = view.data;
+	var geometry = new THREE.BufferGeometry();
+	var colors = new Float32Array(num * 3);
+	var positions = new Float32Array(num * 3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
 
-	Object.keys(overallData).forEach(function (systemName, index) {
-		var data = overallData[systemName].data;
-		var num = comparisonPointCount(data);
-		var color = overallData[systemName].color;
-		console.log(systemName, data, color, num);
+	var heatmapInformation = [];
+	var lut = new THREE.Lut(options.colorMap, 500);
+	lut.setMax(1000);
+	lut.setMin(0);
+	view.lut = lut;
 
-		var geometry = new THREE.BufferGeometry();
-		var colors = new Float32Array(num * 3);
-		var positions = new Float32Array(num * 3);
-		var sizes = new Float32Array(num);
-		var alphas = new Float32Array(num);
+	var colorDict = view.colorDict;
 
-		var heatmapInformation = [];
+	var i = 0;
+	var i3 = 0;
 
-		var lut = new THREE.Lut(options.colorMap, 500);
-		lut.setMax(1000);
-		lut.setMin(0);
-		view.lut = lut;
+	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
 
-		var i = 0;
-		var i3 = 0;
+	var XYtoHeatmapMap = {};
 
-		var xPlotScale = view.xPlotScale;
-		var yPlotScale = view.yPlotScale;
+	for (var x in data) {
+		for (var y in data[x]) {
+			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			XYtoHeatmapMap[x][y] = i;
 
-		for (var x in data) {
-			for (var y in data[x]) {
-				var xPlot = xPlotScale(parseFloat(x));
-				var yPlot = yPlotScale(parseFloat(y));
+			var xPlot = xPlotScale(parseFloat(x));
+			var yPlot = yPlotScale(parseFloat(y));
 
-				positions[i3 + 0] = xPlot;
-				positions[i3 + 1] = yPlot;
-				positions[i3 + 2] = 0;
+			positions[i3 + 0] = xPlot;
+			positions[i3 + 1] = yPlot;
+			positions[i3 + 2] = 0;
 
-				var numberDatapointsRepresented = countListSelected(data[x][y].list);
-				if (numberDatapointsRepresented > 0) {
+			// var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			var systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
+			if (systemRepresented.length > 0) {
+				var color = getColorAverage(systemRepresented, colorDict);
 
-					colors[i3 + 0] = color[0];
-					colors[i3 + 1] = color[1];
-					colors[i3 + 2] = color[2];
-					sizes[i] = options.pointCloudSize;
-					alphas[i] = options.pointCloudAlpha;
-				} else {
-					colors[i3 + 0] = 100;
-					colors[i3 + 1] = 100;
-					colors[i3 + 2] = 100;
-					sizes[i] = options.pointCloudSize;
-					alphas[i] = options.pointCloudAlpha / 2;
-				}
-
-				i++;
-				i3 += 3;
-				/*
-    var tempInfo = {x:xPlot-50, 
-                    y:yPlot-50, 
-                    numberDatapointsRepresented: numberDatapointsRepresented,
-                    xStart: view.xScale.invertExtent(x)[0],
-                    xEnd: 	view.xScale.invertExtent(x)[1],
-                    yStart: view.yScale.invertExtent(y)[0],
-                    yEnd: 	view.yScale.invertExtent(y)[1],
-                    };
-    heatmapInformation.push(tempInfo)*/
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize * 0.5 * systemRepresented.length;
+				alphas[i] = options.pointCloudAlpha;
+			} else {
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize * 0.5;
+				alphas[i] = options.pointCloudAlpha / 2;
 			}
+
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				sizes[i] = 3 * sizes[i];
+			} else {}
+
+			i++;
+			i3 += 3;
+
+			var tempInfo = { x: xPlot - 50,
+				y: yPlot - 50,
+				systemRepresented: systemRepresented,
+				xStart: view.xScale.invertExtent(x)[0],
+				xEnd: view.xScale.invertExtent(x)[1],
+				yStart: view.yScale.invertExtent(y)[0],
+				yEnd: view.yScale.invertExtent(y)[1],
+				heatmapX: x,
+				heatmapY: y
+			};
+			heatmapInformation.push(tempInfo);
 		}
+	}
 
-		// view.heatmapInformation = heatmapInformation;
-		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-		geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
-		geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-		geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+	view.heatmapInformation = heatmapInformation;
+	view.XYtoHeatmapMap = XYtoHeatmapMap;
+	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+	geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+	geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
-		var System = new THREE.Points(geometry, shaderMaterial);
-		systemPlots[systemName] = System;
-	});
+	var material = _MaterialsJs.getHeatmapMaterial();
+	var System = new THREE.Points(geometry, material);
 
-	// view.comparisonPlot = systemPlots;
-
-	return systemPlots;
+	return System;
 }
 
 function updateComparison(view) {
 	var options = view.options;
-	var overallData = view.data;
+	var System = view.heatmapPlot;
+	var data = view.data;
+	var num = heatmapPointCount(data);
+	var colors = new Float32Array(num * 3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
+	var colorDict = view.colorDict;
 
-	console.log(Object.keys(overallData));
-	Object.keys(overallData).forEach(function (systemName, index) {
-		var data = overallData[systemName].data;
-		var num = comparisonPointCount(data);
-		var color = overallData[systemName].color;
-		console.log(systemName, data, color, num);
+	var lut = new THREE.Lut(options.colorMap, 500);
+	lut.setMax(1000);
+	lut.setMin(0);
+	view.lut = lut;
 
-		var geometry = new THREE.BufferGeometry();
-		var colors = new Float32Array(num * 3);
-		var sizes = new Float32Array(num);
-		var alphas = new Float32Array(num);
+	var i = 0;
+	var i3 = 0;
+	for (var x in data) {
+		for (var y in data[x]) {
 
-		var plot = view.comparisonPlots[systemName];
+			var systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
+			if (systemRepresented.length > 0) {
+				var color = getColorAverage(systemRepresented, colorDict);
 
-		var i = 0;
-		var i3 = 0;
-
-		for (var x in data) {
-			for (var y in data[x]) {
-
-				var numberDatapointsRepresented = countListSelected(data[x][y].list);
-				if (numberDatapointsRepresented > 0) {
-
-					colors[i3 + 0] = color[0];
-					colors[i3 + 1] = color[1];
-					colors[i3 + 2] = color[2];
-					sizes[i] = options.pointCloudSize;
-					alphas[i] = options.pointCloudAlpha;
-				} else {
-					colors[i3 + 0] = 100;
-					colors[i3 + 1] = 100;
-					colors[i3 + 2] = 100;
-					sizes[i] = options.pointCloudSize;
-					alphas[i] = options.pointCloudAlpha / 2;
-				}
-
-				i++;
-				i3 += 3;
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
+			} else {
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha / 2;
 			}
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				sizes[i] = 3 * sizes[i];
+			} else {}
+			i++;
+			i3 += 3;
 		}
+	}
 
-		// view.heatmapInformation = heatmapInformation;
-		plot.geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
-		plot.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-		plot.geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
-	});
-}
-
-function getHeatmapLabels(view) {
-	var labels = new THREE.Group();
-
-	var style = { fontsize: 32, borderColor: { r: 0, g: 0, b: 255, a: 1.0 }, backgroundColor: { r: 255, g: 255, b: 255, a: 1.0 } };
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.yMin.toString(), style);
-	tempLabel.position.set(-75, -50, 0);
-	labels.add(tempLabel);
-
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.yMax.toString(), style);
-	tempLabel.position.set(-75, 50, 0);
-	labels.add(tempLabel);
-
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(((view.yMax + view.yMin) / 2).toString(), style);
-	tempLabel.position.set(-75, 0, 0);
-	labels.add(tempLabel);
-
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.xMin.toString(), style);
-	tempLabel.position.set(-50, -60, 0);
-	labels.add(tempLabel);
-
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(view.xMax.toString(), style);
-	tempLabel.position.set(50, -60, 0);
-	labels.add(tempLabel);
-
-	var tempLabel = _UtilitiesOtherJs.makeTextSprite2(((view.xMax + view.xMin) / 2).toString(), style);
-	tempLabel.position.set(0, -60, 0);
-	labels.add(tempLabel);
-
-	view.heatmapLabels = labels;
-
-	return labels;
-	//view.scene.add( labels );
+	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	System.geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+	System.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+	System.geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 }
 
 function replotComparison(view) {
+
 	if ("covariance" in view) {
 		view.scene.remove(view.covariance);
+		delete view.covariance;
 	}
 
 	if ("comparison" in view) {
 		view.scene.remove(view.comparison);
+		delete view.comparison;
 	}
 
 	if ("heatmap" in view) {
 		view.scene.remove(view.heatmap);
+		delete view.heatmap;
 	}
 
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
+		delete view.PCAGroup;
 	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
+	}
+
 	/*var options = view.options;
  //var options = view.options;
  if (options.plotData == 'spatiallyResolvedData'){
@@ -2338,16 +3084,17 @@ function replotComparison(view) {
 	console.log(view.data);
 	var comparison = new THREE.Group();
 
-	var comparisonPlots = getComparison(view);
+	var comparisonPlot = getComparison(view);
 	var comparisonAxis = _UtilitiesJs.getAxis(view);
 	//var heatmapLabels = getHeatmapLabels(view);
 
-	for (var systemName in comparisonPlots) {
-		comparison.add(comparisonPlots[systemName]);
-	}
+	/*for (const systemName in comparisonPlots) {
+ 	comparison.add(comparisonPlots[systemName]);
+ }*/
+	comparison.add(comparisonPlot);
 	comparison.add(comparisonAxis);
 	//heatmap.add(heatmapLabels)
-	view.comparisonPlots = comparisonPlots;
+	view.heatmapPlot = comparisonPlot;
 	view.comparison = comparison;
 	view.scene.add(comparison);
 	_MultiviewControlColorLegendJs.changeLegend(view);
@@ -2365,7 +3112,7 @@ function countListSelected(list) {
 	return count;
 }
 
-function comparisonPointCount(data) {
+function heatmapPointCount(data) {
 	var count = 0;
 	for (var x in data) {
 		for (var y in data[x]) {
@@ -2376,7 +3123,17 @@ function comparisonPointCount(data) {
 	return count;
 }
 
-},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Utilities.js":6}],8:[function(require,module,exports){
+function isAnyHighlighted(list) {
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted) {
+			return true;
+		}
+	}
+	return false;
+}
+
+},{"../MultiviewControl/colorLegend.js":27,"../Utilities/other.js":34,"./Materials.js":3,"./Utilities.js":7}],9:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2638,18 +3395,27 @@ function updateCovariance(view) {
 function replotCovariance(view) {
 	if ("covariance" in view) {
 		view.scene.remove(view.covariance);
+		delete view.covariance;
 	}
 
 	if ("comparison" in view) {
 		view.scene.remove(view.comparison);
+		delete view.comparison;
 	}
 
 	if ("heatmap" in view) {
 		view.scene.remove(view.heatmap);
+		delete view.heatmap;
 	}
 
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
+		delete view.PCAGroup;
+	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
 	}
 	/*var options = view.options;
  //var options = view.options;
@@ -2676,7 +3442,7 @@ function replotCovariance(view) {
 	_UtilitiesJs.changeTitle(view);
 }
 
-},{"../MultiviewControl/colorLegend.js":26,"../Utilities/other.js":33,"./Utilities.js":6}],9:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":27,"../Utilities/other.js":34,"./Utilities.js":7}],10:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2689,6 +3455,8 @@ var _covarianceViewJs = require("./covarianceView.js");
 var _PCAViewJs = require("./PCAView.js");
 
 var _comparisonViewJs = require('./comparisonView.js');
+
+var _UmapViewJs = require('./UmapView.js');
 
 var _MultiviewControlCalculateViewportSizesJs = require("../MultiviewControl/calculateViewportSizes.js");
 
@@ -2703,187 +3471,205 @@ var _SelectionUtilitiesJs = require("./Selection/Utilities.js");
 var _UtilitiesSaveDataJs = require("../Utilities/saveData.js");
 
 function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
-			var defaultSetting = {
-						background: new THREE.Color(0, 0, 0),
-						backgroundAlpha: 1.0,
-						controllerEnabledBackground: new THREE.Color(0.1, 0.1, 0.1),
-						eye: [0, 0, 150],
-						up: [0, 0, 1],
-						fov: 45,
-						mousePosition: [0, 0],
-						viewType: '2DHeatmap',
-						/*plotX: 'x',
-      plotY: 'x',
-      plotXTransform: 'linear',
-      plotYTransform: 'linear',*/
-						controllerEnabled: false,
-						controllerZoom: true,
-						controllerRotate: false,
-						controllerPan: true,
-						xPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
-						yPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
-						overallSpatiallyResolvedDataBoolean: false,
-						overallMoleculeDataBoolean: false,
-						highlightedIndexList: [],
-						IntersectState: null,
-						INTERSECT: null,
-						activate2DPlotSpatiallyResolved: function activate2DPlotSpatiallyResolved() {
-									_MultiviewControlActive2DViewJs.activate2DPlotSpatiallyResolved(plotSetup, viewSetup, views);
-						},
-						deactivate2DPlotSpatiallyResolved: function deactivate2DPlotSpatiallyResolved() {
-									_MultiviewControlActive2DViewJs.deactivate2DPlotsSpatiallyResolved(plotSetup, views);
-						},
-						activate2DPlotMolecule: function activate2DPlotMolecule() {
-									_MultiviewControlActive2DViewJs.activate2DPlotMolecule(plotSetup, viewSetup, views);
-						},
-						deactivate2DPlotMolecule: function deactivate2DPlotMolecule() {
-									_MultiviewControlActive2DViewJs.deactivate2DPlotsMolecule(plotSetup, views);
-						},
-						options: new function () {
-									this.plotID = "";
-									this.plotType = "Undefined";
-									this.activePlotSpatiallyResolved = false;
-									this.activePlotMolecule = false;
-									this.backgroundColor = "#000000";
-									this.backgroundAlpha = 0.0;
-									this.plotData = "spatiallyResolvedData";
-									this.numPerSide = 100;
-									this.pointCloudAlpha = 1.0;
-									this.pointCloudSize = 3.0;
-									this.colorMap = 'rainbow';
-									this.resetCamera = function () {
-												viewSetup.controller.reset();
-									};
-									this.replotHeatmap = function () {
-												_HeatmapViewJs.replotHeatmap(viewSetup);
-									};
-									this.fullscreenBoolean = false;
-									this.toggleFullscreen = function () {
-												if (!viewSetup.options.fullscreenBoolean) {
-															_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
-															viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
-												} else {
-															_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
-															viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
-												}
-									};
-									this.legendX = 8;
-									this.legendY = -4;
-									this.legendWidth = 0.5;
-									this.legendHeight = 6;
-									this.legendTick = 5;
-									this.legendFontsize = 55;
-									this.legendShownBoolean = true;
-									this.toggleLegend = function () {
-												if (!viewSetup.options.legendShownBoolean) {
-															_MultiviewControlColorLegendJs.insertLegend(viewSetup);
-															viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
-												} else {
-															_MultiviewControlColorLegendJs.removeLegend(viewSetup);
-															viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
-												}
-									};
-									//this.planeSelection = function(){
-									//						planeSelection = !planeSelection;
-									//						pointSelection = false;
-									//					};
-									this.planeSelection = false;
-									this.brushSelection = false;
-									this.selectionBrushSize = 5;
+	var defaultSetting = {
+		background: new THREE.Color(0, 0, 0),
+		backgroundAlpha: 1.0,
+		controllerEnabledBackground: new THREE.Color(0.1, 0.1, 0.1),
+		eye: [0, 0, 150],
+		up: [0, 0, 1],
+		fov: 45,
+		mousePosition: [0, 0],
+		viewType: '2DHeatmap',
+		/*plotX: 'x',
+  plotY: 'x',
+  plotXTransform: 'linear',
+  plotYTransform: 'linear',*/
+		controllerEnabled: false,
+		controllerZoom: true,
+		controllerRotate: false,
+		controllerPan: true,
+		xPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
+		yPlotScale: d3.scaleLinear().domain([0, 100]).range([-50, 50]),
+		overallSpatiallyResolvedDataBoolean: false,
+		overallMoleculeDataBoolean: false,
+		highlightedIndexList: [],
+		IntersectState: null,
+		INTERSECT: null,
+		activate2DPlotSpatiallyResolved: function activate2DPlotSpatiallyResolved() {
+			_MultiviewControlActive2DViewJs.activate2DPlotSpatiallyResolved(plotSetup, viewSetup, views);
+		},
+		deactivate2DPlotSpatiallyResolved: function deactivate2DPlotSpatiallyResolved() {
+			_MultiviewControlActive2DViewJs.deactivate2DPlotsSpatiallyResolved(plotSetup, views);
+		},
+		activate2DPlotMolecule: function activate2DPlotMolecule() {
+			_MultiviewControlActive2DViewJs.activate2DPlotMolecule(plotSetup, viewSetup, views);
+		},
+		deactivate2DPlotMolecule: function deactivate2DPlotMolecule() {
+			_MultiviewControlActive2DViewJs.deactivate2DPlotsMolecule(plotSetup, views);
+		},
+		options: new function () {
+			this.plotID = "";
+			this.plotType = "Undefined";
+			this.activePlotSpatiallyResolved = false;
+			this.activePlotMolecule = false;
+			this.backgroundColor = "#000000";
+			this.backgroundAlpha = 0.0;
+			this.plotData = "spatiallyResolvedData";
+			this.numPerSide = 100;
+			this.pointCloudAlpha = 1.0;
+			this.pointCloudSize = 3.0;
+			this.colorMap = 'rainbow';
+			this.resetCamera = function () {
+				viewSetup.controller.reset();
+			};
+			this.replotHeatmap = function () {
+				_HeatmapViewJs.replotHeatmap(viewSetup);
+			};
+			this.fullscreenBoolean = false;
+			this.toggleFullscreen = function () {
+				if (!viewSetup.options.fullscreenBoolean) {
+					_MultiviewControlCalculateViewportSizesJs.fullscreenOneView(views, viewSetup);
+					viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
+				} else {
+					_MultiviewControlCalculateViewportSizesJs.deFullscreen(views);
+					viewSetup.options.fullscreenBoolean = !viewSetup.options.fullscreenBoolean;
+				}
+			};
+			this.legendX = 8;
+			this.legendY = -4;
+			this.legendWidth = 0.5;
+			this.legendHeight = 6;
+			this.legendTick = 5;
+			this.legendFontsize = 55;
+			this.legendShownBoolean = true;
+			this.toggleLegend = function () {
+				if (!viewSetup.options.legendShownBoolean) {
+					_MultiviewControlColorLegendJs.insertLegend(viewSetup);
+					viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+				} else {
+					_MultiviewControlColorLegendJs.removeLegend(viewSetup);
+					viewSetup.options.legendShownBoolean = !viewSetup.options.legendShownBoolean;
+				}
+			};
+			//this.planeSelection = function(){
+			//						planeSelection = !planeSelection;
+			//						pointSelection = false;
+			//					};
+			this.planeSelection = false;
+			this.brushSelection = false;
+			this.selectionBrushSize = 5;
 
-									this.plotXSpatiallyResolvedData = viewSetup.plotXSpatiallyResolvedData;
-									this.plotYSpatiallyResolvedData = viewSetup.plotYSpatiallyResolvedData;
-									this.plotXTransformSpatiallyResolvedData = viewSetup.plotXTransformSpatiallyResolvedData;
-									this.plotYTransformSpatiallyResolvedData = viewSetup.plotYTransformSpatiallyResolvedData;
+			this.plotXSpatiallyResolvedData = viewSetup.plotXSpatiallyResolvedData;
+			this.plotYSpatiallyResolvedData = viewSetup.plotYSpatiallyResolvedData;
+			this.plotXTransformSpatiallyResolvedData = viewSetup.plotXTransformSpatiallyResolvedData;
+			this.plotYTransformSpatiallyResolvedData = viewSetup.plotYTransformSpatiallyResolvedData;
 
-									this.plotXMoleculeData = viewSetup.plotXMoleculeData;
-									this.plotYMoleculeData = viewSetup.plotYMoleculeData;
-									this.plotXTransformMoleculeData = viewSetup.plotXTransformMoleculeData;
-									this.plotYTransformMoleculeData = viewSetup.plotYTransformMoleculeData;
+			this.plotXMoleculeData = viewSetup.plotXMoleculeData;
+			this.plotYMoleculeData = viewSetup.plotYMoleculeData;
+			this.plotXTransformMoleculeData = viewSetup.plotXTransformMoleculeData;
+			this.plotYTransformMoleculeData = viewSetup.plotYTransformMoleculeData;
 
-									this.selectAllSpatiallyResolvedData = function () {
-												_SelectionUtilitiesJs.selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
-												_selectionJs.clickUpdateAll2DHeatmaps(views);
-												_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-									this.deselectAllSpatiallyResolvedData = function () {
-												_SelectionUtilitiesJs.deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
-												_selectionJs.clickUpdateAll2DHeatmaps(views);
-												_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-
-									this.selectAllMoleculeData = function () {
-												_SelectionUtilitiesJs.selectAllMoleculeData(views, viewSetup.overallMoleculeData);
-												_selectionJs.clickUpdateAll2DHeatmaps(views);
-												_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-									this.deselectAllMoleculeData = function () {
-												_SelectionUtilitiesJs.deselectAllMoleculeData(views, viewSetup.overallMoleculeData);
-												_selectionJs.clickUpdateAll2DHeatmaps(views);
-												_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-
-									this.selectHighlightedSpatiallyResolvedData = function () {
-												_selectionJs.selectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-									this.deselectHighlightedSpatiallyResolvedData = function () {
-												_selectionJs.deselectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-
-									this.selectHighlightedMoleculeData = function () {
-												_selectionJs.selectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-									this.deselectHighlightedMoleculeData = function () {
-												_selectionJs.deselectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);_SelectionUtilitiesJs.updateAllPlots(views);
-									};
-
-									this.saveOverallMoleculeData = function () {
-												_UtilitiesSaveDataJs.saveOverallMoleculeData(viewSetup, plotSetup);
-									};
-									this.saveOverallSpatiallyResolvedData = function () {
-												_UtilitiesSaveDataJs.saveOverallSpatiallyResolvedData(viewSetup, plotSetup);
-									};
-
-									this.covarianceTransformMoleculeData = "linear";
-									this.covarianceTransformSpatiallyResolvedData = "linear";
-									this.replotCovariance = function () {
-												_covarianceViewJs.replotCovariance(viewSetup);
-									};
-
-									this.plotPCAXSpatiallyResolvedData = "_PC1";
-									this.plotPCAYSpatiallyResolvedData = "_PC1";
-									this.plotPCAXTransformSpatiallyResolvedData = "linear";
-									this.plotPCAYTransformSpatiallyResolvedData = "linear";
-
-									this.plotPCAXMoleculeData = "_PC1";
-									this.plotPCAYMoleculeData = "_PC1";
-									this.plotPCAXTransformMoleculeData = "linear";
-									this.plotPCAYTransformMoleculeData = "linear";
-
-									//this.nPCAComponentsSpatiallyResolved = plotSetup.spatiallyResolvedPropertyList.length;
-									//this.nPCAComponentsMolecule = plotSetup.moleculePropertyList.length;
-									this.replotPCAHeatmap = function () {
-												_PCAViewJs.replotPCAHeatmap(viewSetup);
-									};
-
-									this.replotComparison = function () {
-												_comparisonViewJs.replotComparison(viewSetup);
-									};
-						}()
+			this.selectAllSpatiallyResolvedData = function () {
+				_SelectionUtilitiesJs.selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+				_selectionJs.clickUpdateAll2DHeatmaps(views);
+				_SelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
+			};
+			this.deselectAllSpatiallyResolvedData = function () {
+				_SelectionUtilitiesJs.deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+				_selectionJs.clickUpdateAll2DHeatmaps(views);
+				_SelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
 			};
 
-			viewSetup = extendObject(viewSetup, defaultSetting);
-			//viewSetup = defaultSetting;
+			this.selectAllMoleculeData = function () {
+				_SelectionUtilitiesJs.selectAllMoleculeData(views, viewSetup.overallMoleculeData);
+				_selectionJs.clickUpdateAll2DHeatmaps(views);
+				_SelectionUtilitiesJs.updateAllPlotsMolecule(views);
+			};
+			this.deselectAllMoleculeData = function () {
+				_SelectionUtilitiesJs.deselectAllMoleculeData(views, viewSetup.overallMoleculeData);
+				_selectionJs.clickUpdateAll2DHeatmaps(views);
+				_SelectionUtilitiesJs.updateAllPlotsMolecule(views);
+			};
+
+			this.selectHighlightedSpatiallyResolvedData = function () {
+				_selectionJs.selectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+				_SelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
+			};
+			this.deselectHighlightedSpatiallyResolvedData = function () {
+				_selectionJs.deselectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+				_SelectionUtilitiesJs.updateAllPlotsSpatiallyResolved(views);
+			};
+
+			this.selectHighlightedMoleculeData = function () {
+				_selectionJs.selectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);
+				_SelectionUtilitiesJs.updateAllPlotsMolecule(views);
+			};
+			this.deselectHighlightedMoleculeData = function () {
+				_selectionJs.deselectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);
+				_SelectionUtilitiesJs.updateAllPlotsMolecule(views);
+			};
+
+			this.saveOverallMoleculeData = function () {
+				_UtilitiesSaveDataJs.saveOverallMoleculeData(viewSetup, plotSetup);
+			};
+			this.saveOverallSpatiallyResolvedData = function () {
+				_UtilitiesSaveDataJs.saveOverallSpatiallyResolvedData(viewSetup, plotSetup);
+			};
+
+			this.covarianceTransformMoleculeData = "linear";
+			this.covarianceTransformSpatiallyResolvedData = "linear";
+			this.replotCovariance = function () {
+				_covarianceViewJs.replotCovariance(viewSetup);
+			};
+
+			this.plotPCAXSpatiallyResolvedData = "_PC1";
+			this.plotPCAYSpatiallyResolvedData = "_PC1";
+			this.plotPCAXTransformSpatiallyResolvedData = "linear";
+			this.plotPCAYTransformSpatiallyResolvedData = "linear";
+
+			this.plotPCAXMoleculeData = "_PC1";
+			this.plotPCAYMoleculeData = "_PC1";
+			this.plotPCAXTransformMoleculeData = "linear";
+			this.plotPCAYTransformMoleculeData = "linear";
+
+			//this.nPCAComponentsSpatiallyResolved = plotSetup.spatiallyResolvedPropertyList.length;
+			//this.nPCAComponentsMolecule = plotSetup.moleculePropertyList.length;
+			this.replotPCAHeatmap = function () {
+				_PCAViewJs.replotPCAHeatmap(viewSetup);
+			};
+
+			this.replotComparison = function () {
+				_comparisonViewJs.replotComparison(viewSetup);
+			};
+
+			this.plotUmapXSpatiallyResolvedData = "_Umap1";
+			this.plotUmapYSpatiallyResolvedData = "_Umap2";
+			this.plotUmapXTransformSpatiallyResolvedData = "linear";
+			this.plotUmapYTransformSpatiallyResolvedData = "linear";
+
+			this.plotUmapXMoleculeData = "_Umap1";
+			this.plotUmapYMoleculeData = "_Umap2";
+			this.plotUmapXTransformMoleculeData = "linear";
+			this.plotUmapYTransformMoleculeData = "linear";
+
+			this.replotUmapHeatmap = function () {
+				_UmapViewJs.replotUmapHeatmap(viewSetup);
+			};
+		}()
+	};
+
+	viewSetup = extendObject(viewSetup, defaultSetting);
+	//viewSetup = defaultSetting;
 }
 
 function extendObject(obj, src) {
-			for (var key in src) {
-						if (src.hasOwnProperty(key) && !(key in obj)) obj[key] = src[key];
-			}
-			return obj;
+	for (var key in src) {
+		if (src.hasOwnProperty(key) && !(key in obj)) obj[key] = src[key];
+	}
+	return obj;
 }
 
-},{"../MultiviewControl/active2DView.js":24,"../MultiviewControl/calculateViewportSizes.js":25,"../MultiviewControl/colorLegend.js":26,"../Utilities/saveData.js":36,"./HeatmapView.js":2,"./PCAView.js":4,"./Selection/Utilities.js":5,"./comparisonView.js":7,"./covarianceView.js":8,"./selection.js":10}],10:[function(require,module,exports){
+},{"../MultiviewControl/active2DView.js":25,"../MultiviewControl/calculateViewportSizes.js":26,"../MultiviewControl/colorLegend.js":27,"../Utilities/saveData.js":37,"./HeatmapView.js":2,"./PCAView.js":4,"./Selection/Utilities.js":5,"./UmapView.js":6,"./comparisonView.js":8,"./covarianceView.js":9,"./selection.js":11}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2995,7 +3781,7 @@ function updatePlaneSelection(views, view) {
 	//console.log(tempSelectionPlane)
 	if (tempSelectionPlane != null) {
 
-		if (view.viewType == '2DHeatmap' && (view.options.plotType == "Heatmap" || view.options.plotType == 'Dim. Reduction')) {
+		if (view.viewType == '2DHeatmap' && (view.options.plotType == "Heatmap" || view.options.plotType == 'PCA' || view.options.plotType == 'Umap' || view.options.plotType == 'Comparison')) {
 			var p = tempSelectionPlane.geometry.attributes.position.array;
 			var xmin = Math.min(p[0], p[9]),
 			    xmax = Math.max(p[0], p[9]),
@@ -3023,45 +3809,6 @@ function updatePlaneSelection(views, view) {
 			clickUpdateAll2DHeatmaps(views);
 			_SelectionUtilitiesJs.updateAllPlots(views);
 		}
-		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison") {
-			var p;
-			var xmin, xmax, ymin, ymax;
-			var tempx, tempy;
-			var xPlotScale;
-			var yPlotScale;
-
-			(function () {
-				p = tempSelectionPlane.geometry.attributes.position.array;
-				xmin = Math.min(p[0], p[9]);
-				xmax = Math.max(p[0], p[9]);
-				ymin = Math.min(p[1], p[10]);
-				ymax = Math.max(p[1], p[10]);
-
-				console.log('selecting for comparison');
-				var overallData = view.data;
-				xPlotScale = view.xPlotScale;
-				yPlotScale = view.yPlotScale;
-
-				Object.keys(overallData).forEach(function (systemName, index) {
-					var data = overallData[systemName].data;
-
-					for (var x in data) {
-						for (var y in data[x]) {
-							tempx = xPlotScale(parseFloat(x));
-							tempy = yPlotScale(parseFloat(y));
-							if (tempx > xmin && tempx < xmax && tempy > ymin && tempy < ymax) {
-								// data[x][y].selected = true;
-								for (var i = 0; i < data[x][y]['list'].length; i++) {
-									data[x][y]['list'][i].selected = true;
-								}
-							}
-							// else { data[x][y].selected = false;}
-						}
-					}
-				});
-				// updateSelectionFromComparison(view);	
-			})();
-		}
 	}
 }
 
@@ -3070,48 +3817,37 @@ function updateBrushSelection(views, view) {
 	var tempSelectionBrush = view.currentSelectionBrush;
 	//console.log(tempSelectionPlane)
 	if (tempSelectionBrush != null) {
-		var location = tempSelectionBrush.position;
-		var radius2 = Math.pow(view.options.selectionBrushSize, 2);
-		//var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
-		//	ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
-		var tempx, tempy, temp_dist2;
+		if (view.viewType == '2DHeatmap' && (view.options.plotType == "Heatmap" || view.options.plotType == 'PCA' || view.options.plotType == 'Umap' || view.options.plotType == 'Comparison')) {
+			var location = tempSelectionBrush.position;
+			var radius2 = Math.pow(view.options.selectionBrushSize, 2);
+			//var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
+			//	ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
+			var tempx, tempy, temp_dist2;
 
-		console.log('updating plane selection');
+			console.log('updating plane selection');
 
-		var data = view.data;
-		var xPlotScale = view.xPlotScale;
-		var yPlotScale = view.yPlotScale;
-		for (var x in data) {
-			for (var y in data[x]) {
-				tempx = xPlotScale(parseFloat(x));
-				tempy = yPlotScale(parseFloat(y));
-				temp_dist2 = Math.pow(tempx - location.x, 2) + Math.pow(tempy - location.y, 2);
-				if (temp_dist2 < radius2) {
-					data[x][y].highlighted = true;
-					for (var i = 0; i < data[x][y]['list'].length; i++) {
-						data[x][y]['list'][i].highlighted = true;
+			var data = view.data;
+			var xPlotScale = view.xPlotScale;
+			var yPlotScale = view.yPlotScale;
+			for (var x in data) {
+				for (var y in data[x]) {
+					tempx = xPlotScale(parseFloat(x));
+					tempy = yPlotScale(parseFloat(y));
+					temp_dist2 = Math.pow(tempx - location.x, 2) + Math.pow(tempy - location.y, 2);
+					if (temp_dist2 < radius2) {
+						data[x][y].highlighted = true;
+						for (var i = 0; i < data[x][y]['list'].length; i++) {
+							data[x][y]['list'][i].highlighted = true;
+						}
 					}
+					// else { data[x][y].selected = false;}
 				}
-				// else { data[x][y].selected = false;}
 			}
+			clickUpdateAll2DHeatmaps(views);
+			// updateSelectionFromHeatmap(view);	
 		}
-		clickUpdateAll2DHeatmaps(views);
-		// updateSelectionFromHeatmap(view);							
 	}
 	_SelectionUtilitiesJs.updateAllPlots(views);
-}
-
-function updatePointSelection(view) {
-	console.log(view.INTERSECTED);
-	if (view.INTERSECTED != null) {
-		console.log('updatePointSelection');
-		var x = view.heatmapInformation[view.INTERSECTED].heatmapX;
-		var y = view.heatmapInformation[view.INTERSECTED].heatmapY;
-		var data = view.data;
-		data[x][y].selected = true;
-		_SelectionUtilitiesJs.updateSelectionFromHeatmap(view);
-	}
-	_SelectionUtilitiesJs.updateAllPlots();
 }
 
 function applyPlaneSelection(view, mouseHold) {
@@ -3150,40 +3886,6 @@ function selectionControl(views, view, mouseHold) {
 		updateBrushSelection(views, view);
 	}
 }
-
-/*
-function processClick() {
-	if ( clickRequest ) {
-		var view = activeView;
-		if (view.viewType == '2DHeatmap'){
-			//console.log(continuousSelection, planeSelection, pointSelection)
-			if (continuousSelection == false ){
-				if (planeSelection == true || pointSelection == true){
-					console.log('deselect')
-					deselectAll();
-					updateAllPlots();
-					continuousSelection = true;
-				}
-			}
-			
-
-			if (planeSelection){
-				var temp = view.scene.getObjectByName('selectionPlane');
-				if (temp != null){
-					updatePlane(view,temp);
-				}
-				else {
-					spawnPlane(view);
-				}
-			}
-
-			if (pointSelection){
-				updatePointSelection(view);
-			}
-		}
-	}
-
-}*/
 
 function clickHeatmap(view, views) {
 
@@ -3513,7 +4215,6 @@ function deselectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolve
 		overallSpatiallyResolvedData[i].highlighted = false;
 	}
 	clickUpdateAll2DHeatmaps(views);
-	// updateAllPlots(views);
 }
 
 function selectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData) {
@@ -3524,7 +4225,6 @@ function selectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedD
 		overallSpatiallyResolvedData[i].highlighted = false;
 	}
 	clickUpdateAll2DHeatmaps(views);
-	// updateAllPlots(views);
 }
 
 function deselectHighlightedMoleculeData(views, overallMoleculeData) {
@@ -3535,7 +4235,6 @@ function deselectHighlightedMoleculeData(views, overallMoleculeData) {
 		overallMoleculeData[i].highlighted = false;
 	}
 	clickUpdateAll2DHeatmaps(views);
-	// updateAllPlots(views);
 }
 
 function selectHighlightedMoleculeData(views, overallMoleculeData) {
@@ -3546,7 +4245,6 @@ function selectHighlightedMoleculeData(views, overallMoleculeData) {
 		overallMoleculeData[i].highlighted = false;
 	}
 	clickUpdateAll2DHeatmaps(views);
-	// updateAllPlots(views);
 }
 
 function clickUpdateAll2DHeatmaps(views) {
@@ -3637,7 +4335,7 @@ function areAllTrue(list) {
 	}
 } */
 
-},{"./Selection/Utilities.js":5,"./tooltip.js":12}],11:[function(require,module,exports){
+},{"./Selection/Utilities.js":5,"./tooltip.js":13}],12:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -3645,6 +4343,7 @@ exports.setupOptionBox2DHeatmap = setupOptionBox2DHeatmap;
 exports.setupOptionBox2DHeatmapFolder = setupOptionBox2DHeatmapFolder;
 exports.setupOptionBox2DCovarianceFolder = setupOptionBox2DCovarianceFolder;
 exports.setupOptionBox2DPCAFolder = setupOptionBox2DPCAFolder;
+exports.setupOptionBox2DUmapFolder = setupOptionBox2DUmapFolder;
 exports.setupOptionBox2DComparisonFolder = setupOptionBox2DComparisonFolder;
 
 var _covarianceViewJs = require("./covarianceView.js");
@@ -3685,7 +4384,7 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 	//gui.height = 10;
 
 	gui.add(options, 'plotID');
-	gui.add(options, 'plotType', { 'Heatmap': 'Heatmap', 'Comparison': 'Comparison', 'Correlation': 'Correlation', 'Dim. Reduction': 'Dim. Reduction' }).name('Plot Type').onChange(function (value) {
+	gui.add(options, 'plotType', { 'Heatmap': 'Heatmap', 'Comparison': 'Comparison', 'Correlation': 'Correlation', 'PCA': 'PCA', 'Umap': 'Umap' }).name('Plot Type').onChange(function (value) {
 		console.log("removing plot");
 		try {
 			gui.removeFolder("Plot");
@@ -3702,8 +4401,12 @@ function setupOptionBox2DHeatmap(view, plotSetup) {
 			setupOptionBox2DCovarianceFolder(view, plotSetup, plotSetupFolder);
 		}
 
-		if (value == "Dim. Reduction") {
+		if (value == "PCA") {
 			setupOptionBox2DPCAFolder(view, plotSetup, plotSetupFolder);
+		}
+
+		if (value == "Umap") {
+			setupOptionBox2DUmapFolder(view, plotSetup, plotSetupFolder);
 		}
 
 		if (value == "Comparison") {
@@ -4298,6 +5001,224 @@ function setupOptionBox2DPCAFolder(view, plotSetup, folder) {
 	folder.open();
 }
 
+function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
+	var gui = view.gui;
+	var options = view.options;
+	if (view.overallSpatiallyResolvedDataBoolean) {
+
+		var UmapSpatiallyResolvedFeatureList = [];
+
+		for (var i = 1; i <= 2; i++) {
+			UmapSpatiallyResolvedFeatureList.push("_Umap" + i.toString());
+		}
+		var UmapSpatiallyResolvedFeatureChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(UmapSpatiallyResolvedFeatureList);
+	}
+
+	if (view.overallMoleculeDataBoolean) {
+
+		var UmapMoleculeDataFeatureList = [];
+
+		for (var i = 1; i <= 2; i++) {
+			UmapMoleculeDataFeatureList.push("_Umap" + i.toString());
+		}
+		var UmapMoleculeDataFeatureChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(UmapoleculeDataFeatureList);
+	}
+	var options = view.options;
+	var plotFolder = folder.addFolder('Plot Setting');
+	var viewFolder = folder.addFolder('View Control');
+	var selectionFolder = folder.addFolder('Selection');
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		var moleculeFolder = folder.addFolder('Molecular Data');
+		var spatiallyResolvedFolder = folder.addFolder('Spatially Resolved Data');
+	}
+
+	var detailFolder = folder.addFolder('Additional Control');
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add(options, 'plotData', { 'spatially resolved': 'spatiallyResolvedData', 'molecular': 'moleculeData' }).name('Plot Data').onChange(function (value) {
+			if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+				if (value == 'spatiallyResolvedData') {
+					moleculeFolder.close();
+					spatiallyResolvedFolder.open();
+				}
+				if (value == 'moleculeData') {
+					moleculeFolder.open();
+					spatiallyResolvedFolder.close();
+				}
+			}
+		});
+	} else {
+		plotFolder.add(options, 'plotData').name('Plot Data');
+	}
+
+	plotFolder.add(options, 'numPerSide', 10, 10000).step(1).name('Resolution').onChange(function (value) {
+		view.xPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
+		view.yPlotScale = d3.scaleLinear().domain([0, value]).range([-50, 50]);
+		//options.replotHeatmap.call();
+	});
+	if (view.overallMoleculeDataBoolean) {
+		plotFolder.add(options, 'saveOverallMoleculeData').name('Save Molecule');
+	}
+	if (view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add(options, 'saveOverallSpatiallyResolvedData').name('Save Spatially Resolved');
+	}
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
+		plotFolder.add(options, 'plotUmapXMoleculeData', UmapMoleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotUmapXTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10' }).name('X scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotUmapYMoleculeData', UmapMoleculeDataFeatureChoiceObject).name('Y').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotUmapYTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10' }).name('Y scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'selectAllMoleculeData').name('Select all');
+		plotFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
+	}
+
+	if (view.overallMoleculeDataBoolean == false && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add(options, 'plotUmapXSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotUmapXTransformSpatiallyResolvedData', { 'linear': 'linear', 'log10': 'log10' }).name('X scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotUmapYSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject).name('Y').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'plotUmapYTransformSpatiallyResolvedData', { 'linear': 'linear', 'log10': 'log10' }).name('Y scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		plotFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
+		plotFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+	}
+
+	plotFolder.add(options, 'replotUmapHeatmap').name("Calculate & Plot");
+	plotFolder.open();
+
+	viewFolder.add(options, 'colorMap', _UtilitiesColorMapJs.colorMapDict).name('Color Scheme').onChange(function (value) {
+		_HeatmapViewJs.updateHeatmap(view);
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	viewFolder.add(options, 'resetCamera').name("Reset camera");
+	viewFolder.add(options, 'toggleFullscreen').name('Fullscreen');
+	//viewFolder.open();
+
+	viewFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Point Opacity').onChange(function (value) {
+		_HeatmapViewJs.updateHeatmap(view);
+	});
+	viewFolder.add(options, 'pointCloudSize', 0, 10).step(0.1).name('Point Size').onChange(function (value) {
+		_HeatmapViewJs.updateHeatmap(view);
+	});
+
+	selectionFolder.add(options, 'planeSelection').name('with plane').onChange(function (value) {
+		if (value == true && options.brushSelection == true) {
+			options.brushSelection = false;
+			gui.updateDisplay();
+		}
+	});
+
+	selectionFolder.add(options, 'brushSelection').name('with brush').onChange(function (value) {
+		if (value == true && options.planeSelection == true) {
+			options.planeSelection = false;
+			gui.updateDisplay();
+		}
+	});
+
+	selectionFolder.add(options, 'selectionBrushSize', 0.5, 10).step(0.1).name('brush size').onChange(function (value) {
+		options.brushSelection = false;
+		options.planeSelection = false;
+		gui.updateDisplay();
+	});
+
+	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		moleculeFolder.add(options, 'plotUmapXMoleculeData', UmapMoleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add(options, 'plotUmapXTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10' }).name('X scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add(options, 'plotUmapYMoleculeData', UmapMoleculeDataFeatureChoiceObject).name('Y').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add(options, 'plotUmapYTransformMoleculeData', { 'linear': 'linear', 'log10': 'log10' }).name('Y scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		moleculeFolder.add(options, 'selectAllMoleculeData').name('Select all');
+		moleculeFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
+
+		moleculeFolder.close();
+
+		spatiallyResolvedFolder.add(options, 'plotUmapXSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add(options, 'plotUmapXTransformSpatiallyResolvedData', { 'linear': 'linear', 'log10': 'log10' }).name('X scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add(options, 'plotUmapYSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject).name('Y').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add(options, 'plotUmapYTransformSpatiallyResolvedData', { 'linear': 'linear', 'log10': 'log10' }).name('Y scale').onChange(function (value) {
+			//updatePointCloudGeometry(view);
+		});
+
+		spatiallyResolvedFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
+		spatiallyResolvedFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.open();
+	}
+
+	detailFolder.add(options, 'legendX', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendY', -10, 10).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendWidth', 0, 1).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendHeight', 0, 15).step(0.1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendTick', 1, 15).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'legendFontsize', 10, 75).step(1).onChange(function (value) {
+		_MultiviewControlColorLegendJs.changeLegend(view);
+	});
+	detailFolder.add(options, 'toggleLegend');
+
+	detailFolder.add(options, 'backgroundAlpha', 0.0, 1.0).step(0.1).name('background transparency').onChange(function (value) {
+		view.backgroundAlpha = value;
+	});
+
+	detailFolder.addColor(options, 'backgroundColor').name('background').onChange(function (value) {
+		view.background = new THREE.Color(value);
+	});
+
+	folder.open();
+}
+
 function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 	var gui = view.gui;
 	var options = view.options;
@@ -4506,7 +5427,7 @@ function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 	folder.open();
 }
 
-},{"../MultiviewControl/colorLegend.js":26,"../Utilities/colorMap.js":32,"../Utilities/other.js":33,"./HeatmapView.js":2,"./PCAView.js":4,"./comparisonView.js":7,"./covarianceView.js":8}],12:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":27,"../Utilities/colorMap.js":33,"../Utilities/other.js":34,"./HeatmapView.js":2,"./PCAView.js":4,"./comparisonView.js":8,"./covarianceView.js":9}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4534,161 +5455,56 @@ function initialize2DPlotTooltip(view) {
 	document.body.appendChild(tempTooltip);
 }
 
-/*function highlightHeatmapPoints(index, view) {
-	var heatmapX = view.heatmapInformation[index].heatmapX;
-	var heatmapY = view.heatmapInformation[index].heatmapY;
-
-	var dataset = view.data[heatmapX][heatmapY];
-	dataset.highlighted = true;
-
-	dataset.list.forEach(datapoint => {
-		datapoint.highlighted = true;
-	});
-}
-
-function unhighlightHeatmapPoints(index, view) {
-	var heatmapX = view.heatmapInformation[index].heatmapX;
-	var heatmapY = view.heatmapInformation[index].heatmapY;
-	
-	var dataset = view.data[heatmapX][heatmapY];
-	dataset.highlighted = false;
-
-	dataset.list.forEach(datapoint => {
-		datapoint.highlighted = false;
-	});
-}
-export function hoverHeatmap(view, mouseEvent){
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.heatmapPlot );
-	if ( intersects.length > 0 ) {
-		
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			if (view.INTERSECTED != null && view.highlightedIndexList.indexOf(view.INTERSECTED) == -1){
-				unhighlightHeatmapPoints(view.INTERSECTED, view);
-			}
-			view.INTERSECTED = intersects[ 0 ].index;
-			highlightHeatmapPoints(view.INTERSECTED, view);
-			updateHeatmapTooltip(view)
-			return true;
-		}
-		updateHeatmapTooltip(view)
-		return false
-	}
-	else {
-		// no intersection
-		if (view.INTERSECTED != null && view.highlightedIndexList.indexOf(view.INTERSECTED) == -1){
-			// has previous intersection and previous interesction not in list
-			unhighlightHeatmapPoints(view.INTERSECTED, view);
-			view.INTERSECTED = null;
-			updateHeatmapTooltip(view);
-			return true;
-		} else if (view.INTERSECTED != null) {
-			// has previous intersection and previous interesction in list
-			view.INTERSECTED = null;
-			updateHeatmapTooltip(view);
-			return true;
-		}else {
-			updateHeatmapTooltip(view);
-			return false;
-		}
-		
-	}
-}*/
-
 function updateHeatmapTooltip(view) {
 	// console.log('updating 2d map tooltip',view.INTERSECTED);
-	if (view.INTERSECTED) {
-		view.tooltip.style.top = event.clientY + 5 + 'px';
-		view.tooltip.style.left = event.clientX + 5 + 'px';
+	if (view.options.plotType == "Comparison") {
+		if (view.INTERSECTED) {
+			view.tooltip.style.top = event.clientY + 5 + 'px';
+			view.tooltip.style.left = event.clientX + 5 + 'px';
 
-		var interesctIndex = view.INTERSECTED;
-		view.tooltip.innerHTML = "x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
-	} else {
-		view.tooltip.innerHTML = '';
+			var interesctIndex = view.INTERSECTED;
+			view.tooltip.innerHTML = "x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "systems: " + view.heatmapInformation[interesctIndex].systemRepresented;
+		} else {
+			view.tooltip.innerHTML = '';
+		}
+	}
+
+	if (view.options.plotType == "Heatmap") {
+		if (view.INTERSECTED) {
+			view.tooltip.style.top = event.clientY + 5 + 'px';
+			view.tooltip.style.left = event.clientX + 5 + 'px';
+
+			var interesctIndex = view.INTERSECTED;
+			view.tooltip.innerHTML = "x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
+		} else {
+			view.tooltip.innerHTML = '';
+		}
+	}
+
+	if (view.options.plotType == "PCA") {
+		if (view.INTERSECTED) {
+			view.tooltip.style.top = event.clientY + 5 + 'px';
+			view.tooltip.style.left = event.clientX + 5 + 'px';
+
+			var interesctIndex = view.INTERSECTED;
+			view.tooltip.innerHTML = "x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
+		} else {
+			view.tooltip.innerHTML = '';
+		}
+	}
+
+	if (view.options.plotType == "Umap") {
+		if (view.INTERSECTED) {
+			view.tooltip.style.top = event.clientY + 5 + 'px';
+			view.tooltip.style.left = event.clientX + 5 + 'px';
+
+			var interesctIndex = view.INTERSECTED;
+			view.tooltip.innerHTML = "x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd + '<br>' + "y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd + '<br>' + "# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
+		} else {
+			view.tooltip.innerHTML = '';
+		}
 	}
 }
-
-/* export function clickHeatmap(view){
-
-	if (view.INTERSECTED != null){
-		console.log('currently heatmap point under mouse', view.highlightedIndexList)
-		//currently heatmap point under mouse
-		var indexInList = view.highlightedIndexList.indexOf(view.INTERSECTED);
-		if ( indexInList > -1){
-			console.log('already in list, remove from list')
-			// was highlighted
-			view.highlightedIndexList.splice(indexInList, 1);
-			return false;
-		} else {
-			console.log('not in list, add to list')
-			// not yet highlighted
-			view.highlightedIndexList.push(view.INTERSECTED);
-			return false;
-		}
-	} else {
-		console.log('currently No heatmap point under mouse')
-		// currently no heatmap point under mouse
-		if (view.highlightedIndexList.length > 0) {
-			view.highlightedIndexList.forEach(index => {
-				unhighlightHeatmapPoints(index, view);	
-			});
-			view.highlightedIndexList = [];
-			return true;
-		}
-		else {
-			return false;
-		}
-		
-	}
-} */
-
-/*export function updateHeatmapTooltip(view){
-
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((event.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((event.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-
-
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.heatmapPlot );
-	if ( intersects.length > 0 ) {
-		//console.log("found intersect")
-		
-		view.tooltip.style.top = event.clientY + 5  + 'px';
-		view.tooltip.style.left = event.clientX + 5  + 'px';
-
-		var interesctIndex = intersects[ 0 ].index;
-		view.tooltip.innerHTML = 	"x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
-									"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
-									"# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
-
-		//view.System.geometry.attributes.size.array[ interesctIndex ]  = 2 * view.options.pointCloudSize;
-		//view.System.geometry.attributes.size.needsUpdate = true;
-
-
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			if (view.INTERSECTED != null){
-				view.heatmapPlot.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-				view.heatmapPlot.geometry.attributes.size.needsUpdate = true;
-			}
-			view.INTERSECTED = intersects[ 0 ].index;
-			view.heatmapPlot.geometry.attributes.size.array[ view.INTERSECTED ] = 2 * view.options.pointCloudSize;
-			view.heatmapPlot.geometry.attributes.size.needsUpdate = true;
-		}
-
-	}
-	else {	view.tooltip.innerHTML = '';
-			if (view.INTERSECTED != null){
-				view.heatmapPlot.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-				view.heatmapPlot.geometry.attributes.size.needsUpdate = true;
-			}
-			view.INTERSECTED = null;
-	}
-}*/
 
 function updateCovarianceTooltip(view) {
 
@@ -4728,7 +5544,7 @@ function updateCovarianceTooltip(view) {
 	}
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 //  jmol color scheme: http://jmol.sourceforge.net/jscolors/
 "use strict";
 
@@ -4961,7 +5777,7 @@ var atomRadius = {
 };
 exports.atomRadius = atomRadius;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4989,8 +5805,8 @@ function getPointCloudMaterialInstanced(options) {
 	var pointCloudMaterialInstanced = new THREE.RawShaderMaterial({
 
 		uniforms: uniforms,
-		vertexShader: '\n\t\t\tprecision highp float;\n\n\t\t\tuniform mat4 modelViewMatrix;\n\t\t\tuniform mat4 projectionMatrix;\n\n\t\t\tattribute vec3 position;\n\n\t\t\tattribute float size;\n\t\t\tattribute vec3 customColor;\n\t\t\tattribute vec3 offset;\n\t\t\tattribute float alpha;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tvarying float vAlpha;\n\t\t\tvarying vec3 vColor;\n\n\t\t\tvoid main() {\n\t\t\tvColor = customColor;\n\t\t\tvAlpha = alpha;\n\t\t\tvec3 newPosition = position + offset;\n\t\t\tslicePosition = newPosition;\n\t\t\tvec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t\t\tgl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t\t\tgl_Position = projectionMatrix * mvPosition;\n\n\t\t\t}',
-		fragmentShader: '\n\t\t\tprecision highp float;\n\t\t\tuniform vec3 color;\n\t\t\tuniform sampler2D texture;\n\n\t\t\tvarying vec3 vColor;\n\t\t\tvarying float vAlpha;\n\t\t\tvarying vec3 slicePosition;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\n\t\t\tvoid main() {\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\n\t\t\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\t\t\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t\t\t}',
+		vertexShader: '\n\t\t\tprecision highp float;\n\n\t\t\tuniform mat4 modelViewMatrix;\n\t\t\tuniform mat4 projectionMatrix;\n\n\t\t\tattribute vec3 position;\n\t\t\tattribute float selection;\n\t\t\tvarying float vSelection;\n\n\t\t\tattribute float size;\n\t\t\tattribute vec3 customColor;\n\t\t\tattribute vec3 offset;\n\t\t\tattribute float alpha;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tvarying float vAlpha;\n\t\t\tvarying vec3 vColor;\n\n\t\t\tvoid main() {\n\t\t\t\tvColor = customColor;\n\t\t\t\tvAlpha = alpha;\n\t\t\t\tvec3 newPosition = position + offset;\n\t\t\t\tslicePosition = newPosition;\n\t\t\t\tvSelection = selection;\n\t\t\t\tvec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );\n\t\t\t\tgl_PointSize = size * ( 300.0 / -mvPosition.z );\n\t\t\t\tgl_Position = projectionMatrix * mvPosition;\n\n\t\t\t}',
+		fragmentShader: '\n\t\t\tprecision highp float;\n\t\t\tuniform vec3 color;\n\t\t\tuniform sampler2D texture;\n\n\t\t\tvarying vec3 vColor;\n\t\t\tvarying float vAlpha;\n\t\t\tvarying vec3 slicePosition;\n\t\t\tvarying float vSelection;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\n\t\t\tvoid main() {\n\t\t\t\tif(vSelection==0.0) discard;\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\n\t\t\t\tgl_FragColor = vec4( color * vColor, vAlpha );\n\t\t\t\tgl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );\n\t\t\t}',
 
 		blending: THREE.AdditiveBlending,
 		depthTest: false,
@@ -5143,21 +5959,22 @@ function getMoleculeAtomsMaterialInstanced(options) {
 		shader.uniforms.yClippingPlaneMin = { type: 'f', value: options.y_low };
 		shader.uniforms.zClippingPlaneMax = { type: 'f', value: options.z_high };
 		shader.uniforms.zClippingPlaneMin = { type: 'f', value: options.z_low };
-		shader.vertexShader = '\n\t\t\t#define LAMBERT\n\t\t\n\t\t\t// instanced\n\t\t\tattribute vec3 instanceOffset;\n\t\t\tattribute float instanceScale;\n\t\t\tattribute vec3 instanceColor;\n\t\t\t// attribute vec3 instanceColor;\n\t\t\t// attribute float instanceScale;\n\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\t\t\tvarying vec3 slicePosition;\n\t\t\t\n\t\t\tattribute float selection;\n\t\t\tvarying float vSelection;\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <fog_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\t\t\n\t\t\tvoid main() {\n\t\t\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\t\t\n\t\t\t\t// vertex colors instanced\n\t\t\t\t#ifdef USE_COLOR\n\t\t\t\t\tvColor.xyz = instanceColor.xyz;\n\t\t\t\t#endif\n\t\t\n\t\t\t\t#include <beginnormal_vertex>\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\t\t\n\t\t\t\t#include <begin_vertex>\n\t\t\n\t\t\t\t// position instanced\n\t\t\t\t// transformed *= instanceScale;\n\t\t\t\t// transformed = transformed + instanceOffset;\n\t\t\t\ttransformed *= instanceScale;\n\t\t\t\ttransformed = transformed + instanceOffset;\n\t\t\t\tslicePosition = transformed;\n\n\t\t\t\tvSelection = selection;\n\t\t\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\t\t\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <lights_lambert_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\t\t\t\t#include <fog_vertex>\n\t\t\n\t\t\t}\n\t\t\t';
-		shader.fragmentShader = '\n\t\t\tuniform vec3 diffuse;\n\t\t\tuniform vec3 emissive;\n\t\t\tuniform float opacity;\n\t\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tvarying float vSelection;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\t\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\t\n\t\t\t\n\t\t\t#include <common>\n\t\t\t#include <packing>\n\t\t\t#include <dithering_pars_fragment>\n\t\t\t#include <color_pars_fragment>\n\t\t\t#include <uv_pars_fragment>\n\t\t\t#include <uv2_pars_fragment>\n\t\t\t#include <map_pars_fragment>\n\t\t\t#include <alphamap_pars_fragment>\n\t\t\t#include <aomap_pars_fragment>\n\t\t\t#include <lightmap_pars_fragment>\n\t\t\t#include <emissivemap_pars_fragment>\n\t\t\t#include <envmap_common_pars_fragment>\n\t\t\t#include <envmap_pars_fragment>\n\t\t\t#include <cube_uv_reflection_fragment>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <fog_pars_fragment>\n\t\t\t#include <shadowmap_pars_fragment>\n\t\t\t#include <shadowmask_pars_fragment>\n\t\t\t#include <specularmap_pars_fragment>\n\t\t\t#include <logdepthbuf_pars_fragment>\n\t\t\t#include <clipping_planes_pars_fragment>\n\t\t\t\n\t\t\tvoid main() {\n\n\t\t\t\tif(vSelection==0.0) discard;\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\t\t\t\n\t\t\t\t#include <clipping_planes_fragment>\n\t\t\t\n\t\t\t\tvec4 diffuseColor = vec4( diffuse, opacity );\n\t\t\t\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\t\t\t\tvec3 totalEmissiveRadiance = emissive;\n\t\t\t\n\t\t\t\t#include <logdepthbuf_fragment>\n\t\t\t\t#include <map_fragment>\n\t\t\t\t#include <color_fragment>\n\t\t\t\t#include <alphamap_fragment>\n\t\t\t\t#include <alphatest_fragment>\n\t\t\t\t#include <specularmap_fragment>\n\t\t\t\t#include <emissivemap_fragment>\n\t\t\t\n\t\t\t\t// accumulation\n\t\t\t\treflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += vIndirectFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\t#include <lightmap_fragment>\n\t\t\t\n\t\t\t\treflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = vLightFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\treflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();\n\t\t\t\n\t\t\t\t// modulation\n\t\t\t\t#include <aomap_fragment>\n\t\t\t\n\t\t\t\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;\n\t\t\t\n\t\t\t\t#include <envmap_fragment>\n\t\t\t\n\t\t\t\tgl_FragColor = vec4( outgoingLight, diffuseColor.a );\n\t\t\t\n\t\t\t\t#include <tonemapping_fragment>\n\t\t\t\t#include <encodings_fragment>\n\t\t\t\t#include <fog_fragment>\n\t\t\t\t#include <premultiplied_alpha_fragment>\n\t\t\t\t#include <dithering_fragment>\n\t\t\t}\n\t\t\t';
+		shader.vertexShader = '\n\t\t\t#define LAMBERT\n\t\t\n\t\t\t// instanced\n\t\t\tattribute vec3 instanceOffset;\n\t\t\tattribute float instanceScale;\n\t\t\tattribute vec3 instanceColor;\n\t\t\t// attribute vec3 instanceColor;\n\t\t\t// attribute float instanceScale;\n\t\t\tattribute float atomIndex;\n\n\t\t\tvarying float encodedR;\n\t\t\tvarying float encodedG;\n\t\t\tvarying float encodedB;\n\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\t\t\tvarying vec3 slicePosition;\n\t\t\t\n\t\t\tattribute float selection;\n\t\t\tvarying float vSelection;\n\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <fog_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\t\t\n\t\t\tvoid main() {\n\t\t\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\t\t\n\t\t\t\t// vertex colors instanced\n\t\t\t\t#ifdef USE_COLOR\n\t\t\t\t\tvColor.xyz = instanceColor.xyz;\n\t\t\t\t#endif\n\t\t\n\t\t\t\t#include <beginnormal_vertex>\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\t\t\n\t\t\t\t#include <begin_vertex>\n\t\t\n\t\t\t\t// position instanced\n\t\t\t\t// transformed *= instanceScale;\n\t\t\t\t// transformed = transformed + instanceOffset;\n\t\t\t\ttransformed *= instanceScale;\n\t\t\t\ttransformed = transformed + instanceOffset;\n\t\t\t\tslicePosition = transformed;\n\n\t\t\t\tvSelection = selection;\n\t\t\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\t\t\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <lights_lambert_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\t\t\t\t#include <fog_vertex>\n\n\t\t\t\tencodedR = floor(atomIndex / 100000000.0);\n\t\t\t\tencodedG = floor((atomIndex - encodedR) / 10000.0);\n\t\t\t\tencodedB = atomIndex - encodedR - encodedG;\n\n\t\t\t\tencodedR = (encodedR + 1000.0) * 0.000001 + 5. * 0.0000001;\n\t\t\t\tencodedG = encodedG * 0.000001 + 5. * 0.0000001;\n\t\t\t\tencodedB = encodedB * 0.000001 + 5. * 0.0000001;\n\t\t\t\t\n\t\t\n\t\t\t}\n\t\t\t';
+		shader.fragmentShader = '\n\t\t\tuniform vec3 diffuse;\n\t\t\tuniform vec3 emissive;\n\t\t\tuniform float opacity;\n\t\t\t\n\t\t\tvarying vec3 vLightFront;\n\t\t\tvarying vec3 vIndirectFront;\n\n\t\t\tvarying float encodedR;\n\t\t\tvarying float encodedG;\n\t\t\tvarying float encodedB;\n\t\t\tfloat r;\n\t\t\tfloat g;\n\t\t\tfloat b;\n\n\t\t\tvarying vec3 slicePosition;\n\t\t\tvarying float vSelection;\n\t\t\tuniform float xClippingPlaneMax;\n\t\t\tuniform float xClippingPlaneMin;\n\t\t\tuniform float yClippingPlaneMax;\n\t\t\tuniform float yClippingPlaneMin;\n\t\t\tuniform float zClippingPlaneMax;\n\t\t\tuniform float zClippingPlaneMin;\n\t\t\t\n\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\tvarying vec3 vLightBack;\n\t\t\t\tvarying vec3 vIndirectBack;\n\t\t\t#endif\n\t\t\t\n\t\t\t\n\t\t\t#include <common>\n\t\t\t#include <packing>\n\t\t\t#include <dithering_pars_fragment>\n\t\t\t#include <color_pars_fragment>\n\t\t\t#include <uv_pars_fragment>\n\t\t\t#include <uv2_pars_fragment>\n\t\t\t#include <map_pars_fragment>\n\t\t\t#include <alphamap_pars_fragment>\n\t\t\t#include <aomap_pars_fragment>\n\t\t\t#include <lightmap_pars_fragment>\n\t\t\t#include <emissivemap_pars_fragment>\n\t\t\t#include <envmap_common_pars_fragment>\n\t\t\t#include <envmap_pars_fragment>\n\t\t\t#include <cube_uv_reflection_fragment>\n\t\t\t#include <bsdfs>\n\t\t\t#include <lights_pars_begin>\n\t\t\t#include <fog_pars_fragment>\n\t\t\t#include <shadowmap_pars_fragment>\n\t\t\t#include <shadowmask_pars_fragment>\n\t\t\t#include <specularmap_pars_fragment>\n\t\t\t#include <logdepthbuf_pars_fragment>\n\t\t\t#include <clipping_planes_pars_fragment>\n\t\t\t\n\t\t\tvoid main() {\n\n\t\t\t\tif(vSelection==0.0) discard;\n\t\t\t\tif(slicePosition.x<xClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.x>xClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.y<yClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.y>yClippingPlaneMax) discard;\n\t\t\t\tif(slicePosition.z<zClippingPlaneMin) discard;\n\t\t\t\tif(slicePosition.z>zClippingPlaneMax) discard;\n\t\t\t\n\t\t\t\t#include <clipping_planes_fragment>\n\t\t\t\n\t\t\t\tvec4 diffuseColor = vec4( diffuse, opacity );\n\t\t\t\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\t\t\t\tvec3 totalEmissiveRadiance = emissive;\n\t\t\t\n\t\t\t\t#include <logdepthbuf_fragment>\n\t\t\t\t#include <map_fragment>\n\t\t\t\t#include <color_fragment>\n\t\t\t\t#include <alphamap_fragment>\n\t\t\t\t#include <alphatest_fragment>\n\t\t\t\t#include <specularmap_fragment>\n\t\t\t\t#include <emissivemap_fragment>\n\t\t\t\n\t\t\t\t// accumulation\n\t\t\t\treflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.indirectDiffuse += vIndirectFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\t#include <lightmap_fragment>\n\t\t\t\n\t\t\t\treflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );\n\t\t\t\n\t\t\t\t#ifdef DOUBLE_SIDED\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;\n\t\t\t\n\t\t\t\t#else\n\t\t\t\n\t\t\t\t\treflectedLight.directDiffuse = vLightFront;\n\t\t\t\n\t\t\t\t#endif\n\t\t\t\n\t\t\t\treflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();\n\t\t\t\n\t\t\t\t// modulation\n\t\t\t\t#include <aomap_fragment>\n\t\t\t\n\t\t\t\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;\n\t\t\t\n\t\t\t\t#include <envmap_fragment>\n\t\t\t\n\t\t\t\tgl_FragColor = vec4( outgoingLight, diffuseColor.a );\n\t\t\t\n\t\t\t\t#include <tonemapping_fragment>\n\t\t\t\t#include <encodings_fragment>\n\t\t\t\t#include <fog_fragment>\n\t\t\t\t#include <premultiplied_alpha_fragment>\n\t\t\t\t#include <dithering_fragment>\n\n\t\t\t\tr = floor(gl_FragColor.x * 100.) * 0.01 + encodedR;\n\t\t\t\tg = floor(gl_FragColor.y * 100.) * 0.01 + encodedG;\n\t\t\t\tb = floor(gl_FragColor.z * 100.) * 0.01 + encodedB;\n\t\t\t\tgl_FragColor = vec4(r,g,b,gl_FragColor.w);\n\t\t\t}\n\t\t\t';
 		material.userData.shader = shader;
 	};
 
 	return material;
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
 exports.getMoleculeGeometry = getMoleculeGeometry;
 exports.updateMoleculeGeometrySlider = updateMoleculeGeometrySlider;
 exports.updateMoleculeGeometry = updateMoleculeGeometry;
+exports.updateMoleculeGeometryScale = updateMoleculeGeometryScale;
 exports.changeMoleculeGeometry = changeMoleculeGeometry;
 exports.removeMoleculeGeometry = removeMoleculeGeometry;
 
@@ -5424,11 +6241,12 @@ function addAtoms(view, moleculeData, lut) {
 				unitCellSelectionArr[i] = 1;
 			}
 		}
-		console.log('single cell', performance.now() - t0);
+		// console.log('single cell', performance.now() - t0);
 		var atomsGeometry = _UtilitiesJs.getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr, unitCellIndexArr, systemDimension, latticeVectors, options);
-		console.log('geometry', performance.now() - t0);
+		// console.log('geometry', performance.now() - t0);
 		var material = _MaterialsJs.getMoleculeAtomsMaterialInstanced(options);
 		var atoms = new THREE.Mesh(atomsGeometry, material);
+		atoms.frustumCulled = false;
 		// atoms.userData.numVerticesPerAtom = sphereTemplate.attributes.position.count;
 	}
 	view.molecule.atoms = atoms;
@@ -5672,164 +6490,6 @@ function getMoleculeGeometry(view) {
 	}
 }
 
-/*function updateMoleculeGeometrySpriteAtom(view) {
-	var options = view.options;
-	var sizeCode = options.moleculeSizeCodeBasis;
-	var colorCode = options.moleculeColorCodeBasis;
-	var currentFrame = options.currentFrame.toString();
-
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-	var atoms = view.molecule.atoms;
-	var geometry = atoms.geometry;
-
-	var positions = new Float32Array(moleculeData.length * 3);
-	var colors = new Float32Array( moleculeData.length* 3);
-	var sizes = new Float32Array(moleculeData.length);
-	var alphas = new Float32Array(moleculeData.length);
-
-	var numVerticesPerAtom = atoms.userData.numVerticesPerAtom;
-
-	var i3 = 0;
-	var atomSize;
-	var atomX, atomY, atomZ;
-	for (var i = 0; i < moleculeData.length; i++) {
-		var atomData = moleculeData[i];
-		atomX = atomData.x;
-		atomY = atomData.y;
-		atomZ = atomData.z;
-
-		if (colorCode == "atom") {
-			var color = colorToRgb(colorSetup[atomData.atom]);
-		}
-		else {
-			var color = lut.getColor( atomData[colorCode] );
-		}
-
-		colors[ i3+0 ] = color.r;
-		colors[ i3+1 ] = color.g;
-		colors[ i3+2 ] = color.b;
-
-		if (moleculeData[i].selected) {
-			if (sizeCode == "atom") {
-				atomSize = options.atomSize*atomRadius[atomData.atom] * 10;
-			}
-			else {
-				var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-				atomSize = options.atomSize*tempSize* 10;
-			}
-
-			if (moleculeData[i].highlighted) {
-				atomSize = atomSize * 2.5;
-			} 
-
-			sizes[i] = atomSize;
-			alphas[i] = options.moleculeAlpha;
-		}
-		else{
-			sizes[i] = 0;
-			alphas[i] = 0;
-		}
-
-		i3 +=3;
-	}
-
-	
-	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-
-	atoms.material.uniforms.xClippingPlaneMax.value = options.x_high;
-	atoms.material.uniforms.xClippingPlaneMin.value = options.x_low;
-	atoms.material.uniforms.yClippingPlaneMax.value = options.y_high;
-	atoms.material.uniforms.yClippingPlaneMin.value = options.y_low;
-	atoms.material.uniforms.zClippingPlaneMax.value = options.z_high;
-	atoms.material.uniforms.zClippingPlaneMin.value = options.z_low;
-}
-
-function updateMoleculeGeometryBallAtom(view) {
-	var options = view.options;
-	var sizeCode = options.moleculeSizeCodeBasis;
-	var colorCode = options.moleculeColorCodeBasis;
-	var currentFrame = options.currentFrame.toString();
-
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-	var atoms = view.molecule.atoms;
-	var numVerticesPerAtom = atoms.userData.numVerticesPerAtom;
-	var geometry = atoms.geometry;
-
-	var positions = geometry.attributes.position.array;
-	var colors = geometry.attributes.color.array;
-	var selections = geometry.attributes.selection.array;
-
-
-	var atomSize, currentAtomGeometry, currentPositionArray;
-	var sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, options.atomModelSegments);
-	for (var i = 0; i < moleculeData.length; i++) {
-		var atomData = moleculeData[i];
-
-		if (colorCode == "atom") {
-			var color = colorToRgb(colorSetup[atomData.atom]);
-		}
-		else {
-			var color = lut.getColor( atomData[colorCode] );
-		}
-
-
-		if (colorCode == "atom") {
-			var color = colorSetup[atomData.atom];
-		}
-		else {
-			var color = lut.getColor( atomData[colorCode] );
-		}
-		if (sizeCode == "atom") {
-			var atomSize = options.atomSize*atomRadius[atomData.atom];
-		}
-		else {
-			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-			var atomSize = options.atomSize * tempSize;
-		}
-
-		if (moleculeData[i].highlighted) {
-			currentAtomGeometry = sphereTemplate.clone().scale(atomSize * 2, atomSize * 2, atomSize * 2).translate(atomData.x, atomData.y,atomData.z);
-		} else {
-			// atomList.push(new THREE.SphereBufferGeometry(atomSize, options.atomModelSegments, options.atomModelSegments).translate(atomData.x, atomData.y,atomData.z));
-			currentAtomGeometry = sphereTemplate.clone().scale(atomSize, atomSize, atomSize).translate(atomData.x, atomData.y,atomData.z);
-		}
-
-		positions.set(currentAtomGeometry.attributes.position.array, i*numVerticesPerAtom);
-
-		if (atomData.selected) {
-			selections.fill(1, i * numVerticesPerAtom, (i+1) * numVerticesPerAtom);
-		} else {
-			selections.fill(0, i * numVerticesPerAtom, (i+1) * numVerticesPerAtom);
-		}
-
-		for (var j = 0; j < numVerticesPerAtom; j++) {
-			colors[i * numVerticesPerAtom + j * 3 + 0] = color.r;
-			colors[i * numVerticesPerAtom + j * 3 + 1] = color.g;
-			colors[i * numVerticesPerAtom + j * 3 + 2] = color.b;
-		}
-		
-	}
-
-	geometry.attributes.position.needsUpdate = true;
-	geometry.attributes.color.needsUpdate = true;
-	geometry.attributes.selection.needsUpdate = true;
-	
-	// geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	// geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	// geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-
-	var atomsMaterialShader = atoms.material.userData.shader;
-	atomsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
-	atomsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
-	atomsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
-	atomsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
-	atomsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
-	atomsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
-}*/
-
 function updateMoleculeGeometrySpriteAtom(view) {
 	var options = view.options;
 	var sizeCode = options.moleculeSizeCodeBasis;
@@ -5846,12 +6506,11 @@ function updateMoleculeGeometrySpriteAtom(view) {
 	var alphas = new Float32Array(moleculeData.length);
 
 	var i3 = 0;
-	var atomSize;
 	for (var i = 0; i < moleculeData.length; i++) {
 		var atomData = moleculeData[i];
-		atomX = atomData.x;
-		atomY = atomData.y;
-		atomZ = atomData.z;
+		positions[i3 + 0] = atomData.x;
+		positions[i3 + 1] = atomData.y;
+		positions[i3 + 2] = atomData.z;
 
 		if (colorCode == "atom") {
 			var color = _UtilitiesOtherJs.colorToRgb(_AtomSetupJs.colorSetup[atomData.atom]);
@@ -5954,6 +6613,35 @@ function updateMoleculeGeometryBallAtom(view) {
 	_UtilitiesJs.updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr, unitCellIndexArr, systemDimension, latticeVectors, options);
 }
 
+function updateMoleculeGeometryBallAtomScale(view) {
+	var atoms = view.molecule.atoms;
+	var geometry = atoms.geometry;
+	var options = view.options;
+	var sizeCode = options.moleculeSizeCodeBasis;
+	var currentFrame = options.currentFrame.toString();
+	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+	var unitCellScaleArr = new Float32Array(moleculeData.length);
+	var t0 = performance.now();
+	for (var i = 0; i < moleculeData.length; i++) {
+		var atomData = moleculeData[i];
+		if (sizeCode == "atom") {
+			var atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom];
+		} else {
+			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+			var atomSize = options.atomSize * tempSize;
+		}
+
+		if (moleculeData[i].highlighted) {
+			unitCellScaleArr[i] = atomSize * 2;
+		} else {
+			unitCellScaleArr[i] = atomSize;
+		}
+	}
+
+	_UtilitiesJs.updatePeriodicReplicatesInstancesMoleculeScale(geometry, unitCellScaleArr, options);
+}
+
 function updateClippingPlaneBallAtom(view) {
 	var atoms = view.molecule.atoms;
 	var atomsMaterialShader = atoms.material.userData.shader;
@@ -6017,7 +6705,7 @@ function updateMoleculeGeometrySlider(view) {
 			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
 		}
 	}
-	console.log('update molecule replicate took: ', performance.now() - t0);
+	//  console.log('update molecule replicate took: ', performance.now() - t0);
 }
 
 function updateMoleculeGeometry(view) {
@@ -6062,7 +6750,27 @@ function updateMoleculeGeometry(view) {
 			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
 		}
 	}
-	console.log('update molecule replicate took: ', performance.now() - t0);
+	// console.log('update molecule replicate took: ', performance.now() - t0);
+}
+
+function updateMoleculeGeometryScale(view) {
+	var options = view.options;
+
+	var t0 = performance.now();
+	if (options.showAtoms) {
+		var systemDimension = view.systemDimension;
+		var latticeVectors = view.systemLatticeVectors;
+
+		if (options.atomsStyle == "sprite") {
+			updateMoleculeGeometrySpriteAtom(view);
+			_UtilitiesJs.updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
+			updateClippingPlaneSpriteAtom(view);
+		} else if (options.atomsStyle == "ball") {
+			updateMoleculeGeometryBallAtomScale(view);
+		}
+	}
+
+	// console.log('update molecule scale replicate took: ', performance.now() - t0);
 }
 
 function changeMoleculeGeometry(view) {
@@ -6080,7 +6788,7 @@ function removeMoleculeGeometry(view) {
 	}
 }
 
-},{"../Utilities/other.js":33,"./AtomSetup.js":13,"./Materials.js":14,"./Utilities.js":17}],16:[function(require,module,exports){
+},{"../Utilities/other.js":34,"./AtomSetup.js":14,"./Materials.js":15,"./Utilities.js":18}],17:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6122,6 +6830,8 @@ function getPointCloudGeometry(view) {
 	var colors = new Float32Array(count * 3);
 	var sizes = new Float32Array(count);
 	var alphas = new Float32Array(count);
+	var selections = new Float32Array(count);
+	selections.fill(1);
 	// var parentBlock = new Float32Array( count);
 	var voxelPointDict = {};
 	var pointVoxelMap = new Uint32Array(count);
@@ -6164,20 +6874,32 @@ function getPointCloudGeometry(view) {
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
 
+				/*if (spatiallyResolvedData[k].highlighted) {
+    	sizes[ i ] = options.pointCloudSize * 3;
+    	alphas[ i ] = 1;
+    } else if (spatiallyResolvedData[k].selected){
+    	alphas[ i ] = options.pointCloudAlpha;
+    	if (options.animate) {
+    		sizes[ i ] = Math.random() * options.pointCloudSize;
+    	} else { 
+    		sizes[ i ] = options.pointCloudSize; 
+    	}
+    } else {
+    	alphas[ i ] = 0;
+    	sizes[ i ] = 0;
+    }*/
+
 				if (spatiallyResolvedData[k].highlighted) {
-					// console.log('found highlighted point', k );
 					sizes[i] = options.pointCloudSize * 3;
 					alphas[i] = 1;
-				} else if (spatiallyResolvedData[k].selected) {
-					alphas[i] = options.pointCloudAlpha;
-					if (options.animate) {
-						sizes[i] = Math.random() * options.pointCloudSize;
-					} else {
-						sizes[i] = options.pointCloudSize;
-					}
 				} else {
-					alphas[i] = 0;
-					sizes[i] = 0;
+					// not highlighted
+					alphas[i] = options.pointCloudAlpha;
+					sizes[i] = options.pointCloudSize;
+					if (!spatiallyResolvedData[k].selected) {
+						// not highlighted and not selected
+						selections[i] = 0;
+					}
 				}
 
 				// parentBlock[i] = k;
@@ -6194,6 +6916,7 @@ function getPointCloudGeometry(view) {
 	geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 	geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+	geometry.setAttribute('selection', new THREE.BufferAttribute(selections, 1));
 	// geometry.parentBlockMap = parentBlock;
 	var offsetResult = _UtilitiesJs.getOffsetArray(systemDimension, latticeVectors, options);
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3));
@@ -6223,6 +6946,8 @@ function updatePointCloudGeometry(view) {
 	var colors = new Float32Array(count * 3);
 	var sizes = new Float32Array(count);
 	var alphas = new Float32Array(count);
+	var selections = new Float32Array(count);
+	selections.fill(1);
 
 	var colorMap = options.colorMap;
 	var numberOfColors = 512;
@@ -6244,20 +6969,33 @@ function updatePointCloudGeometry(view) {
 		colors[i3 + 1] = color.g;
 		colors[i3 + 2] = color.b;
 
+		/*if (spatiallyResolvedData[k].highlighted) {
+  	// console.log('found highlighted point', k );
+  	sizes[ i ] = options.pointCloudSize * 3;
+  	alphas[ i ] = 1;
+  } else if (spatiallyResolvedData[k].selected){
+  	alphas[ i ] = options.pointCloudAlpha;
+  	if (options.animate) {
+  		sizes[ i ] = Math.random() * options.pointCloudSize;
+  	} else { 
+  		sizes[ i ] = options.pointCloudSize; 
+  	}
+  } else {
+  	alphas[ i ] = 0;
+  	sizes[ i ] = 0;
+  }*/
+
 		if (spatiallyResolvedData[k].highlighted) {
-			// console.log('found highlighted point', k );
 			sizes[i] = options.pointCloudSize * 3;
 			alphas[i] = 1;
-		} else if (spatiallyResolvedData[k].selected) {
-			alphas[i] = options.pointCloudAlpha;
-			if (options.animate) {
-				sizes[i] = Math.random() * options.pointCloudSize;
-			} else {
-				sizes[i] = options.pointCloudSize;
-			}
 		} else {
-			alphas[i] = 0;
-			sizes[i] = 0;
+			// not highlighted
+			alphas[i] = options.pointCloudAlpha;
+			sizes[i] = options.pointCloudSize;
+			if (!spatiallyResolvedData[k].selected) {
+				// not highlighted and not selected
+				selections[i] = 0;
+			}
 		}
 		i3 += 3;
 	}
@@ -6265,6 +7003,7 @@ function updatePointCloudGeometry(view) {
 	view.System.geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 	view.System.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 	view.System.geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+	view.System.geometry.setAttribute('selection', new THREE.BufferAttribute(selections, 1));
 
 	var systemDimension = view.systemDimension;
 	var latticeVectors = view.systemLatticeVectors;
@@ -6336,12 +7075,13 @@ function changePointCloudGeometry(view) {
 	getPointCloudGeometry(view);
 }
 
-},{"./Materials.js":14,"./Utilities.js":17}],17:[function(require,module,exports){
+},{"./Materials.js":15,"./Utilities.js":18}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 exports.getOffsetArray = getOffsetArray;
 exports.getPeriodicReplicatesInstancesMolecule = getPeriodicReplicatesInstancesMolecule;
+exports.updatePeriodicReplicatesInstancesMoleculeScale = updatePeriodicReplicatesInstancesMoleculeScale;
 exports.updatePeriodicReplicatesInstancesMolecule = updatePeriodicReplicatesInstancesMolecule;
 exports.updateOffsetArray = updateOffsetArray;
 
@@ -6445,11 +7185,39 @@ function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCellOffset
 	combinedGeometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1));
 	combinedGeometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3));
 	combinedGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1));
-	combinedGeometry.setAttribute('index', new THREE.InstancedBufferAttribute(sumIndexArr, 1));
+	combinedGeometry.setAttribute('atomIndex', new THREE.InstancedBufferAttribute(sumIndexArr, 1));
+	console.log(sumIndexArr);
 	combinedGeometry.maxInstancedCount = totalNumInstances;
-	console.log('num instances', combinedGeometry.maxInstancedCount);
 
 	return combinedGeometry;
+}
+
+function updatePeriodicReplicatesInstancesMoleculeScale(geometry, unitCellScaleArr, options) {
+	var numInstancePerUnitCell = unitCellScaleArr.length;
+	var sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
+
+	var x_start = -1 * ((options.xPBC - 1) / 2);
+	var x_end = (options.xPBC - 1) / 2 + 1;
+	var y_start = -1 * ((options.yPBC - 1) / 2);
+	var y_end = (options.yPBC - 1) / 2 + 1;
+	var z_start = -1 * ((options.zPBC - 1) / 2);
+	var z_end = (options.zPBC - 1) / 2 + 1;
+	var currentCellIndex = 0;
+	var currentStartingArrIndex;
+	for (var i = x_start; i < x_end; i++) {
+		for (var j = y_start; j < y_end; j++) {
+			for (var k = z_start; k < z_end; k++) {
+				//each unit cell
+				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex;
+				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
+				currentCellIndex++;
+			}
+		}
+	}
+
+	geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1));
+
+	geometry.attributes.instanceScale.needsUpdate = true;
 }
 
 function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr, unitCellIndexArr, systemDimension, latticeVectors, options) {
@@ -6509,15 +7277,16 @@ function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScaleArr, u
 	geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1));
 	geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3));
 	geometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1));
-	geometry.setAttribute('index', new THREE.InstancedBufferAttribute(sumIndexArr, 1));
+	geometry.setAttribute('atomIndex', new THREE.InstancedBufferAttribute(sumIndexArr, 1));
 	geometry.maxInstancedCount = totalNumInstances;
 
 	geometry.attributes.instanceOffset.needsUpdate = true;
 	geometry.attributes.instanceScale.needsUpdate = true;
 	geometry.attributes.instanceColor.needsUpdate = true;
 	geometry.attributes.selection.needsUpdate = true;
-	geometry.attributes.index.needsUpdate = true;
+	geometry.attributes.atomIndex.needsUpdate = true;
 	console.log('num instances', geometry.maxInstancedCount);
+	console.log(sumIndexArr);
 }
 
 function updateOffsetArray(systemDimension, latticeVectors, geometry, options) {
@@ -6599,7 +7368,7 @@ function updateOptionFilenames() {
 	console.log(options.densityFilename, options.targetFilename);
 }
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -6778,7 +7547,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.moleculeSizeSettingMax = 2;
 			this.moleculeSizeSettingMin = -2;
 			this.moleculeAlpha = 1.0;
-			this.atomModelSegments = 12;
+			this.atomModelSegments = 18;
 			this.bondModelSegments = 8;
 			this.showAtoms = true;
 			this.showBonds = false;
@@ -6828,199 +7597,18 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":25,"../MultiviewControl/colorLegend.js":26,"../Utilities/saveData.js":36,"./systemEdge.js":21}],19:[function(require,module,exports){
+},{"../MultiviewControl/calculateViewportSizes.js":26,"../MultiviewControl/colorLegend.js":27,"../Utilities/saveData.js":37,"./systemEdge.js":22}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 exports.hover3DViewSpatiallyResolved = hover3DViewSpatiallyResolved;
 exports.click3DViewSpatiallyResolved = click3DViewSpatiallyResolved;
-exports.hover3DViewMolecule = hover3DViewMolecule;
+exports.gpuPickMolecule = gpuPickMolecule;
+exports.hover3DViewMoleculeBall = hover3DViewMoleculeBall;
+exports.hover3DViewMoleculeSprite = hover3DViewMoleculeSprite;
 exports.click3DViewMolecule = click3DViewMolecule;
 
 var _DHeatmapsSelectionJs = require("../2DHeatmaps/selection.js");
-
-/*function highlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
-
-	var pointVoxelMap = view.System.userData.pointVoxelMap ;
-	//var voxelGlobalIndex = view.
-	// var voxelPointDict = view.System.userData.voxelPointDict;
-
-	if (plotSetup.active2DPlotSpatiallyResolved && 
-		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
-		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-        var heatmapY = yMap(highlightDataPoint);
-
-		var dataset = twoDPlot.data[heatmapX][heatmapY];
-		dataset.highlighted = true;
-
-		dataset.list.forEach(datapoint => {
-			datapoint.highlighted = true;
-		})
-	} else {
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-		highlightDataPoint.highlighted = true;
-	}
-}
-
-
-
-function unhighlight3DViewPointsSpatiallyResolved(index, view,plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
-
-	var pointVoxelMap = view.System.userData.pointVoxelMap ;
-	//var voxelGlobalIndex = view.
-	// var voxelPointDict = view.System.userData.voxelPointDict;
-
-	if (plotSetup.active2DPlotSpatiallyResolved && 
-		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
-		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-        var heatmapY = yMap(highlightDataPoint);
-        
-        var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
-        var indexInList = twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex);
-
-        if (indexInList == -1) {
-            // not in index list
-            var dataset = twoDPlot.data[heatmapX][heatmapY];
-            dataset.highlighted = false;
-
-            dataset.list.forEach(datapoint => {
-                datapoint.highlighted = false;
-            })
-        }
-
-		
-	} else {
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-		highlightDataPoint.highlighted = false;
-	}
-}
-
- export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-	
-	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
-	console.log(view.raycaster);
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.System );
-	if ( intersects.length > 0 ) {
-		
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			if (view.INTERSECTED != null){
-				unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
-			}
-			view.INTERSECTED = intersects[ 0 ].index;
-			highlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
-			return true;
-		}
-		return false;
-
-	}
-	else {
-		if (view.INTERSECTED != null){
-			unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
-			view.INTERSECTED = null;
-			return true;
-		} else {
-			return false;
-		}
-		
-	}
-
-} 
-
-
-export function click3DViewSpatiallyResolved(view, views, plotSetup){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
-
-	if (view.INTERSECTED != null){
-		console.log('currently heatmap point under mouse', view.highlightedIndexList)
-        //currently heatmap point under mouse
-
-        if (plotSetup.active2DPlotSpatiallyResolved && 
-            plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
-            plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
-            // has active 2D plot
-        
-            var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-            // var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-            var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-            var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-            var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[view.INTERSECTED]];
-
-            var xMap = function(d) {return xScale(xValue(d));};
-            var yMap = function(d) {return yScale(yValue(d));}; 
-
-            var heatmapX = xMap(highlightDataPoint);
-            var heatmapY = yMap(highlightDataPoint);
-            
-            var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
-            var indexInList = twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex);
-
-            if ( indexInList > -1){
-                console.log('already in list, remove from list')
-                // was highlighted
-                twoDPlot.highlightedIndexList.splice(indexInList, 1);
-
-                
-                return false;
-            } else {
-                console.log('not in list, add to list')
-                // not yet highlighted
-                twoDPlot.highlightedIndexList.push(heatmapPointIndex);
-                return false;
-            }
-
-
-        } else {
-            // no active 2D plot
-            var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[view.INTERSECTED]];
-            highlightedDataPoints.highlighted = false;
-            return false;
-        }
-
-
-		
-	} else {
-        console.log('currently No 3D point under mouse')
-        unhighlightAll(views);
-        return true;
-	}
-}
-
-
-
-
-*/
 
 function getCorrespondingHeatmapPointIndexSpatiallyResolved(view, voxelIndex, twoDPlot) {
     var options = view.options;
@@ -7177,137 +7765,9 @@ function click3DViewSpatiallyResolved(view, views, plotSetup) {
     }
 }
 
-/*function highlight3DViewPointsMolecule(index, view, plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-
-
-	if (plotSetup.active2DPlotMolecule && 
-		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
-		plotSetup.active2DPlotMolecule.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotMolecule;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = moleculeData[index];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-		var heatmapY = yMap(highlightDataPoint);
-
-		var dataset = twoDPlot.data[heatmapX][heatmapY];
-		dataset.highlighted = true;
-
-		dataset.list.forEach(datapoint => {
-			datapoint.highlighted = true;
-		})
-	} else {
-		var highlightDataPoint = moleculeData[index];
-		highlightDataPoint.highlighted = true;
-	}
-}
-
-function unhighlight3DViewPointsMolecule(index, view,plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-
-
-	if (plotSetup.active2DPlotMolecule && 
-		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
-		plotSetup.active2DPlotMolecule.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotMolecule;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = moleculeData[index];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-		var heatmapY = yMap(highlightDataPoint);
-
-		var dataset = twoDPlot.data[heatmapX][heatmapY];
-		dataset.highlighted = false;
-
-		dataset.list.forEach(datapoint => {
-			datapoint.highlighted = false;
-		})
-	} else {
-		var highlightDataPoint = moleculeData[index];
-		highlightDataPoint.highlighted = false;
-	}
-}
-
-export function hover3DViewMolecule(view, plotSetup, mouseEvent){
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-	
-	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 3.5;
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-
-	if (view.options.atomsStyle == "ball") {
-		
-		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
-		if ( intersects.length > 0 ) {
-			var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
-			// console.log('intersect', intersectIndex);
-			if ( view.INTERSECTED != intersectIndex ) {
-				if (view.INTERSECTED != null){
-					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				}
-				view.INTERSECTED = intersectIndex;
-				// console.log(intersects[0],view.molecule.atoms.userData.numVerticesPerAtom, view.INTERSECTED);
-				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				return true;
-			}
-			return false;
-		}
-		else {
-			if (view.INTERSECTED != null){
-				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				view.INTERSECTED = null;
-				return true;
-			}
-			return false;
-		}
-	}
-
-	if (view.options.atomsStyle == "sprite") {
-		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
-		if ( intersects.length > 0 ) {
-		
-			if ( view.INTERSECTED != intersects[ 0 ].index ) {
-				if (view.INTERSECTED != null){
-					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				}
-				view.INTERSECTED = intersects[ 0 ].index;
-				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				return true;
-			}
-			return false;
-	
-		}
-		else {
-			if (view.INTERSECTED != null){
-				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				view.INTERSECTED = null;
-				return true;
-			}
-			return false
-			
-		}
-	}
-}*/
-
 //Molecule
 
-function gpuPickMolecule(view, renderer, scene) {
+function gpuPickMolecule(view, renderer, scene, mouseEvent, windowWidth, windowHeight) {
     var camera = view.camera;
     var pickingTexture = new THREE.WebGLRenderTarget(1, 1, { type: THREE.FloatType });
     var pixelBuffer = new Float32Array(4);
@@ -7315,25 +7775,29 @@ function gpuPickMolecule(view, renderer, scene) {
     var width = Math.floor(windowWidth * view.width);
     var height = Math.floor(windowHeight * view.height);
     var left = Math.floor(windowWidth * view.left);
-    var top = Math.floor(windowHeight * (1 - view.top) - height);
+    var top = Math.floor(windowHeight * view.top);
 
-    camera.setViewOffset(renderer.domElement.width, renderer.domElement.height, pickingMouse.x * window.devicePixelRatio | 0, pickingMouse.y * window.devicePixelRatio | 0, 1, 1);
+    camera.setViewOffset(width, height, mouseEvent.clientX * window.devicePixelRatio | 0, mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1);
     camera.updateProjectionMatrix();
     renderer.setRenderTarget(pickingTexture);
 
     renderer.setViewport(left, top, width, height);
     renderer.setScissor(left, top, width, height);
 
+    renderer.setScissorTest(true);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+
     renderer.render(scene, camera);
 
     renderer.readRenderTargetPixels(pickingTexture, 0, 0, 1, 1, pixelBuffer);
-    // const t0 = performance.now();
     var pickingResult = parsePixelBuffer(pixelBuffer);
-    // console.log("estimated time", (performance.now() - t0) * 1920*1080);
-    this.geometrySelector.parseGpuPickingResult(pickingResult);
+    console.log(pickingResult);
 
     camera.clearViewOffset();
     camera.updateProjectionMatrix();
+    renderer.setRenderTarget(null);
+    return pickingResult;
 }
 
 function parsePixelBuffer(pixelBuffer) {
@@ -7343,6 +7807,7 @@ function parsePixelBuffer(pixelBuffer) {
     var encodedID1 = null;
     var encodedID2 = null;
     var encodedID3 = null;
+    // console.log(pixelBuffer);
 
     var rChannelInfo = Math.round(pixelBuffer[0] * 1e8);
     var gChannelInfo = Math.round(pixelBuffer[1] * 1e8);
@@ -7383,25 +7848,14 @@ function getCorrespondingHeatmapPointIndexMolecule(view, voxelIndex, twoDPlot) {
     return heatmapPointIndex;
 }
 
-function hover3DViewMolecule(view, plotSetup, mouseEvent) {
+function hover3DViewMoleculeBall(view, plotSetup, pickingResult) {
     var options = view.options;
     var currentFrame = options.currentFrame.toString();
     var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+    var intersectClass = pickingResult.encodedClass;
 
-    var mouse = new THREE.Vector2();
-    mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
-
-    view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
-    view.raycaster.setFromCamera(mouse.clone(), view.camera);
-    //var intersects = view.raycaster.intersectObject( view.System );
-    var intersects = view.raycaster.intersectObject(view.molecule.atoms);
-    // var pointVoxelMap = view.System.userData.pointVoxelMap ;
-    if (intersects.length > 0) {
-        if (view.options.atomsStyle == "ball") {
-            var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
-        } else {
-            var intersectIndex = intersects[0].index;
-        }
+    if (intersectClass && intersectClass == 1) {
+        var intersectIndex = pickingResult.encodedID;
         // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
         // if there is intersection
         if (view.INTERSECTED != intersectIndex) {
@@ -7409,7 +7863,115 @@ function hover3DViewMolecule(view, plotSetup, mouseEvent) {
             // changed intersection, deal with previously hovered points
             if (view.INTERSECTED != null) {
                 // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
-                var indexIn3DView = intersectIndex;
+                var indexIn3DView = view.INTERSECTED;
+                // console.log('if there is previous intersection', indexIn3DView)
+                // if there is previous intersection
+
+                if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+                    // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                    // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                    var twoDPlot = plotSetup.active2DPlotMolecule;
+                    var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view, indexIn3DView, twoDPlot);
+                    _DHeatmapsSelectionJs.unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+                } else {
+                    // console.log('changing atom, no active 2Dplot, return to previous 3D view state (current, to set)', moleculeData[indexIn3DView].highlighted, view.intersectState)
+                    // no active 2Dplot, return to previous 3D view state
+                    moleculeData[indexIn3DView].highlighted = view.intersectState;
+                    view.intersectState = null;
+                }
+            } else {}
+            // console.log('no previous intersection, do nothing here')
+            // no previous intersection, do nothing here
+
+            // console.log('updating intersect index', view.INTERSECTED)
+
+            view.INTERSECTED = intersectIndex;
+
+            var indexIn3DView = intersectIndex;
+            // console.log('deal with currently intersected points', indexIn3DView)
+            // deal with currently intersected points
+
+            if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+                // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                var twoDPlot = plotSetup.active2DPlotMolecule;
+                heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view, indexIn3DView, twoDPlot);
+                _DHeatmapsSelectionJs.highlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+            } else {
+                // console.log('if there is no active 2D plot, store current state, and highlight the atom', moleculeData[indexIn3DView].highlighted)
+                // if there is no active 2D plot, store current state, and highlight the voxel
+                view.intersectState = moleculeData[indexIn3DView].highlighted;
+                moleculeData[indexIn3DView].highlighted = true;
+            }
+            return true;
+        } else {
+            // console.log('same intersection, do nothing')
+            //same intersection, do nothing
+            return false;
+        }
+    } else {
+        // console.log('no current intersection ', view.INTERSECTED)
+        // no current intersection
+        if (view.INTERSECTED != null) {
+            // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+
+            var indexIn3DView = view.INTERSECTED;
+            //console.log('if there is previous intersection ', indexIn3DView)
+            // if there is previous intersection
+
+            if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
+                // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
+                // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
+                var twoDPlot = plotSetup.active2DPlotMolecule;
+                var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view, indexIn3DView, twoDPlot);
+                _DHeatmapsSelectionJs.unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
+            } else {
+                // console.log('no active 2Dplot, return to previous 3D view state')
+                // no active 2Dplot, return to previous 3D view state
+                // console.log('no active 2Dplot, return to previous 3D view state', moleculeData[indexIn3DView].highlighted, view.intersectState)
+                moleculeData[indexIn3DView].highlighted = view.intersectState;
+                view.intersectState = null;
+            }
+            view.INTERSECTED = null;
+            return true;
+        } else {
+            // console.log('no previous intersection, do nothing')
+            // no previous intersection, do nothing
+            view.INTERSECTED = null;
+            return false;
+        }
+    }
+}
+
+function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent) {
+    var options = view.options;
+    var currentFrame = options.currentFrame.toString();
+    var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+    var mouse = new THREE.Vector2();
+    mouse.set((mouseEvent.clientX - view.windowLeft) / view.windowWidth * 2 - 1, -((mouseEvent.clientY - view.windowTop) / view.windowHeight) * 2 + 1);
+
+    view.raycaster.params.Points.threshold = view.options.pointCloudSize * 3.5;
+    view.raycaster.setFromCamera(mouse.clone(), view.camera);
+    //var intersects = view.raycaster.intersectObject( view.System );
+    var intersects = view.raycaster.intersectObject(view.molecule.atoms);
+    // var pointVoxelMap = view.System.userData.pointVoxelMap ;
+    if (intersects.length > 0) {
+        /*if (view.options.atomsStyle == "ball") {
+            var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
+        }
+        else {
+            var intersectIndex = intersects[ 0 ].index;
+        }*/
+        var intersectIndex = intersects[0].index;
+        // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
+        // if there is intersection
+        if (view.INTERSECTED != intersectIndex) {
+            // console.log('changed intersection, deal with previously hovered points')
+            // changed intersection, deal with previously hovered points
+            if (view.INTERSECTED != null) {
+                // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+                var indexIn3DView = view.INTERSECTED;
                 // console.log('if there is previous intersection', indexIn3DView)
                 // if there is previous intersection
 
@@ -7495,7 +8057,7 @@ function click3DViewMolecule(view, views, plotSetup) {
     if (view.INTERSECTED != null) {
         //currently point under mouse
         // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
-        var indexIn3DView = intersectIndex;
+        var indexIn3DView = view.INTERSECTED;
         if (plotSetup.active2DPlotMolecule && plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && plotSetup.active2DPlotMolecule.heatmapPlot) {
             // has active 2D plot, handle it there
             var twoDPlot = plotSetup.active2DPlotMolecule;
@@ -7524,7 +8086,7 @@ function click3DViewMolecule(view, views, plotSetup) {
     }
 }
 
-},{"../2DHeatmaps/selection.js":10}],20:[function(require,module,exports){
+},{"../2DHeatmaps/selection.js":11}],21:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7894,7 +8456,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 		}
 		if (view.systemMoleculeDataBoolean) {
-			updateMoleculeGeometryPBCSlider(view);
+			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
 	});
@@ -7983,7 +8545,7 @@ function setupOptionBox3DView(view, plotSetup) {
 	//console.log(gui);
 }
 
-},{"../MultiviewControl/colorLegend.js":26,"../MultiviewControl/setupViewBasic.js":30,"../Utilities/colorMap.js":32,"../Utilities/other.js":33,"../Utilities/scale.js":37,"./MoleculeView.js":15,"./PointCloud_selection.js":16}],21:[function(require,module,exports){
+},{"../MultiviewControl/colorLegend.js":27,"../MultiviewControl/setupViewBasic.js":31,"../Utilities/colorMap.js":33,"../Utilities/other.js":34,"../Utilities/scale.js":38,"./MoleculeView.js":16,"./PointCloud_selection.js":17}],22:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -8048,7 +8610,7 @@ function transformPositionArray(array, U) {
 	return result;
 }
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8121,301 +8683,7 @@ function update3DViewTooltip(view) {
 	}
 }
 
-/*
-export function update3DViewTooltip(view){
-
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((event.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((event.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-
-
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.System );
-	if ( intersects.length > 0 ) {
-		//console.log("found intersect")
-		
-		view.tooltip.style.top = event.clientY + 5  + 'px';
-		view.tooltip.style.left = event.clientX + 5  + 'px';
-
-		var interesctIndex = intersects[ 0 ].index;
-		var tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
-									"y: " + data.y + "<br>" +
-									"z: " + data.z + "<br>";
-		for (var property in data ) {
-			if (data.hasOwnProperty(property)) {
-				if (property != "xPlot" && property != "yPlot" && property != "zPlot" && property != "x" && property != "y" && property != "z" && property != "selected"){
-					tempDisplayedInfo += property + ": " + data[property] + "<br>";
-				}
-			}
-		}
-
-		view.tooltip.innerHTML = 	tempDisplayedInfo;
-
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			if (view.INTERSECTED != null){
-				view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-				view.System.geometry.attributes.size.needsUpdate = true;
-			}
-			view.INTERSECTED = intersects[ 0 ].index;
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 2 * view.options.pointCloudSize;
-			view.System.geometry.attributes.size.needsUpdate = true;
-		}
-
-	}
-	else {	view.tooltip.innerHTML = '';
-			if (view.INTERSECTED != null){
-				view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-				view.System.geometry.attributes.size.needsUpdate = true;
-			}
-			view.INTERSECTED = null;
-	}
-}*/
-
-/* 
-
-
-function highlight3DViewPointsSpatiallyResolved(index, view, plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
-
-	var pointVoxelMap = view.System.userData.pointVoxelMap ;
-	//var voxelGlobalIndex = view.
-	var voxelPointDict = view.System.userData.voxelPointDict;
-
-	if (plotSetup.active2DPlotSpatiallyResolved && 
-		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
-		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-		var heatmapY = yMap(highlightDataPoint);
-
-		var dataset = twoDPlot.data[heatmapX][heatmapY];
-		dataset.highlighted = true;
-
-		dataset.list.forEach(datapoint => {
-			datapoint.highlighted = true;
-		})
-	} else {
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-		highlightDataPoint.highlighted = true;
-	}
-}
-
-function unhighlight3DViewPointsSpatiallyResolved(index, view,plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
-
-	var pointVoxelMap = view.System.userData.pointVoxelMap ;
-	//var voxelGlobalIndex = view.
-	var voxelPointDict = view.System.userData.voxelPointDict;
-
-	if (plotSetup.active2DPlotSpatiallyResolved && 
-		plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
-		plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-		var heatmapY = yMap(highlightDataPoint);
-
-		var dataset = twoDPlot.data[heatmapX][heatmapY];
-		dataset.highlighted = false;
-
-		dataset.list.forEach(datapoint => {
-			datapoint.highlighted = false;
-		})
-	} else {
-		var highlightDataPoint = spatiallyResolvedData[pointVoxelMap[index]];
-		highlightDataPoint.highlighted = false;
-	}
-}
-
-export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-	
-	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
-	console.log(view.raycaster);
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.System );
-	if ( intersects.length > 0 ) {
-		
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			if (view.INTERSECTED != null){
-				unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
-			}
-			view.INTERSECTED = intersects[ 0 ].index;
-			highlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
-			return true;
-		}
-		return false;
-
-	}
-	else {
-		if (view.INTERSECTED != null){
-			unhighlight3DViewPointsSpatiallyResolved(view.INTERSECTED, view,plotSetup);
-			view.INTERSECTED = null;
-			return true;
-		} else {
-			return false;
-		}
-		
-	}
-
-}
-
-
-
-
-
-function highlight3DViewPointsMolecule(index, view, plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-
-
-	if (plotSetup.active2DPlotMolecule && 
-		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
-		plotSetup.active2DPlotMolecule.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotMolecule;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = moleculeData[index];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-		var heatmapY = yMap(highlightDataPoint);
-
-		var dataset = twoDPlot.data[heatmapX][heatmapY];
-		dataset.highlighted = true;
-
-		dataset.list.forEach(datapoint => {
-			datapoint.highlighted = true;
-		})
-	} else {
-		var highlightDataPoint = moleculeData[index];
-		highlightDataPoint.highlighted = true;
-	}
-}
-
-function unhighlight3DViewPointsMolecule(index, view,plotSetup) {
-	var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-
-
-	if (plotSetup.active2DPlotMolecule && 
-		plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
-		plotSetup.active2DPlotMolecule.heatmapPlot) {
-		var twoDPlot = plotSetup.active2DPlotMolecule;
-		// var X = twoDPlot.options.plotXSpatiallyResolvedData, Y = twoDPlot.options.plotYSpatiallyResolvedData;
-		var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-		var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-		var highlightDataPoint = moleculeData[index];
-
-		var xMap = function(d) {return xScale(xValue(d));};
-		var yMap = function(d) {return yScale(yValue(d));}; 
-
-		var heatmapX = xMap(highlightDataPoint);
-		var heatmapY = yMap(highlightDataPoint);
-
-		var dataset = twoDPlot.data[heatmapX][heatmapY];
-		dataset.highlighted = false;
-
-		dataset.list.forEach(datapoint => {
-			datapoint.highlighted = false;
-		})
-	} else {
-		var highlightDataPoint = moleculeData[index];
-		highlightDataPoint.highlighted = false;
-	}
-}
-
-export function hover3DViewMolecule(view, plotSetup, mouseEvent){
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-	
-	view.raycaster.params.Points.threshold = view.options.pointCloudSize * 3.5;
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-
-	if (view.options.atomsStyle == "ball") {
-		
-		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
-		if ( intersects.length > 0 ) {
-			var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
-			console.log('intersect', intersectIndex);
-			if ( view.INTERSECTED != intersectIndex ) {
-				if (view.INTERSECTED != null){
-					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				}
-				view.INTERSECTED = intersectIndex;
-				// console.log(intersects[0],view.molecule.atoms.userData.numVerticesPerAtom, view.INTERSECTED);
-				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				return true;
-			}
-			return false;
-		}
-		else {
-			if (view.INTERSECTED != null){
-				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				view.INTERSECTED = null;
-				return true;
-			}
-			return false;
-		}
-	}
-
-	if (view.options.atomsStyle == "sprite") {
-		var intersects = view.raycaster.intersectObject( view.molecule.atoms );
-		if ( intersects.length > 0 ) {
-		
-			if ( view.INTERSECTED != intersects[ 0 ].index ) {
-				if (view.INTERSECTED != null){
-					unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				}
-				view.INTERSECTED = intersects[ 0 ].index;
-				highlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				return true;
-			}
-			return false;
-	
-		}
-		else {
-			if (view.INTERSECTED != null){
-				unhighlight3DViewPointsMolecule(view.INTERSECTED, view,plotSetup);
-				view.INTERSECTED = null;
-				return true;
-			}
-			return false
-			
-		}
-	}
-
-}
- */
-
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8443,7 +8711,7 @@ function setupHUD(view) {
 	view.border = border;
 }
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8496,7 +8764,7 @@ function deactivate2DPlotsMolecule(plotSetup, views) {
     console.log('deactivating view m', plotSetup.active2DPlotMolecule);
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -8650,7 +8918,7 @@ function deFullscreen(views) {
 	_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 }
 
-},{"../2DHeatmaps/Utilities.js":6,"./optionBoxControl.js":29}],26:[function(require,module,exports){
+},{"../2DHeatmaps/Utilities.js":7,"./optionBoxControl.js":30}],27:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8732,7 +9000,7 @@ function changeLegendMolecule(view) {
 	//if (view.options.moleculeColorCodeBasis != "atom"){insertLegendMolecule(view);}
 }
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -8781,7 +9049,7 @@ function disableController(view, controller) {
 	view.border.material.needsUpdate = true;
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -8807,7 +9075,7 @@ function initializeViewSetups(views, plotSetup) {
 	_MultiviewControlCalculateViewportSizesJs.calculateViewportSizes(views);
 }
 
-},{"../2DHeatmaps/initialize2DHeatmapSetup.js":9,"../3DViews/initialize3DViewSetup.js":18,"../MultiviewControl/calculateViewportSizes.js":25}],29:[function(require,module,exports){
+},{"../2DHeatmaps/initialize2DHeatmapSetup.js":10,"../3DViews/initialize3DViewSetup.js":19,"../MultiviewControl/calculateViewportSizes.js":26}],30:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8861,7 +9129,7 @@ function showHideAllOptionBoxes(views, boxShowBool) {
 	}
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -8933,7 +9201,7 @@ function updateCameraFov(view) {
 	view.camera.updateProjectionMatrix();
 }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -9047,7 +9315,7 @@ function euclideanDistnace(a, b) {
 	return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2);
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -9137,7 +9405,7 @@ var colorMapDict = {
     'gist_ncar': 'gist_ncar' };
 exports.colorMapDict = colorMapDict;
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -9433,7 +9701,7 @@ function getCanvasColor(color) {
         return "rgba(" + color.r + "," + color.g + "," + color.b + "," + color.a + ")";
 }
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -9853,7 +10121,7 @@ function combineData(views, overallSpatiallyResolvedData, overallMoleculeData) {
 	}
 }
 
-},{"fs":38,"papaparse":45}],35:[function(require,module,exports){
+},{"fs":39,"papaparse":48}],36:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -9993,7 +10261,7 @@ function normalizeLatticeVectors(U) {
     return result;
 }
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -10111,7 +10379,7 @@ function convertArrayOfObjectsToCSV(data, keys) {
 				}
 }
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -10174,9 +10442,9 @@ function adjustScaleAccordingToDefaultMoleculeData(view) {
 	}
 }
 
-},{}],38:[function(require,module,exports){
-
 },{}],39:[function(require,module,exports){
+
+},{}],40:[function(require,module,exports){
 'use strict';
 
 const toString = Object.prototype.toString;
@@ -10187,7 +10455,7 @@ function isAnyArray(object) {
 
 module.exports = isAnyArray;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -10217,7 +10485,7 @@ function max(input) {
 
 module.exports = max;
 
-},{"is-any-array":39}],41:[function(require,module,exports){
+},{"is-any-array":40}],42:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -10247,7 +10515,7 @@ function min(input) {
 
 module.exports = min;
 
-},{"is-any-array":39}],42:[function(require,module,exports){
+},{"is-any-array":40}],43:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -10301,7 +10569,4700 @@ function rescale(input, options = {}) {
 
 module.exports = rescale;
 
-},{"is-any-array":39,"ml-array-max":40,"ml-array-min":41}],43:[function(require,module,exports){
+},{"is-any-array":40,"ml-array-max":41,"ml-array-min":42}],44:[function(require,module,exports){
+'use strict';
+
+var mlMatrix = require('ml-matrix');
+
+/**
+ * Calculate current error
+ * @ignore
+ * @param {{x:Array<number>, y:Array<number>}} data - Array of points to fit in the format [x1, x2, ... ], [y1, y2, ... ]
+ * @param {Array<number>} parameters - Array of current parameter values
+ * @param {function} parameterizedFunction - The parameters and returns a function with the independent variable as a parameter
+ * @return {number}
+ */
+function errorCalculation(
+  data,
+  parameters,
+  parameterizedFunction
+) {
+  var error = 0;
+  const func = parameterizedFunction(parameters);
+
+  for (var i = 0; i < data.x.length; i++) {
+    error += Math.abs(data.y[i] - func(data.x[i]));
+  }
+
+  return error;
+}
+
+/**
+ * Difference of the matrix function over the parameters
+ * @ignore
+ * @param {{x:Array<number>, y:Array<number>}} data - Array of points to fit in the format [x1, x2, ... ], [y1, y2, ... ]
+ * @param {Array<number>} evaluatedData - Array of previous evaluated function values
+ * @param {Array<number>} params - Array of previous parameter values
+ * @param {number} gradientDifference - Adjustment for decrease the damping parameter
+ * @param {function} paramFunction - The parameters and returns a function with the independent variable as a parameter
+ * @return {Matrix}
+ */
+function gradientFunction(
+  data,
+  evaluatedData,
+  params,
+  gradientDifference,
+  paramFunction
+) {
+  const n = params.length;
+  const m = data.x.length;
+
+  var ans = new Array(n);
+
+  for (var param = 0; param < n; param++) {
+    ans[param] = new Array(m);
+    var auxParams = params.concat();
+    auxParams[param] += gradientDifference;
+    var funcParam = paramFunction(auxParams);
+
+    for (var point = 0; point < m; point++) {
+      ans[param][point] = evaluatedData[point] - funcParam(data.x[point]);
+    }
+  }
+  return new mlMatrix.Matrix(ans);
+}
+
+/**
+ * Matrix function over the samples
+ * @ignore
+ * @param {{x:Array<number>, y:Array<number>}} data - Array of points to fit in the format [x1, x2, ... ], [y1, y2, ... ]
+ * @param {Array<number>} evaluatedData - Array of previous evaluated function values
+ * @return {Matrix}
+ */
+function matrixFunction(data, evaluatedData) {
+  const m = data.x.length;
+
+  var ans = new Array(m);
+
+  for (var point = 0; point < m; point++) {
+    ans[point] = [data.y[point] - evaluatedData[point]];
+  }
+
+  return new mlMatrix.Matrix(ans);
+}
+
+/**
+ * Iteration for Levenberg-Marquardt
+ * @ignore
+ * @param {{x:Array<number>, y:Array<number>}} data - Array of points to fit in the format [x1, x2, ... ], [y1, y2, ... ]
+ * @param {Array<number>} params - Array of previous parameter values
+ * @param {number} damping - Levenberg-Marquardt parameter
+ * @param {number} gradientDifference - Adjustment for decrease the damping parameter
+ * @param {function} parameterizedFunction - The parameters and returns a function with the independent variable as a parameter
+ * @return {Array<number>}
+ */
+function step(
+  data,
+  params,
+  damping,
+  gradientDifference,
+  parameterizedFunction
+) {
+  var value = damping * gradientDifference * gradientDifference;
+  var identity = mlMatrix.Matrix.eye(params.length, params.length, value);
+
+  const func = parameterizedFunction(params);
+  var evaluatedData = data.x.map((e) => func(e));
+
+  var gradientFunc = gradientFunction(
+    data,
+    evaluatedData,
+    params,
+    gradientDifference,
+    parameterizedFunction
+  );
+  var matrixFunc = matrixFunction(data, evaluatedData);
+  var inverseMatrix = mlMatrix.inverse(
+    identity.add(gradientFunc.mmul(gradientFunc.transpose()))
+  );
+
+  params = new mlMatrix.Matrix([params]);
+  params = params.sub(
+    inverseMatrix
+      .mmul(gradientFunc)
+      .mmul(matrixFunc)
+      .mul(gradientDifference)
+      .transpose()
+  );
+
+  return params.to1DArray();
+}
+
+/**
+ * Curve fitting algorithm
+ * @param {{x:Array<number>, y:Array<number>}} data - Array of points to fit in the format [x1, x2, ... ], [y1, y2, ... ]
+ * @param {function} parameterizedFunction - The parameters and returns a function with the independent variable as a parameter
+ * @param {object} [options] - Options object
+ * @param {number} [options.damping] - Levenberg-Marquardt parameter
+ * @param {number} [options.gradientDifference = 10e-2] - Adjustment for decrease the damping parameter
+ * @param {Array<number>} [options.minValues] - Minimum allowed values for parameters
+ * @param {Array<number>} [options.maxValues] - Maximum allowed values for parameters
+ * @param {Array<number>} [options.initialValues] - Array of initial parameter values
+ * @param {number} [options.maxIterations = 100] - Maximum of allowed iterations
+ * @param {number} [options.errorTolerance = 10e-3] - Minimum uncertainty allowed for each point
+ * @return {{parameterValues: Array<number>, parameterError: number, iterations: number}}
+ */
+function levenbergMarquardt(
+  data,
+  parameterizedFunction,
+  options = {}
+) {
+  let {
+    maxIterations = 100,
+    gradientDifference = 10e-2,
+    damping = 0,
+    errorTolerance = 10e-3,
+    minValues,
+    maxValues,
+    initialValues
+  } = options;
+
+  if (damping <= 0) {
+    throw new Error('The damping option must be a positive number');
+  } else if (!data.x || !data.y) {
+    throw new Error('The data parameter must have x and y elements');
+  } else if (
+    !Array.isArray(data.x) ||
+    data.x.length < 2 ||
+    !Array.isArray(data.y) ||
+    data.y.length < 2
+  ) {
+    throw new Error(
+      'The data parameter elements must be an array with more than 2 points'
+    );
+  } else if (data.x.length !== data.y.length) {
+    throw new Error('The data parameter elements must have the same size');
+  }
+
+  var parameters =
+    initialValues || new Array(parameterizedFunction.length).fill(1);
+  let parLen = parameters.length;
+  maxValues = maxValues || new Array(parLen).fill(Number.MAX_SAFE_INTEGER);
+  minValues = minValues || new Array(parLen).fill(Number.MIN_SAFE_INTEGER);
+
+  if (maxValues.length !== minValues.length) {
+    throw new Error('minValues and maxValues must be the same size');
+  }
+
+  if (!Array.isArray(parameters)) {
+    throw new Error('initialValues must be an array');
+  }
+
+  var error = errorCalculation(data, parameters, parameterizedFunction);
+
+  var converged = error <= errorTolerance;
+
+  for (
+    var iteration = 0;
+    iteration < maxIterations && !converged;
+    iteration++
+  ) {
+    parameters = step(
+      data,
+      parameters,
+      damping,
+      gradientDifference,
+      parameterizedFunction
+    );
+
+    for (let k = 0; k < parLen; k++) {
+      parameters[k] = Math.min(
+        Math.max(minValues[k], parameters[k]),
+        maxValues[k]
+      );
+    }
+
+    error = errorCalculation(data, parameters, parameterizedFunction);
+    if (isNaN(error)) break;
+    converged = error <= errorTolerance;
+  }
+
+  return {
+    parameterValues: parameters,
+    parameterError: error,
+    iterations: iteration
+  };
+}
+
+module.exports = levenbergMarquardt;
+
+},{"ml-matrix":45}],45:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var rescale = _interopDefault(require('ml-array-rescale'));
+var max = _interopDefault(require('ml-array-max'));
+
+/**
+ * @class LuDecomposition
+ * @link https://github.com/lutzroeder/Mapack/blob/master/Source/LuDecomposition.cs
+ * @param {Matrix} matrix
+ */
+class LuDecomposition {
+  constructor(matrix) {
+    matrix = WrapperMatrix2D.checkMatrix(matrix);
+
+    var lu = matrix.clone();
+    var rows = lu.rows;
+    var columns = lu.columns;
+    var pivotVector = new Array(rows);
+    var pivotSign = 1;
+    var i, j, k, p, s, t, v;
+    var LUcolj, kmax;
+
+    for (i = 0; i < rows; i++) {
+      pivotVector[i] = i;
+    }
+
+    LUcolj = new Array(rows);
+
+    for (j = 0; j < columns; j++) {
+      for (i = 0; i < rows; i++) {
+        LUcolj[i] = lu.get(i, j);
+      }
+
+      for (i = 0; i < rows; i++) {
+        kmax = Math.min(i, j);
+        s = 0;
+        for (k = 0; k < kmax; k++) {
+          s += lu.get(i, k) * LUcolj[k];
+        }
+        LUcolj[i] -= s;
+        lu.set(i, j, LUcolj[i]);
+      }
+
+      p = j;
+      for (i = j + 1; i < rows; i++) {
+        if (Math.abs(LUcolj[i]) > Math.abs(LUcolj[p])) {
+          p = i;
+        }
+      }
+
+      if (p !== j) {
+        for (k = 0; k < columns; k++) {
+          t = lu.get(p, k);
+          lu.set(p, k, lu.get(j, k));
+          lu.set(j, k, t);
+        }
+
+        v = pivotVector[p];
+        pivotVector[p] = pivotVector[j];
+        pivotVector[j] = v;
+
+        pivotSign = -pivotSign;
+      }
+
+      if (j < rows && lu.get(j, j) !== 0) {
+        for (i = j + 1; i < rows; i++) {
+          lu.set(i, j, lu.get(i, j) / lu.get(j, j));
+        }
+      }
+    }
+
+    this.LU = lu;
+    this.pivotVector = pivotVector;
+    this.pivotSign = pivotSign;
+  }
+
+  /**
+   *
+   * @return {boolean}
+   */
+  isSingular() {
+    var data = this.LU;
+    var col = data.columns;
+    for (var j = 0; j < col; j++) {
+      if (data[j][j] === 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   *
+   * @param {Matrix} value
+   * @return {Matrix}
+   */
+  solve(value) {
+    value = Matrix.checkMatrix(value);
+
+    var lu = this.LU;
+    var rows = lu.rows;
+
+    if (rows !== value.rows) {
+      throw new Error('Invalid matrix dimensions');
+    }
+    if (this.isSingular()) {
+      throw new Error('LU matrix is singular');
+    }
+
+    var count = value.columns;
+    var X = value.subMatrixRow(this.pivotVector, 0, count - 1);
+    var columns = lu.columns;
+    var i, j, k;
+
+    for (k = 0; k < columns; k++) {
+      for (i = k + 1; i < columns; i++) {
+        for (j = 0; j < count; j++) {
+          X[i][j] -= X[k][j] * lu[i][k];
+        }
+      }
+    }
+    for (k = columns - 1; k >= 0; k--) {
+      for (j = 0; j < count; j++) {
+        X[k][j] /= lu[k][k];
+      }
+      for (i = 0; i < k; i++) {
+        for (j = 0; j < count; j++) {
+          X[i][j] -= X[k][j] * lu[i][k];
+        }
+      }
+    }
+    return X;
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get determinant() {
+    var data = this.LU;
+    if (!data.isSquare()) {
+      throw new Error('Matrix must be square');
+    }
+    var determinant = this.pivotSign;
+    var col = data.columns;
+    for (var j = 0; j < col; j++) {
+      determinant *= data[j][j];
+    }
+    return determinant;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get lowerTriangularMatrix() {
+    var data = this.LU;
+    var rows = data.rows;
+    var columns = data.columns;
+    var X = new Matrix(rows, columns);
+    for (var i = 0; i < rows; i++) {
+      for (var j = 0; j < columns; j++) {
+        if (i > j) {
+          X[i][j] = data[i][j];
+        } else if (i === j) {
+          X[i][j] = 1;
+        } else {
+          X[i][j] = 0;
+        }
+      }
+    }
+    return X;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get upperTriangularMatrix() {
+    var data = this.LU;
+    var rows = data.rows;
+    var columns = data.columns;
+    var X = new Matrix(rows, columns);
+    for (var i = 0; i < rows; i++) {
+      for (var j = 0; j < columns; j++) {
+        if (i <= j) {
+          X[i][j] = data[i][j];
+        } else {
+          X[i][j] = 0;
+        }
+      }
+    }
+    return X;
+  }
+
+  /**
+   *
+   * @return {Array<number>}
+   */
+  get pivotPermutationVector() {
+    return this.pivotVector.slice();
+  }
+}
+
+function hypotenuse(a, b) {
+  var r = 0;
+  if (Math.abs(a) > Math.abs(b)) {
+    r = b / a;
+    return Math.abs(a) * Math.sqrt(1 + r * r);
+  }
+  if (b !== 0) {
+    r = a / b;
+    return Math.abs(b) * Math.sqrt(1 + r * r);
+  }
+  return 0;
+}
+
+function getFilled2DArray(rows, columns, value) {
+  var array = new Array(rows);
+  for (var i = 0; i < rows; i++) {
+    array[i] = new Array(columns);
+    for (var j = 0; j < columns; j++) {
+      array[i][j] = value;
+    }
+  }
+  return array;
+}
+
+/**
+ * @class SingularValueDecomposition
+ * @see https://github.com/accord-net/framework/blob/development/Sources/Accord.Math/Decompositions/SingularValueDecomposition.cs
+ * @param {Matrix} value
+ * @param {object} [options]
+ * @param {boolean} [options.computeLeftSingularVectors=true]
+ * @param {boolean} [options.computeRightSingularVectors=true]
+ * @param {boolean} [options.autoTranspose=false]
+ */
+class SingularValueDecomposition {
+  constructor(value, options = {}) {
+    value = WrapperMatrix2D.checkMatrix(value);
+
+    var m = value.rows;
+    var n = value.columns;
+
+    const {
+      computeLeftSingularVectors = true,
+      computeRightSingularVectors = true,
+      autoTranspose = false
+    } = options;
+
+    var wantu = Boolean(computeLeftSingularVectors);
+    var wantv = Boolean(computeRightSingularVectors);
+
+    var swapped = false;
+    var a;
+    if (m < n) {
+      if (!autoTranspose) {
+        a = value.clone();
+        // eslint-disable-next-line no-console
+        console.warn(
+          'Computing SVD on a matrix with more columns than rows. Consider enabling autoTranspose'
+        );
+      } else {
+        a = value.transpose();
+        m = a.rows;
+        n = a.columns;
+        swapped = true;
+        var aux = wantu;
+        wantu = wantv;
+        wantv = aux;
+      }
+    } else {
+      a = value.clone();
+    }
+
+    var nu = Math.min(m, n);
+    var ni = Math.min(m + 1, n);
+    var s = new Array(ni);
+    var U = getFilled2DArray(m, nu, 0);
+    var V = getFilled2DArray(n, n, 0);
+
+    var e = new Array(n);
+    var work = new Array(m);
+
+    var si = new Array(ni);
+    for (let i = 0; i < ni; i++) si[i] = i;
+
+    var nct = Math.min(m - 1, n);
+    var nrt = Math.max(0, Math.min(n - 2, m));
+    var mrc = Math.max(nct, nrt);
+
+    for (let k = 0; k < mrc; k++) {
+      if (k < nct) {
+        s[k] = 0;
+        for (let i = k; i < m; i++) {
+          s[k] = hypotenuse(s[k], a[i][k]);
+        }
+        if (s[k] !== 0) {
+          if (a[k][k] < 0) {
+            s[k] = -s[k];
+          }
+          for (let i = k; i < m; i++) {
+            a[i][k] /= s[k];
+          }
+          a[k][k] += 1;
+        }
+        s[k] = -s[k];
+      }
+
+      for (let j = k + 1; j < n; j++) {
+        if (k < nct && s[k] !== 0) {
+          let t = 0;
+          for (let i = k; i < m; i++) {
+            t += a[i][k] * a[i][j];
+          }
+          t = -t / a[k][k];
+          for (let i = k; i < m; i++) {
+            a[i][j] += t * a[i][k];
+          }
+        }
+        e[j] = a[k][j];
+      }
+
+      if (wantu && k < nct) {
+        for (let i = k; i < m; i++) {
+          U[i][k] = a[i][k];
+        }
+      }
+
+      if (k < nrt) {
+        e[k] = 0;
+        for (let i = k + 1; i < n; i++) {
+          e[k] = hypotenuse(e[k], e[i]);
+        }
+        if (e[k] !== 0) {
+          if (e[k + 1] < 0) {
+            e[k] = 0 - e[k];
+          }
+          for (let i = k + 1; i < n; i++) {
+            e[i] /= e[k];
+          }
+          e[k + 1] += 1;
+        }
+        e[k] = -e[k];
+        if (k + 1 < m && e[k] !== 0) {
+          for (let i = k + 1; i < m; i++) {
+            work[i] = 0;
+          }
+          for (let i = k + 1; i < m; i++) {
+            for (let j = k + 1; j < n; j++) {
+              work[i] += e[j] * a[i][j];
+            }
+          }
+          for (let j = k + 1; j < n; j++) {
+            let t = -e[j] / e[k + 1];
+            for (let i = k + 1; i < m; i++) {
+              a[i][j] += t * work[i];
+            }
+          }
+        }
+        if (wantv) {
+          for (let i = k + 1; i < n; i++) {
+            V[i][k] = e[i];
+          }
+        }
+      }
+    }
+
+    let p = Math.min(n, m + 1);
+    if (nct < n) {
+      s[nct] = a[nct][nct];
+    }
+    if (m < p) {
+      s[p - 1] = 0;
+    }
+    if (nrt + 1 < p) {
+      e[nrt] = a[nrt][p - 1];
+    }
+    e[p - 1] = 0;
+
+    if (wantu) {
+      for (let j = nct; j < nu; j++) {
+        for (let i = 0; i < m; i++) {
+          U[i][j] = 0;
+        }
+        U[j][j] = 1;
+      }
+      for (let k = nct - 1; k >= 0; k--) {
+        if (s[k] !== 0) {
+          for (let j = k + 1; j < nu; j++) {
+            let t = 0;
+            for (let i = k; i < m; i++) {
+              t += U[i][k] * U[i][j];
+            }
+            t = -t / U[k][k];
+            for (let i = k; i < m; i++) {
+              U[i][j] += t * U[i][k];
+            }
+          }
+          for (let i = k; i < m; i++) {
+            U[i][k] = -U[i][k];
+          }
+          U[k][k] = 1 + U[k][k];
+          for (let i = 0; i < k - 1; i++) {
+            U[i][k] = 0;
+          }
+        } else {
+          for (let i = 0; i < m; i++) {
+            U[i][k] = 0;
+          }
+          U[k][k] = 1;
+        }
+      }
+    }
+
+    if (wantv) {
+      for (let k = n - 1; k >= 0; k--) {
+        if (k < nrt && e[k] !== 0) {
+          for (let j = k + 1; j < n; j++) {
+            let t = 0;
+            for (let i = k + 1; i < n; i++) {
+              t += V[i][k] * V[i][j];
+            }
+            t = -t / V[k + 1][k];
+            for (let i = k + 1; i < n; i++) {
+              V[i][j] += t * V[i][k];
+            }
+          }
+        }
+        for (let i = 0; i < n; i++) {
+          V[i][k] = 0;
+        }
+        V[k][k] = 1;
+      }
+    }
+
+    var pp = p - 1;
+    var eps = Number.EPSILON;
+    while (p > 0) {
+      let k, kase;
+      for (k = p - 2; k >= -1; k--) {
+        if (k === -1) {
+          break;
+        }
+        const alpha =
+          Number.MIN_VALUE + eps * Math.abs(s[k] + Math.abs(s[k + 1]));
+        if (Math.abs(e[k]) <= alpha || Number.isNaN(e[k])) {
+          e[k] = 0;
+          break;
+        }
+      }
+      if (k === p - 2) {
+        kase = 4;
+      } else {
+        let ks;
+        for (ks = p - 1; ks >= k; ks--) {
+          if (ks === k) {
+            break;
+          }
+          let t =
+            (ks !== p ? Math.abs(e[ks]) : 0) +
+            (ks !== k + 1 ? Math.abs(e[ks - 1]) : 0);
+          if (Math.abs(s[ks]) <= eps * t) {
+            s[ks] = 0;
+            break;
+          }
+        }
+        if (ks === k) {
+          kase = 3;
+        } else if (ks === p - 1) {
+          kase = 1;
+        } else {
+          kase = 2;
+          k = ks;
+        }
+      }
+
+      k++;
+
+      switch (kase) {
+        case 1: {
+          let f = e[p - 2];
+          e[p - 2] = 0;
+          for (let j = p - 2; j >= k; j--) {
+            let t = hypotenuse(s[j], f);
+            let cs = s[j] / t;
+            let sn = f / t;
+            s[j] = t;
+            if (j !== k) {
+              f = -sn * e[j - 1];
+              e[j - 1] = cs * e[j - 1];
+            }
+            if (wantv) {
+              for (let i = 0; i < n; i++) {
+                t = cs * V[i][j] + sn * V[i][p - 1];
+                V[i][p - 1] = -sn * V[i][j] + cs * V[i][p - 1];
+                V[i][j] = t;
+              }
+            }
+          }
+          break;
+        }
+        case 2: {
+          let f = e[k - 1];
+          e[k - 1] = 0;
+          for (let j = k; j < p; j++) {
+            let t = hypotenuse(s[j], f);
+            let cs = s[j] / t;
+            let sn = f / t;
+            s[j] = t;
+            f = -sn * e[j];
+            e[j] = cs * e[j];
+            if (wantu) {
+              for (let i = 0; i < m; i++) {
+                t = cs * U[i][j] + sn * U[i][k - 1];
+                U[i][k - 1] = -sn * U[i][j] + cs * U[i][k - 1];
+                U[i][j] = t;
+              }
+            }
+          }
+          break;
+        }
+        case 3: {
+          const scale = Math.max(
+            Math.abs(s[p - 1]),
+            Math.abs(s[p - 2]),
+            Math.abs(e[p - 2]),
+            Math.abs(s[k]),
+            Math.abs(e[k])
+          );
+          const sp = s[p - 1] / scale;
+          const spm1 = s[p - 2] / scale;
+          const epm1 = e[p - 2] / scale;
+          const sk = s[k] / scale;
+          const ek = e[k] / scale;
+          const b = ((spm1 + sp) * (spm1 - sp) + epm1 * epm1) / 2;
+          const c = sp * epm1 * (sp * epm1);
+          let shift = 0;
+          if (b !== 0 || c !== 0) {
+            if (b < 0) {
+              shift = 0 - Math.sqrt(b * b + c);
+            } else {
+              shift = Math.sqrt(b * b + c);
+            }
+            shift = c / (b + shift);
+          }
+          let f = (sk + sp) * (sk - sp) + shift;
+          let g = sk * ek;
+          for (let j = k; j < p - 1; j++) {
+            let t = hypotenuse(f, g);
+            if (t === 0) t = Number.MIN_VALUE;
+            let cs = f / t;
+            let sn = g / t;
+            if (j !== k) {
+              e[j - 1] = t;
+            }
+            f = cs * s[j] + sn * e[j];
+            e[j] = cs * e[j] - sn * s[j];
+            g = sn * s[j + 1];
+            s[j + 1] = cs * s[j + 1];
+            if (wantv) {
+              for (let i = 0; i < n; i++) {
+                t = cs * V[i][j] + sn * V[i][j + 1];
+                V[i][j + 1] = -sn * V[i][j] + cs * V[i][j + 1];
+                V[i][j] = t;
+              }
+            }
+            t = hypotenuse(f, g);
+            if (t === 0) t = Number.MIN_VALUE;
+            cs = f / t;
+            sn = g / t;
+            s[j] = t;
+            f = cs * e[j] + sn * s[j + 1];
+            s[j + 1] = -sn * e[j] + cs * s[j + 1];
+            g = sn * e[j + 1];
+            e[j + 1] = cs * e[j + 1];
+            if (wantu && j < m - 1) {
+              for (let i = 0; i < m; i++) {
+                t = cs * U[i][j] + sn * U[i][j + 1];
+                U[i][j + 1] = -sn * U[i][j] + cs * U[i][j + 1];
+                U[i][j] = t;
+              }
+            }
+          }
+          e[p - 2] = f;
+          break;
+        }
+        case 4: {
+          if (s[k] <= 0) {
+            s[k] = s[k] < 0 ? -s[k] : 0;
+            if (wantv) {
+              for (let i = 0; i <= pp; i++) {
+                V[i][k] = -V[i][k];
+              }
+            }
+          }
+          while (k < pp) {
+            if (s[k] >= s[k + 1]) {
+              break;
+            }
+            let t = s[k];
+            s[k] = s[k + 1];
+            s[k + 1] = t;
+            if (wantv && k < n - 1) {
+              for (let i = 0; i < n; i++) {
+                t = V[i][k + 1];
+                V[i][k + 1] = V[i][k];
+                V[i][k] = t;
+              }
+            }
+            if (wantu && k < m - 1) {
+              for (let i = 0; i < m; i++) {
+                t = U[i][k + 1];
+                U[i][k + 1] = U[i][k];
+                U[i][k] = t;
+              }
+            }
+            k++;
+          }
+          p--;
+          break;
+        }
+        // no default
+      }
+    }
+
+    if (swapped) {
+      var tmp = V;
+      V = U;
+      U = tmp;
+    }
+
+    this.m = m;
+    this.n = n;
+    this.s = s;
+    this.U = U;
+    this.V = V;
+  }
+
+  /**
+   * Solve a problem of least square (Ax=b) by using the SVD. Useful when A is singular. When A is not singular, it would be better to use qr.solve(value).
+   * Example : We search to approximate x, with A matrix shape m*n, x vector size n, b vector size m (m > n). We will use :
+   * var svd = SingularValueDecomposition(A);
+   * var x = svd.solve(b);
+   * @param {Matrix} value - Matrix 1D which is the vector b (in the equation Ax = b)
+   * @return {Matrix} - The vector x
+   */
+  solve(value) {
+    var Y = value;
+    var e = this.threshold;
+    var scols = this.s.length;
+    var Ls = Matrix.zeros(scols, scols);
+
+    for (let i = 0; i < scols; i++) {
+      if (Math.abs(this.s[i]) <= e) {
+        Ls[i][i] = 0;
+      } else {
+        Ls[i][i] = 1 / this.s[i];
+      }
+    }
+
+    var U = this.U;
+    var V = this.rightSingularVectors;
+
+    var VL = V.mmul(Ls);
+    var vrows = V.rows;
+    var urows = U.length;
+    var VLU = Matrix.zeros(vrows, urows);
+
+    for (let i = 0; i < vrows; i++) {
+      for (let j = 0; j < urows; j++) {
+        let sum = 0;
+        for (let k = 0; k < scols; k++) {
+          sum += VL[i][k] * U[j][k];
+        }
+        VLU[i][j] = sum;
+      }
+    }
+
+    return VLU.mmul(Y);
+  }
+
+  /**
+   *
+   * @param {Array<number>} value
+   * @return {Matrix}
+   */
+  solveForDiagonal(value) {
+    return this.solve(Matrix.diag(value));
+  }
+
+  /**
+   * Get the inverse of the matrix. We compute the inverse of a matrix using SVD when this matrix is singular or ill-conditioned. Example :
+   * var svd = SingularValueDecomposition(A);
+   * var inverseA = svd.inverse();
+   * @return {Matrix} - The approximation of the inverse of the matrix
+   */
+  inverse() {
+    var V = this.V;
+    var e = this.threshold;
+    var vrows = V.length;
+    var vcols = V[0].length;
+    var X = new Matrix(vrows, this.s.length);
+
+    for (let i = 0; i < vrows; i++) {
+      for (let j = 0; j < vcols; j++) {
+        if (Math.abs(this.s[j]) > e) {
+          X[i][j] = V[i][j] / this.s[j];
+        } else {
+          X[i][j] = 0;
+        }
+      }
+    }
+
+    var U = this.U;
+
+    var urows = U.length;
+    var ucols = U[0].length;
+    var Y = new Matrix(vrows, urows);
+
+    for (let i = 0; i < vrows; i++) {
+      for (let j = 0; j < urows; j++) {
+        let sum = 0;
+        for (let k = 0; k < ucols; k++) {
+          sum += X[i][k] * U[j][k];
+        }
+        Y[i][j] = sum;
+      }
+    }
+
+    return Y;
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get condition() {
+    return this.s[0] / this.s[Math.min(this.m, this.n) - 1];
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get norm2() {
+    return this.s[0];
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get rank() {
+    var tol = Math.max(this.m, this.n) * this.s[0] * Number.EPSILON;
+    var r = 0;
+    var s = this.s;
+    for (var i = 0, ii = s.length; i < ii; i++) {
+      if (s[i] > tol) {
+        r++;
+      }
+    }
+    return r;
+  }
+
+  /**
+   *
+   * @return {Array<number>}
+   */
+  get diagonal() {
+    return this.s;
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get threshold() {
+    return Number.EPSILON / 2 * Math.max(this.m, this.n) * this.s[0];
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get leftSingularVectors() {
+    if (!Matrix.isMatrix(this.U)) {
+      this.U = new Matrix(this.U);
+    }
+    return this.U;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get rightSingularVectors() {
+    if (!Matrix.isMatrix(this.V)) {
+      this.V = new Matrix(this.V);
+    }
+    return this.V;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get diagonalMatrix() {
+    return Matrix.diag(this.s);
+  }
+}
+
+/**
+ * @private
+ * Check that a row index is not out of bounds
+ * @param {Matrix} matrix
+ * @param {number} index
+ * @param {boolean} [outer]
+ */
+function checkRowIndex(matrix, index, outer) {
+  var max = outer ? matrix.rows : matrix.rows - 1;
+  if (index < 0 || index > max) {
+    throw new RangeError('Row index out of range');
+  }
+}
+
+/**
+ * @private
+ * Check that a column index is not out of bounds
+ * @param {Matrix} matrix
+ * @param {number} index
+ * @param {boolean} [outer]
+ */
+function checkColumnIndex(matrix, index, outer) {
+  var max = outer ? matrix.columns : matrix.columns - 1;
+  if (index < 0 || index > max) {
+    throw new RangeError('Column index out of range');
+  }
+}
+
+/**
+ * @private
+ * Check that the provided vector is an array with the right length
+ * @param {Matrix} matrix
+ * @param {Array|Matrix} vector
+ * @return {Array}
+ * @throws {RangeError}
+ */
+function checkRowVector(matrix, vector) {
+  if (vector.to1DArray) {
+    vector = vector.to1DArray();
+  }
+  if (vector.length !== matrix.columns) {
+    throw new RangeError(
+      'vector size must be the same as the number of columns'
+    );
+  }
+  return vector;
+}
+
+/**
+ * @private
+ * Check that the provided vector is an array with the right length
+ * @param {Matrix} matrix
+ * @param {Array|Matrix} vector
+ * @return {Array}
+ * @throws {RangeError}
+ */
+function checkColumnVector(matrix, vector) {
+  if (vector.to1DArray) {
+    vector = vector.to1DArray();
+  }
+  if (vector.length !== matrix.rows) {
+    throw new RangeError('vector size must be the same as the number of rows');
+  }
+  return vector;
+}
+
+function checkIndices(matrix, rowIndices, columnIndices) {
+  return {
+    row: checkRowIndices(matrix, rowIndices),
+    column: checkColumnIndices(matrix, columnIndices)
+  };
+}
+
+function checkRowIndices(matrix, rowIndices) {
+  if (typeof rowIndices !== 'object') {
+    throw new TypeError('unexpected type for row indices');
+  }
+
+  var rowOut = rowIndices.some((r) => {
+    return r < 0 || r >= matrix.rows;
+  });
+
+  if (rowOut) {
+    throw new RangeError('row indices are out of range');
+  }
+
+  if (!Array.isArray(rowIndices)) rowIndices = Array.from(rowIndices);
+
+  return rowIndices;
+}
+
+function checkColumnIndices(matrix, columnIndices) {
+  if (typeof columnIndices !== 'object') {
+    throw new TypeError('unexpected type for column indices');
+  }
+
+  var columnOut = columnIndices.some((c) => {
+    return c < 0 || c >= matrix.columns;
+  });
+
+  if (columnOut) {
+    throw new RangeError('column indices are out of range');
+  }
+  if (!Array.isArray(columnIndices)) columnIndices = Array.from(columnIndices);
+
+  return columnIndices;
+}
+
+function checkRange(matrix, startRow, endRow, startColumn, endColumn) {
+  if (arguments.length !== 5) {
+    throw new RangeError('expected 4 arguments');
+  }
+  checkNumber('startRow', startRow);
+  checkNumber('endRow', endRow);
+  checkNumber('startColumn', startColumn);
+  checkNumber('endColumn', endColumn);
+  if (
+    startRow > endRow ||
+    startColumn > endColumn ||
+    startRow < 0 ||
+    startRow >= matrix.rows ||
+    endRow < 0 ||
+    endRow >= matrix.rows ||
+    startColumn < 0 ||
+    startColumn >= matrix.columns ||
+    endColumn < 0 ||
+    endColumn >= matrix.columns
+  ) {
+    throw new RangeError('Submatrix indices are out of range');
+  }
+}
+
+function sumByRow(matrix) {
+  var sum = Matrix.zeros(matrix.rows, 1);
+  for (var i = 0; i < matrix.rows; ++i) {
+    for (var j = 0; j < matrix.columns; ++j) {
+      sum.set(i, 0, sum.get(i, 0) + matrix.get(i, j));
+    }
+  }
+  return sum;
+}
+
+function sumByColumn(matrix) {
+  var sum = Matrix.zeros(1, matrix.columns);
+  for (var i = 0; i < matrix.rows; ++i) {
+    for (var j = 0; j < matrix.columns; ++j) {
+      sum.set(0, j, sum.get(0, j) + matrix.get(i, j));
+    }
+  }
+  return sum;
+}
+
+function sumAll(matrix) {
+  var v = 0;
+  for (var i = 0; i < matrix.rows; i++) {
+    for (var j = 0; j < matrix.columns; j++) {
+      v += matrix.get(i, j);
+    }
+  }
+  return v;
+}
+
+function checkNumber(name, value) {
+  if (typeof value !== 'number') {
+    throw new TypeError(`${name} must be a number`);
+  }
+}
+
+class BaseView extends AbstractMatrix() {
+  constructor(matrix, rows, columns) {
+    super();
+    this.matrix = matrix;
+    this.rows = rows;
+    this.columns = columns;
+  }
+
+  static get [Symbol.species]() {
+    return Matrix;
+  }
+}
+
+class MatrixTransposeView extends BaseView {
+  constructor(matrix) {
+    super(matrix, matrix.columns, matrix.rows);
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(columnIndex, rowIndex, value);
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(columnIndex, rowIndex);
+  }
+}
+
+class MatrixRowView extends BaseView {
+  constructor(matrix, row) {
+    super(matrix, 1, matrix.columns);
+    this.row = row;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(this.row, columnIndex, value);
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(this.row, columnIndex);
+  }
+}
+
+class MatrixSubView extends BaseView {
+  constructor(matrix, startRow, endRow, startColumn, endColumn) {
+    checkRange(matrix, startRow, endRow, startColumn, endColumn);
+    super(matrix, endRow - startRow + 1, endColumn - startColumn + 1);
+    this.startRow = startRow;
+    this.startColumn = startColumn;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(
+      this.startRow + rowIndex,
+      this.startColumn + columnIndex,
+      value
+    );
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(
+      this.startRow + rowIndex,
+      this.startColumn + columnIndex
+    );
+  }
+}
+
+class MatrixSelectionView extends BaseView {
+  constructor(matrix, rowIndices, columnIndices) {
+    var indices = checkIndices(matrix, rowIndices, columnIndices);
+    super(matrix, indices.row.length, indices.column.length);
+    this.rowIndices = indices.row;
+    this.columnIndices = indices.column;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(
+      this.rowIndices[rowIndex],
+      this.columnIndices[columnIndex],
+      value
+    );
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(
+      this.rowIndices[rowIndex],
+      this.columnIndices[columnIndex]
+    );
+  }
+}
+
+class MatrixRowSelectionView extends BaseView {
+  constructor(matrix, rowIndices) {
+    rowIndices = checkRowIndices(matrix, rowIndices);
+    super(matrix, rowIndices.length, matrix.columns);
+    this.rowIndices = rowIndices;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(this.rowIndices[rowIndex], columnIndex, value);
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(this.rowIndices[rowIndex], columnIndex);
+  }
+}
+
+class MatrixColumnSelectionView extends BaseView {
+  constructor(matrix, columnIndices) {
+    columnIndices = checkColumnIndices(matrix, columnIndices);
+    super(matrix, matrix.rows, columnIndices.length);
+    this.columnIndices = columnIndices;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(rowIndex, this.columnIndices[columnIndex], value);
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(rowIndex, this.columnIndices[columnIndex]);
+  }
+}
+
+class MatrixColumnView extends BaseView {
+  constructor(matrix, column) {
+    super(matrix, matrix.rows, 1);
+    this.column = column;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(rowIndex, this.column, value);
+    return this;
+  }
+
+  get(rowIndex) {
+    return this.matrix.get(rowIndex, this.column);
+  }
+}
+
+class MatrixFlipRowView extends BaseView {
+  constructor(matrix) {
+    super(matrix, matrix.rows, matrix.columns);
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(this.rows - rowIndex - 1, columnIndex, value);
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(this.rows - rowIndex - 1, columnIndex);
+  }
+}
+
+class MatrixFlipColumnView extends BaseView {
+  constructor(matrix) {
+    super(matrix, matrix.rows, matrix.columns);
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.matrix.set(rowIndex, this.columns - columnIndex - 1, value);
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.matrix.get(rowIndex, this.columns - columnIndex - 1);
+  }
+}
+
+function AbstractMatrix(superCtor) {
+  if (superCtor === undefined) superCtor = Object;
+
+  /**
+   * Real matrix
+   * @class Matrix
+   * @param {number|Array|Matrix} nRows - Number of rows of the new matrix,
+   * 2D array containing the data or Matrix instance to clone
+   * @param {number} [nColumns] - Number of columns of the new matrix
+   */
+  class Matrix extends superCtor {
+    static get [Symbol.species]() {
+      return this;
+    }
+
+    /**
+     * Constructs a Matrix with the chosen dimensions from a 1D array
+     * @param {number} newRows - Number of rows
+     * @param {number} newColumns - Number of columns
+     * @param {Array} newData - A 1D array containing data for the matrix
+     * @return {Matrix} - The new matrix
+     */
+    static from1DArray(newRows, newColumns, newData) {
+      var length = newRows * newColumns;
+      if (length !== newData.length) {
+        throw new RangeError('Data length does not match given dimensions');
+      }
+      var newMatrix = new this(newRows, newColumns);
+      for (var row = 0; row < newRows; row++) {
+        for (var column = 0; column < newColumns; column++) {
+          newMatrix.set(row, column, newData[row * newColumns + column]);
+        }
+      }
+      return newMatrix;
+    }
+
+    /**
+         * Creates a row vector, a matrix with only one row.
+         * @param {Array} newData - A 1D array containing data for the vector
+         * @return {Matrix} - The new matrix
+         */
+    static rowVector(newData) {
+      var vector = new this(1, newData.length);
+      for (var i = 0; i < newData.length; i++) {
+        vector.set(0, i, newData[i]);
+      }
+      return vector;
+    }
+
+    /**
+         * Creates a column vector, a matrix with only one column.
+         * @param {Array} newData - A 1D array containing data for the vector
+         * @return {Matrix} - The new matrix
+         */
+    static columnVector(newData) {
+      var vector = new this(newData.length, 1);
+      for (var i = 0; i < newData.length; i++) {
+        vector.set(i, 0, newData[i]);
+      }
+      return vector;
+    }
+
+    /**
+         * Creates an empty matrix with the given dimensions. Values will be undefined. Same as using new Matrix(rows, columns).
+         * @param {number} rows - Number of rows
+         * @param {number} columns - Number of columns
+         * @return {Matrix} - The new matrix
+         */
+    static empty(rows, columns) {
+      return new this(rows, columns);
+    }
+
+    /**
+         * Creates a matrix with the given dimensions. Values will be set to zero.
+         * @param {number} rows - Number of rows
+         * @param {number} columns - Number of columns
+         * @return {Matrix} - The new matrix
+         */
+    static zeros(rows, columns) {
+      return this.empty(rows, columns).fill(0);
+    }
+
+    /**
+         * Creates a matrix with the given dimensions. Values will be set to one.
+         * @param {number} rows - Number of rows
+         * @param {number} columns - Number of columns
+         * @return {Matrix} - The new matrix
+         */
+    static ones(rows, columns) {
+      return this.empty(rows, columns).fill(1);
+    }
+
+    /**
+         * Creates a matrix with the given dimensions. Values will be randomly set.
+         * @param {number} rows - Number of rows
+         * @param {number} columns - Number of columns
+         * @param {function} [rng=Math.random] - Random number generator
+         * @return {Matrix} The new matrix
+         */
+    static rand(rows, columns, rng) {
+      if (rng === undefined) rng = Math.random;
+      var matrix = this.empty(rows, columns);
+      for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < columns; j++) {
+          matrix.set(i, j, rng());
+        }
+      }
+      return matrix;
+    }
+
+    /**
+         * Creates a matrix with the given dimensions. Values will be random integers.
+         * @param {number} rows - Number of rows
+         * @param {number} columns - Number of columns
+         * @param {number} [maxValue=1000] - Maximum value
+         * @param {function} [rng=Math.random] - Random number generator
+         * @return {Matrix} The new matrix
+         */
+    static randInt(rows, columns, maxValue, rng) {
+      if (maxValue === undefined) maxValue = 1000;
+      if (rng === undefined) rng = Math.random;
+      var matrix = this.empty(rows, columns);
+      for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < columns; j++) {
+          var value = Math.floor(rng() * maxValue);
+          matrix.set(i, j, value);
+        }
+      }
+      return matrix;
+    }
+
+    /**
+         * Creates an identity matrix with the given dimension. Values of the diagonal will be 1 and others will be 0.
+         * @param {number} rows - Number of rows
+         * @param {number} [columns=rows] - Number of columns
+         * @param {number} [value=1] - Value to fill the diagonal with
+         * @return {Matrix} - The new identity matrix
+         */
+    static eye(rows, columns, value) {
+      if (columns === undefined) columns = rows;
+      if (value === undefined) value = 1;
+      var min = Math.min(rows, columns);
+      var matrix = this.zeros(rows, columns);
+      for (var i = 0; i < min; i++) {
+        matrix.set(i, i, value);
+      }
+      return matrix;
+    }
+
+    /**
+         * Creates a diagonal matrix based on the given array.
+         * @param {Array} data - Array containing the data for the diagonal
+         * @param {number} [rows] - Number of rows (Default: data.length)
+         * @param {number} [columns] - Number of columns (Default: rows)
+         * @return {Matrix} - The new diagonal matrix
+         */
+    static diag(data, rows, columns) {
+      var l = data.length;
+      if (rows === undefined) rows = l;
+      if (columns === undefined) columns = rows;
+      var min = Math.min(l, rows, columns);
+      var matrix = this.zeros(rows, columns);
+      for (var i = 0; i < min; i++) {
+        matrix.set(i, i, data[i]);
+      }
+      return matrix;
+    }
+
+    /**
+         * Returns a matrix whose elements are the minimum between matrix1 and matrix2
+         * @param {Matrix} matrix1
+         * @param {Matrix} matrix2
+         * @return {Matrix}
+         */
+    static min(matrix1, matrix2) {
+      matrix1 = this.checkMatrix(matrix1);
+      matrix2 = this.checkMatrix(matrix2);
+      var rows = matrix1.rows;
+      var columns = matrix1.columns;
+      var result = new this(rows, columns);
+      for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < columns; j++) {
+          result.set(i, j, Math.min(matrix1.get(i, j), matrix2.get(i, j)));
+        }
+      }
+      return result;
+    }
+
+    /**
+         * Returns a matrix whose elements are the maximum between matrix1 and matrix2
+         * @param {Matrix} matrix1
+         * @param {Matrix} matrix2
+         * @return {Matrix}
+         */
+    static max(matrix1, matrix2) {
+      matrix1 = this.checkMatrix(matrix1);
+      matrix2 = this.checkMatrix(matrix2);
+      var rows = matrix1.rows;
+      var columns = matrix1.columns;
+      var result = new this(rows, columns);
+      for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < columns; j++) {
+          result.set(i, j, Math.max(matrix1.get(i, j), matrix2.get(i, j)));
+        }
+      }
+      return result;
+    }
+
+    /**
+         * Check that the provided value is a Matrix and tries to instantiate one if not
+         * @param {*} value - The value to check
+         * @return {Matrix}
+         */
+    static checkMatrix(value) {
+      return Matrix.isMatrix(value) ? value : new this(value);
+    }
+
+    /**
+         * Returns true if the argument is a Matrix, false otherwise
+         * @param {*} value - The value to check
+         * @return {boolean}
+         */
+    static isMatrix(value) {
+      return (value != null) && (value.klass === 'Matrix');
+    }
+
+    /**
+         * @prop {number} size - The number of elements in the matrix.
+         */
+    get size() {
+      return this.rows * this.columns;
+    }
+
+    /**
+         * Applies a callback for each element of the matrix. The function is called in the matrix (this) context.
+         * @param {function} callback - Function that will be called with two parameters : i (row) and j (column)
+         * @return {Matrix} this
+         */
+    apply(callback) {
+      if (typeof callback !== 'function') {
+        throw new TypeError('callback must be a function');
+      }
+      var ii = this.rows;
+      var jj = this.columns;
+      for (var i = 0; i < ii; i++) {
+        for (var j = 0; j < jj; j++) {
+          callback.call(this, i, j);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Returns a new 1D array filled row by row with the matrix values
+         * @return {Array}
+         */
+    to1DArray() {
+      var array = new Array(this.size);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          array[i * this.columns + j] = this.get(i, j);
+        }
+      }
+      return array;
+    }
+
+    /**
+         * Returns a 2D array containing a copy of the data
+         * @return {Array}
+         */
+    to2DArray() {
+      var copy = new Array(this.rows);
+      for (var i = 0; i < this.rows; i++) {
+        copy[i] = new Array(this.columns);
+        for (var j = 0; j < this.columns; j++) {
+          copy[i][j] = this.get(i, j);
+        }
+      }
+      return copy;
+    }
+
+    /**
+         * @return {boolean} true if the matrix has one row
+         */
+    isRowVector() {
+      return this.rows === 1;
+    }
+
+    /**
+         * @return {boolean} true if the matrix has one column
+         */
+    isColumnVector() {
+      return this.columns === 1;
+    }
+
+    /**
+         * @return {boolean} true if the matrix has one row or one column
+         */
+    isVector() {
+      return (this.rows === 1) || (this.columns === 1);
+    }
+
+    /**
+         * @return {boolean} true if the matrix has the same number of rows and columns
+         */
+    isSquare() {
+      return this.rows === this.columns;
+    }
+
+    /**
+         * @return {boolean} true if the matrix is square and has the same values on both sides of the diagonal
+         */
+    isSymmetric() {
+      if (this.isSquare()) {
+        for (var i = 0; i < this.rows; i++) {
+          for (var j = 0; j <= i; j++) {
+            if (this.get(i, j) !== this.get(j, i)) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+      return false;
+    }
+
+    /**
+          * @return true if the matrix is in echelon form
+          */
+    isEchelonForm() {
+      let i = 0;
+      let j = 0;
+      let previousColumn = -1;
+      let isEchelonForm = true;
+      let checked = false;
+      while ((i < this.rows) && (isEchelonForm)) {
+        j = 0;
+        checked = false;
+        while ((j < this.columns) && (checked === false)) {
+          if (this.get(i, j) === 0) {
+            j++;
+          } else if ((this.get(i, j) === 1) && (j > previousColumn)) {
+            checked = true;
+            previousColumn = j;
+          } else {
+            isEchelonForm = false;
+            checked = true;
+          }
+        }
+        i++;
+      }
+      return isEchelonForm;
+    }
+
+    /**
+             * @return true if the matrix is in reduced echelon form
+             */
+    isReducedEchelonForm() {
+      let i = 0;
+      let j = 0;
+      let previousColumn = -1;
+      let isReducedEchelonForm = true;
+      let checked = false;
+      while ((i < this.rows) && (isReducedEchelonForm)) {
+        j = 0;
+        checked = false;
+        while ((j < this.columns) && (checked === false)) {
+          if (this.get(i, j) === 0) {
+            j++;
+          } else if ((this.get(i, j) === 1) && (j > previousColumn)) {
+            checked = true;
+            previousColumn = j;
+          } else {
+            isReducedEchelonForm = false;
+            checked = true;
+          }
+        }
+        for (let k = j + 1; k < this.rows; k++) {
+          if (this.get(i, k) !== 0) {
+            isReducedEchelonForm = false;
+          }
+        }
+        i++;
+      }
+      return isReducedEchelonForm;
+    }
+
+    /**
+         * Sets a given element of the matrix. mat.set(3,4,1) is equivalent to mat[3][4]=1
+         * @abstract
+         * @param {number} rowIndex - Index of the row
+         * @param {number} columnIndex - Index of the column
+         * @param {number} value - The new value for the element
+         * @return {Matrix} this
+         */
+    set(rowIndex, columnIndex, value) { // eslint-disable-line no-unused-vars
+      throw new Error('set method is unimplemented');
+    }
+
+    /**
+         * Returns the given element of the matrix. mat.get(3,4) is equivalent to matrix[3][4]
+         * @abstract
+         * @param {number} rowIndex - Index of the row
+         * @param {number} columnIndex - Index of the column
+         * @return {number}
+         */
+    get(rowIndex, columnIndex) { // eslint-disable-line no-unused-vars
+      throw new Error('get method is unimplemented');
+    }
+
+    /**
+         * Creates a new matrix that is a repetition of the current matrix. New matrix has rowRep times the number of
+         * rows of the matrix, and colRep times the number of columns of the matrix
+         * @param {number} rowRep - Number of times the rows should be repeated
+         * @param {number} colRep - Number of times the columns should be re
+         * @return {Matrix}
+         * @example
+         * var matrix = new Matrix([[1,2]]);
+         * matrix.repeat(2); // [[1,2],[1,2]]
+         */
+    repeat(rowRep, colRep) {
+      rowRep = rowRep || 1;
+      colRep = colRep || 1;
+      var matrix = new this.constructor[Symbol.species](this.rows * rowRep, this.columns * colRep);
+      for (var i = 0; i < rowRep; i++) {
+        for (var j = 0; j < colRep; j++) {
+          matrix.setSubMatrix(this, this.rows * i, this.columns * j);
+        }
+      }
+      return matrix;
+    }
+
+    /**
+         * Fills the matrix with a given value. All elements will be set to this value.
+         * @param {number} value - New value
+         * @return {Matrix} this
+         */
+    fill(value) {
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, value);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Negates the matrix. All elements will be multiplied by (-1)
+         * @return {Matrix} this
+         */
+    neg() {
+      return this.mulS(-1);
+    }
+
+    /**
+         * Returns a new array from the given row index
+         * @param {number} index - Row index
+         * @return {Array}
+         */
+    getRow(index) {
+      checkRowIndex(this, index);
+      var row = new Array(this.columns);
+      for (var i = 0; i < this.columns; i++) {
+        row[i] = this.get(index, i);
+      }
+      return row;
+    }
+
+    /**
+         * Returns a new row vector from the given row index
+         * @param {number} index - Row index
+         * @return {Matrix}
+         */
+    getRowVector(index) {
+      return this.constructor.rowVector(this.getRow(index));
+    }
+
+    /**
+         * Sets a row at the given index
+         * @param {number} index - Row index
+         * @param {Array|Matrix} array - Array or vector
+         * @return {Matrix} this
+         */
+    setRow(index, array) {
+      checkRowIndex(this, index);
+      array = checkRowVector(this, array);
+      for (var i = 0; i < this.columns; i++) {
+        this.set(index, i, array[i]);
+      }
+      return this;
+    }
+
+    /**
+         * Swaps two rows
+         * @param {number} row1 - First row index
+         * @param {number} row2 - Second row index
+         * @return {Matrix} this
+         */
+    swapRows(row1, row2) {
+      checkRowIndex(this, row1);
+      checkRowIndex(this, row2);
+      for (var i = 0; i < this.columns; i++) {
+        var temp = this.get(row1, i);
+        this.set(row1, i, this.get(row2, i));
+        this.set(row2, i, temp);
+      }
+      return this;
+    }
+
+    /**
+         * Returns a new array from the given column index
+         * @param {number} index - Column index
+         * @return {Array}
+         */
+    getColumn(index) {
+      checkColumnIndex(this, index);
+      var column = new Array(this.rows);
+      for (var i = 0; i < this.rows; i++) {
+        column[i] = this.get(i, index);
+      }
+      return column;
+    }
+
+    /**
+         * Returns a new column vector from the given column index
+         * @param {number} index - Column index
+         * @return {Matrix}
+         */
+    getColumnVector(index) {
+      return this.constructor.columnVector(this.getColumn(index));
+    }
+
+    /**
+         * Sets a column at the given index
+         * @param {number} index - Column index
+         * @param {Array|Matrix} array - Array or vector
+         * @return {Matrix} this
+         */
+    setColumn(index, array) {
+      checkColumnIndex(this, index);
+      array = checkColumnVector(this, array);
+      for (var i = 0; i < this.rows; i++) {
+        this.set(i, index, array[i]);
+      }
+      return this;
+    }
+
+    /**
+         * Swaps two columns
+         * @param {number} column1 - First column index
+         * @param {number} column2 - Second column index
+         * @return {Matrix} this
+         */
+    swapColumns(column1, column2) {
+      checkColumnIndex(this, column1);
+      checkColumnIndex(this, column2);
+      for (var i = 0; i < this.rows; i++) {
+        var temp = this.get(i, column1);
+        this.set(i, column1, this.get(i, column2));
+        this.set(i, column2, temp);
+      }
+      return this;
+    }
+
+    /**
+         * Adds the values of a vector to each row
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    addRowVector(vector) {
+      vector = checkRowVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) + vector[j]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Subtracts the values of a vector from each row
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    subRowVector(vector) {
+      vector = checkRowVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) - vector[j]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Multiplies the values of a vector with each row
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    mulRowVector(vector) {
+      vector = checkRowVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) * vector[j]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Divides the values of each row by those of a vector
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    divRowVector(vector) {
+      vector = checkRowVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) / vector[j]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Adds the values of a vector to each column
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    addColumnVector(vector) {
+      vector = checkColumnVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) + vector[i]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Subtracts the values of a vector from each column
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    subColumnVector(vector) {
+      vector = checkColumnVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) - vector[i]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Multiplies the values of a vector with each column
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    mulColumnVector(vector) {
+      vector = checkColumnVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) * vector[i]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Divides the values of each column by those of a vector
+         * @param {Array|Matrix} vector - Array or vector
+         * @return {Matrix} this
+         */
+    divColumnVector(vector) {
+      vector = checkColumnVector(this, vector);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          this.set(i, j, this.get(i, j) / vector[i]);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Multiplies the values of a row with a scalar
+         * @param {number} index - Row index
+         * @param {number} value
+         * @return {Matrix} this
+         */
+    mulRow(index, value) {
+      checkRowIndex(this, index);
+      for (var i = 0; i < this.columns; i++) {
+        this.set(index, i, this.get(index, i) * value);
+      }
+      return this;
+    }
+
+    /**
+         * Multiplies the values of a column with a scalar
+         * @param {number} index - Column index
+         * @param {number} value
+         * @return {Matrix} this
+         */
+    mulColumn(index, value) {
+      checkColumnIndex(this, index);
+      for (var i = 0; i < this.rows; i++) {
+        this.set(i, index, this.get(i, index) * value);
+      }
+      return this;
+    }
+
+    /**
+         * Returns the maximum value of the matrix
+         * @return {number}
+         */
+    max() {
+      var v = this.get(0, 0);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          if (this.get(i, j) > v) {
+            v = this.get(i, j);
+          }
+        }
+      }
+      return v;
+    }
+
+    /**
+         * Returns the index of the maximum value
+         * @return {Array}
+         */
+    maxIndex() {
+      var v = this.get(0, 0);
+      var idx = [0, 0];
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          if (this.get(i, j) > v) {
+            v = this.get(i, j);
+            idx[0] = i;
+            idx[1] = j;
+          }
+        }
+      }
+      return idx;
+    }
+
+    /**
+         * Returns the minimum value of the matrix
+         * @return {number}
+         */
+    min() {
+      var v = this.get(0, 0);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          if (this.get(i, j) < v) {
+            v = this.get(i, j);
+          }
+        }
+      }
+      return v;
+    }
+
+    /**
+         * Returns the index of the minimum value
+         * @return {Array}
+         */
+    minIndex() {
+      var v = this.get(0, 0);
+      var idx = [0, 0];
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          if (this.get(i, j) < v) {
+            v = this.get(i, j);
+            idx[0] = i;
+            idx[1] = j;
+          }
+        }
+      }
+      return idx;
+    }
+
+    /**
+         * Returns the maximum value of one row
+         * @param {number} row - Row index
+         * @return {number}
+         */
+    maxRow(row) {
+      checkRowIndex(this, row);
+      var v = this.get(row, 0);
+      for (var i = 1; i < this.columns; i++) {
+        if (this.get(row, i) > v) {
+          v = this.get(row, i);
+        }
+      }
+      return v;
+    }
+
+    /**
+         * Returns the index of the maximum value of one row
+         * @param {number} row - Row index
+         * @return {Array}
+         */
+    maxRowIndex(row) {
+      checkRowIndex(this, row);
+      var v = this.get(row, 0);
+      var idx = [row, 0];
+      for (var i = 1; i < this.columns; i++) {
+        if (this.get(row, i) > v) {
+          v = this.get(row, i);
+          idx[1] = i;
+        }
+      }
+      return idx;
+    }
+
+    /**
+         * Returns the minimum value of one row
+         * @param {number} row - Row index
+         * @return {number}
+         */
+    minRow(row) {
+      checkRowIndex(this, row);
+      var v = this.get(row, 0);
+      for (var i = 1; i < this.columns; i++) {
+        if (this.get(row, i) < v) {
+          v = this.get(row, i);
+        }
+      }
+      return v;
+    }
+
+    /**
+         * Returns the index of the maximum value of one row
+         * @param {number} row - Row index
+         * @return {Array}
+         */
+    minRowIndex(row) {
+      checkRowIndex(this, row);
+      var v = this.get(row, 0);
+      var idx = [row, 0];
+      for (var i = 1; i < this.columns; i++) {
+        if (this.get(row, i) < v) {
+          v = this.get(row, i);
+          idx[1] = i;
+        }
+      }
+      return idx;
+    }
+
+    /**
+         * Returns the maximum value of one column
+         * @param {number} column - Column index
+         * @return {number}
+         */
+    maxColumn(column) {
+      checkColumnIndex(this, column);
+      var v = this.get(0, column);
+      for (var i = 1; i < this.rows; i++) {
+        if (this.get(i, column) > v) {
+          v = this.get(i, column);
+        }
+      }
+      return v;
+    }
+
+    /**
+         * Returns the index of the maximum value of one column
+         * @param {number} column - Column index
+         * @return {Array}
+         */
+    maxColumnIndex(column) {
+      checkColumnIndex(this, column);
+      var v = this.get(0, column);
+      var idx = [0, column];
+      for (var i = 1; i < this.rows; i++) {
+        if (this.get(i, column) > v) {
+          v = this.get(i, column);
+          idx[0] = i;
+        }
+      }
+      return idx;
+    }
+
+    /**
+         * Returns the minimum value of one column
+         * @param {number} column - Column index
+         * @return {number}
+         */
+    minColumn(column) {
+      checkColumnIndex(this, column);
+      var v = this.get(0, column);
+      for (var i = 1; i < this.rows; i++) {
+        if (this.get(i, column) < v) {
+          v = this.get(i, column);
+        }
+      }
+      return v;
+    }
+
+    /**
+         * Returns the index of the minimum value of one column
+         * @param {number} column - Column index
+         * @return {Array}
+         */
+    minColumnIndex(column) {
+      checkColumnIndex(this, column);
+      var v = this.get(0, column);
+      var idx = [0, column];
+      for (var i = 1; i < this.rows; i++) {
+        if (this.get(i, column) < v) {
+          v = this.get(i, column);
+          idx[0] = i;
+        }
+      }
+      return idx;
+    }
+
+    /**
+         * Returns an array containing the diagonal values of the matrix
+         * @return {Array}
+         */
+    diag() {
+      var min = Math.min(this.rows, this.columns);
+      var diag = new Array(min);
+      for (var i = 0; i < min; i++) {
+        diag[i] = this.get(i, i);
+      }
+      return diag;
+    }
+
+    /**
+         * Returns the sum by the argument given, if no argument given,
+         * it returns the sum of all elements of the matrix.
+         * @param {string} by - sum by 'row' or 'column'.
+         * @return {Matrix|number}
+         */
+    sum(by) {
+      switch (by) {
+        case 'row':
+          return sumByRow(this);
+        case 'column':
+          return sumByColumn(this);
+        default:
+          return sumAll(this);
+      }
+    }
+
+    /**
+         * Returns the mean of all elements of the matrix
+         * @return {number}
+         */
+    mean() {
+      return this.sum() / this.size;
+    }
+
+    /**
+         * Returns the product of all elements of the matrix
+         * @return {number}
+         */
+    prod() {
+      var prod = 1;
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          prod *= this.get(i, j);
+        }
+      }
+      return prod;
+    }
+
+    /**
+         * Returns the norm of a matrix.
+         * @param {string} type - "frobenius" (default) or "max" return resp. the Frobenius norm and the max norm.
+         * @return {number}
+         */
+    norm(type = 'frobenius') {
+      var result = 0;
+      if (type === 'max') {
+        return this.max();
+      } else if (type === 'frobenius') {
+        for (var i = 0; i < this.rows; i++) {
+          for (var j = 0; j < this.columns; j++) {
+            result = result + this.get(i, j) * this.get(i, j);
+          }
+        }
+        return Math.sqrt(result);
+      } else {
+        throw new RangeError(`unknown norm type: ${type}`);
+      }
+    }
+
+    /**
+         * Computes the cumulative sum of the matrix elements (in place, row by row)
+         * @return {Matrix} this
+         */
+    cumulativeSum() {
+      var sum = 0;
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          sum += this.get(i, j);
+          this.set(i, j, sum);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Computes the dot (scalar) product between the matrix and another
+         * @param {Matrix} vector2 vector
+         * @return {number}
+         */
+    dot(vector2) {
+      if (Matrix.isMatrix(vector2)) vector2 = vector2.to1DArray();
+      var vector1 = this.to1DArray();
+      if (vector1.length !== vector2.length) {
+        throw new RangeError('vectors do not have the same size');
+      }
+      var dot = 0;
+      for (var i = 0; i < vector1.length; i++) {
+        dot += vector1[i] * vector2[i];
+      }
+      return dot;
+    }
+
+    /**
+         * Returns the matrix product between this and other
+         * @param {Matrix} other
+         * @return {Matrix}
+         */
+    mmul(other) {
+      other = this.constructor.checkMatrix(other);
+      if (this.columns !== other.rows) {
+        // eslint-disable-next-line no-console
+        console.warn('Number of columns of left matrix are not equal to number of rows of right matrix.');
+      }
+
+      var m = this.rows;
+      var n = this.columns;
+      var p = other.columns;
+
+      var result = new this.constructor[Symbol.species](m, p);
+
+      var Bcolj = new Array(n);
+      for (var j = 0; j < p; j++) {
+        for (var k = 0; k < n; k++) {
+          Bcolj[k] = other.get(k, j);
+        }
+
+        for (var i = 0; i < m; i++) {
+          var s = 0;
+          for (k = 0; k < n; k++) {
+            s += this.get(i, k) * Bcolj[k];
+          }
+
+          result.set(i, j, s);
+        }
+      }
+      return result;
+    }
+
+    strassen2x2(other) {
+      var result = new this.constructor[Symbol.species](2, 2);
+      const a11 = this.get(0, 0);
+      const b11 = other.get(0, 0);
+      const a12 = this.get(0, 1);
+      const b12 = other.get(0, 1);
+      const a21 = this.get(1, 0);
+      const b21 = other.get(1, 0);
+      const a22 = this.get(1, 1);
+      const b22 = other.get(1, 1);
+
+      // Compute intermediate values.
+      const m1 = (a11 + a22) * (b11 + b22);
+      const m2 = (a21 + a22) * b11;
+      const m3 = a11 * (b12 - b22);
+      const m4 = a22 * (b21 - b11);
+      const m5 = (a11 + a12) * b22;
+      const m6 = (a21 - a11) * (b11 + b12);
+      const m7 = (a12 - a22) * (b21 + b22);
+
+      // Combine intermediate values into the output.
+      const c00 = m1 + m4 - m5 + m7;
+      const c01 = m3 + m5;
+      const c10 = m2 + m4;
+      const c11 = m1 - m2 + m3 + m6;
+
+      result.set(0, 0, c00);
+      result.set(0, 1, c01);
+      result.set(1, 0, c10);
+      result.set(1, 1, c11);
+      return result;
+    }
+
+    strassen3x3(other) {
+      var result = new this.constructor[Symbol.species](3, 3);
+
+      const a00 = this.get(0, 0);
+      const a01 = this.get(0, 1);
+      const a02 = this.get(0, 2);
+      const a10 = this.get(1, 0);
+      const a11 = this.get(1, 1);
+      const a12 = this.get(1, 2);
+      const a20 = this.get(2, 0);
+      const a21 = this.get(2, 1);
+      const a22 = this.get(2, 2);
+
+      const b00 = other.get(0, 0);
+      const b01 = other.get(0, 1);
+      const b02 = other.get(0, 2);
+      const b10 = other.get(1, 0);
+      const b11 = other.get(1, 1);
+      const b12 = other.get(1, 2);
+      const b20 = other.get(2, 0);
+      const b21 = other.get(2, 1);
+      const b22 = other.get(2, 2);
+
+      const m1 = (a00 + a01 + a02 - a10 - a11 - a21 - a22) * b11;
+      const m2 = (a00 - a10) * (-b01 + b11);
+      const m3 = a11 * (-b00 + b01 + b10 - b11 - b12 - b20 + b22);
+      const m4 = (-a00 + a10 + a11) * (b00 - b01 + b11);
+      const m5 = (a10 + a11) * (-b00 + b01);
+      const m6 = a00 * b00;
+      const m7 = (-a00 + a20 + a21) * (b00 - b02 + b12);
+      const m8 = (-a00 + a20) * (b02 - b12);
+      const m9 = (a20 + a21) * (-b00 + b02);
+      const m10 = (a00 + a01 + a02 - a11 - a12 - a20 - a21) * b12;
+      const m11 = a21 * (-b00 + b02 + b10 - b11 - b12 - b20 + b21);
+      const m12 = (-a02 + a21 + a22) * (b11 + b20 - b21);
+      const m13 = (a02 - a22) * (b11 - b21);
+      const m14 = a02 * b20;
+      const m15 = (a21 + a22) * (-b20 + b21);
+      const m16 = (-a02 + a11 + a12) * (b12 + b20 - b22);
+      const m17 = (a02 - a12) * (b12 - b22);
+      const m18 = (a11 + a12) * (-b20 + b22);
+      const m19 = a01 * b10;
+      const m20 = a12 * b21;
+      const m21 = a10 * b02;
+      const m22 = a20 * b01;
+      const m23 = a22 * b22;
+
+      const c00 = m6 + m14 + m19;
+      const c01 = m1 + m4 + m5 + m6 + m12 + m14 + m15;
+      const c02 = m6 + m7 + m9 + m10 + m14 + m16 + m18;
+      const c10 = m2 + m3 + m4 + m6 + m14 + m16 + m17;
+      const c11 = m2 + m4 + m5 + m6 + m20;
+      const c12 = m14 + m16 + m17 + m18 + m21;
+      const c20 = m6 + m7 + m8 + m11 + m12 + m13 + m14;
+      const c21 = m12 + m13 + m14 + m15 + m22;
+      const c22 = m6 + m7 + m8 + m9 + m23;
+
+      result.set(0, 0, c00);
+      result.set(0, 1, c01);
+      result.set(0, 2, c02);
+      result.set(1, 0, c10);
+      result.set(1, 1, c11);
+      result.set(1, 2, c12);
+      result.set(2, 0, c20);
+      result.set(2, 1, c21);
+      result.set(2, 2, c22);
+      return result;
+    }
+
+    /**
+         * Returns the matrix product between x and y. More efficient than mmul(other) only when we multiply squared matrix and when the size of the matrix is > 1000.
+         * @param {Matrix} y
+         * @return {Matrix}
+         */
+    mmulStrassen(y) {
+      var x = this.clone();
+      var r1 = x.rows;
+      var c1 = x.columns;
+      var r2 = y.rows;
+      var c2 = y.columns;
+      if (c1 !== r2) {
+        // eslint-disable-next-line no-console
+        console.warn(`Multiplying ${r1} x ${c1} and ${r2} x ${c2} matrix: dimensions do not match.`);
+      }
+
+      // Put a matrix into the top left of a matrix of zeros.
+      // `rows` and `cols` are the dimensions of the output matrix.
+      function embed(mat, rows, cols) {
+        var r = mat.rows;
+        var c = mat.columns;
+        if ((r === rows) && (c === cols)) {
+          return mat;
+        } else {
+          var resultat = Matrix.zeros(rows, cols);
+          resultat = resultat.setSubMatrix(mat, 0, 0);
+          return resultat;
+        }
+      }
+
+
+      // Make sure both matrices are the same size.
+      // This is exclusively for simplicity:
+      // this algorithm can be implemented with matrices of different sizes.
+
+      var r = Math.max(r1, r2);
+      var c = Math.max(c1, c2);
+      x = embed(x, r, c);
+      y = embed(y, r, c);
+
+      // Our recursive multiplication function.
+      function blockMult(a, b, rows, cols) {
+        // For small matrices, resort to naive multiplication.
+        if (rows <= 512 || cols <= 512) {
+          return a.mmul(b); // a is equivalent to this
+        }
+
+        // Apply dynamic padding.
+        if ((rows % 2 === 1) && (cols % 2 === 1)) {
+          a = embed(a, rows + 1, cols + 1);
+          b = embed(b, rows + 1, cols + 1);
+        } else if (rows % 2 === 1) {
+          a = embed(a, rows + 1, cols);
+          b = embed(b, rows + 1, cols);
+        } else if (cols % 2 === 1) {
+          a = embed(a, rows, cols + 1);
+          b = embed(b, rows, cols + 1);
+        }
+
+        var halfRows = parseInt(a.rows / 2, 10);
+        var halfCols = parseInt(a.columns / 2, 10);
+        // Subdivide input matrices.
+        var a11 = a.subMatrix(0, halfRows - 1, 0, halfCols - 1);
+        var b11 = b.subMatrix(0, halfRows - 1, 0, halfCols - 1);
+
+        var a12 = a.subMatrix(0, halfRows - 1, halfCols, a.columns - 1);
+        var b12 = b.subMatrix(0, halfRows - 1, halfCols, b.columns - 1);
+
+        var a21 = a.subMatrix(halfRows, a.rows - 1, 0, halfCols - 1);
+        var b21 = b.subMatrix(halfRows, b.rows - 1, 0, halfCols - 1);
+
+        var a22 = a.subMatrix(halfRows, a.rows - 1, halfCols, a.columns - 1);
+        var b22 = b.subMatrix(halfRows, b.rows - 1, halfCols, b.columns - 1);
+
+        // Compute intermediate values.
+        var m1 = blockMult(Matrix.add(a11, a22), Matrix.add(b11, b22), halfRows, halfCols);
+        var m2 = blockMult(Matrix.add(a21, a22), b11, halfRows, halfCols);
+        var m3 = blockMult(a11, Matrix.sub(b12, b22), halfRows, halfCols);
+        var m4 = blockMult(a22, Matrix.sub(b21, b11), halfRows, halfCols);
+        var m5 = blockMult(Matrix.add(a11, a12), b22, halfRows, halfCols);
+        var m6 = blockMult(Matrix.sub(a21, a11), Matrix.add(b11, b12), halfRows, halfCols);
+        var m7 = blockMult(Matrix.sub(a12, a22), Matrix.add(b21, b22), halfRows, halfCols);
+
+        // Combine intermediate values into the output.
+        var c11 = Matrix.add(m1, m4);
+        c11.sub(m5);
+        c11.add(m7);
+        var c12 = Matrix.add(m3, m5);
+        var c21 = Matrix.add(m2, m4);
+        var c22 = Matrix.sub(m1, m2);
+        c22.add(m3);
+        c22.add(m6);
+
+        // Crop output to the desired size (undo dynamic padding).
+        var resultat = Matrix.zeros(2 * c11.rows, 2 * c11.columns);
+        resultat = resultat.setSubMatrix(c11, 0, 0);
+        resultat = resultat.setSubMatrix(c12, c11.rows, 0);
+        resultat = resultat.setSubMatrix(c21, 0, c11.columns);
+        resultat = resultat.setSubMatrix(c22, c11.rows, c11.columns);
+        return resultat.subMatrix(0, rows - 1, 0, cols - 1);
+      }
+      return blockMult(x, y, r, c);
+    }
+
+    /**
+         * Returns a row-by-row scaled matrix
+         * @param {number} [min=0] - Minimum scaled value
+         * @param {number} [max=1] - Maximum scaled value
+         * @return {Matrix} - The scaled matrix
+         */
+    scaleRows(min, max) {
+      min = min === undefined ? 0 : min;
+      max = max === undefined ? 1 : max;
+      if (min >= max) {
+        throw new RangeError('min should be strictly smaller than max');
+      }
+      var newMatrix = this.constructor.empty(this.rows, this.columns);
+      for (var i = 0; i < this.rows; i++) {
+        var scaled = rescale(this.getRow(i), { min, max });
+        newMatrix.setRow(i, scaled);
+      }
+      return newMatrix;
+    }
+
+    /**
+         * Returns a new column-by-column scaled matrix
+         * @param {number} [min=0] - Minimum scaled value
+         * @param {number} [max=1] - Maximum scaled value
+         * @return {Matrix} - The new scaled matrix
+         * @example
+         * var matrix = new Matrix([[1,2],[-1,0]]);
+         * var scaledMatrix = matrix.scaleColumns(); // [[1,1],[0,0]]
+         */
+    scaleColumns(min, max) {
+      min = min === undefined ? 0 : min;
+      max = max === undefined ? 1 : max;
+      if (min >= max) {
+        throw new RangeError('min should be strictly smaller than max');
+      }
+      var newMatrix = this.constructor.empty(this.rows, this.columns);
+      for (var i = 0; i < this.columns; i++) {
+        var scaled = rescale(this.getColumn(i), {
+          min: min,
+          max: max
+        });
+        newMatrix.setColumn(i, scaled);
+      }
+      return newMatrix;
+    }
+
+
+    /**
+         * Returns the Kronecker product (also known as tensor product) between this and other
+         * See https://en.wikipedia.org/wiki/Kronecker_product
+         * @param {Matrix} other
+         * @return {Matrix}
+         */
+    kroneckerProduct(other) {
+      other = this.constructor.checkMatrix(other);
+
+      var m = this.rows;
+      var n = this.columns;
+      var p = other.rows;
+      var q = other.columns;
+
+      var result = new this.constructor[Symbol.species](m * p, n * q);
+      for (var i = 0; i < m; i++) {
+        for (var j = 0; j < n; j++) {
+          for (var k = 0; k < p; k++) {
+            for (var l = 0; l < q; l++) {
+              result[p * i + k][q * j + l] = this.get(i, j) * other.get(k, l);
+            }
+          }
+        }
+      }
+      return result;
+    }
+
+    /**
+         * Transposes the matrix and returns a new one containing the result
+         * @return {Matrix}
+         */
+    transpose() {
+      var result = new this.constructor[Symbol.species](this.columns, this.rows);
+      for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+          result.set(j, i, this.get(i, j));
+        }
+      }
+      return result;
+    }
+
+    /**
+         * Sorts the rows (in place)
+         * @param {function} compareFunction - usual Array.prototype.sort comparison function
+         * @return {Matrix} this
+         */
+    sortRows(compareFunction) {
+      if (compareFunction === undefined) compareFunction = compareNumbers;
+      for (var i = 0; i < this.rows; i++) {
+        this.setRow(i, this.getRow(i).sort(compareFunction));
+      }
+      return this;
+    }
+
+    /**
+         * Sorts the columns (in place)
+         * @param {function} compareFunction - usual Array.prototype.sort comparison function
+         * @return {Matrix} this
+         */
+    sortColumns(compareFunction) {
+      if (compareFunction === undefined) compareFunction = compareNumbers;
+      for (var i = 0; i < this.columns; i++) {
+        this.setColumn(i, this.getColumn(i).sort(compareFunction));
+      }
+      return this;
+    }
+
+    /**
+         * Returns a subset of the matrix
+         * @param {number} startRow - First row index
+         * @param {number} endRow - Last row index
+         * @param {number} startColumn - First column index
+         * @param {number} endColumn - Last column index
+         * @return {Matrix}
+         */
+    subMatrix(startRow, endRow, startColumn, endColumn) {
+      checkRange(this, startRow, endRow, startColumn, endColumn);
+      var newMatrix = new this.constructor[Symbol.species](endRow - startRow + 1, endColumn - startColumn + 1);
+      for (var i = startRow; i <= endRow; i++) {
+        for (var j = startColumn; j <= endColumn; j++) {
+          newMatrix[i - startRow][j - startColumn] = this.get(i, j);
+        }
+      }
+      return newMatrix;
+    }
+
+    /**
+         * Returns a subset of the matrix based on an array of row indices
+         * @param {Array} indices - Array containing the row indices
+         * @param {number} [startColumn = 0] - First column index
+         * @param {number} [endColumn = this.columns-1] - Last column index
+         * @return {Matrix}
+         */
+    subMatrixRow(indices, startColumn, endColumn) {
+      if (startColumn === undefined) startColumn = 0;
+      if (endColumn === undefined) endColumn = this.columns - 1;
+      if ((startColumn > endColumn) || (startColumn < 0) || (startColumn >= this.columns) || (endColumn < 0) || (endColumn >= this.columns)) {
+        throw new RangeError('Argument out of range');
+      }
+
+      var newMatrix = new this.constructor[Symbol.species](indices.length, endColumn - startColumn + 1);
+      for (var i = 0; i < indices.length; i++) {
+        for (var j = startColumn; j <= endColumn; j++) {
+          if (indices[i] < 0 || indices[i] >= this.rows) {
+            throw new RangeError(`Row index out of range: ${indices[i]}`);
+          }
+          newMatrix.set(i, j - startColumn, this.get(indices[i], j));
+        }
+      }
+      return newMatrix;
+    }
+
+    /**
+         * Returns a subset of the matrix based on an array of column indices
+         * @param {Array} indices - Array containing the column indices
+         * @param {number} [startRow = 0] - First row index
+         * @param {number} [endRow = this.rows-1] - Last row index
+         * @return {Matrix}
+         */
+    subMatrixColumn(indices, startRow, endRow) {
+      if (startRow === undefined) startRow = 0;
+      if (endRow === undefined) endRow = this.rows - 1;
+      if ((startRow > endRow) || (startRow < 0) || (startRow >= this.rows) || (endRow < 0) || (endRow >= this.rows)) {
+        throw new RangeError('Argument out of range');
+      }
+
+      var newMatrix = new this.constructor[Symbol.species](endRow - startRow + 1, indices.length);
+      for (var i = 0; i < indices.length; i++) {
+        for (var j = startRow; j <= endRow; j++) {
+          if (indices[i] < 0 || indices[i] >= this.columns) {
+            throw new RangeError(`Column index out of range: ${indices[i]}`);
+          }
+          newMatrix.set(j - startRow, i, this.get(j, indices[i]));
+        }
+      }
+      return newMatrix;
+    }
+
+    /**
+         * Set a part of the matrix to the given sub-matrix
+         * @param {Matrix|Array< Array >} matrix - The source matrix from which to extract values.
+         * @param {number} startRow - The index of the first row to set
+         * @param {number} startColumn - The index of the first column to set
+         * @return {Matrix}
+         */
+    setSubMatrix(matrix, startRow, startColumn) {
+      matrix = this.constructor.checkMatrix(matrix);
+      var endRow = startRow + matrix.rows - 1;
+      var endColumn = startColumn + matrix.columns - 1;
+      checkRange(this, startRow, endRow, startColumn, endColumn);
+      for (var i = 0; i < matrix.rows; i++) {
+        for (var j = 0; j < matrix.columns; j++) {
+          this[startRow + i][startColumn + j] = matrix.get(i, j);
+        }
+      }
+      return this;
+    }
+
+    /**
+         * Return a new matrix based on a selection of rows and columns
+         * @param {Array<number>} rowIndices - The row indices to select. Order matters and an index can be more than once.
+         * @param {Array<number>} columnIndices - The column indices to select. Order matters and an index can be use more than once.
+         * @return {Matrix} The new matrix
+         */
+    selection(rowIndices, columnIndices) {
+      var indices = checkIndices(this, rowIndices, columnIndices);
+      var newMatrix = new this.constructor[Symbol.species](rowIndices.length, columnIndices.length);
+      for (var i = 0; i < indices.row.length; i++) {
+        var rowIndex = indices.row[i];
+        for (var j = 0; j < indices.column.length; j++) {
+          var columnIndex = indices.column[j];
+          newMatrix[i][j] = this.get(rowIndex, columnIndex);
+        }
+      }
+      return newMatrix;
+    }
+
+    /**
+         * Returns the trace of the matrix (sum of the diagonal elements)
+         * @return {number}
+         */
+    trace() {
+      var min = Math.min(this.rows, this.columns);
+      var trace = 0;
+      for (var i = 0; i < min; i++) {
+        trace += this.get(i, i);
+      }
+      return trace;
+    }
+
+    /*
+         Matrix views
+         */
+
+    /**
+         * Returns a view of the transposition of the matrix
+         * @return {MatrixTransposeView}
+         */
+    transposeView() {
+      return new MatrixTransposeView(this);
+    }
+
+    /**
+         * Returns a view of the row vector with the given index
+         * @param {number} row - row index of the vector
+         * @return {MatrixRowView}
+         */
+    rowView(row) {
+      checkRowIndex(this, row);
+      return new MatrixRowView(this, row);
+    }
+
+    /**
+         * Returns a view of the column vector with the given index
+         * @param {number} column - column index of the vector
+         * @return {MatrixColumnView}
+         */
+    columnView(column) {
+      checkColumnIndex(this, column);
+      return new MatrixColumnView(this, column);
+    }
+
+    /**
+         * Returns a view of the matrix flipped in the row axis
+         * @return {MatrixFlipRowView}
+         */
+    flipRowView() {
+      return new MatrixFlipRowView(this);
+    }
+
+    /**
+         * Returns a view of the matrix flipped in the column axis
+         * @return {MatrixFlipColumnView}
+         */
+    flipColumnView() {
+      return new MatrixFlipColumnView(this);
+    }
+
+    /**
+         * Returns a view of a submatrix giving the index boundaries
+         * @param {number} startRow - first row index of the submatrix
+         * @param {number} endRow - last row index of the submatrix
+         * @param {number} startColumn - first column index of the submatrix
+         * @param {number} endColumn - last column index of the submatrix
+         * @return {MatrixSubView}
+         */
+    subMatrixView(startRow, endRow, startColumn, endColumn) {
+      return new MatrixSubView(this, startRow, endRow, startColumn, endColumn);
+    }
+
+    /**
+         * Returns a view of the cross of the row indices and the column indices
+         * @example
+         * // resulting vector is [[2], [2]]
+         * var matrix = new Matrix([[1,2,3], [4,5,6]]).selectionView([0, 0], [1])
+         * @param {Array<number>} rowIndices
+         * @param {Array<number>} columnIndices
+         * @return {MatrixSelectionView}
+         */
+    selectionView(rowIndices, columnIndices) {
+      return new MatrixSelectionView(this, rowIndices, columnIndices);
+    }
+
+    /**
+         * Returns a view of the row indices
+         * @example
+         * // resulting vector is [[1,2,3], [1,2,3]]
+         * var matrix = new Matrix([[1,2,3], [4,5,6]]).rowSelectionView([0, 0])
+         * @param {Array<number>} rowIndices
+         * @return {MatrixRowSelectionView}
+         */
+    rowSelectionView(rowIndices) {
+      return new MatrixRowSelectionView(this, rowIndices);
+    }
+
+    /**
+         * Returns a view of the column indices
+         * @example
+         * // resulting vector is [[2, 2], [5, 5]]
+         * var matrix = new Matrix([[1,2,3], [4,5,6]]).columnSelectionView([1, 1])
+         * @param {Array<number>} columnIndices
+         * @return {MatrixColumnSelectionView}
+         */
+    columnSelectionView(columnIndices) {
+      return new MatrixColumnSelectionView(this, columnIndices);
+    }
+
+
+    /**
+        * Calculates and returns the determinant of a matrix as a Number
+        * @example
+        *   new Matrix([[1,2,3], [4,5,6]]).det()
+        * @return {number}
+        */
+    det() {
+      if (this.isSquare()) {
+        var a, b, c, d;
+        if (this.columns === 2) {
+          // 2 x 2 matrix
+          a = this.get(0, 0);
+          b = this.get(0, 1);
+          c = this.get(1, 0);
+          d = this.get(1, 1);
+
+          return a * d - (b * c);
+        } else if (this.columns === 3) {
+          // 3 x 3 matrix
+          var subMatrix0, subMatrix1, subMatrix2;
+          subMatrix0 = this.selectionView([1, 2], [1, 2]);
+          subMatrix1 = this.selectionView([1, 2], [0, 2]);
+          subMatrix2 = this.selectionView([1, 2], [0, 1]);
+          a = this.get(0, 0);
+          b = this.get(0, 1);
+          c = this.get(0, 2);
+
+          return a * subMatrix0.det() - b * subMatrix1.det() + c * subMatrix2.det();
+        } else {
+          // general purpose determinant using the LU decomposition
+          return new LuDecomposition(this).determinant;
+        }
+      } else {
+        throw Error('Determinant can only be calculated for a square matrix.');
+      }
+    }
+
+    /**
+         * Returns inverse of a matrix if it exists or the pseudoinverse
+         * @param {number} threshold - threshold for taking inverse of singular values (default = 1e-15)
+         * @return {Matrix} the (pseudo)inverted matrix.
+         */
+    pseudoInverse(threshold) {
+      if (threshold === undefined) threshold = Number.EPSILON;
+      var svdSolution = new SingularValueDecomposition(this, { autoTranspose: true });
+
+      var U = svdSolution.leftSingularVectors;
+      var V = svdSolution.rightSingularVectors;
+      var s = svdSolution.diagonal;
+
+      for (var i = 0; i < s.length; i++) {
+        if (Math.abs(s[i]) > threshold) {
+          s[i] = 1.0 / s[i];
+        } else {
+          s[i] = 0.0;
+        }
+      }
+
+      // convert list to diagonal
+      s = this.constructor[Symbol.species].diag(s);
+      return V.mmul(s.mmul(U.transposeView()));
+    }
+
+    /**
+         * Creates an exact and independent copy of the matrix
+         * @return {Matrix}
+         */
+    clone() {
+      var newMatrix = new this.constructor[Symbol.species](this.rows, this.columns);
+      for (var row = 0; row < this.rows; row++) {
+        for (var column = 0; column < this.columns; column++) {
+          newMatrix.set(row, column, this.get(row, column));
+        }
+      }
+      return newMatrix;
+    }
+  }
+
+  Matrix.prototype.klass = 'Matrix';
+
+  function compareNumbers(a, b) {
+    return a - b;
+  }
+
+  /*
+     Synonyms
+     */
+
+  Matrix.random = Matrix.rand;
+  Matrix.diagonal = Matrix.diag;
+  Matrix.prototype.diagonal = Matrix.prototype.diag;
+  Matrix.identity = Matrix.eye;
+  Matrix.prototype.negate = Matrix.prototype.neg;
+  Matrix.prototype.tensorProduct = Matrix.prototype.kroneckerProduct;
+  Matrix.prototype.determinant = Matrix.prototype.det;
+
+  /*
+     Add dynamically instance and static methods for mathematical operations
+     */
+
+  var inplaceOperator = `
+(function %name%(value) {
+    if (typeof value === 'number') return this.%name%S(value);
+    return this.%name%M(value);
+})
+`;
+
+  var inplaceOperatorScalar = `
+(function %name%S(value) {
+    for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+            this.set(i, j, this.get(i, j) %op% value);
+        }
+    }
+    return this;
+})
+`;
+
+  var inplaceOperatorMatrix = `
+(function %name%M(matrix) {
+    matrix = this.constructor.checkMatrix(matrix);
+    if (this.rows !== matrix.rows ||
+        this.columns !== matrix.columns) {
+        throw new RangeError('Matrices dimensions must be equal');
+    }
+    for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+            this.set(i, j, this.get(i, j) %op% matrix.get(i, j));
+        }
+    }
+    return this;
+})
+`;
+
+  var staticOperator = `
+(function %name%(matrix, value) {
+    var newMatrix = new this[Symbol.species](matrix);
+    return newMatrix.%name%(value);
+})
+`;
+
+  var inplaceMethod = `
+(function %name%() {
+    for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+            this.set(i, j, %method%(this.get(i, j)));
+        }
+    }
+    return this;
+})
+`;
+
+  var staticMethod = `
+(function %name%(matrix) {
+    var newMatrix = new this[Symbol.species](matrix);
+    return newMatrix.%name%();
+})
+`;
+
+  var inplaceMethodWithArgs = `
+(function %name%(%args%) {
+    for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+            this.set(i, j, %method%(this.get(i, j), %args%));
+        }
+    }
+    return this;
+})
+`;
+
+  var staticMethodWithArgs = `
+(function %name%(matrix, %args%) {
+    var newMatrix = new this[Symbol.species](matrix);
+    return newMatrix.%name%(%args%);
+})
+`;
+
+
+  var inplaceMethodWithOneArgScalar = `
+(function %name%S(value) {
+    for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+            this.set(i, j, %method%(this.get(i, j), value));
+        }
+    }
+    return this;
+})
+`;
+  var inplaceMethodWithOneArgMatrix = `
+(function %name%M(matrix) {
+    matrix = this.constructor.checkMatrix(matrix);
+    if (this.rows !== matrix.rows ||
+        this.columns !== matrix.columns) {
+        throw new RangeError('Matrices dimensions must be equal');
+    }
+    for (var i = 0; i < this.rows; i++) {
+        for (var j = 0; j < this.columns; j++) {
+            this.set(i, j, %method%(this.get(i, j), matrix.get(i, j)));
+        }
+    }
+    return this;
+})
+`;
+
+  var inplaceMethodWithOneArg = `
+(function %name%(value) {
+    if (typeof value === 'number') return this.%name%S(value);
+    return this.%name%M(value);
+})
+`;
+
+  var staticMethodWithOneArg = staticMethodWithArgs;
+
+  var operators = [
+    // Arithmetic operators
+    ['+', 'add'],
+    ['-', 'sub', 'subtract'],
+    ['*', 'mul', 'multiply'],
+    ['/', 'div', 'divide'],
+    ['%', 'mod', 'modulus'],
+    // Bitwise operators
+    ['&', 'and'],
+    ['|', 'or'],
+    ['^', 'xor'],
+    ['<<', 'leftShift'],
+    ['>>', 'signPropagatingRightShift'],
+    ['>>>', 'rightShift', 'zeroFillRightShift']
+  ];
+
+  var i;
+  var eval2 = eval; // eslint-disable-line no-eval
+  for (var operator of operators) {
+    var inplaceOp = eval2(fillTemplateFunction(inplaceOperator, { name: operator[1], op: operator[0] }));
+    var inplaceOpS = eval2(fillTemplateFunction(inplaceOperatorScalar, { name: `${operator[1]}S`, op: operator[0] }));
+    var inplaceOpM = eval2(fillTemplateFunction(inplaceOperatorMatrix, { name: `${operator[1]}M`, op: operator[0] }));
+    var staticOp = eval2(fillTemplateFunction(staticOperator, { name: operator[1] }));
+    for (i = 1; i < operator.length; i++) {
+      Matrix.prototype[operator[i]] = inplaceOp;
+      Matrix.prototype[`${operator[i]}S`] = inplaceOpS;
+      Matrix.prototype[`${operator[i]}M`] = inplaceOpM;
+      Matrix[operator[i]] = staticOp;
+    }
+  }
+
+  var methods = [['~', 'not']];
+
+  [
+    'abs', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh', 'cbrt', 'ceil',
+    'clz32', 'cos', 'cosh', 'exp', 'expm1', 'floor', 'fround', 'log', 'log1p',
+    'log10', 'log2', 'round', 'sign', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'
+  ].forEach(function (mathMethod) {
+    methods.push([`Math.${mathMethod}`, mathMethod]);
+  });
+
+  for (var method of methods) {
+    var inplaceMeth = eval2(fillTemplateFunction(inplaceMethod, { name: method[1], method: method[0] }));
+    var staticMeth = eval2(fillTemplateFunction(staticMethod, { name: method[1] }));
+    for (i = 1; i < method.length; i++) {
+      Matrix.prototype[method[i]] = inplaceMeth;
+      Matrix[method[i]] = staticMeth;
+    }
+  }
+
+  var methodsWithArgs = [['Math.pow', 1, 'pow']];
+
+  for (var methodWithArg of methodsWithArgs) {
+    var args = 'arg0';
+    for (i = 1; i < methodWithArg[1]; i++) {
+      args += `, arg${i}`;
+    }
+    if (methodWithArg[1] !== 1) {
+      var inplaceMethWithArgs = eval2(fillTemplateFunction(inplaceMethodWithArgs, {
+        name: methodWithArg[2],
+        method: methodWithArg[0],
+        args: args
+      }));
+      var staticMethWithArgs = eval2(fillTemplateFunction(staticMethodWithArgs, { name: methodWithArg[2], args: args }));
+      for (i = 2; i < methodWithArg.length; i++) {
+        Matrix.prototype[methodWithArg[i]] = inplaceMethWithArgs;
+        Matrix[methodWithArg[i]] = staticMethWithArgs;
+      }
+    } else {
+      var tmplVar = {
+        name: methodWithArg[2],
+        args: args,
+        method: methodWithArg[0]
+      };
+      var inplaceMethod2 = eval2(fillTemplateFunction(inplaceMethodWithOneArg, tmplVar));
+      var inplaceMethodS = eval2(fillTemplateFunction(inplaceMethodWithOneArgScalar, tmplVar));
+      var inplaceMethodM = eval2(fillTemplateFunction(inplaceMethodWithOneArgMatrix, tmplVar));
+      var staticMethod2 = eval2(fillTemplateFunction(staticMethodWithOneArg, tmplVar));
+      for (i = 2; i < methodWithArg.length; i++) {
+        Matrix.prototype[methodWithArg[i]] = inplaceMethod2;
+        Matrix.prototype[`${methodWithArg[i]}M`] = inplaceMethodM;
+        Matrix.prototype[`${methodWithArg[i]}S`] = inplaceMethodS;
+        Matrix[methodWithArg[i]] = staticMethod2;
+      }
+    }
+  }
+
+  function fillTemplateFunction(template, values) {
+    for (var value in values) {
+      template = template.replace(new RegExp(`%${value}%`, 'g'), values[value]);
+    }
+    return template;
+  }
+
+  return Matrix;
+}
+
+class Matrix extends AbstractMatrix(Array) {
+  constructor(nRows, nColumns) {
+    var i;
+    if (arguments.length === 1 && typeof nRows === 'number') {
+      return new Array(nRows);
+    }
+    if (Matrix.isMatrix(nRows)) {
+      return nRows.clone();
+    } else if (Number.isInteger(nRows) && nRows > 0) {
+      // Create an empty matrix
+      super(nRows);
+      if (Number.isInteger(nColumns) && nColumns > 0) {
+        for (i = 0; i < nRows; i++) {
+          this[i] = new Array(nColumns);
+        }
+      } else {
+        throw new TypeError('nColumns must be a positive integer');
+      }
+    } else if (Array.isArray(nRows)) {
+      // Copy the values from the 2D array
+      const matrix = nRows;
+      nRows = matrix.length;
+      nColumns = matrix[0].length;
+      if (typeof nColumns !== 'number' || nColumns === 0) {
+        throw new TypeError(
+          'Data must be a 2D array with at least one element'
+        );
+      }
+      super(nRows);
+      for (i = 0; i < nRows; i++) {
+        if (matrix[i].length !== nColumns) {
+          throw new RangeError('Inconsistent array dimensions');
+        }
+        this[i] = [].concat(matrix[i]);
+      }
+    } else {
+      throw new TypeError(
+        'First argument must be a positive number or an array'
+      );
+    }
+    this.rows = nRows;
+    this.columns = nColumns;
+    return this;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this[rowIndex][columnIndex] = value;
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this[rowIndex][columnIndex];
+  }
+
+  /**
+   * Removes a row from the given index
+   * @param {number} index - Row index
+   * @return {Matrix} this
+   */
+  removeRow(index) {
+    checkRowIndex(this, index);
+    if (this.rows === 1) {
+      throw new RangeError('A matrix cannot have less than one row');
+    }
+    this.splice(index, 1);
+    this.rows -= 1;
+    return this;
+  }
+
+  /**
+   * Adds a row at the given index
+   * @param {number} [index = this.rows] - Row index
+   * @param {Array|Matrix} array - Array or vector
+   * @return {Matrix} this
+   */
+  addRow(index, array) {
+    if (array === undefined) {
+      array = index;
+      index = this.rows;
+    }
+    checkRowIndex(this, index, true);
+    array = checkRowVector(this, array, true);
+    this.splice(index, 0, array);
+    this.rows += 1;
+    return this;
+  }
+
+  /**
+   * Removes a column from the given index
+   * @param {number} index - Column index
+   * @return {Matrix} this
+   */
+  removeColumn(index) {
+    checkColumnIndex(this, index);
+    if (this.columns === 1) {
+      throw new RangeError('A matrix cannot have less than one column');
+    }
+    for (var i = 0; i < this.rows; i++) {
+      this[i].splice(index, 1);
+    }
+    this.columns -= 1;
+    return this;
+  }
+
+  /**
+   * Adds a column at the given index
+   * @param {number} [index = this.columns] - Column index
+   * @param {Array|Matrix} array - Array or vector
+   * @return {Matrix} this
+   */
+  addColumn(index, array) {
+    if (typeof array === 'undefined') {
+      array = index;
+      index = this.columns;
+    }
+    checkColumnIndex(this, index, true);
+    array = checkColumnVector(this, array);
+    for (var i = 0; i < this.rows; i++) {
+      this[i].splice(index, 0, array[i]);
+    }
+    this.columns += 1;
+    return this;
+  }
+}
+
+class WrapperMatrix1D extends AbstractMatrix() {
+  /**
+   * @class WrapperMatrix1D
+   * @param {Array<number>} data
+   * @param {object} [options]
+   * @param {object} [options.rows = 1]
+   */
+  constructor(data, options = {}) {
+    const { rows = 1 } = options;
+
+    if (data.length % rows !== 0) {
+      throw new Error('the data length is not divisible by the number of rows');
+    }
+    super();
+    this.rows = rows;
+    this.columns = data.length / rows;
+    this.data = data;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    var index = this._calculateIndex(rowIndex, columnIndex);
+    this.data[index] = value;
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    var index = this._calculateIndex(rowIndex, columnIndex);
+    return this.data[index];
+  }
+
+  _calculateIndex(row, column) {
+    return row * this.columns + column;
+  }
+
+  static get [Symbol.species]() {
+    return Matrix;
+  }
+}
+
+class WrapperMatrix2D extends AbstractMatrix() {
+  /**
+   * @class WrapperMatrix2D
+   * @param {Array<Array<number>>} data
+   */
+  constructor(data) {
+    super();
+    this.data = data;
+    this.rows = data.length;
+    this.columns = data[0].length;
+  }
+
+  set(rowIndex, columnIndex, value) {
+    this.data[rowIndex][columnIndex] = value;
+    return this;
+  }
+
+  get(rowIndex, columnIndex) {
+    return this.data[rowIndex][columnIndex];
+  }
+
+  static get [Symbol.species]() {
+    return Matrix;
+  }
+}
+
+/**
+ * @param {Array<Array<number>>|Array<number>} array
+ * @param {object} [options]
+ * @param {object} [options.rows = 1]
+ * @return {WrapperMatrix1D|WrapperMatrix2D}
+ */
+function wrap(array, options) {
+  if (Array.isArray(array)) {
+    if (array[0] && Array.isArray(array[0])) {
+      return new WrapperMatrix2D(array);
+    } else {
+      return new WrapperMatrix1D(array, options);
+    }
+  } else {
+    throw new Error('the argument is not an array');
+  }
+}
+
+/**
+ * @class QrDecomposition
+ * @link https://github.com/lutzroeder/Mapack/blob/master/Source/QrDecomposition.cs
+ * @param {Matrix} value
+ */
+class QrDecomposition {
+  constructor(value) {
+    value = WrapperMatrix2D.checkMatrix(value);
+
+    var qr = value.clone();
+    var m = value.rows;
+    var n = value.columns;
+    var rdiag = new Array(n);
+    var i, j, k, s;
+
+    for (k = 0; k < n; k++) {
+      var nrm = 0;
+      for (i = k; i < m; i++) {
+        nrm = hypotenuse(nrm, qr.get(i, k));
+      }
+      if (nrm !== 0) {
+        if (qr.get(k, k) < 0) {
+          nrm = -nrm;
+        }
+        for (i = k; i < m; i++) {
+          qr.set(i, k, qr.get(i, k) / nrm);
+        }
+        qr.set(k, k, qr.get(k, k) + 1);
+        for (j = k + 1; j < n; j++) {
+          s = 0;
+          for (i = k; i < m; i++) {
+            s += qr.get(i, k) * qr.get(i, j);
+          }
+          s = -s / qr.get(k, k);
+          for (i = k; i < m; i++) {
+            qr.set(i, j, qr.get(i, j) + s * qr.get(i, k));
+          }
+        }
+      }
+      rdiag[k] = -nrm;
+    }
+
+    this.QR = qr;
+    this.Rdiag = rdiag;
+  }
+
+  /**
+   * Solve a problem of least square (Ax=b) by using the QR decomposition. Useful when A is rectangular, but not working when A is singular.
+   * Example : We search to approximate x, with A matrix shape m*n, x vector size n, b vector size m (m > n). We will use :
+   * var qr = QrDecomposition(A);
+   * var x = qr.solve(b);
+   * @param {Matrix} value - Matrix 1D which is the vector b (in the equation Ax = b)
+   * @return {Matrix} - The vector x
+   */
+  solve(value) {
+    value = Matrix.checkMatrix(value);
+
+    var qr = this.QR;
+    var m = qr.rows;
+
+    if (value.rows !== m) {
+      throw new Error('Matrix row dimensions must agree');
+    }
+    if (!this.isFullRank()) {
+      throw new Error('Matrix is rank deficient');
+    }
+
+    var count = value.columns;
+    var X = value.clone();
+    var n = qr.columns;
+    var i, j, k, s;
+
+    for (k = 0; k < n; k++) {
+      for (j = 0; j < count; j++) {
+        s = 0;
+        for (i = k; i < m; i++) {
+          s += qr[i][k] * X[i][j];
+        }
+        s = -s / qr[k][k];
+        for (i = k; i < m; i++) {
+          X[i][j] += s * qr[i][k];
+        }
+      }
+    }
+    for (k = n - 1; k >= 0; k--) {
+      for (j = 0; j < count; j++) {
+        X[k][j] /= this.Rdiag[k];
+      }
+      for (i = 0; i < k; i++) {
+        for (j = 0; j < count; j++) {
+          X[i][j] -= X[k][j] * qr[i][k];
+        }
+      }
+    }
+
+    return X.subMatrix(0, n - 1, 0, count - 1);
+  }
+
+  /**
+   *
+   * @return {boolean}
+   */
+  isFullRank() {
+    var columns = this.QR.columns;
+    for (var i = 0; i < columns; i++) {
+      if (this.Rdiag[i] === 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get upperTriangularMatrix() {
+    var qr = this.QR;
+    var n = qr.columns;
+    var X = new Matrix(n, n);
+    var i, j;
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < n; j++) {
+        if (i < j) {
+          X[i][j] = qr[i][j];
+        } else if (i === j) {
+          X[i][j] = this.Rdiag[i];
+        } else {
+          X[i][j] = 0;
+        }
+      }
+    }
+    return X;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get orthogonalMatrix() {
+    var qr = this.QR;
+    var rows = qr.rows;
+    var columns = qr.columns;
+    var X = new Matrix(rows, columns);
+    var i, j, k, s;
+
+    for (k = columns - 1; k >= 0; k--) {
+      for (i = 0; i < rows; i++) {
+        X[i][k] = 0;
+      }
+      X[k][k] = 1;
+      for (j = k; j < columns; j++) {
+        if (qr[k][k] !== 0) {
+          s = 0;
+          for (i = k; i < rows; i++) {
+            s += qr[i][k] * X[i][j];
+          }
+
+          s = -s / qr[k][k];
+
+          for (i = k; i < rows; i++) {
+            X[i][j] += s * qr[i][k];
+          }
+        }
+      }
+    }
+    return X;
+  }
+}
+
+/**
+ * Computes the inverse of a Matrix
+ * @param {Matrix} matrix
+ * @param {boolean} [useSVD=false]
+ * @return {Matrix}
+ */
+function inverse(matrix, useSVD = false) {
+  matrix = WrapperMatrix2D.checkMatrix(matrix);
+  if (useSVD) {
+    return new SingularValueDecomposition(matrix).inverse();
+  } else {
+    return solve(matrix, Matrix.eye(matrix.rows));
+  }
+}
+
+/**
+ *
+ * @param {Matrix} leftHandSide
+ * @param {Matrix} rightHandSide
+ * @param {boolean} [useSVD = false]
+ * @return {Matrix}
+ */
+function solve(leftHandSide, rightHandSide, useSVD = false) {
+  leftHandSide = WrapperMatrix2D.checkMatrix(leftHandSide);
+  rightHandSide = WrapperMatrix2D.checkMatrix(rightHandSide);
+  if (useSVD) {
+    return new SingularValueDecomposition(leftHandSide).solve(rightHandSide);
+  } else {
+    return leftHandSide.isSquare()
+      ? new LuDecomposition(leftHandSide).solve(rightHandSide)
+      : new QrDecomposition(leftHandSide).solve(rightHandSide);
+  }
+}
+
+// function used by rowsDependencies
+function xrange(n, exception) {
+  var range = [];
+  for (var i = 0; i < n; i++) {
+    if (i !== exception) {
+      range.push(i);
+    }
+  }
+  return range;
+}
+
+// function used by rowsDependencies
+function dependenciesOneRow(
+  error,
+  matrix,
+  index,
+  thresholdValue = 10e-10,
+  thresholdError = 10e-10
+) {
+  if (error > thresholdError) {
+    return new Array(matrix.rows + 1).fill(0);
+  } else {
+    var returnArray = matrix.addRow(index, [0]);
+    for (var i = 0; i < returnArray.rows; i++) {
+      if (Math.abs(returnArray.get(i, 0)) < thresholdValue) {
+        returnArray.set(i, 0, 0);
+      }
+    }
+    return returnArray.to1DArray();
+  }
+}
+
+/**
+ * Creates a matrix which represents the dependencies between rows.
+ * If a row is a linear combination of others rows, the result will be a row with the coefficients of this combination.
+ * For example : for A = [[2, 0, 0, 1], [0, 1, 6, 0], [0, 3, 0, 1], [0, 0, 1, 0], [0, 1, 2, 0]], the result will be [[0, 0, 0, 0, 0], [0, 0, 0, 4, 1], [0, 0, 0, 0, 0], [0, 0.25, 0, 0, -0.25], [0, 1, 0, -4, 0]]
+ * @param {Matrix} matrix
+ * @param {Object} [options] includes thresholdValue and thresholdError.
+ * @param {number} [options.thresholdValue = 10e-10] If an absolute value is inferior to this threshold, it will equals zero.
+ * @param {number} [options.thresholdError = 10e-10] If the error is inferior to that threshold, the linear combination found is accepted and the row is dependent from other rows.
+ * @return {Matrix} the matrix which represents the dependencies between rows.
+ */
+
+function linearDependencies(matrix, options = {}) {
+  const { thresholdValue = 10e-10, thresholdError = 10e-10 } = options;
+
+  var n = matrix.rows;
+  var results = new Matrix(n, n);
+
+  for (var i = 0; i < n; i++) {
+    var b = Matrix.columnVector(matrix.getRow(i));
+    var Abis = matrix.subMatrixRow(xrange(n, i)).transposeView();
+    var svd = new SingularValueDecomposition(Abis);
+    var x = svd.solve(b);
+    var error = max(
+      Matrix.sub(b, Abis.mmul(x))
+        .abs()
+        .to1DArray()
+    );
+    results.setRow(
+      i,
+      dependenciesOneRow(error, x, i, thresholdValue, thresholdError)
+    );
+  }
+  return results;
+}
+
+/**
+ * @class EigenvalueDecomposition
+ * @link https://github.com/lutzroeder/Mapack/blob/master/Source/EigenvalueDecomposition.cs
+ * @param {Matrix} matrix
+ * @param {object} [options]
+ * @param {boolean} [options.assumeSymmetric=false]
+ */
+class EigenvalueDecomposition {
+  constructor(matrix, options = {}) {
+    const { assumeSymmetric = false } = options;
+
+    matrix = WrapperMatrix2D.checkMatrix(matrix);
+    if (!matrix.isSquare()) {
+      throw new Error('Matrix is not a square matrix');
+    }
+
+    var n = matrix.columns;
+    var V = getFilled2DArray(n, n, 0);
+    var d = new Array(n);
+    var e = new Array(n);
+    var value = matrix;
+    var i, j;
+
+    var isSymmetric = false;
+    if (assumeSymmetric) {
+      isSymmetric = true;
+    } else {
+      isSymmetric = matrix.isSymmetric();
+    }
+
+    if (isSymmetric) {
+      for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+          V[i][j] = value.get(i, j);
+        }
+      }
+      tred2(n, e, d, V);
+      tql2(n, e, d, V);
+    } else {
+      var H = getFilled2DArray(n, n, 0);
+      var ort = new Array(n);
+      for (j = 0; j < n; j++) {
+        for (i = 0; i < n; i++) {
+          H[i][j] = value.get(i, j);
+        }
+      }
+      orthes(n, H, ort, V);
+      hqr2(n, e, d, V, H);
+    }
+
+    this.n = n;
+    this.e = e;
+    this.d = d;
+    this.V = V;
+  }
+
+  /**
+   *
+   * @return {Array<number>}
+   */
+  get realEigenvalues() {
+    return this.d;
+  }
+
+  /**
+   *
+   * @return {Array<number>}
+   */
+  get imaginaryEigenvalues() {
+    return this.e;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get eigenvectorMatrix() {
+    if (!Matrix.isMatrix(this.V)) {
+      this.V = new Matrix(this.V);
+    }
+    return this.V;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get diagonalMatrix() {
+    var n = this.n;
+    var e = this.e;
+    var d = this.d;
+    var X = new Matrix(n, n);
+    var i, j;
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < n; j++) {
+        X[i][j] = 0;
+      }
+      X[i][i] = d[i];
+      if (e[i] > 0) {
+        X[i][i + 1] = e[i];
+      } else if (e[i] < 0) {
+        X[i][i - 1] = e[i];
+      }
+    }
+    return X;
+  }
+}
+
+function tred2(n, e, d, V) {
+  var f, g, h, i, j, k, hh, scale;
+
+  for (j = 0; j < n; j++) {
+    d[j] = V[n - 1][j];
+  }
+
+  for (i = n - 1; i > 0; i--) {
+    scale = 0;
+    h = 0;
+    for (k = 0; k < i; k++) {
+      scale = scale + Math.abs(d[k]);
+    }
+
+    if (scale === 0) {
+      e[i] = d[i - 1];
+      for (j = 0; j < i; j++) {
+        d[j] = V[i - 1][j];
+        V[i][j] = 0;
+        V[j][i] = 0;
+      }
+    } else {
+      for (k = 0; k < i; k++) {
+        d[k] /= scale;
+        h += d[k] * d[k];
+      }
+
+      f = d[i - 1];
+      g = Math.sqrt(h);
+      if (f > 0) {
+        g = -g;
+      }
+
+      e[i] = scale * g;
+      h = h - f * g;
+      d[i - 1] = f - g;
+      for (j = 0; j < i; j++) {
+        e[j] = 0;
+      }
+
+      for (j = 0; j < i; j++) {
+        f = d[j];
+        V[j][i] = f;
+        g = e[j] + V[j][j] * f;
+        for (k = j + 1; k <= i - 1; k++) {
+          g += V[k][j] * d[k];
+          e[k] += V[k][j] * f;
+        }
+        e[j] = g;
+      }
+
+      f = 0;
+      for (j = 0; j < i; j++) {
+        e[j] /= h;
+        f += e[j] * d[j];
+      }
+
+      hh = f / (h + h);
+      for (j = 0; j < i; j++) {
+        e[j] -= hh * d[j];
+      }
+
+      for (j = 0; j < i; j++) {
+        f = d[j];
+        g = e[j];
+        for (k = j; k <= i - 1; k++) {
+          V[k][j] -= f * e[k] + g * d[k];
+        }
+        d[j] = V[i - 1][j];
+        V[i][j] = 0;
+      }
+    }
+    d[i] = h;
+  }
+
+  for (i = 0; i < n - 1; i++) {
+    V[n - 1][i] = V[i][i];
+    V[i][i] = 1;
+    h = d[i + 1];
+    if (h !== 0) {
+      for (k = 0; k <= i; k++) {
+        d[k] = V[k][i + 1] / h;
+      }
+
+      for (j = 0; j <= i; j++) {
+        g = 0;
+        for (k = 0; k <= i; k++) {
+          g += V[k][i + 1] * V[k][j];
+        }
+        for (k = 0; k <= i; k++) {
+          V[k][j] -= g * d[k];
+        }
+      }
+    }
+
+    for (k = 0; k <= i; k++) {
+      V[k][i + 1] = 0;
+    }
+  }
+
+  for (j = 0; j < n; j++) {
+    d[j] = V[n - 1][j];
+    V[n - 1][j] = 0;
+  }
+
+  V[n - 1][n - 1] = 1;
+  e[0] = 0;
+}
+
+function tql2(n, e, d, V) {
+  var g, h, i, j, k, l, m, p, r, dl1, c, c2, c3, el1, s, s2;
+
+  for (i = 1; i < n; i++) {
+    e[i - 1] = e[i];
+  }
+
+  e[n - 1] = 0;
+
+  var f = 0;
+  var tst1 = 0;
+  var eps = Number.EPSILON;
+
+  for (l = 0; l < n; l++) {
+    tst1 = Math.max(tst1, Math.abs(d[l]) + Math.abs(e[l]));
+    m = l;
+    while (m < n) {
+      if (Math.abs(e[m]) <= eps * tst1) {
+        break;
+      }
+      m++;
+    }
+
+    if (m > l) {
+      do {
+
+        g = d[l];
+        p = (d[l + 1] - g) / (2 * e[l]);
+        r = hypotenuse(p, 1);
+        if (p < 0) {
+          r = -r;
+        }
+
+        d[l] = e[l] / (p + r);
+        d[l + 1] = e[l] * (p + r);
+        dl1 = d[l + 1];
+        h = g - d[l];
+        for (i = l + 2; i < n; i++) {
+          d[i] -= h;
+        }
+
+        f = f + h;
+
+        p = d[m];
+        c = 1;
+        c2 = c;
+        c3 = c;
+        el1 = e[l + 1];
+        s = 0;
+        s2 = 0;
+        for (i = m - 1; i >= l; i--) {
+          c3 = c2;
+          c2 = c;
+          s2 = s;
+          g = c * e[i];
+          h = c * p;
+          r = hypotenuse(p, e[i]);
+          e[i + 1] = s * r;
+          s = e[i] / r;
+          c = p / r;
+          p = c * d[i] - s * g;
+          d[i + 1] = h + s * (c * g + s * d[i]);
+
+          for (k = 0; k < n; k++) {
+            h = V[k][i + 1];
+            V[k][i + 1] = s * V[k][i] + c * h;
+            V[k][i] = c * V[k][i] - s * h;
+          }
+        }
+
+        p = -s * s2 * c3 * el1 * e[l] / dl1;
+        e[l] = s * p;
+        d[l] = c * p;
+      } while (Math.abs(e[l]) > eps * tst1);
+    }
+    d[l] = d[l] + f;
+    e[l] = 0;
+  }
+
+  for (i = 0; i < n - 1; i++) {
+    k = i;
+    p = d[i];
+    for (j = i + 1; j < n; j++) {
+      if (d[j] < p) {
+        k = j;
+        p = d[j];
+      }
+    }
+
+    if (k !== i) {
+      d[k] = d[i];
+      d[i] = p;
+      for (j = 0; j < n; j++) {
+        p = V[j][i];
+        V[j][i] = V[j][k];
+        V[j][k] = p;
+      }
+    }
+  }
+}
+
+function orthes(n, H, ort, V) {
+  var low = 0;
+  var high = n - 1;
+  var f, g, h, i, j, m;
+  var scale;
+
+  for (m = low + 1; m <= high - 1; m++) {
+    scale = 0;
+    for (i = m; i <= high; i++) {
+      scale = scale + Math.abs(H[i][m - 1]);
+    }
+
+    if (scale !== 0) {
+      h = 0;
+      for (i = high; i >= m; i--) {
+        ort[i] = H[i][m - 1] / scale;
+        h += ort[i] * ort[i];
+      }
+
+      g = Math.sqrt(h);
+      if (ort[m] > 0) {
+        g = -g;
+      }
+
+      h = h - ort[m] * g;
+      ort[m] = ort[m] - g;
+
+      for (j = m; j < n; j++) {
+        f = 0;
+        for (i = high; i >= m; i--) {
+          f += ort[i] * H[i][j];
+        }
+
+        f = f / h;
+        for (i = m; i <= high; i++) {
+          H[i][j] -= f * ort[i];
+        }
+      }
+
+      for (i = 0; i <= high; i++) {
+        f = 0;
+        for (j = high; j >= m; j--) {
+          f += ort[j] * H[i][j];
+        }
+
+        f = f / h;
+        for (j = m; j <= high; j++) {
+          H[i][j] -= f * ort[j];
+        }
+      }
+
+      ort[m] = scale * ort[m];
+      H[m][m - 1] = scale * g;
+    }
+  }
+
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < n; j++) {
+      V[i][j] = i === j ? 1 : 0;
+    }
+  }
+
+  for (m = high - 1; m >= low + 1; m--) {
+    if (H[m][m - 1] !== 0) {
+      for (i = m + 1; i <= high; i++) {
+        ort[i] = H[i][m - 1];
+      }
+
+      for (j = m; j <= high; j++) {
+        g = 0;
+        for (i = m; i <= high; i++) {
+          g += ort[i] * V[i][j];
+        }
+
+        g = g / ort[m] / H[m][m - 1];
+        for (i = m; i <= high; i++) {
+          V[i][j] += g * ort[i];
+        }
+      }
+    }
+  }
+}
+
+function hqr2(nn, e, d, V, H) {
+  var n = nn - 1;
+  var low = 0;
+  var high = nn - 1;
+  var eps = Number.EPSILON;
+  var exshift = 0;
+  var norm = 0;
+  var p = 0;
+  var q = 0;
+  var r = 0;
+  var s = 0;
+  var z = 0;
+  var iter = 0;
+  var i, j, k, l, m, t, w, x, y;
+  var ra, sa, vr, vi;
+  var notlast, cdivres;
+
+  for (i = 0; i < nn; i++) {
+    if (i < low || i > high) {
+      d[i] = H[i][i];
+      e[i] = 0;
+    }
+
+    for (j = Math.max(i - 1, 0); j < nn; j++) {
+      norm = norm + Math.abs(H[i][j]);
+    }
+  }
+
+  while (n >= low) {
+    l = n;
+    while (l > low) {
+      s = Math.abs(H[l - 1][l - 1]) + Math.abs(H[l][l]);
+      if (s === 0) {
+        s = norm;
+      }
+      if (Math.abs(H[l][l - 1]) < eps * s) {
+        break;
+      }
+      l--;
+    }
+
+    if (l === n) {
+      H[n][n] = H[n][n] + exshift;
+      d[n] = H[n][n];
+      e[n] = 0;
+      n--;
+      iter = 0;
+    } else if (l === n - 1) {
+      w = H[n][n - 1] * H[n - 1][n];
+      p = (H[n - 1][n - 1] - H[n][n]) / 2;
+      q = p * p + w;
+      z = Math.sqrt(Math.abs(q));
+      H[n][n] = H[n][n] + exshift;
+      H[n - 1][n - 1] = H[n - 1][n - 1] + exshift;
+      x = H[n][n];
+
+      if (q >= 0) {
+        z = p >= 0 ? p + z : p - z;
+        d[n - 1] = x + z;
+        d[n] = d[n - 1];
+        if (z !== 0) {
+          d[n] = x - w / z;
+        }
+        e[n - 1] = 0;
+        e[n] = 0;
+        x = H[n][n - 1];
+        s = Math.abs(x) + Math.abs(z);
+        p = x / s;
+        q = z / s;
+        r = Math.sqrt(p * p + q * q);
+        p = p / r;
+        q = q / r;
+
+        for (j = n - 1; j < nn; j++) {
+          z = H[n - 1][j];
+          H[n - 1][j] = q * z + p * H[n][j];
+          H[n][j] = q * H[n][j] - p * z;
+        }
+
+        for (i = 0; i <= n; i++) {
+          z = H[i][n - 1];
+          H[i][n - 1] = q * z + p * H[i][n];
+          H[i][n] = q * H[i][n] - p * z;
+        }
+
+        for (i = low; i <= high; i++) {
+          z = V[i][n - 1];
+          V[i][n - 1] = q * z + p * V[i][n];
+          V[i][n] = q * V[i][n] - p * z;
+        }
+      } else {
+        d[n - 1] = x + p;
+        d[n] = x + p;
+        e[n - 1] = z;
+        e[n] = -z;
+      }
+
+      n = n - 2;
+      iter = 0;
+    } else {
+      x = H[n][n];
+      y = 0;
+      w = 0;
+      if (l < n) {
+        y = H[n - 1][n - 1];
+        w = H[n][n - 1] * H[n - 1][n];
+      }
+
+      if (iter === 10) {
+        exshift += x;
+        for (i = low; i <= n; i++) {
+          H[i][i] -= x;
+        }
+        s = Math.abs(H[n][n - 1]) + Math.abs(H[n - 1][n - 2]);
+        x = y = 0.75 * s;
+        w = -0.4375 * s * s;
+      }
+
+      if (iter === 30) {
+        s = (y - x) / 2;
+        s = s * s + w;
+        if (s > 0) {
+          s = Math.sqrt(s);
+          if (y < x) {
+            s = -s;
+          }
+          s = x - w / ((y - x) / 2 + s);
+          for (i = low; i <= n; i++) {
+            H[i][i] -= s;
+          }
+          exshift += s;
+          x = y = w = 0.964;
+        }
+      }
+
+      iter = iter + 1;
+
+      m = n - 2;
+      while (m >= l) {
+        z = H[m][m];
+        r = x - z;
+        s = y - z;
+        p = (r * s - w) / H[m + 1][m] + H[m][m + 1];
+        q = H[m + 1][m + 1] - z - r - s;
+        r = H[m + 2][m + 1];
+        s = Math.abs(p) + Math.abs(q) + Math.abs(r);
+        p = p / s;
+        q = q / s;
+        r = r / s;
+        if (m === l) {
+          break;
+        }
+        if (
+          Math.abs(H[m][m - 1]) * (Math.abs(q) + Math.abs(r)) <
+          eps *
+            (Math.abs(p) *
+              (Math.abs(H[m - 1][m - 1]) +
+                Math.abs(z) +
+                Math.abs(H[m + 1][m + 1])))
+        ) {
+          break;
+        }
+        m--;
+      }
+
+      for (i = m + 2; i <= n; i++) {
+        H[i][i - 2] = 0;
+        if (i > m + 2) {
+          H[i][i - 3] = 0;
+        }
+      }
+
+      for (k = m; k <= n - 1; k++) {
+        notlast = k !== n - 1;
+        if (k !== m) {
+          p = H[k][k - 1];
+          q = H[k + 1][k - 1];
+          r = notlast ? H[k + 2][k - 1] : 0;
+          x = Math.abs(p) + Math.abs(q) + Math.abs(r);
+          if (x !== 0) {
+            p = p / x;
+            q = q / x;
+            r = r / x;
+          }
+        }
+
+        if (x === 0) {
+          break;
+        }
+
+        s = Math.sqrt(p * p + q * q + r * r);
+        if (p < 0) {
+          s = -s;
+        }
+
+        if (s !== 0) {
+          if (k !== m) {
+            H[k][k - 1] = -s * x;
+          } else if (l !== m) {
+            H[k][k - 1] = -H[k][k - 1];
+          }
+
+          p = p + s;
+          x = p / s;
+          y = q / s;
+          z = r / s;
+          q = q / p;
+          r = r / p;
+
+          for (j = k; j < nn; j++) {
+            p = H[k][j] + q * H[k + 1][j];
+            if (notlast) {
+              p = p + r * H[k + 2][j];
+              H[k + 2][j] = H[k + 2][j] - p * z;
+            }
+
+            H[k][j] = H[k][j] - p * x;
+            H[k + 1][j] = H[k + 1][j] - p * y;
+          }
+
+          for (i = 0; i <= Math.min(n, k + 3); i++) {
+            p = x * H[i][k] + y * H[i][k + 1];
+            if (notlast) {
+              p = p + z * H[i][k + 2];
+              H[i][k + 2] = H[i][k + 2] - p * r;
+            }
+
+            H[i][k] = H[i][k] - p;
+            H[i][k + 1] = H[i][k + 1] - p * q;
+          }
+
+          for (i = low; i <= high; i++) {
+            p = x * V[i][k] + y * V[i][k + 1];
+            if (notlast) {
+              p = p + z * V[i][k + 2];
+              V[i][k + 2] = V[i][k + 2] - p * r;
+            }
+
+            V[i][k] = V[i][k] - p;
+            V[i][k + 1] = V[i][k + 1] - p * q;
+          }
+        }
+      }
+    }
+  }
+
+  if (norm === 0) {
+    return;
+  }
+
+  for (n = nn - 1; n >= 0; n--) {
+    p = d[n];
+    q = e[n];
+
+    if (q === 0) {
+      l = n;
+      H[n][n] = 1;
+      for (i = n - 1; i >= 0; i--) {
+        w = H[i][i] - p;
+        r = 0;
+        for (j = l; j <= n; j++) {
+          r = r + H[i][j] * H[j][n];
+        }
+
+        if (e[i] < 0) {
+          z = w;
+          s = r;
+        } else {
+          l = i;
+          if (e[i] === 0) {
+            H[i][n] = w !== 0 ? -r / w : -r / (eps * norm);
+          } else {
+            x = H[i][i + 1];
+            y = H[i + 1][i];
+            q = (d[i] - p) * (d[i] - p) + e[i] * e[i];
+            t = (x * s - z * r) / q;
+            H[i][n] = t;
+            H[i + 1][n] =
+              Math.abs(x) > Math.abs(z) ? (-r - w * t) / x : (-s - y * t) / z;
+          }
+
+          t = Math.abs(H[i][n]);
+          if (eps * t * t > 1) {
+            for (j = i; j <= n; j++) {
+              H[j][n] = H[j][n] / t;
+            }
+          }
+        }
+      }
+    } else if (q < 0) {
+      l = n - 1;
+
+      if (Math.abs(H[n][n - 1]) > Math.abs(H[n - 1][n])) {
+        H[n - 1][n - 1] = q / H[n][n - 1];
+        H[n - 1][n] = -(H[n][n] - p) / H[n][n - 1];
+      } else {
+        cdivres = cdiv(0, -H[n - 1][n], H[n - 1][n - 1] - p, q);
+        H[n - 1][n - 1] = cdivres[0];
+        H[n - 1][n] = cdivres[1];
+      }
+
+      H[n][n - 1] = 0;
+      H[n][n] = 1;
+      for (i = n - 2; i >= 0; i--) {
+        ra = 0;
+        sa = 0;
+        for (j = l; j <= n; j++) {
+          ra = ra + H[i][j] * H[j][n - 1];
+          sa = sa + H[i][j] * H[j][n];
+        }
+
+        w = H[i][i] - p;
+
+        if (e[i] < 0) {
+          z = w;
+          r = ra;
+          s = sa;
+        } else {
+          l = i;
+          if (e[i] === 0) {
+            cdivres = cdiv(-ra, -sa, w, q);
+            H[i][n - 1] = cdivres[0];
+            H[i][n] = cdivres[1];
+          } else {
+            x = H[i][i + 1];
+            y = H[i + 1][i];
+            vr = (d[i] - p) * (d[i] - p) + e[i] * e[i] - q * q;
+            vi = (d[i] - p) * 2 * q;
+            if (vr === 0 && vi === 0) {
+              vr =
+                eps *
+                norm *
+                (Math.abs(w) +
+                  Math.abs(q) +
+                  Math.abs(x) +
+                  Math.abs(y) +
+                  Math.abs(z));
+            }
+            cdivres = cdiv(
+              x * r - z * ra + q * sa,
+              x * s - z * sa - q * ra,
+              vr,
+              vi
+            );
+            H[i][n - 1] = cdivres[0];
+            H[i][n] = cdivres[1];
+            if (Math.abs(x) > Math.abs(z) + Math.abs(q)) {
+              H[i + 1][n - 1] = (-ra - w * H[i][n - 1] + q * H[i][n]) / x;
+              H[i + 1][n] = (-sa - w * H[i][n] - q * H[i][n - 1]) / x;
+            } else {
+              cdivres = cdiv(-r - y * H[i][n - 1], -s - y * H[i][n], z, q);
+              H[i + 1][n - 1] = cdivres[0];
+              H[i + 1][n] = cdivres[1];
+            }
+          }
+
+          t = Math.max(Math.abs(H[i][n - 1]), Math.abs(H[i][n]));
+          if (eps * t * t > 1) {
+            for (j = i; j <= n; j++) {
+              H[j][n - 1] = H[j][n - 1] / t;
+              H[j][n] = H[j][n] / t;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  for (i = 0; i < nn; i++) {
+    if (i < low || i > high) {
+      for (j = i; j < nn; j++) {
+        V[i][j] = H[i][j];
+      }
+    }
+  }
+
+  for (j = nn - 1; j >= low; j--) {
+    for (i = low; i <= high; i++) {
+      z = 0;
+      for (k = low; k <= Math.min(j, high); k++) {
+        z = z + V[i][k] * H[k][j];
+      }
+      V[i][j] = z;
+    }
+  }
+}
+
+function cdiv(xr, xi, yr, yi) {
+  var r, d;
+  if (Math.abs(yr) > Math.abs(yi)) {
+    r = yi / yr;
+    d = yr + r * yi;
+    return [(xr + r * xi) / d, (xi - r * xr) / d];
+  } else {
+    r = yr / yi;
+    d = yi + r * yr;
+    return [(r * xr + xi) / d, (r * xi - xr) / d];
+  }
+}
+
+/**
+ * @class CholeskyDecomposition
+ * @link https://github.com/lutzroeder/Mapack/blob/master/Source/CholeskyDecomposition.cs
+ * @param {Matrix} value
+ */
+class CholeskyDecomposition {
+  constructor(value) {
+    value = WrapperMatrix2D.checkMatrix(value);
+    if (!value.isSymmetric()) {
+      throw new Error('Matrix is not symmetric');
+    }
+
+    var a = value;
+    var dimension = a.rows;
+    var l = new Matrix(dimension, dimension);
+    var positiveDefinite = true;
+    var i, j, k;
+
+    for (j = 0; j < dimension; j++) {
+      var Lrowj = l[j];
+      var d = 0;
+      for (k = 0; k < j; k++) {
+        var Lrowk = l[k];
+        var s = 0;
+        for (i = 0; i < k; i++) {
+          s += Lrowk[i] * Lrowj[i];
+        }
+        Lrowj[k] = s = (a.get(j, k) - s) / l[k][k];
+        d = d + s * s;
+      }
+
+      d = a.get(j, j) - d;
+
+      positiveDefinite &= d > 0;
+      l[j][j] = Math.sqrt(Math.max(d, 0));
+      for (k = j + 1; k < dimension; k++) {
+        l[j][k] = 0;
+      }
+    }
+
+    if (!positiveDefinite) {
+      throw new Error('Matrix is not positive definite');
+    }
+
+    this.L = l;
+  }
+
+  /**
+   *
+   * @param {Matrix} value
+   * @return {Matrix}
+   */
+  solve(value) {
+    value = WrapperMatrix2D.checkMatrix(value);
+
+    var l = this.L;
+    var dimension = l.rows;
+
+    if (value.rows !== dimension) {
+      throw new Error('Matrix dimensions do not match');
+    }
+
+    var count = value.columns;
+    var B = value.clone();
+    var i, j, k;
+
+    for (k = 0; k < dimension; k++) {
+      for (j = 0; j < count; j++) {
+        for (i = 0; i < k; i++) {
+          B[k][j] -= B[i][j] * l[k][i];
+        }
+        B[k][j] /= l[k][k];
+      }
+    }
+
+    for (k = dimension - 1; k >= 0; k--) {
+      for (j = 0; j < count; j++) {
+        for (i = k + 1; i < dimension; i++) {
+          B[k][j] -= B[i][j] * l[i][k];
+        }
+        B[k][j] /= l[k][k];
+      }
+    }
+
+    return B;
+  }
+
+  /**
+   *
+   * @return {Matrix}
+   */
+  get lowerTriangularMatrix() {
+    return this.L;
+  }
+}
+
+exports.CHO = CholeskyDecomposition;
+exports.CholeskyDecomposition = CholeskyDecomposition;
+exports.EVD = EigenvalueDecomposition;
+exports.EigenvalueDecomposition = EigenvalueDecomposition;
+exports.LU = LuDecomposition;
+exports.LuDecomposition = LuDecomposition;
+exports.Matrix = Matrix;
+exports.QR = QrDecomposition;
+exports.QrDecomposition = QrDecomposition;
+exports.SVD = SingularValueDecomposition;
+exports.SingularValueDecomposition = SingularValueDecomposition;
+exports.WrapperMatrix1D = WrapperMatrix1D;
+exports.WrapperMatrix2D = WrapperMatrix2D;
+exports.abstractMatrix = AbstractMatrix;
+exports.default = Matrix;
+exports.inverse = inverse;
+exports.linearDependencies = linearDependencies;
+exports.solve = solve;
+exports.wrap = wrap;
+
+},{"ml-array-max":41,"ml-array-rescale":43}],46:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -15379,7 +20340,7 @@ exports.pseudoInverse = pseudoInverse;
 exports.solve = solve;
 exports.wrap = wrap;
 
-},{"ml-array-rescale":42}],44:[function(require,module,exports){
+},{"ml-array-rescale":43}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -15659,7 +20620,7 @@ class PCA {
 
 exports.PCA = PCA;
 
-},{"ml-matrix":43}],45:[function(require,module,exports){
+},{"ml-matrix":46}],48:[function(require,module,exports){
 /* @license
 Papa Parse
 v4.6.3
@@ -15667,5 +20628,1867 @@ https://github.com/mholt/PapaParse
 License: MIT
 */
 Array.isArray||(Array.isArray=function(e){return"[object Array]"===Object.prototype.toString.call(e)}),function(e,t){"function"==typeof define&&define.amd?define([],t):"object"==typeof module&&"undefined"!=typeof exports?module.exports=t():e.Papa=t()}(this,function(){"use strict";var s,e,f="undefined"!=typeof self?self:"undefined"!=typeof window?window:void 0!==f?f:{},n=!f.document&&!!f.postMessage,o=n&&/(\?|&)papaworker(=|&|$)/.test(f.location.search),a=!1,h={},u=0,k={parse:function(e,t){var r=(t=t||{}).dynamicTyping||!1;z(r)&&(t.dynamicTypingFunction=r,r={});if(t.dynamicTyping=r,t.transform=!!z(t.transform)&&t.transform,t.worker&&k.WORKERS_SUPPORTED){var i=function(){if(!k.WORKERS_SUPPORTED)return!1;if(!a&&null===k.SCRIPT_PATH)throw new Error("Script path cannot be determined automatically when Papa Parse is loaded asynchronously. You need to set Papa.SCRIPT_PATH manually.");var e=k.SCRIPT_PATH||s;e+=(-1!==e.indexOf("?")?"&":"?")+"papaworker";var t=new f.Worker(e);return t.onmessage=m,t.id=u++,h[t.id]=t}();return i.userStep=t.step,i.userChunk=t.chunk,i.userComplete=t.complete,i.userError=t.error,t.step=z(t.step),t.chunk=z(t.chunk),t.complete=z(t.complete),t.error=z(t.error),delete t.worker,void i.postMessage({input:e,config:t,workerId:i.id})}var n=null;k.NODE_STREAM_INPUT,"string"==typeof e?n=t.download?new c(t):new _(t):!0===e.readable&&z(e.read)&&z(e.on)?n=new g(t):(f.File&&e instanceof File||e instanceof Object)&&(n=new p(t));return n.stream(e)},unparse:function(e,t){var i=!1,g=!0,m=",",y="\r\n",n='"',r=!1;!function(){if("object"!=typeof t)return;"string"!=typeof t.delimiter||k.BAD_DELIMITERS.filter(function(e){return-1!==t.delimiter.indexOf(e)}).length||(m=t.delimiter);("boolean"==typeof t.quotes||Array.isArray(t.quotes))&&(i=t.quotes);"boolean"!=typeof t.skipEmptyLines&&"string"!=typeof t.skipEmptyLines||(r=t.skipEmptyLines);"string"==typeof t.newline&&(y=t.newline);"string"==typeof t.quoteChar&&(n=t.quoteChar);"boolean"==typeof t.header&&(g=t.header)}();var s=new RegExp(M(n),"g");"string"==typeof e&&(e=JSON.parse(e));if(Array.isArray(e)){if(!e.length||Array.isArray(e[0]))return o(null,e,r);if("object"==typeof e[0])return o(a(e[0]),e,r)}else if("object"==typeof e)return"string"==typeof e.data&&(e.data=JSON.parse(e.data)),Array.isArray(e.data)&&(e.fields||(e.fields=e.meta&&e.meta.fields),e.fields||(e.fields=Array.isArray(e.data[0])?e.fields:a(e.data[0])),Array.isArray(e.data[0])||"object"==typeof e.data[0]||(e.data=[e.data])),o(e.fields||[],e.data||[],r);throw"exception: Unable to serialize unrecognized input";function a(e){if("object"!=typeof e)return[];var t=[];for(var r in e)t.push(r);return t}function o(e,t,r){var i="";"string"==typeof e&&(e=JSON.parse(e)),"string"==typeof t&&(t=JSON.parse(t));var n=Array.isArray(e)&&0<e.length,s=!Array.isArray(t[0]);if(n&&g){for(var a=0;a<e.length;a++)0<a&&(i+=m),i+=v(e[a],a);0<t.length&&(i+=y)}for(var o=0;o<t.length;o++){var h=n?e.length:t[o].length,u=!1,f=n?0===Object.keys(t[o]).length:0===t[o].length;if(r&&!n&&(u="greedy"===r?""===t[o].join("").trim():1===t[o].length&&0===t[o][0].length),"greedy"===r&&n){for(var d=[],l=0;l<h;l++){var c=s?e[l]:l;d.push(t[o][c])}u=""===d.join("").trim()}if(!u){for(var p=0;p<h;p++){0<p&&!f&&(i+=m);var _=n&&s?e[p]:p;i+=v(t[o][_],p)}o<t.length-1&&(!r||0<h&&!f)&&(i+=y)}}return i}function v(e,t){if(null==e)return"";if(e.constructor===Date)return JSON.stringify(e).slice(1,25);e=e.toString().replace(s,n+n);var r="boolean"==typeof i&&i||Array.isArray(i)&&i[t]||function(e,t){for(var r=0;r<t.length;r++)if(-1<e.indexOf(t[r]))return!0;return!1}(e,k.BAD_DELIMITERS)||-1<e.indexOf(m)||" "===e.charAt(0)||" "===e.charAt(e.length-1);return r?n+e+n:e}}};if(k.RECORD_SEP=String.fromCharCode(30),k.UNIT_SEP=String.fromCharCode(31),k.BYTE_ORDER_MARK="\ufeff",k.BAD_DELIMITERS=["\r","\n",'"',k.BYTE_ORDER_MARK],k.WORKERS_SUPPORTED=!n&&!!f.Worker,k.SCRIPT_PATH=null,k.NODE_STREAM_INPUT=1,k.LocalChunkSize=10485760,k.RemoteChunkSize=5242880,k.DefaultDelimiter=",",k.Parser=v,k.ParserHandle=r,k.NetworkStreamer=c,k.FileStreamer=p,k.StringStreamer=_,k.ReadableStreamStreamer=g,f.jQuery){var d=f.jQuery;d.fn.parse=function(o){var r=o.config||{},h=[];return this.each(function(e){if(!("INPUT"===d(this).prop("tagName").toUpperCase()&&"file"===d(this).attr("type").toLowerCase()&&f.FileReader)||!this.files||0===this.files.length)return!0;for(var t=0;t<this.files.length;t++)h.push({file:this.files[t],inputElem:this,instanceConfig:d.extend({},r)})}),e(),this;function e(){if(0!==h.length){var e,t,r,i,n=h[0];if(z(o.before)){var s=o.before(n.file,n.inputElem);if("object"==typeof s){if("abort"===s.action)return e="AbortError",t=n.file,r=n.inputElem,i=s.reason,void(z(o.error)&&o.error({name:e},t,r,i));if("skip"===s.action)return void u();"object"==typeof s.config&&(n.instanceConfig=d.extend(n.instanceConfig,s.config))}else if("skip"===s)return void u()}var a=n.instanceConfig.complete;n.instanceConfig.complete=function(e){z(a)&&a(e,n.file,n.inputElem),u()},k.parse(n.file,n.instanceConfig)}else z(o.complete)&&o.complete()}function u(){h.splice(0,1),e()}}}function l(e){this._handle=null,this._finished=!1,this._completed=!1,this._input=null,this._baseIndex=0,this._partialLine="",this._rowCount=0,this._start=0,this._nextChunk=null,this.isFirstChunk=!0,this._completeResults={data:[],errors:[],meta:{}},function(e){var t=E(e);t.chunkSize=parseInt(t.chunkSize),e.step||e.chunk||(t.chunkSize=null);this._handle=new r(t),(this._handle.streamer=this)._config=t}.call(this,e),this.parseChunk=function(e,t){if(this.isFirstChunk&&z(this._config.beforeFirstChunk)){var r=this._config.beforeFirstChunk(e);void 0!==r&&(e=r)}this.isFirstChunk=!1;var i=this._partialLine+e;this._partialLine="";var n=this._handle.parse(i,this._baseIndex,!this._finished);if(!this._handle.paused()&&!this._handle.aborted()){var s=n.meta.cursor;this._finished||(this._partialLine=i.substring(s-this._baseIndex),this._baseIndex=s),n&&n.data&&(this._rowCount+=n.data.length);var a=this._finished||this._config.preview&&this._rowCount>=this._config.preview;if(o)f.postMessage({results:n,workerId:k.WORKER_ID,finished:a});else if(z(this._config.chunk)&&!t){if(this._config.chunk(n,this._handle),this._handle.paused()||this._handle.aborted())return;n=void 0,this._completeResults=void 0}return this._config.step||this._config.chunk||(this._completeResults.data=this._completeResults.data.concat(n.data),this._completeResults.errors=this._completeResults.errors.concat(n.errors),this._completeResults.meta=n.meta),this._completed||!a||!z(this._config.complete)||n&&n.meta.aborted||(this._config.complete(this._completeResults,this._input),this._completed=!0),a||n&&n.meta.paused||this._nextChunk(),n}},this._sendError=function(e){z(this._config.error)?this._config.error(e):o&&this._config.error&&f.postMessage({workerId:k.WORKER_ID,error:e,finished:!1})}}function c(e){var i;(e=e||{}).chunkSize||(e.chunkSize=k.RemoteChunkSize),l.call(this,e),this._nextChunk=n?function(){this._readChunk(),this._chunkLoaded()}:function(){this._readChunk()},this.stream=function(e){this._input=e,this._nextChunk()},this._readChunk=function(){if(this._finished)this._chunkLoaded();else{if(i=new XMLHttpRequest,this._config.withCredentials&&(i.withCredentials=this._config.withCredentials),n||(i.onload=w(this._chunkLoaded,this),i.onerror=w(this._chunkError,this)),i.open("GET",this._input,!n),this._config.downloadRequestHeaders){var e=this._config.downloadRequestHeaders;for(var t in e)i.setRequestHeader(t,e[t])}if(this._config.chunkSize){var r=this._start+this._config.chunkSize-1;i.setRequestHeader("Range","bytes="+this._start+"-"+r),i.setRequestHeader("If-None-Match","webkit-no-cache")}try{i.send()}catch(e){this._chunkError(e.message)}n&&0===i.status?this._chunkError():this._start+=this._config.chunkSize}},this._chunkLoaded=function(){4===i.readyState&&(i.status<200||400<=i.status?this._chunkError():(this._finished=!this._config.chunkSize||this._start>function(e){var t=e.getResponseHeader("Content-Range");if(null===t)return-1;return parseInt(t.substr(t.lastIndexOf("/")+1))}(i),this.parseChunk(i.responseText)))},this._chunkError=function(e){var t=i.statusText||e;this._sendError(new Error(t))}}function p(e){var i,n;(e=e||{}).chunkSize||(e.chunkSize=k.LocalChunkSize),l.call(this,e);var s="undefined"!=typeof FileReader;this.stream=function(e){this._input=e,n=e.slice||e.webkitSlice||e.mozSlice,s?((i=new FileReader).onload=w(this._chunkLoaded,this),i.onerror=w(this._chunkError,this)):i=new FileReaderSync,this._nextChunk()},this._nextChunk=function(){this._finished||this._config.preview&&!(this._rowCount<this._config.preview)||this._readChunk()},this._readChunk=function(){var e=this._input;if(this._config.chunkSize){var t=Math.min(this._start+this._config.chunkSize,this._input.size);e=n.call(e,this._start,t)}var r=i.readAsText(e,this._config.encoding);s||this._chunkLoaded({target:{result:r}})},this._chunkLoaded=function(e){this._start+=this._config.chunkSize,this._finished=!this._config.chunkSize||this._start>=this._input.size,this.parseChunk(e.target.result)},this._chunkError=function(){this._sendError(i.error)}}function _(e){var r;l.call(this,e=e||{}),this.stream=function(e){return r=e,this._nextChunk()},this._nextChunk=function(){if(!this._finished){var e=this._config.chunkSize,t=e?r.substr(0,e):r;return r=e?r.substr(e):"",this._finished=!r,this.parseChunk(t)}}}function g(e){l.call(this,e=e||{});var t=[],r=!0,i=!1;this.pause=function(){l.prototype.pause.apply(this,arguments),this._input.pause()},this.resume=function(){l.prototype.resume.apply(this,arguments),this._input.resume()},this.stream=function(e){this._input=e,this._input.on("data",this._streamData),this._input.on("end",this._streamEnd),this._input.on("error",this._streamError)},this._checkIsFinished=function(){i&&1===t.length&&(this._finished=!0)},this._nextChunk=function(){this._checkIsFinished(),t.length?this.parseChunk(t.shift()):r=!0},this._streamData=w(function(e){try{t.push("string"==typeof e?e:e.toString(this._config.encoding)),r&&(r=!1,this._checkIsFinished(),this.parseChunk(t.shift()))}catch(e){this._streamError(e)}},this),this._streamError=w(function(e){this._streamCleanUp(),this._sendError(e)},this),this._streamEnd=w(function(){this._streamCleanUp(),i=!0,this._streamData("")},this),this._streamCleanUp=w(function(){this._input.removeListener("data",this._streamData),this._input.removeListener("end",this._streamEnd),this._input.removeListener("error",this._streamError)},this)}function r(g){var a,o,h,i=/^\s*-?(\d*\.?\d+|\d+\.?\d*)(e[-+]?\d+)?\s*$/i,n=/(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/,t=this,r=0,s=0,u=!1,e=!1,f=[],d={data:[],errors:[],meta:{}};if(z(g.step)){var l=g.step;g.step=function(e){if(d=e,p())c();else{if(c(),0===d.data.length)return;r+=e.data.length,g.preview&&r>g.preview?o.abort():l(d,t)}}}function m(e){return"greedy"===g.skipEmptyLines?""===e.join("").trim():1===e.length&&0===e[0].length}function c(){if(d&&h&&(y("Delimiter","UndetectableDelimiter","Unable to auto-detect delimiting character; defaulted to '"+k.DefaultDelimiter+"'"),h=!1),g.skipEmptyLines)for(var e=0;e<d.data.length;e++)m(d.data[e])&&d.data.splice(e--,1);return p()&&function(){if(!d)return;for(var e=0;p()&&e<d.data.length;e++)for(var t=0;t<d.data[e].length;t++){var r=d.data[e][t];g.trimHeaders&&(r=r.trim()),f.push(r)}d.data.splice(0,1)}(),function(){if(!d||!g.header&&!g.dynamicTyping&&!g.transform)return d;for(var e=0;e<d.data.length;e++){var t,r=g.header?{}:[];for(t=0;t<d.data[e].length;t++){var i=t,n=d.data[e][t];g.header&&(i=t>=f.length?"__parsed_extra":f[t]),g.transform&&(n=g.transform(n,i)),n=_(i,n),"__parsed_extra"===i?(r[i]=r[i]||[],r[i].push(n)):r[i]=n}d.data[e]=r,g.header&&(t>f.length?y("FieldMismatch","TooManyFields","Too many fields: expected "+f.length+" fields but parsed "+t,s+e):t<f.length&&y("FieldMismatch","TooFewFields","Too few fields: expected "+f.length+" fields but parsed "+t,s+e))}g.header&&d.meta&&(d.meta.fields=f);return s+=d.data.length,d}()}function p(){return g.header&&0===f.length}function _(e,t){return r=e,g.dynamicTypingFunction&&void 0===g.dynamicTyping[r]&&(g.dynamicTyping[r]=g.dynamicTypingFunction(r)),!0===(g.dynamicTyping[r]||g.dynamicTyping)?"true"===t||"TRUE"===t||"false"!==t&&"FALSE"!==t&&(i.test(t)?parseFloat(t):n.test(t)?new Date(t):""===t?null:t):t;var r}function y(e,t,r,i){d.errors.push({type:e,code:t,message:r,row:i})}this.parse=function(e,t,r){var i=g.quoteChar||'"';if(g.newline||(g.newline=function(e,t){e=e.substr(0,1048576);var r=new RegExp(M(t)+"([^]*?)"+M(t),"gm"),i=(e=e.replace(r,"")).split("\r"),n=e.split("\n"),s=1<n.length&&n[0].length<i[0].length;if(1===i.length||s)return"\n";for(var a=0,o=0;o<i.length;o++)"\n"===i[o][0]&&a++;return a>=i.length/2?"\r\n":"\r"}(e,i)),h=!1,g.delimiter)z(g.delimiter)&&(g.delimiter=g.delimiter(e),d.meta.delimiter=g.delimiter);else{var n=function(e,t,r,i){for(var n,s,a,o=[",","\t","|",";",k.RECORD_SEP,k.UNIT_SEP],h=0;h<o.length;h++){var u=o[h],f=0,d=0,l=0;a=void 0;for(var c=new v({comments:i,delimiter:u,newline:t,preview:10}).parse(e),p=0;p<c.data.length;p++)if(r&&m(c.data[p]))l++;else{var _=c.data[p].length;d+=_,void 0!==a?1<_&&(f+=Math.abs(_-a),a=_):a=0}0<c.data.length&&(d/=c.data.length-l),(void 0===s||s<f)&&1.99<d&&(s=f,n=u)}return{successful:!!(g.delimiter=n),bestDelimiter:n}}(e,g.newline,g.skipEmptyLines,g.comments);n.successful?g.delimiter=n.bestDelimiter:(h=!0,g.delimiter=k.DefaultDelimiter),d.meta.delimiter=g.delimiter}var s=E(g);return g.preview&&g.header&&s.preview++,a=e,o=new v(s),d=o.parse(a,t,r),c(),u?{meta:{paused:!0}}:d||{meta:{paused:!1}}},this.paused=function(){return u},this.pause=function(){u=!0,o.abort(),a=a.substr(o.getCharIndex())},this.resume=function(){u=!1,t.streamer.parseChunk(a,!0)},this.aborted=function(){return e},this.abort=function(){e=!0,o.abort(),d.meta.aborted=!0,z(g.complete)&&g.complete(d),a=""}}function M(e){return e.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}function v(e){var S,O=(e=e||{}).delimiter,x=e.newline,T=e.comments,I=e.step,A=e.preview,D=e.fastMode,L=S=void 0===e.quoteChar?'"':e.quoteChar;if(void 0!==e.escapeChar&&(L=e.escapeChar),("string"!=typeof O||-1<k.BAD_DELIMITERS.indexOf(O))&&(O=","),T===O)throw"Comment character same as delimiter";!0===T?T="#":("string"!=typeof T||-1<k.BAD_DELIMITERS.indexOf(T))&&(T=!1),"\n"!==x&&"\r"!==x&&"\r\n"!==x&&(x="\n");var P=0,F=!1;this.parse=function(i,t,r){if("string"!=typeof i)throw"Input must be a string";var n=i.length,e=O.length,s=x.length,a=T.length,o=z(I),h=[],u=[],f=[],d=P=0;if(!i)return C();if(D||!1!==D&&-1===i.indexOf(S)){for(var l=i.split(x),c=0;c<l.length;c++){if(f=l[c],P+=f.length,c!==l.length-1)P+=x.length;else if(r)return C();if(!T||f.substr(0,a)!==T){if(o){if(h=[],k(f.split(O)),R(),F)return C()}else k(f.split(O));if(A&&A<=c)return h=h.slice(0,A),C(!0)}}return C()}for(var p,_=i.indexOf(O,P),g=i.indexOf(x,P),m=new RegExp(M(L)+M(S),"g");;)if(i[P]!==S)if(T&&0===f.length&&i.substr(P,a)===T){if(-1===g)return C();P=g+s,g=i.indexOf(x,P),_=i.indexOf(O,P)}else if(-1!==_&&(_<g||-1===g))f.push(i.substring(P,_)),P=_+e,_=i.indexOf(O,P);else{if(-1===g)break;if(f.push(i.substring(P,g)),w(g+s),o&&(R(),F))return C();if(A&&h.length>=A)return C(!0)}else for(p=P,P++;;){if(-1===(p=i.indexOf(S,p+1)))return r||u.push({type:"Quotes",code:"MissingQuotes",message:"Quoted field unterminated",row:h.length,index:P}),E();if(p===n-1)return E(i.substring(P,p).replace(m,S));if(S!==L||i[p+1]!==L){if(S===L||0===p||i[p-1]!==L){var y=b(-1===g?_:Math.min(_,g));if(i[p+1+y]===O){f.push(i.substring(P,p).replace(m,S)),P=p+1+y+e,_=i.indexOf(O,P),g=i.indexOf(x,P);break}var v=b(g);if(i.substr(p+1+v,s)===x){if(f.push(i.substring(P,p).replace(m,S)),w(p+1+v+s),_=i.indexOf(O,P),o&&(R(),F))return C();if(A&&h.length>=A)return C(!0);break}u.push({type:"Quotes",code:"InvalidQuotes",message:"Trailing quote on quoted field is malformed",row:h.length,index:P}),p++}}else p++}return E();function k(e){h.push(e),d=P}function b(e){var t=0;if(-1!==e){var r=i.substring(p+1,e);r&&""===r.trim()&&(t=r.length)}return t}function E(e){return r||(void 0===e&&(e=i.substr(P)),f.push(e),P=n,k(f),o&&R()),C()}function w(e){P=e,k(f),f=[],g=i.indexOf(x,P)}function C(e){return{data:h,errors:u,meta:{delimiter:O,linebreak:x,aborted:F,truncated:!!e,cursor:d+(t||0)}}}function R(){I(C()),h=[],u=[]}},this.abort=function(){F=!0},this.getCharIndex=function(){return P}}function m(e){var t=e.data,r=h[t.workerId],i=!1;if(t.error)r.userError(t.error,t.file);else if(t.results&&t.results.data){var n={abort:function(){i=!0,y(t.workerId,{data:[],errors:[],meta:{aborted:!0}})},pause:b,resume:b};if(z(r.userStep)){for(var s=0;s<t.results.data.length&&(r.userStep({data:[t.results.data[s]],errors:t.results.errors,meta:t.results.meta},n),!i);s++);delete t.results}else z(r.userChunk)&&(r.userChunk(t.results,n,t.file),delete t.results)}t.finished&&!i&&y(t.workerId,t.results)}function y(e,t){var r=h[e];z(r.userComplete)&&r.userComplete(t),r.terminate(),delete h[e]}function b(){throw"Not implemented."}function E(e){if("object"!=typeof e||null===e)return e;var t=Array.isArray(e)?[]:{};for(var r in e)t[r]=E(e[r]);return t}function w(e,t){return function(){e.apply(t,arguments)}}function z(e){return"function"==typeof e}return o?f.onmessage=function(e){var t=e.data;void 0===k.WORKER_ID&&t&&(k.WORKER_ID=t.workerId);if("string"==typeof t.input)f.postMessage({workerId:k.WORKER_ID,results:k.parse(t.input,t.config),finished:!0});else if(f.File&&t.input instanceof File||t.input instanceof Object){var r=k.parse(t.input,t.config);r&&f.postMessage({workerId:k.WORKER_ID,results:r,finished:!0})}}:k.WORKERS_SUPPORTED&&(e=document.getElementsByTagName("script"),s=e.length?e[e.length-1].src:"",document.body?document.addEventListener("DOMContentLoaded",function(){a=!0},!0):a=!0),(c.prototype=Object.create(l.prototype)).constructor=c,(p.prototype=Object.create(l.prototype)).constructor=p,(_.prototype=Object.create(_.prototype)).constructor=_,(g.prototype=Object.create(l.prototype)).constructor=g,k});
+},{}],49:[function(require,module,exports){
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils = __importStar(require("./utils"));
+function makeHeap(nPoints, size) {
+    var makeArrays = function (fillValue) {
+        return utils.empty(nPoints).map(function () {
+            return utils.filled(size, fillValue);
+        });
+    };
+    var heap = [];
+    heap.push(makeArrays(-1));
+    heap.push(makeArrays(Infinity));
+    heap.push(makeArrays(0));
+    return heap;
+}
+exports.makeHeap = makeHeap;
+function rejectionSample(nSamples, poolSize, random) {
+    var result = utils.zeros(nSamples);
+    for (var i = 0; i < nSamples; i++) {
+        var rejectSample = true;
+        var j = 0;
+        while (rejectSample) {
+            j = utils.tauRandInt(poolSize, random);
+            var broken = false;
+            for (var k = 0; k < i; k++) {
+                if (j === result[k]) {
+                    broken = true;
+                    break;
+                }
+            }
+            if (!broken)
+                rejectSample = false;
+        }
+        result[i] = j;
+    }
+    return result;
+}
+exports.rejectionSample = rejectionSample;
+function heapPush(heap, row, weight, index, flag) {
+    row = Math.floor(row);
+    var indices = heap[0][row];
+    var weights = heap[1][row];
+    var isNew = heap[2][row];
+    if (weight >= weights[0]) {
+        return 0;
+    }
+    for (var i = 0; i < indices.length; i++) {
+        if (index === indices[i]) {
+            return 0;
+        }
+    }
+    return uncheckedHeapPush(heap, row, weight, index, flag);
+}
+exports.heapPush = heapPush;
+function uncheckedHeapPush(heap, row, weight, index, flag) {
+    var indices = heap[0][row];
+    var weights = heap[1][row];
+    var isNew = heap[2][row];
+    if (weight >= weights[0]) {
+        return 0;
+    }
+    weights[0] = weight;
+    indices[0] = index;
+    isNew[0] = flag;
+    var i = 0;
+    var iSwap = 0;
+    while (true) {
+        var ic1 = 2 * i + 1;
+        var ic2 = ic1 + 1;
+        var heapShape2 = heap[0][0].length;
+        if (ic1 >= heapShape2) {
+            break;
+        }
+        else if (ic2 >= heapShape2) {
+            if (weights[ic1] > weight) {
+                iSwap = ic1;
+            }
+            else {
+                break;
+            }
+        }
+        else if (weights[ic1] >= weights[ic2]) {
+            if (weight < weights[ic1]) {
+                iSwap = ic1;
+            }
+            else {
+                break;
+            }
+        }
+        else {
+            if (weight < weights[ic2]) {
+                iSwap = ic2;
+            }
+            else {
+                break;
+            }
+        }
+        weights[i] = weights[iSwap];
+        indices[i] = indices[iSwap];
+        isNew[i] = isNew[iSwap];
+        i = iSwap;
+    }
+    weights[i] = weight;
+    indices[i] = index;
+    isNew[i] = flag;
+    return 1;
+}
+exports.uncheckedHeapPush = uncheckedHeapPush;
+function buildCandidates(currentGraph, nVertices, nNeighbors, maxCandidates, random) {
+    var candidateNeighbors = makeHeap(nVertices, maxCandidates);
+    for (var i = 0; i < nVertices; i++) {
+        for (var j = 0; j < nNeighbors; j++) {
+            if (currentGraph[0][i][j] < 0) {
+                continue;
+            }
+            var idx = currentGraph[0][i][j];
+            var isn = currentGraph[2][i][j];
+            var d = utils.tauRand(random);
+            heapPush(candidateNeighbors, i, d, idx, isn);
+            heapPush(candidateNeighbors, idx, d, i, isn);
+            currentGraph[2][i][j] = 0;
+        }
+    }
+    return candidateNeighbors;
+}
+exports.buildCandidates = buildCandidates;
+function deheapSort(heap) {
+    var indices = heap[0];
+    var weights = heap[1];
+    for (var i = 0; i < indices.length; i++) {
+        var indHeap = indices[i];
+        var distHeap = weights[i];
+        for (var j = 0; j < indHeap.length - 1; j++) {
+            var indHeapIndex = indHeap.length - j - 1;
+            var distHeapIndex = distHeap.length - j - 1;
+            var temp1 = indHeap[0];
+            indHeap[0] = indHeap[indHeapIndex];
+            indHeap[indHeapIndex] = temp1;
+            var temp2 = distHeap[0];
+            distHeap[0] = distHeap[distHeapIndex];
+            distHeap[distHeapIndex] = temp2;
+            siftDown(distHeap, indHeap, distHeapIndex, 0);
+        }
+    }
+    return { indices: indices, weights: weights };
+}
+exports.deheapSort = deheapSort;
+function siftDown(heap1, heap2, ceiling, elt) {
+    while (elt * 2 + 1 < ceiling) {
+        var leftChild = elt * 2 + 1;
+        var rightChild = leftChild + 1;
+        var swap = elt;
+        if (heap1[swap] < heap1[leftChild]) {
+            swap = leftChild;
+        }
+        if (rightChild < ceiling && heap1[swap] < heap1[rightChild]) {
+            swap = rightChild;
+        }
+        if (swap === elt) {
+            break;
+        }
+        else {
+            var temp1 = heap1[elt];
+            heap1[elt] = heap1[swap];
+            heap1[swap] = temp1;
+            var temp2 = heap2[elt];
+            heap2[elt] = heap2[swap];
+            heap2[swap] = temp2;
+            elt = swap;
+        }
+    }
+}
+function smallestFlagged(heap, row) {
+    var ind = heap[0][row];
+    var dist = heap[1][row];
+    var flag = heap[2][row];
+    var minDist = Infinity;
+    var resultIndex = -1;
+    for (var i = 0; i > ind.length; i++) {
+        if (flag[i] === 1 && dist[i] < minDist) {
+            minDist = dist[i];
+            resultIndex = i;
+        }
+    }
+    if (resultIndex >= 0) {
+        flag[resultIndex] = 0;
+        return Math.floor(ind[resultIndex]);
+    }
+    else {
+        return -1;
+    }
+}
+exports.smallestFlagged = smallestFlagged;
+
+},{"./utils":55}],50:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var umap_1 = require("./umap");
+exports.UMAP = umap_1.UMAP;
+
+},{"./umap":54}],51:[function(require,module,exports){
+"use strict";
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __values = (this && this.__values) || function (o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var _a;
+var utils = __importStar(require("./utils"));
+var SparseMatrix = (function () {
+    function SparseMatrix(rows, cols, values, dims) {
+        this.entries = new Map();
+        this.nRows = 0;
+        this.nCols = 0;
+        if (rows.length !== cols.length || rows.length !== values.length) {
+            throw new Error('rows, cols and values arrays must all have the same length');
+        }
+        this.nRows = dims[0];
+        this.nCols = dims[1];
+        for (var i = 0; i < values.length; i++) {
+            var row = rows[i];
+            var col = cols[i];
+            this.checkDims(row, col);
+            var key = this.makeKey(row, col);
+            this.entries.set(key, { value: values[i], row: row, col: col });
+        }
+    }
+    SparseMatrix.prototype.makeKey = function (row, col) {
+        return row + ":" + col;
+    };
+    SparseMatrix.prototype.checkDims = function (row, col) {
+        var withinBounds = row < this.nRows && col < this.nCols;
+        if (!withinBounds) {
+            throw new Error('row and/or col specified outside of matrix dimensions');
+        }
+    };
+    SparseMatrix.prototype.set = function (row, col, value) {
+        this.checkDims(row, col);
+        var key = this.makeKey(row, col);
+        if (!this.entries.has(key)) {
+            this.entries.set(key, { value: value, row: row, col: col });
+        }
+        else {
+            this.entries.get(key).value = value;
+        }
+    };
+    SparseMatrix.prototype.get = function (row, col, defaultValue) {
+        if (defaultValue === void 0) { defaultValue = 0; }
+        this.checkDims(row, col);
+        var key = this.makeKey(row, col);
+        if (this.entries.has(key)) {
+            return this.entries.get(key).value;
+        }
+        else {
+            return defaultValue;
+        }
+    };
+    SparseMatrix.prototype.getAll = function (ordered) {
+        if (ordered === void 0) { ordered = true; }
+        var rowColValues = [];
+        this.entries.forEach(function (value) {
+            rowColValues.push(value);
+        });
+        if (ordered) {
+            rowColValues.sort(function (a, b) {
+                if (a.row === b.row) {
+                    return a.col - b.col;
+                }
+                else {
+                    return a.row - b.row;
+                }
+            });
+        }
+        return rowColValues;
+    };
+    SparseMatrix.prototype.getDims = function () {
+        return [this.nRows, this.nCols];
+    };
+    SparseMatrix.prototype.getRows = function () {
+        return Array.from(this.entries, function (_a) {
+            var _b = __read(_a, 2), key = _b[0], value = _b[1];
+            return value.row;
+        });
+    };
+    SparseMatrix.prototype.getCols = function () {
+        return Array.from(this.entries, function (_a) {
+            var _b = __read(_a, 2), key = _b[0], value = _b[1];
+            return value.col;
+        });
+    };
+    SparseMatrix.prototype.getValues = function () {
+        return Array.from(this.entries, function (_a) {
+            var _b = __read(_a, 2), key = _b[0], value = _b[1];
+            return value.value;
+        });
+    };
+    SparseMatrix.prototype.forEach = function (fn) {
+        this.entries.forEach(function (value) { return fn(value.value, value.row, value.col); });
+    };
+    SparseMatrix.prototype.map = function (fn) {
+        var vals = [];
+        this.entries.forEach(function (value) {
+            vals.push(fn(value.value, value.row, value.col));
+        });
+        var dims = [this.nRows, this.nCols];
+        return new SparseMatrix(this.getRows(), this.getCols(), vals, dims);
+    };
+    SparseMatrix.prototype.toArray = function () {
+        var _this = this;
+        var rows = utils.empty(this.nRows);
+        var output = rows.map(function () {
+            return utils.zeros(_this.nCols);
+        });
+        this.entries.forEach(function (value) {
+            output[value.row][value.col] = value.value;
+        });
+        return output;
+    };
+    return SparseMatrix;
+}());
+exports.SparseMatrix = SparseMatrix;
+function transpose(matrix) {
+    var cols = [];
+    var rows = [];
+    var vals = [];
+    matrix.forEach(function (value, row, col) {
+        cols.push(row);
+        rows.push(col);
+        vals.push(value);
+    });
+    var dims = [matrix.nCols, matrix.nRows];
+    return new SparseMatrix(rows, cols, vals, dims);
+}
+exports.transpose = transpose;
+function identity(size) {
+    var _a = __read(size, 1), rows = _a[0];
+    var matrix = new SparseMatrix([], [], [], size);
+    for (var i = 0; i < rows; i++) {
+        matrix.set(i, i, 1);
+    }
+    return matrix;
+}
+exports.identity = identity;
+function pairwiseMultiply(a, b) {
+    return elementWise(a, b, function (x, y) { return x * y; });
+}
+exports.pairwiseMultiply = pairwiseMultiply;
+function add(a, b) {
+    return elementWise(a, b, function (x, y) { return x + y; });
+}
+exports.add = add;
+function subtract(a, b) {
+    return elementWise(a, b, function (x, y) { return x - y; });
+}
+exports.subtract = subtract;
+function maximum(a, b) {
+    return elementWise(a, b, function (x, y) { return (x > y ? x : y); });
+}
+exports.maximum = maximum;
+function multiplyScalar(a, scalar) {
+    return a.map(function (value) {
+        return value * scalar;
+    });
+}
+exports.multiplyScalar = multiplyScalar;
+function eliminateZeros(m) {
+    var zeroIndices = new Set();
+    var values = m.getValues();
+    var rows = m.getRows();
+    var cols = m.getCols();
+    for (var i = 0; i < values.length; i++) {
+        if (values[i] === 0) {
+            zeroIndices.add(i);
+        }
+    }
+    var removeByZeroIndex = function (_, index) { return !zeroIndices.has(index); };
+    var nextValues = values.filter(removeByZeroIndex);
+    var nextRows = rows.filter(removeByZeroIndex);
+    var nextCols = cols.filter(removeByZeroIndex);
+    return new SparseMatrix(nextRows, nextCols, nextValues, m.getDims());
+}
+exports.eliminateZeros = eliminateZeros;
+function normalize(m, normType) {
+    if (normType === void 0) { normType = "l2"; }
+    var e_1, _a;
+    var normFn = normFns[normType];
+    var colsByRow = new Map();
+    m.forEach(function (_, row, col) {
+        var cols = colsByRow.get(row) || [];
+        cols.push(col);
+        colsByRow.set(row, cols);
+    });
+    var nextMatrix = new SparseMatrix([], [], [], m.getDims());
+    var _loop_1 = function (row) {
+        var cols = colsByRow.get(row).sort();
+        var vals = cols.map(function (col) { return m.get(row, col); });
+        var norm = normFn(vals);
+        for (var i = 0; i < norm.length; i++) {
+            nextMatrix.set(row, cols[i], norm[i]);
+        }
+    };
+    try {
+        for (var _b = __values(colsByRow.keys()), _c = _b.next(); !_c.done; _c = _b.next()) {
+            var row = _c.value;
+            _loop_1(row);
+        }
+    }
+    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+    finally {
+        try {
+            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+        }
+        finally { if (e_1) throw e_1.error; }
+    }
+    return nextMatrix;
+}
+exports.normalize = normalize;
+var normFns = (_a = {},
+    _a["max"] = function (xs) {
+        var max = -Infinity;
+        for (var i = 0; i < xs.length; i++) {
+            max = xs[i] > max ? xs[i] : max;
+        }
+        return xs.map(function (x) { return x / max; });
+    },
+    _a["l1"] = function (xs) {
+        var sum = 0;
+        for (var i = 0; i < xs.length; i++) {
+            sum += xs[i];
+        }
+        return xs.map(function (x) { return x / sum; });
+    },
+    _a["l2"] = function (xs) {
+        var sum = 0;
+        for (var i = 0; i < xs.length; i++) {
+            sum += Math.pow(xs[i], 2);
+        }
+        return xs.map(function (x) { return Math.sqrt(Math.pow(x, 2) / sum); });
+    },
+    _a);
+function elementWise(a, b, op) {
+    var visited = new Set();
+    var rows = [];
+    var cols = [];
+    var vals = [];
+    var operate = function (row, col) {
+        rows.push(row);
+        cols.push(col);
+        var nextValue = op(a.get(row, col), b.get(row, col));
+        vals.push(nextValue);
+    };
+    var valuesA = a.getValues();
+    var rowsA = a.getRows();
+    var colsA = a.getCols();
+    for (var i = 0; i < valuesA.length; i++) {
+        var row = rowsA[i];
+        var col = colsA[i];
+        var key = row + ":" + col;
+        visited.add(key);
+        operate(row, col);
+    }
+    var valuesB = b.getValues();
+    var rowsB = b.getRows();
+    var colsB = b.getCols();
+    for (var i = 0; i < valuesB.length; i++) {
+        var row = rowsB[i];
+        var col = colsB[i];
+        var key = row + ":" + col;
+        if (visited.has(key))
+            continue;
+        operate(row, col);
+    }
+    var dims = [a.nRows, a.nCols];
+    return new SparseMatrix(rows, cols, vals, dims);
+}
+function getCSR(x) {
+    var entries = [];
+    x.forEach(function (value, row, col) {
+        entries.push({ value: value, row: row, col: col });
+    });
+    entries.sort(function (a, b) {
+        if (a.row === b.row) {
+            return a.col - b.col;
+        }
+        else {
+            return a.row - b.row;
+        }
+    });
+    var indices = [];
+    var values = [];
+    var indptr = [];
+    var currentRow = -1;
+    for (var i = 0; i < entries.length; i++) {
+        var _a = entries[i], row = _a.row, col = _a.col, value = _a.value;
+        if (row !== currentRow) {
+            currentRow = row;
+            indptr.push(i);
+        }
+        indices.push(col);
+        values.push(value);
+    }
+    return { indices: indices, values: values, indptr: indptr };
+}
+exports.getCSR = getCSR;
+
+},{"./utils":55}],52:[function(require,module,exports){
+"use strict";
+var __values = (this && this.__values) || function (o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var heap = __importStar(require("./heap"));
+var matrix = __importStar(require("./matrix"));
+var tree = __importStar(require("./tree"));
+var utils = __importStar(require("./utils"));
+function makeNNDescent(distanceFn, random) {
+    return function nNDescent(data, leafArray, nNeighbors, nIters, maxCandidates, delta, rho, rpTreeInit) {
+        if (nIters === void 0) { nIters = 10; }
+        if (maxCandidates === void 0) { maxCandidates = 50; }
+        if (delta === void 0) { delta = 0.001; }
+        if (rho === void 0) { rho = 0.5; }
+        if (rpTreeInit === void 0) { rpTreeInit = true; }
+        var nVertices = data.length;
+        var currentGraph = heap.makeHeap(data.length, nNeighbors);
+        for (var i = 0; i < data.length; i++) {
+            var indices = heap.rejectionSample(nNeighbors, data.length, random);
+            for (var j = 0; j < indices.length; j++) {
+                var d = distanceFn(data[i], data[indices[j]]);
+                heap.heapPush(currentGraph, i, d, indices[j], 1);
+                heap.heapPush(currentGraph, indices[j], d, i, 1);
+            }
+        }
+        if (rpTreeInit) {
+            for (var n = 0; n < leafArray.length; n++) {
+                for (var i = 0; i < leafArray[n].length; i++) {
+                    if (leafArray[n][i] < 0) {
+                        break;
+                    }
+                    for (var j = i + 1; j < leafArray[n].length; j++) {
+                        if (leafArray[n][j] < 0) {
+                            break;
+                        }
+                        var d = distanceFn(data[leafArray[n][i]], data[leafArray[n][j]]);
+                        heap.heapPush(currentGraph, leafArray[n][i], d, leafArray[n][j], 1);
+                        heap.heapPush(currentGraph, leafArray[n][j], d, leafArray[n][i], 1);
+                    }
+                }
+            }
+        }
+        for (var n = 0; n < nIters; n++) {
+            var candidateNeighbors = heap.buildCandidates(currentGraph, nVertices, nNeighbors, maxCandidates, random);
+            var c = 0;
+            for (var i = 0; i < nVertices; i++) {
+                for (var j = 0; j < maxCandidates; j++) {
+                    var p = Math.floor(candidateNeighbors[0][i][j]);
+                    if (p < 0 || utils.tauRand(random) < rho) {
+                        continue;
+                    }
+                    for (var k = 0; k < maxCandidates; k++) {
+                        var q = Math.floor(candidateNeighbors[0][i][k]);
+                        var cj = candidateNeighbors[2][i][j];
+                        var ck = candidateNeighbors[2][i][k];
+                        if (q < 0 || (!cj && !ck)) {
+                            continue;
+                        }
+                        var d = distanceFn(data[p], data[q]);
+                        c += heap.heapPush(currentGraph, p, d, q, 1);
+                        c += heap.heapPush(currentGraph, q, d, p, 1);
+                    }
+                }
+            }
+            if (c <= delta * nNeighbors * data.length) {
+                break;
+            }
+        }
+        var sorted = heap.deheapSort(currentGraph);
+        return sorted;
+    };
+}
+exports.makeNNDescent = makeNNDescent;
+function makeInitializations(distanceFn) {
+    function initFromRandom(nNeighbors, data, queryPoints, _heap, random) {
+        for (var i = 0; i < queryPoints.length; i++) {
+            var indices = utils.rejectionSample(nNeighbors, data.length, random);
+            for (var j = 0; j < indices.length; j++) {
+                if (indices[j] < 0) {
+                    continue;
+                }
+                var d = distanceFn(data[indices[j]], queryPoints[i]);
+                heap.heapPush(_heap, i, d, indices[j], 1);
+            }
+        }
+    }
+    function initFromTree(_tree, data, queryPoints, _heap, random) {
+        for (var i = 0; i < queryPoints.length; i++) {
+            var indices = tree.searchFlatTree(queryPoints[i], _tree, random);
+            for (var j = 0; j < indices.length; j++) {
+                if (indices[j] < 0) {
+                    return;
+                }
+                var d = distanceFn(data[indices[j]], queryPoints[i]);
+                heap.heapPush(_heap, i, d, indices[j], 1);
+            }
+        }
+        return;
+    }
+    return { initFromRandom: initFromRandom, initFromTree: initFromTree };
+}
+exports.makeInitializations = makeInitializations;
+function makeInitializedNNSearch(distanceFn) {
+    return function nnSearchFn(data, graph, initialization, queryPoints) {
+        var e_1, _a;
+        var _b = matrix.getCSR(graph), indices = _b.indices, indptr = _b.indptr;
+        for (var i = 0; i < queryPoints.length; i++) {
+            var tried = new Set(initialization[0][i]);
+            while (true) {
+                var vertex = heap.smallestFlagged(initialization, i);
+                if (vertex === -1) {
+                    break;
+                }
+                var candidates = indices.slice(indptr[vertex], indptr[vertex + 1]);
+                try {
+                    for (var candidates_1 = __values(candidates), candidates_1_1 = candidates_1.next(); !candidates_1_1.done; candidates_1_1 = candidates_1.next()) {
+                        var candidate = candidates_1_1.value;
+                        if (candidate === vertex ||
+                            candidate === -1 ||
+                            tried.has(candidate)) {
+                            continue;
+                        }
+                        var d = distanceFn(data[candidate], queryPoints[i]);
+                        heap.uncheckedHeapPush(initialization, i, d, candidate, 1);
+                        tried.add(candidate);
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (candidates_1_1 && !candidates_1_1.done && (_a = candidates_1.return)) _a.call(candidates_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+            }
+        }
+        return initialization;
+    };
+}
+exports.makeInitializedNNSearch = makeInitializedNNSearch;
+function initializeSearch(forest, data, queryPoints, nNeighbors, initFromRandom, initFromTree, random) {
+    var e_2, _a;
+    var results = heap.makeHeap(queryPoints.length, nNeighbors);
+    initFromRandom(nNeighbors, data, queryPoints, results, random);
+    if (forest) {
+        try {
+            for (var forest_1 = __values(forest), forest_1_1 = forest_1.next(); !forest_1_1.done; forest_1_1 = forest_1.next()) {
+                var tree_1 = forest_1_1.value;
+                initFromTree(tree_1, data, queryPoints, results, random);
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (forest_1_1 && !forest_1_1.done && (_a = forest_1.return)) _a.call(forest_1);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+    }
+    return results;
+}
+exports.initializeSearch = initializeSearch;
+
+},{"./heap":49,"./matrix":51,"./tree":53,"./utils":55}],53:[function(require,module,exports){
+"use strict";
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spread = (this && this.__spread) || function () {
+    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+    return ar;
+};
+var __values = (this && this.__values) || function (o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils = __importStar(require("./utils"));
+var FlatTree = (function () {
+    function FlatTree(hyperplanes, offsets, children, indices) {
+        this.hyperplanes = hyperplanes;
+        this.offsets = offsets;
+        this.children = children;
+        this.indices = indices;
+    }
+    return FlatTree;
+}());
+exports.FlatTree = FlatTree;
+function makeForest(data, nNeighbors, nTrees, random) {
+    var leafSize = Math.max(10, nNeighbors);
+    var trees = utils
+        .range(nTrees)
+        .map(function (_, i) { return makeTree(data, leafSize, i, random); });
+    var forest = trees.map(function (tree) { return flattenTree(tree, leafSize); });
+    return forest;
+}
+exports.makeForest = makeForest;
+function makeTree(data, leafSize, n, random) {
+    if (leafSize === void 0) { leafSize = 30; }
+    var indices = utils.range(data.length);
+    var tree = makeEuclideanTree(data, indices, leafSize, n, random);
+    return tree;
+}
+function makeEuclideanTree(data, indices, leafSize, q, random) {
+    if (leafSize === void 0) { leafSize = 30; }
+    if (indices.length > leafSize) {
+        var splitResults = euclideanRandomProjectionSplit(data, indices, random);
+        var indicesLeft = splitResults.indicesLeft, indicesRight = splitResults.indicesRight, hyperplane = splitResults.hyperplane, offset = splitResults.offset;
+        var leftChild = makeEuclideanTree(data, indicesLeft, leafSize, q + 1, random);
+        var rightChild = makeEuclideanTree(data, indicesRight, leafSize, q + 1, random);
+        var node = { leftChild: leftChild, rightChild: rightChild, isLeaf: false, hyperplane: hyperplane, offset: offset };
+        return node;
+    }
+    else {
+        var node = { indices: indices, isLeaf: true };
+        return node;
+    }
+}
+function euclideanRandomProjectionSplit(data, indices, random) {
+    var dim = data[0].length;
+    var leftIndex = utils.tauRandInt(indices.length, random);
+    var rightIndex = utils.tauRandInt(indices.length, random);
+    rightIndex += leftIndex === rightIndex ? 1 : 0;
+    rightIndex = rightIndex % indices.length;
+    var left = indices[leftIndex];
+    var right = indices[rightIndex];
+    var hyperplaneOffset = 0;
+    var hyperplaneVector = utils.zeros(dim);
+    for (var i = 0; i < hyperplaneVector.length; i++) {
+        hyperplaneVector[i] = data[left][i] - data[right][i];
+        hyperplaneOffset -=
+            (hyperplaneVector[i] * (data[left][i] + data[right][i])) / 2.0;
+    }
+    var nLeft = 0;
+    var nRight = 0;
+    var side = utils.zeros(indices.length);
+    for (var i = 0; i < indices.length; i++) {
+        var margin = hyperplaneOffset;
+        for (var d = 0; d < dim; d++) {
+            margin += hyperplaneVector[d] * data[indices[i]][d];
+        }
+        if (margin === 0) {
+            side[i] = utils.tauRandInt(2, random);
+            if (side[i] === 0) {
+                nLeft += 1;
+            }
+            else {
+                nRight += 1;
+            }
+        }
+        else if (margin > 0) {
+            side[i] = 0;
+            nLeft += 1;
+        }
+        else {
+            side[i] = 1;
+            nRight += 1;
+        }
+    }
+    var indicesLeft = utils.zeros(nLeft);
+    var indicesRight = utils.zeros(nRight);
+    nLeft = 0;
+    nRight = 0;
+    for (var i in utils.range(side.length)) {
+        if (side[i] === 0) {
+            indicesLeft[nLeft] = indices[i];
+            nLeft += 1;
+        }
+        else {
+            indicesRight[nRight] = indices[i];
+            nRight += 1;
+        }
+    }
+    return {
+        indicesLeft: indicesLeft,
+        indicesRight: indicesRight,
+        hyperplane: hyperplaneVector,
+        offset: hyperplaneOffset,
+    };
+}
+function flattenTree(tree, leafSize) {
+    var nNodes = numNodes(tree);
+    var nLeaves = numLeaves(tree);
+    var hyperplanes = utils
+        .range(nNodes)
+        .map(function () { return utils.zeros(tree.hyperplane ? tree.hyperplane.length : 0); });
+    var offsets = utils.zeros(nNodes);
+    var children = utils.range(nNodes).map(function () { return [-1, -1]; });
+    var indices = utils
+        .range(nLeaves)
+        .map(function () { return utils.range(leafSize).map(function () { return -1; }); });
+    recursiveFlatten(tree, hyperplanes, offsets, children, indices, 0, 0);
+    return new FlatTree(hyperplanes, offsets, children, indices);
+}
+function recursiveFlatten(tree, hyperplanes, offsets, children, indices, nodeNum, leafNum) {
+    var _a;
+    if (tree.isLeaf) {
+        children[nodeNum][0] = -leafNum;
+        (_a = indices[leafNum]).splice.apply(_a, __spread([0, tree.indices.length], tree.indices));
+        leafNum += 1;
+        return { nodeNum: nodeNum, leafNum: leafNum };
+    }
+    else {
+        hyperplanes[nodeNum] = tree.hyperplane;
+        offsets[nodeNum] = tree.offset;
+        children[nodeNum][0] = nodeNum + 1;
+        var oldNodeNum = nodeNum;
+        var res = recursiveFlatten(tree.leftChild, hyperplanes, offsets, children, indices, nodeNum + 1, leafNum);
+        nodeNum = res.nodeNum;
+        leafNum = res.leafNum;
+        children[oldNodeNum][1] = nodeNum + 1;
+        res = recursiveFlatten(tree.rightChild, hyperplanes, offsets, children, indices, nodeNum + 1, leafNum);
+        return { nodeNum: res.nodeNum, leafNum: res.leafNum };
+    }
+}
+function numNodes(tree) {
+    if (tree.isLeaf) {
+        return 1;
+    }
+    else {
+        return 1 + numNodes(tree.leftChild) + numNodes(tree.rightChild);
+    }
+}
+function numLeaves(tree) {
+    if (tree.isLeaf) {
+        return 1;
+    }
+    else {
+        return numLeaves(tree.leftChild) + numLeaves(tree.rightChild);
+    }
+}
+function makeLeafArray(rpForest) {
+    var e_1, _a;
+    if (rpForest.length > 0) {
+        var output = [];
+        try {
+            for (var rpForest_1 = __values(rpForest), rpForest_1_1 = rpForest_1.next(); !rpForest_1_1.done; rpForest_1_1 = rpForest_1.next()) {
+                var tree = rpForest_1_1.value;
+                output.push.apply(output, __spread(tree.indices));
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (rpForest_1_1 && !rpForest_1_1.done && (_a = rpForest_1.return)) _a.call(rpForest_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return output;
+    }
+    else {
+        return [[-1]];
+    }
+}
+exports.makeLeafArray = makeLeafArray;
+function selectSide(hyperplane, offset, point, random) {
+    var margin = offset;
+    for (var d = 0; d < point.length; d++) {
+        margin += hyperplane[d] * point[d];
+    }
+    if (margin === 0) {
+        var side = utils.tauRandInt(2, random);
+        return side;
+    }
+    else if (margin > 0) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+function searchFlatTree(point, tree, random) {
+    var node = 0;
+    while (tree.children[node][0] > 0) {
+        var side = selectSide(tree.hyperplanes[node], tree.offsets[node], point, random);
+        if (side === 0) {
+            node = tree.children[node][0];
+        }
+        else {
+            node = tree.children[node][1];
+        }
+    }
+    var index = -1 * tree.children[node][0];
+    return tree.indices[index];
+}
+exports.searchFlatTree = searchFlatTree;
+
+},{"./utils":55}],54:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spread = (this && this.__spread) || function () {
+    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+    return ar;
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var heap = __importStar(require("./heap"));
+var matrix = __importStar(require("./matrix"));
+var nnDescent = __importStar(require("./nn_descent"));
+var tree = __importStar(require("./tree"));
+var utils = __importStar(require("./utils"));
+var ml_levenberg_marquardt_1 = __importDefault(require("ml-levenberg-marquardt"));
+var SMOOTH_K_TOLERANCE = 1e-5;
+var MIN_K_DIST_SCALE = 1e-3;
+var UMAP = (function () {
+    function UMAP(params) {
+        if (params === void 0) { params = {}; }
+        var _this = this;
+        this.learningRate = 1.0;
+        this.localConnectivity = 1.0;
+        this.minDist = 0.1;
+        this.nComponents = 2;
+        this.nEpochs = 0;
+        this.nNeighbors = 15;
+        this.negativeSampleRate = 5;
+        this.random = Math.random;
+        this.repulsionStrength = 1.0;
+        this.setOpMixRatio = 1.0;
+        this.spread = 1.0;
+        this.transformQueueSize = 4.0;
+        this.targetMetric = "categorical";
+        this.targetWeight = 0.5;
+        this.targetNNeighbors = this.nNeighbors;
+        this.distanceFn = euclidean;
+        this.isInitialized = false;
+        this.rpForest = [];
+        this.embedding = [];
+        this.optimizationState = new OptimizationState();
+        var setParam = function (key) {
+            if (params[key] !== undefined)
+                _this[key] = params[key];
+        };
+        setParam('distanceFn');
+        setParam('learningRate');
+        setParam('localConnectivity');
+        setParam('minDist');
+        setParam('nComponents');
+        setParam('nEpochs');
+        setParam('nNeighbors');
+        setParam('negativeSampleRate');
+        setParam('random');
+        setParam('repulsionStrength');
+        setParam('setOpMixRatio');
+        setParam('spread');
+        setParam('transformQueueSize');
+    }
+    UMAP.prototype.fit = function (X) {
+        this.initializeFit(X);
+        this.optimizeLayout();
+        return this.embedding;
+    };
+    UMAP.prototype.fitAsync = function (X, callback) {
+        if (callback === void 0) { callback = function () { return true; }; }
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.initializeFit(X);
+                        return [4, this.optimizeLayoutAsync(callback)];
+                    case 1:
+                        _a.sent();
+                        return [2, this.embedding];
+                }
+            });
+        });
+    };
+    UMAP.prototype.setSupervisedProjection = function (Y, params) {
+        if (params === void 0) { params = {}; }
+        this.Y = Y;
+        this.targetMetric = params.targetMetric || this.targetMetric;
+        this.targetWeight = params.targetWeight || this.targetWeight;
+        this.targetNNeighbors = params.targetNNeighbors || this.targetNNeighbors;
+    };
+    UMAP.prototype.setPrecomputedKNN = function (knnIndices, knnDistances) {
+        this.knnIndices = knnIndices;
+        this.knnDistances = knnDistances;
+    };
+    UMAP.prototype.initializeFit = function (X) {
+        if (X.length <= this.nNeighbors) {
+            throw new Error("Not enough data points (" + X.length + ") to create nNeighbors: " + this.nNeighbors + ".  Add more data points or adjust the configuration.");
+        }
+        if (this.X === X && this.isInitialized) {
+            return this.getNEpochs();
+        }
+        this.X = X;
+        if (!this.knnIndices && !this.knnDistances) {
+            var knnResults = this.nearestNeighbors(X);
+            this.knnIndices = knnResults.knnIndices;
+            this.knnDistances = knnResults.knnDistances;
+        }
+        this.graph = this.fuzzySimplicialSet(X, this.nNeighbors, this.setOpMixRatio);
+        this.makeSearchFns();
+        this.searchGraph = this.makeSearchGraph(X);
+        this.processGraphForSupervisedProjection();
+        var _a = this.initializeSimplicialSetEmbedding(), head = _a.head, tail = _a.tail, epochsPerSample = _a.epochsPerSample;
+        this.optimizationState.head = head;
+        this.optimizationState.tail = tail;
+        this.optimizationState.epochsPerSample = epochsPerSample;
+        this.initializeOptimization();
+        this.prepareForOptimizationLoop();
+        this.isInitialized = true;
+        return this.getNEpochs();
+    };
+    UMAP.prototype.makeSearchFns = function () {
+        var _a = nnDescent.makeInitializations(this.distanceFn), initFromTree = _a.initFromTree, initFromRandom = _a.initFromRandom;
+        this.initFromTree = initFromTree;
+        this.initFromRandom = initFromRandom;
+        this.search = nnDescent.makeInitializedNNSearch(this.distanceFn);
+    };
+    UMAP.prototype.makeSearchGraph = function (X) {
+        var knnIndices = this.knnIndices;
+        var knnDistances = this.knnDistances;
+        var dims = [X.length, X.length];
+        var searchGraph = new matrix.SparseMatrix([], [], [], dims);
+        for (var i = 0; i < knnIndices.length; i++) {
+            var knn = knnIndices[i];
+            var distances = knnDistances[i];
+            for (var j = 0; j < knn.length; j++) {
+                var neighbor = knn[j];
+                var distance = distances[j];
+                if (distance > 0) {
+                    searchGraph.set(i, neighbor, distance);
+                }
+            }
+        }
+        var transpose = matrix.transpose(searchGraph);
+        return matrix.maximum(searchGraph, transpose);
+    };
+    UMAP.prototype.transform = function (toTransform) {
+        var _this = this;
+        var rawData = this.X;
+        if (rawData === undefined || rawData.length === 0) {
+            throw new Error('No data has been fit.');
+        }
+        var nNeighbors = Math.floor(this.nNeighbors * this.transformQueueSize);
+        nNeighbors = Math.min(rawData.length, nNeighbors);
+        var init = nnDescent.initializeSearch(this.rpForest, rawData, toTransform, nNeighbors, this.initFromRandom, this.initFromTree, this.random);
+        var result = this.search(rawData, this.searchGraph, init, toTransform);
+        var _a = heap.deheapSort(result), indices = _a.indices, distances = _a.weights;
+        indices = indices.map(function (x) { return x.slice(0, _this.nNeighbors); });
+        distances = distances.map(function (x) { return x.slice(0, _this.nNeighbors); });
+        var adjustedLocalConnectivity = Math.max(0, this.localConnectivity - 1);
+        var _b = this.smoothKNNDistance(distances, this.nNeighbors, adjustedLocalConnectivity), sigmas = _b.sigmas, rhos = _b.rhos;
+        var _c = this.computeMembershipStrengths(indices, distances, sigmas, rhos), rows = _c.rows, cols = _c.cols, vals = _c.vals;
+        var size = [toTransform.length, rawData.length];
+        var graph = new matrix.SparseMatrix(rows, cols, vals, size);
+        var normed = matrix.normalize(graph, "l1");
+        var csrMatrix = matrix.getCSR(normed);
+        var nPoints = toTransform.length;
+        var eIndices = utils.reshape2d(csrMatrix.indices, nPoints, this.nNeighbors);
+        var eWeights = utils.reshape2d(csrMatrix.values, nPoints, this.nNeighbors);
+        var embedding = initTransform(eIndices, eWeights, this.embedding);
+        var nEpochs = this.nEpochs
+            ? this.nEpochs / 3
+            : graph.nRows <= 10000
+                ? 100
+                : 30;
+        var graphMax = graph
+            .getValues()
+            .reduce(function (max, val) { return (val > max ? val : max); }, 0);
+        graph = graph.map(function (value) { return (value < graphMax / nEpochs ? 0 : value); });
+        graph = matrix.eliminateZeros(graph);
+        var epochsPerSample = this.makeEpochsPerSample(graph.getValues(), nEpochs);
+        var head = graph.getRows();
+        var tail = graph.getCols();
+        this.assignOptimizationStateParameters({
+            headEmbedding: embedding,
+            tailEmbedding: this.embedding,
+            head: head,
+            tail: tail,
+            currentEpoch: 0,
+            nEpochs: nEpochs,
+            nVertices: graph.getDims()[1],
+            epochsPerSample: epochsPerSample,
+        });
+        this.prepareForOptimizationLoop();
+        return this.optimizeLayout();
+    };
+    UMAP.prototype.processGraphForSupervisedProjection = function () {
+        var _a = this, Y = _a.Y, X = _a.X;
+        if (Y) {
+            if (Y.length !== X.length) {
+                throw new Error('Length of X and y must be equal');
+            }
+            if (this.targetMetric === "categorical") {
+                var lt = this.targetWeight < 1.0;
+                var farDist = lt ? 2.5 * (1.0 / (1.0 - this.targetWeight)) : 1.0e12;
+                this.graph = this.categoricalSimplicialSetIntersection(this.graph, Y, farDist);
+            }
+        }
+    };
+    UMAP.prototype.step = function () {
+        var currentEpoch = this.optimizationState.currentEpoch;
+        if (currentEpoch < this.getNEpochs()) {
+            this.optimizeLayoutStep(currentEpoch);
+        }
+        return this.optimizationState.currentEpoch;
+    };
+    UMAP.prototype.getEmbedding = function () {
+        return this.embedding;
+    };
+    UMAP.prototype.nearestNeighbors = function (X) {
+        var _a = this, distanceFn = _a.distanceFn, nNeighbors = _a.nNeighbors;
+        var log2 = function (n) { return Math.log(n) / Math.log(2); };
+        var metricNNDescent = nnDescent.makeNNDescent(distanceFn, this.random);
+        var round = function (n) {
+            return n === 0.5 ? 0 : Math.round(n);
+        };
+        var nTrees = 5 + Math.floor(round(Math.pow(X.length, 0.5) / 20.0));
+        var nIters = Math.max(5, Math.floor(Math.round(log2(X.length))));
+        this.rpForest = tree.makeForest(X, nNeighbors, nTrees, this.random);
+        var leafArray = tree.makeLeafArray(this.rpForest);
+        var _b = metricNNDescent(X, leafArray, nNeighbors, nIters), indices = _b.indices, weights = _b.weights;
+        return { knnIndices: indices, knnDistances: weights };
+    };
+    UMAP.prototype.fuzzySimplicialSet = function (X, nNeighbors, setOpMixRatio) {
+        if (setOpMixRatio === void 0) { setOpMixRatio = 1.0; }
+        var _a = this, _b = _a.knnIndices, knnIndices = _b === void 0 ? [] : _b, _c = _a.knnDistances, knnDistances = _c === void 0 ? [] : _c, localConnectivity = _a.localConnectivity;
+        var _d = this.smoothKNNDistance(knnDistances, nNeighbors, localConnectivity), sigmas = _d.sigmas, rhos = _d.rhos;
+        var _e = this.computeMembershipStrengths(knnIndices, knnDistances, sigmas, rhos), rows = _e.rows, cols = _e.cols, vals = _e.vals;
+        var size = [X.length, X.length];
+        var sparseMatrix = new matrix.SparseMatrix(rows, cols, vals, size);
+        var transpose = matrix.transpose(sparseMatrix);
+        var prodMatrix = matrix.pairwiseMultiply(sparseMatrix, transpose);
+        var a = matrix.subtract(matrix.add(sparseMatrix, transpose), prodMatrix);
+        var b = matrix.multiplyScalar(a, setOpMixRatio);
+        var c = matrix.multiplyScalar(prodMatrix, 1.0 - setOpMixRatio);
+        var result = matrix.add(b, c);
+        return result;
+    };
+    UMAP.prototype.categoricalSimplicialSetIntersection = function (simplicialSet, target, farDist, unknownDist) {
+        if (unknownDist === void 0) { unknownDist = 1.0; }
+        var intersection = fastIntersection(simplicialSet, target, unknownDist, farDist);
+        intersection = matrix.eliminateZeros(intersection);
+        return resetLocalConnectivity(intersection);
+    };
+    UMAP.prototype.smoothKNNDistance = function (distances, k, localConnectivity, nIter, bandwidth) {
+        if (localConnectivity === void 0) { localConnectivity = 1.0; }
+        if (nIter === void 0) { nIter = 64; }
+        if (bandwidth === void 0) { bandwidth = 1.0; }
+        var target = (Math.log(k) / Math.log(2)) * bandwidth;
+        var rho = utils.zeros(distances.length);
+        var result = utils.zeros(distances.length);
+        for (var i = 0; i < distances.length; i++) {
+            var lo = 0.0;
+            var hi = Infinity;
+            var mid = 1.0;
+            var ithDistances = distances[i];
+            var nonZeroDists = ithDistances.filter(function (d) { return d > 0.0; });
+            if (nonZeroDists.length >= localConnectivity) {
+                var index = Math.floor(localConnectivity);
+                var interpolation = localConnectivity - index;
+                if (index > 0) {
+                    rho[i] = nonZeroDists[index - 1];
+                    if (interpolation > SMOOTH_K_TOLERANCE) {
+                        rho[i] +=
+                            interpolation * (nonZeroDists[index] - nonZeroDists[index - 1]);
+                    }
+                }
+                else {
+                    rho[i] = interpolation * nonZeroDists[0];
+                }
+            }
+            else if (nonZeroDists.length > 0) {
+                rho[i] = utils.max(nonZeroDists);
+            }
+            for (var n = 0; n < nIter; n++) {
+                var psum = 0.0;
+                for (var j = 1; j < distances[i].length; j++) {
+                    var d = distances[i][j] - rho[i];
+                    if (d > 0) {
+                        psum += Math.exp(-(d / mid));
+                    }
+                    else {
+                        psum += 1.0;
+                    }
+                }
+                if (Math.abs(psum - target) < SMOOTH_K_TOLERANCE) {
+                    break;
+                }
+                if (psum > target) {
+                    hi = mid;
+                    mid = (lo + hi) / 2.0;
+                }
+                else {
+                    lo = mid;
+                    if (hi === Infinity) {
+                        mid *= 2;
+                    }
+                    else {
+                        mid = (lo + hi) / 2.0;
+                    }
+                }
+            }
+            result[i] = mid;
+            if (rho[i] > 0.0) {
+                var meanIthDistances = utils.mean(ithDistances);
+                if (result[i] < MIN_K_DIST_SCALE * meanIthDistances) {
+                    result[i] = MIN_K_DIST_SCALE * meanIthDistances;
+                }
+            }
+            else {
+                var meanDistances = utils.mean(distances.map(utils.mean));
+                if (result[i] < MIN_K_DIST_SCALE * meanDistances) {
+                    result[i] = MIN_K_DIST_SCALE * meanDistances;
+                }
+            }
+        }
+        return { sigmas: result, rhos: rho };
+    };
+    UMAP.prototype.computeMembershipStrengths = function (knnIndices, knnDistances, sigmas, rhos) {
+        var nSamples = knnIndices.length;
+        var nNeighbors = knnIndices[0].length;
+        var rows = utils.zeros(nSamples * nNeighbors);
+        var cols = utils.zeros(nSamples * nNeighbors);
+        var vals = utils.zeros(nSamples * nNeighbors);
+        for (var i = 0; i < nSamples; i++) {
+            for (var j = 0; j < nNeighbors; j++) {
+                var val = 0;
+                if (knnIndices[i][j] === -1) {
+                    continue;
+                }
+                if (knnIndices[i][j] === i) {
+                    val = 0.0;
+                }
+                else if (knnDistances[i][j] - rhos[i] <= 0.0) {
+                    val = 1.0;
+                }
+                else {
+                    val = Math.exp(-((knnDistances[i][j] - rhos[i]) / sigmas[i]));
+                }
+                rows[i * nNeighbors + j] = i;
+                cols[i * nNeighbors + j] = knnIndices[i][j];
+                vals[i * nNeighbors + j] = val;
+            }
+        }
+        return { rows: rows, cols: cols, vals: vals };
+    };
+    UMAP.prototype.initializeSimplicialSetEmbedding = function () {
+        var _this = this;
+        var nEpochs = this.getNEpochs();
+        var nComponents = this.nComponents;
+        var graphValues = this.graph.getValues();
+        var graphMax = 0;
+        for (var i = 0; i < graphValues.length; i++) {
+            var value = graphValues[i];
+            if (graphMax < graphValues[i]) {
+                graphMax = value;
+            }
+        }
+        var graph = this.graph.map(function (value) {
+            if (value < graphMax / nEpochs) {
+                return 0;
+            }
+            else {
+                return value;
+            }
+        });
+        this.embedding = utils.zeros(graph.nRows).map(function () {
+            return utils.zeros(nComponents).map(function () {
+                return utils.tauRand(_this.random) * 20 + -10;
+            });
+        });
+        var weights = [];
+        var head = [];
+        var tail = [];
+        var rowColValues = graph.getAll();
+        for (var i = 0; i < rowColValues.length; i++) {
+            var entry = rowColValues[i];
+            if (entry.value) {
+                weights.push(entry.value);
+                tail.push(entry.row);
+                head.push(entry.col);
+            }
+        }
+        var epochsPerSample = this.makeEpochsPerSample(weights, nEpochs);
+        return { head: head, tail: tail, epochsPerSample: epochsPerSample };
+    };
+    UMAP.prototype.makeEpochsPerSample = function (weights, nEpochs) {
+        var result = utils.filled(weights.length, -1.0);
+        var max = utils.max(weights);
+        var nSamples = weights.map(function (w) { return (w / max) * nEpochs; });
+        nSamples.forEach(function (n, i) {
+            if (n > 0)
+                result[i] = nEpochs / nSamples[i];
+        });
+        return result;
+    };
+    UMAP.prototype.assignOptimizationStateParameters = function (state) {
+        Object.assign(this.optimizationState, state);
+    };
+    UMAP.prototype.prepareForOptimizationLoop = function () {
+        var _a = this, repulsionStrength = _a.repulsionStrength, learningRate = _a.learningRate, negativeSampleRate = _a.negativeSampleRate;
+        var _b = this.optimizationState, epochsPerSample = _b.epochsPerSample, headEmbedding = _b.headEmbedding, tailEmbedding = _b.tailEmbedding;
+        var dim = headEmbedding[0].length;
+        var moveOther = headEmbedding.length === tailEmbedding.length;
+        var epochsPerNegativeSample = epochsPerSample.map(function (e) { return e / negativeSampleRate; });
+        var epochOfNextNegativeSample = __spread(epochsPerNegativeSample);
+        var epochOfNextSample = __spread(epochsPerSample);
+        this.assignOptimizationStateParameters({
+            epochOfNextSample: epochOfNextSample,
+            epochOfNextNegativeSample: epochOfNextNegativeSample,
+            epochsPerNegativeSample: epochsPerNegativeSample,
+            moveOther: moveOther,
+            initialAlpha: learningRate,
+            alpha: learningRate,
+            gamma: repulsionStrength,
+            dim: dim,
+        });
+    };
+    UMAP.prototype.initializeOptimization = function () {
+        var headEmbedding = this.embedding;
+        var tailEmbedding = this.embedding;
+        var _a = this.optimizationState, head = _a.head, tail = _a.tail, epochsPerSample = _a.epochsPerSample;
+        var nEpochs = this.getNEpochs();
+        var nVertices = this.graph.nCols;
+        var _b = findABParams(this.spread, this.minDist), a = _b.a, b = _b.b;
+        this.assignOptimizationStateParameters({
+            headEmbedding: headEmbedding,
+            tailEmbedding: tailEmbedding,
+            head: head,
+            tail: tail,
+            epochsPerSample: epochsPerSample,
+            a: a,
+            b: b,
+            nEpochs: nEpochs,
+            nVertices: nVertices,
+        });
+    };
+    UMAP.prototype.optimizeLayoutStep = function (n) {
+        var optimizationState = this.optimizationState;
+        var head = optimizationState.head, tail = optimizationState.tail, headEmbedding = optimizationState.headEmbedding, tailEmbedding = optimizationState.tailEmbedding, epochsPerSample = optimizationState.epochsPerSample, epochOfNextSample = optimizationState.epochOfNextSample, epochOfNextNegativeSample = optimizationState.epochOfNextNegativeSample, epochsPerNegativeSample = optimizationState.epochsPerNegativeSample, moveOther = optimizationState.moveOther, initialAlpha = optimizationState.initialAlpha, alpha = optimizationState.alpha, gamma = optimizationState.gamma, a = optimizationState.a, b = optimizationState.b, dim = optimizationState.dim, nEpochs = optimizationState.nEpochs, nVertices = optimizationState.nVertices;
+        var clipValue = 4.0;
+        for (var i = 0; i < epochsPerSample.length; i++) {
+            if (epochOfNextSample[i] > n) {
+                continue;
+            }
+            var j = head[i];
+            var k = tail[i];
+            var current = headEmbedding[j];
+            var other = tailEmbedding[k];
+            var distSquared = rDist(current, other);
+            var gradCoeff = 0;
+            if (distSquared > 0) {
+                gradCoeff = -2.0 * a * b * Math.pow(distSquared, b - 1.0);
+                gradCoeff /= a * Math.pow(distSquared, b) + 1.0;
+            }
+            for (var d = 0; d < dim; d++) {
+                var gradD = clip(gradCoeff * (current[d] - other[d]), clipValue);
+                current[d] += gradD * alpha;
+                if (moveOther) {
+                    other[d] += -gradD * alpha;
+                }
+            }
+            epochOfNextSample[i] += epochsPerSample[i];
+            var nNegSamples = Math.floor((n - epochOfNextNegativeSample[i]) / epochsPerNegativeSample[i]);
+            for (var p = 0; p < nNegSamples; p++) {
+                var k_1 = utils.tauRandInt(nVertices, this.random);
+                var other_1 = tailEmbedding[k_1];
+                var distSquared_1 = rDist(current, other_1);
+                var gradCoeff_1 = 0.0;
+                if (distSquared_1 > 0.0) {
+                    gradCoeff_1 = 2.0 * gamma * b;
+                    gradCoeff_1 /=
+                        (0.001 + distSquared_1) * (a * Math.pow(distSquared_1, b) + 1);
+                }
+                else if (j === k_1) {
+                    continue;
+                }
+                for (var d = 0; d < dim; d++) {
+                    var gradD = 4.0;
+                    if (gradCoeff_1 > 0.0) {
+                        gradD = clip(gradCoeff_1 * (current[d] - other_1[d]), clipValue);
+                    }
+                    current[d] += gradD * alpha;
+                }
+            }
+            epochOfNextNegativeSample[i] += nNegSamples * epochsPerNegativeSample[i];
+        }
+        optimizationState.alpha = initialAlpha * (1.0 - n / nEpochs);
+        optimizationState.currentEpoch += 1;
+        return headEmbedding;
+    };
+    UMAP.prototype.optimizeLayoutAsync = function (epochCallback) {
+        var _this = this;
+        if (epochCallback === void 0) { epochCallback = function () { return true; }; }
+        return new Promise(function (resolve, reject) {
+            var step = function () { return __awaiter(_this, void 0, void 0, function () {
+                var _a, nEpochs, currentEpoch, epochCompleted, shouldStop, isFinished;
+                return __generator(this, function (_b) {
+                    try {
+                        _a = this.optimizationState, nEpochs = _a.nEpochs, currentEpoch = _a.currentEpoch;
+                        this.embedding = this.optimizeLayoutStep(currentEpoch);
+                        epochCompleted = this.optimizationState.currentEpoch;
+                        shouldStop = epochCallback(epochCompleted) === false;
+                        isFinished = epochCompleted === nEpochs;
+                        if (!shouldStop && !isFinished) {
+                            setTimeout(function () { return step(); }, 0);
+                        }
+                        else {
+                            return [2, resolve(isFinished)];
+                        }
+                    }
+                    catch (err) {
+                        reject(err);
+                    }
+                    return [2];
+                });
+            }); };
+            setTimeout(function () { return step(); }, 0);
+        });
+    };
+    UMAP.prototype.optimizeLayout = function (epochCallback) {
+        if (epochCallback === void 0) { epochCallback = function () { return true; }; }
+        var isFinished = false;
+        var embedding = [];
+        while (!isFinished) {
+            var _a = this.optimizationState, nEpochs = _a.nEpochs, currentEpoch = _a.currentEpoch;
+            embedding = this.optimizeLayoutStep(currentEpoch);
+            var epochCompleted = this.optimizationState.currentEpoch;
+            var shouldStop = epochCallback(epochCompleted) === false;
+            isFinished = epochCompleted === nEpochs || shouldStop;
+        }
+        return embedding;
+    };
+    UMAP.prototype.getNEpochs = function () {
+        var graph = this.graph;
+        if (this.nEpochs > 0) {
+            return this.nEpochs;
+        }
+        var length = graph.nRows;
+        if (length <= 2500) {
+            return 500;
+        }
+        else if (length <= 5000) {
+            return 400;
+        }
+        else if (length <= 7500) {
+            return 300;
+        }
+        else {
+            return 200;
+        }
+    };
+    return UMAP;
+}());
+exports.UMAP = UMAP;
+function euclidean(x, y) {
+    var result = 0;
+    for (var i = 0; i < x.length; i++) {
+        result += Math.pow((x[i] - y[i]), 2);
+    }
+    return Math.sqrt(result);
+}
+exports.euclidean = euclidean;
+function cosine(x, y) {
+    var result = 0.0;
+    var normX = 0.0;
+    var normY = 0.0;
+    for (var i = 0; i < x.length; i++) {
+        result += x[i] * y[i];
+        normX += Math.pow(x[i], 2);
+        normY += Math.pow(y[i], 2);
+    }
+    if (normX === 0 && normY === 0) {
+        return 0;
+    }
+    else if (normX === 0 || normY === 0) {
+        return 1.0;
+    }
+    else {
+        return 1.0 - result / Math.sqrt(normX * normY);
+    }
+}
+exports.cosine = cosine;
+var OptimizationState = (function () {
+    function OptimizationState() {
+        this.currentEpoch = 0;
+        this.headEmbedding = [];
+        this.tailEmbedding = [];
+        this.head = [];
+        this.tail = [];
+        this.epochsPerSample = [];
+        this.epochOfNextSample = [];
+        this.epochOfNextNegativeSample = [];
+        this.epochsPerNegativeSample = [];
+        this.moveOther = true;
+        this.initialAlpha = 1.0;
+        this.alpha = 1.0;
+        this.gamma = 1.0;
+        this.a = 1.5769434603113077;
+        this.b = 0.8950608779109733;
+        this.dim = 2;
+        this.nEpochs = 500;
+        this.nVertices = 0;
+    }
+    return OptimizationState;
+}());
+function clip(x, clipValue) {
+    if (x > clipValue)
+        return clipValue;
+    else if (x < -clipValue)
+        return -clipValue;
+    else
+        return x;
+}
+function rDist(x, y) {
+    var result = 0.0;
+    for (var i = 0; i < x.length; i++) {
+        result += Math.pow(x[i] - y[i], 2);
+    }
+    return result;
+}
+function findABParams(spread, minDist) {
+    var curve = function (_a) {
+        var _b = __read(_a, 2), a = _b[0], b = _b[1];
+        return function (x) {
+            return 1.0 / (1.0 + a * Math.pow(x, (2 * b)));
+        };
+    };
+    var xv = utils
+        .linear(0, spread * 3, 300)
+        .map(function (val) { return (val < minDist ? 1.0 : val); });
+    var yv = utils.zeros(xv.length).map(function (val, index) {
+        var gte = xv[index] >= minDist;
+        return gte ? Math.exp(-(xv[index] - minDist) / spread) : val;
+    });
+    var initialValues = [0.5, 0.5];
+    var data = { x: xv, y: yv };
+    var options = {
+        damping: 1.5,
+        initialValues: initialValues,
+        gradientDifference: 10e-2,
+        maxIterations: 100,
+        errorTolerance: 10e-3,
+    };
+    var parameterValues = ml_levenberg_marquardt_1.default(data, curve, options).parameterValues;
+    var _a = __read(parameterValues, 2), a = _a[0], b = _a[1];
+    return { a: a, b: b };
+}
+exports.findABParams = findABParams;
+function fastIntersection(graph, target, unknownDist, farDist) {
+    if (unknownDist === void 0) { unknownDist = 1.0; }
+    if (farDist === void 0) { farDist = 5.0; }
+    return graph.map(function (value, row, col) {
+        if (target[row] === -1 || target[col] === -1) {
+            return value * Math.exp(-unknownDist);
+        }
+        else if (target[row] !== target[col]) {
+            return value * Math.exp(-farDist);
+        }
+        else {
+            return value;
+        }
+    });
+}
+exports.fastIntersection = fastIntersection;
+function resetLocalConnectivity(simplicialSet) {
+    simplicialSet = matrix.normalize(simplicialSet, "max");
+    var transpose = matrix.transpose(simplicialSet);
+    var prodMatrix = matrix.pairwiseMultiply(transpose, simplicialSet);
+    simplicialSet = matrix.add(simplicialSet, matrix.subtract(transpose, prodMatrix));
+    return matrix.eliminateZeros(simplicialSet);
+}
+exports.resetLocalConnectivity = resetLocalConnectivity;
+function initTransform(indices, weights, embedding) {
+    var result = utils
+        .zeros(indices.length)
+        .map(function (z) { return utils.zeros(embedding[0].length); });
+    for (var i = 0; i < indices.length; i++) {
+        for (var j = 0; j < indices[0].length; j++) {
+            for (var d = 0; d < embedding[0].length; d++) {
+                var a = indices[i][j];
+                result[i][d] += weights[i][j] * embedding[a][d];
+            }
+        }
+    }
+    return result;
+}
+exports.initTransform = initTransform;
+
+},{"./heap":49,"./matrix":51,"./nn_descent":52,"./tree":53,"./utils":55,"ml-levenberg-marquardt":44}],55:[function(require,module,exports){
+"use strict";
+var __values = (this && this.__values) || function (o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+function tauRandInt(n, random) {
+    return Math.floor(random() * n);
+}
+exports.tauRandInt = tauRandInt;
+function tauRand(random) {
+    return random();
+}
+exports.tauRand = tauRand;
+function norm(vec) {
+    var e_1, _a;
+    var result = 0;
+    try {
+        for (var vec_1 = __values(vec), vec_1_1 = vec_1.next(); !vec_1_1.done; vec_1_1 = vec_1.next()) {
+            var item = vec_1_1.value;
+            result += Math.pow(item, 2);
+        }
+    }
+    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+    finally {
+        try {
+            if (vec_1_1 && !vec_1_1.done && (_a = vec_1.return)) _a.call(vec_1);
+        }
+        finally { if (e_1) throw e_1.error; }
+    }
+    return Math.sqrt(result);
+}
+exports.norm = norm;
+function empty(n) {
+    var output = [];
+    for (var i = 0; i < n; i++) {
+        output.push(undefined);
+    }
+    return output;
+}
+exports.empty = empty;
+function range(n) {
+    return empty(n).map(function (_, i) { return i; });
+}
+exports.range = range;
+function filled(n, v) {
+    return empty(n).map(function () { return v; });
+}
+exports.filled = filled;
+function zeros(n) {
+    return filled(n, 0);
+}
+exports.zeros = zeros;
+function ones(n) {
+    return filled(n, 1);
+}
+exports.ones = ones;
+function linear(a, b, len) {
+    return empty(len).map(function (_, i) {
+        return a + i * ((b - a) / (len - 1));
+    });
+}
+exports.linear = linear;
+function sum(input) {
+    return input.reduce(function (sum, val) { return sum + val; });
+}
+exports.sum = sum;
+function mean(input) {
+    return sum(input) / input.length;
+}
+exports.mean = mean;
+function max(input) {
+    var max = 0;
+    for (var i = 0; i < input.length; i++) {
+        max = input[i] > max ? input[i] : max;
+    }
+    return max;
+}
+exports.max = max;
+function max2d(input) {
+    var max = 0;
+    for (var i = 0; i < input.length; i++) {
+        for (var j = 0; j < input[i].length; j++) {
+            max = input[i][j] > max ? input[i][j] : max;
+        }
+    }
+    return max;
+}
+exports.max2d = max2d;
+function rejectionSample(nSamples, poolSize, random) {
+    var result = zeros(nSamples);
+    for (var i = 0; i < nSamples; i++) {
+        var rejectSample = true;
+        while (rejectSample) {
+            var j = tauRandInt(poolSize, random);
+            var broken = false;
+            for (var k = 0; k < i; k++) {
+                if (j === result[k]) {
+                    broken = true;
+                    break;
+                }
+            }
+            if (!broken) {
+                rejectSample = false;
+            }
+            result[i] = j;
+        }
+    }
+    return result;
+}
+exports.rejectionSample = rejectionSample;
+function reshape2d(x, a, b) {
+    var rows = [];
+    var count = 0;
+    var index = 0;
+    if (x.length !== a * b) {
+        throw new Error('Array dimensions must match input length.');
+    }
+    for (var i = 0; i < a; i++) {
+        var col = [];
+        for (var j = 0; j < b; j++) {
+            col.push(x[index]);
+            index += 1;
+        }
+        rows.push(col);
+        count += 1;
+    }
+    return rows;
+}
+exports.reshape2d = reshape2d;
+
 },{}]},{},[1]);
 }

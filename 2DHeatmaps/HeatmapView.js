@@ -188,6 +188,7 @@ export function getHeatmap(view){
 			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
 			if (numberDatapointsRepresented > 0) {
 				var color = lut.getColor( numberDatapointsRepresented );
+				
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -232,7 +233,6 @@ export function getHeatmap(view){
 			heatmapInformation.push(tempInfo)
 		}
 	}
-	
 	view.heatmapInformation = heatmapInformation;
 	view.XYtoHeatmapMap = XYtoHeatmapMap;
 	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
@@ -370,6 +370,11 @@ export function replotHeatmap(view){
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
 	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
+    }
 	/*var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){

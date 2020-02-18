@@ -32,6 +32,8 @@ export function getPointCloudGeometry(view){
 	var colors = new Float32Array(count *3);
 	var sizes = new Float32Array( count);
 	var alphas = new Float32Array( count);
+	var selections = new Float32Array( count);
+	selections.fill(1);
 	// var parentBlock = new Float32Array( count);
 	var voxelPointDict = {};
 	var pointVoxelMap = new Uint32Array(count);
@@ -55,9 +57,6 @@ export function getPointCloudGeometry(view){
 			
 			for (var j = 0; j < temp_num_points; j ++){
 
-				
-				
-
 				xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
 				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
 				zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
@@ -76,8 +75,7 @@ export function getPointCloudGeometry(view){
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
 
-				if (spatiallyResolvedData[k].highlighted) {
-					// console.log('found highlighted point', k );
+				/*if (spatiallyResolvedData[k].highlighted) {
 					sizes[ i ] = options.pointCloudSize * 3;
 					alphas[ i ] = 1;
 				} else if (spatiallyResolvedData[k].selected){
@@ -90,6 +88,19 @@ export function getPointCloudGeometry(view){
 				} else {
 					alphas[ i ] = 0;
 					sizes[ i ] = 0;
+				}*/
+
+				if (spatiallyResolvedData[k].highlighted) {
+					sizes[ i ] = options.pointCloudSize * 3;
+					alphas[ i ] = 1;
+				} else {
+					// not highlighted
+					alphas[ i ] = options.pointCloudAlpha;
+					sizes[ i ] = options.pointCloudSize; 
+					if (!spatiallyResolvedData[k].selected){
+						// not highlighted and not selected
+						selections[i] = 0;
+					}
 				}
 
 				// parentBlock[i] = k;
@@ -107,6 +118,7 @@ export function getPointCloudGeometry(view){
 	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	geometry.setAttribute( 'selection', new THREE.BufferAttribute( selections, 1 ) );
 	// geometry.parentBlockMap = parentBlock;
 	var offsetResult = getOffsetArray(systemDimension, latticeVectors, options);
 	geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsetResult.sumDisplacement, 3 ));
@@ -138,6 +150,8 @@ export function updatePointCloudGeometry(view){
 	var colors = new Float32Array(count *3);
 	var sizes = new Float32Array( count);
 	var alphas = new Float32Array( count);
+	var selections = new Float32Array( count);
+	selections.fill(1);
 
 	var colorMap = options.colorMap;
 	var numberOfColors = 512;
@@ -159,7 +173,7 @@ export function updatePointCloudGeometry(view){
 		colors[ i3 + 1 ] = color.g;
 		colors[ i3 + 2 ] = color.b;
 
-		if (spatiallyResolvedData[k].highlighted) {
+		/*if (spatiallyResolvedData[k].highlighted) {
 			// console.log('found highlighted point', k );
 			sizes[ i ] = options.pointCloudSize * 3;
 			alphas[ i ] = 1;
@@ -173,6 +187,19 @@ export function updatePointCloudGeometry(view){
 		} else {
 			alphas[ i ] = 0;
 			sizes[ i ] = 0;
+		}*/
+
+		if (spatiallyResolvedData[k].highlighted) {
+			sizes[ i ] = options.pointCloudSize * 3;
+			alphas[ i ] = 1;
+		} else {
+			// not highlighted
+			alphas[ i ] = options.pointCloudAlpha;
+			sizes[ i ] = options.pointCloudSize; 
+			if (!spatiallyResolvedData[k].selected){
+				// not highlighted and not selected
+				selections[i] = 0;
+			}
 		}
 		i3 += 3;
 
@@ -181,6 +208,7 @@ export function updatePointCloudGeometry(view){
 	view.System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	view.System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	view.System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	view.System.geometry.setAttribute( 'selection', new THREE.BufferAttribute( selections, 1 ) );
 
 	var systemDimension = view.systemDimension;
 	var latticeVectors = view.systemLatticeVectors;

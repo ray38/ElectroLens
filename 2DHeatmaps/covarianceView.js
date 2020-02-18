@@ -246,19 +246,28 @@ export function updateCovariance(view){
 export function replotCovariance(view){
 	if ("covariance" in view) {
 		view.scene.remove(view.covariance);
+		delete view.covariance;
 	}
-	
+
 	if ("comparison" in view) {
 		view.scene.remove(view.comparison);
+		delete view.comparison;
 	}
 	
 	if ("heatmap" in view) {
 		view.scene.remove(view.heatmap);
+		delete view.heatmap;
 	}
 
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
+		delete view.PCAGroup;
 	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
+    }
 	/*var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){

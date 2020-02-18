@@ -423,7 +423,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	.name( 'y low' )
 	.onChange( function( value ) {
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
-		if (view.systemMoleculeDataBoolean){updateMoleculeGeometryPBCSlider(view);}
+		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	});
 	sliderFolder.add( options, 'y_high', view.yPlotMin, view.yPlotMax ).step( 1 )

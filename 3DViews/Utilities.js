@@ -74,7 +74,7 @@ export function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCel
 		for ( var j = y_start; j < y_end; j ++) {
 			for ( var k = z_start; k < z_end; k ++) {
 				//each unit cell
-				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex
+				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex;
 				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
 				sumSelectionArr.set(unitCellSelectionArr, currentStartingArrIndex);
 				sumIndexArr.set(unitCellIndexArr, currentStartingArrIndex);
@@ -102,11 +102,40 @@ export function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCel
 	combinedGeometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1 ));
 	combinedGeometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3 ));
 	combinedGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1 ));
-	combinedGeometry.setAttribute('index', new THREE.InstancedBufferAttribute(sumIndexArr, 1 ));
+	combinedGeometry.setAttribute('atomIndex', new THREE.InstancedBufferAttribute(sumIndexArr, 1 ));
+	console.log(sumIndexArr)
 	combinedGeometry.maxInstancedCount = totalNumInstances;
-	console.log('num instances',combinedGeometry.maxInstancedCount );
 
 	return combinedGeometry;
+}
+
+
+export function updatePeriodicReplicatesInstancesMoleculeScale(geometry, unitCellScaleArr, options) {
+	var numInstancePerUnitCell = unitCellScaleArr.length;
+	var sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
+	
+	var x_start = -1 * ((options.xPBC-1)/2);
+	var x_end = ((options.xPBC-1)/2) + 1;
+	var y_start = -1 * ((options.yPBC-1)/2);
+	var y_end = ((options.yPBC-1)/2) + 1;
+	var z_start = -1 * ((options.zPBC-1)/2);
+	var z_end = ((options.zPBC-1)/2) + 1;
+	var currentCellIndex = 0;
+	var currentStartingArrIndex;
+	for ( var i = x_start; i < x_end; i ++) {
+		for ( var j = y_start; j < y_end; j ++) {
+			for ( var k = z_start; k < z_end; k ++) {
+				//each unit cell
+				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex;
+				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
+				currentCellIndex++;
+			}
+		}
+	}
+
+	geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1 ));
+
+	geometry.attributes.instanceScale.needsUpdate = true;
 }
 
 
@@ -169,15 +198,16 @@ export function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScal
 	geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1 ));
 	geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3 ));
 	geometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1 ));
-	geometry.setAttribute('index', new THREE.InstancedBufferAttribute(sumIndexArr, 1 ));
+	geometry.setAttribute('atomIndex', new THREE.InstancedBufferAttribute(sumIndexArr, 1 ));
 	geometry.maxInstancedCount = totalNumInstances;
 
 	geometry.attributes.instanceOffset.needsUpdate = true;
 	geometry.attributes.instanceScale.needsUpdate = true;
 	geometry.attributes.instanceColor.needsUpdate = true;
 	geometry.attributes.selection.needsUpdate = true;
-	geometry.attributes.index.needsUpdate = true;
+	geometry.attributes.atomIndex.needsUpdate = true;
 	console.log('num instances',geometry.maxInstancedCount );
+	console.log(sumIndexArr)
 }
 
 export function updateOffsetArray(systemDimension, latticeVectors, geometry, options) {

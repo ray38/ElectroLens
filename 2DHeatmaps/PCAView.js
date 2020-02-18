@@ -2,6 +2,7 @@ import {addTitle,changeTitle} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
 import {getAxis} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
+import {getHeatmapMaterial} from "./Materials.js";
 
 export function arrangeDataForPCA(view){
 
@@ -211,8 +212,173 @@ export function arrangeDataForPCA(view){
 	view.PCARestultTextWindow.innerHTML = PCAResultText;
 }
 
-
 export function getPCAHeatmap(view){
+
+	
+
+	var options = view.options;
+	
+	
+	var data = view.data;
+	
+	var num = heatmapPointCount(data);
+	
+	
+	var geometry = new THREE.BufferGeometry();
+	var colors = new Float32Array(num *3);
+	var positions = new Float32Array(num *3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
+
+	var heatmapInformation = [];
+	
+	var lut = new THREE.Lut( options.colorMap, 500 );
+	lut.setMax( 1000);
+	lut.setMin( 0 );
+	view.lut = lut;
+	
+	var i = 0;
+	var i3 = 0;
+
+	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
+	var xPlotScale = view.xPlotScale;
+	var yPlotScale = view.yPlotScale;
+
+	var XYtoHeatmapMap = {}
+	
+	for (var x in data){
+		for (var y in data[x]){
+			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			XYtoHeatmapMap[x][y] = i;
+
+			var xPlot = xPlotScale(parseFloat(x));
+			var yPlot = yPlotScale(parseFloat(y));
+			
+			positions[i3 + 0] = xPlot;
+			positions[i3 + 1] = yPlot;
+			positions[i3 + 2] = 0
+			
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor( numberDatapointsRepresented );
+				
+			
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
+			}
+			else {
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha/2;
+			}
+
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			}
+			else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
+			
+			
+			i++;
+			i3 += 3;
+
+			var tempInfo = {x:xPlot-50, 
+							y:yPlot-50, 
+							numberDatapointsRepresented: numberDatapointsRepresented,
+							xStart: view.xScale.invertExtent(x)[0],
+							xEnd: 	view.xScale.invertExtent(x)[1],
+							yStart: view.yScale.invertExtent(y)[0],
+							yEnd: 	view.yScale.invertExtent(y)[1],
+							heatmapX: x,
+							heatmapY: y
+							};
+			//console.log(tempInfo);
+			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
+			heatmapInformation.push(tempInfo)
+		}
+	}
+	view.heatmapInformation = heatmapInformation;
+	view.XYtoHeatmapMap = XYtoHeatmapMap;
+	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+	var material = getHeatmapMaterial();
+	var System = new THREE.Points(geometry, material);
+
+	return System
+	
+}
+
+
+export function updatePCAHeatmap(view){
+	var options = view.options;
+	var System = view.heatmapPlot;
+	var data = view.data;
+	var num = heatmapPointCount(data);
+	var colors = new Float32Array(num *3);
+	var sizes = new Float32Array(num);
+	var alphas = new Float32Array(num);
+	var lut = new THREE.Lut( options.colorMap, 500 );
+	lut.setMax( 1000);
+	lut.setMin( 0 );
+	view.lut = lut;
+	var i = 0;
+	var i3 = 0;
+	for (var x in data){
+		for (var y in data[x]){
+			
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor( numberDatapointsRepresented );
+			
+				colors[i3 + 0] = color.r;
+				colors[i3 + 1] = color.g;
+				colors[i3 + 2] = color.b;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha;
+			}
+			else {
+				colors[i3 + 0] = 1;
+				colors[i3 + 1] = 1;
+				colors[i3 + 2] = 1;
+				sizes[i] = options.pointCloudSize;
+				alphas[i] = options.pointCloudAlpha/2;
+			}
+			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
+				sizes[i] = 3 * sizes[i];
+			}
+			else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
+			}
+			i++;
+			i3 += 3;
+		}
+	}
+	
+	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+	System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+	System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+
+}
+
+
+/*export function getPCAHeatmap(view){
 	var uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
@@ -307,9 +473,7 @@ export function getPCAHeatmap(view){
 							xStart: view.xScale.invertExtent(x)[0],
 							xEnd: 	view.xScale.invertExtent(x)[1],
 							yStart: view.yScale.invertExtent(y)[0],
-							yEnd: 	view.yScale.invertExtent(y)[1]/*,
-							heatmapX: x,
-							heatmapY: y*/
+							yEnd: 	view.yScale.invertExtent(y)[1]
 							};
 			//console.log(tempInfo);
 			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
@@ -385,22 +549,35 @@ export function updatePCAHeatmap(view){
 	System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
-}
+}*/
 
 
 
 export function replotPCAHeatmap(view){
 	if ("covariance" in view) {
 		view.scene.remove(view.covariance);
+		delete view.covariance;
+	}
+
+	if ("comparison" in view) {
+		view.scene.remove(view.comparison);
+		delete view.comparison;
 	}
 	
 	if ("heatmap" in view) {
 		view.scene.remove(view.heatmap);
+		delete view.heatmap;
 	}
 
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
+		delete view.PCAGroup;
 	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		delete view.UmapGroup;
+    }
 	/*var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
@@ -421,6 +598,7 @@ export function replotPCAHeatmap(view){
 	PCAGroup.add(PCAPlot);
 	PCAGroup.add(PCAAxis);
 
+	view.heatmapPlot = PCAPlot;
 	view.PCAGroup = PCAGroup;
 	view.scene.add( PCAGroup );
 	changeLegend(view);
@@ -469,6 +647,15 @@ function countListSelected(list) {
 		if (list[i].selected){ count += 1;}
 	}
 	return count;
+}
+
+function isAnyHighlighted(list) {
+
+	for (var i = 0; i < list.length; i++) {
+		if (list[i].highlighted){ return true; }
+	}
+	return false;
+	
 }
 
 function heatmapPointCount(data){

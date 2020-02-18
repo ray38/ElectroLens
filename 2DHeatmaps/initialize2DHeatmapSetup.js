@@ -2,11 +2,12 @@ import {replotHeatmap} from "./HeatmapView.js";
 import {arrangeDataForCovariance, getCovariance, updateCovariance, replotCovariance} from "./covarianceView.js";
 import {arrangeDataForPCA, getPCAHeatmap, updatePCAHeatmap, replotPCAHeatmap} from "./PCAView.js";
 import {replotComparison} from './comparisonView.js'
+import {replotUmapHeatmap} from './UmapView.js'
 import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateViewportSizes.js";
 import {activate2DPlotSpatiallyResolved, deactivate2DPlotsSpatiallyResolved,activate2DPlotMolecule,deactivate2DPlotsMolecule} from "../MultiviewControl/active2DView.js";
 import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colorLegend.js";
 import {selectHighlightedSpatiallyResolvedData, deselectHighlightedSpatiallyResolvedData, selectHighlightedMoleculeData, deselectHighlightedMoleculeData, clickUpdateAll2DHeatmaps} from "./selection.js";
-import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, deselectAllMoleculeData, selectAllMoleculeData, updateAllPlots} from "./Selection/Utilities.js";
+import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, deselectAllMoleculeData, selectAllMoleculeData, updateAllPlots,updateAllPlotsSpatiallyResolved, updateAllPlotsMolecule} from "./Selection/Utilities.js";
 import {saveOverallMoleculeData, saveOverallSpatiallyResolvedData} from "../Utilities/saveData.js";
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 	var defaultSetting = {
@@ -100,30 +101,42 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.selectAllSpatiallyResolvedData   = function(){
 				selectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
 				clickUpdateAll2DHeatmaps(views);
-				updateAllPlots(views);
+				updateAllPlotsSpatiallyResolved(views);
 			}; 
 			this.deselectAllSpatiallyResolvedData = function(){
 				deselectAllSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
 				clickUpdateAll2DHeatmaps(views);
-				updateAllPlots(views);
+				updateAllPlotsSpatiallyResolved(views);
 			};
 
 			this.selectAllMoleculeData   = function(){
 				selectAllMoleculeData(views, viewSetup.overallMoleculeData);
 				clickUpdateAll2DHeatmaps(views);
-				updateAllPlots(views);
+				updateAllPlotsMolecule(views);
 			}; 
 			this.deselectAllMoleculeData = function(){
 				deselectAllMoleculeData(views, viewSetup.overallMoleculeData);
 				clickUpdateAll2DHeatmaps(views);
-				updateAllPlots(views);
+				updateAllPlotsMolecule(views);
 			};
 
-			this.selectHighlightedSpatiallyResolvedData   = function(){selectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData); updateAllPlots(views);}; 
-			this.deselectHighlightedSpatiallyResolvedData = function(){deselectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);updateAllPlots(views);};
+			this.selectHighlightedSpatiallyResolvedData   = function(){
+				selectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData); 
+				updateAllPlotsSpatiallyResolved(views);
+			}; 
+			this.deselectHighlightedSpatiallyResolvedData = function(){
+				deselectHighlightedSpatiallyResolvedData(views, viewSetup.overallSpatiallyResolvedData);
+				updateAllPlotsSpatiallyResolved(views);
+			};
 
-			this.selectHighlightedMoleculeData   = function(){selectHighlightedMoleculeData(views, viewSetup.overallMoleculeData); updateAllPlots(views);}; 
-			this.deselectHighlightedMoleculeData = function(){deselectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);updateAllPlots(views);};
+			this.selectHighlightedMoleculeData   = function(){
+				selectHighlightedMoleculeData(views, viewSetup.overallMoleculeData); 
+				updateAllPlotsMolecule(views);
+			}; 
+			this.deselectHighlightedMoleculeData = function(){
+				deselectHighlightedMoleculeData(views, viewSetup.overallMoleculeData);
+				updateAllPlotsMolecule(views);
+			};
 
 			this.saveOverallMoleculeData = function(){saveOverallMoleculeData(viewSetup,plotSetup)};
 			this.saveOverallSpatiallyResolvedData = function(){saveOverallSpatiallyResolvedData(viewSetup,plotSetup)};
@@ -149,6 +162,19 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.replotPCAHeatmap = function(){replotPCAHeatmap(viewSetup)};
 
 			this.replotComparison = function() {replotComparison(viewSetup)};
+
+
+			this.plotUmapXSpatiallyResolvedData = "_Umap1";
+			this.plotUmapYSpatiallyResolvedData = "_Umap2";
+			this.plotUmapXTransformSpatiallyResolvedData = "linear";
+			this.plotUmapYTransformSpatiallyResolvedData = "linear";
+
+			this.plotUmapXMoleculeData = "_Umap1";
+			this.plotUmapYMoleculeData = "_Umap2";
+			this.plotUmapXTransformMoleculeData = "linear";
+			this.plotUmapYTransformMoleculeData = "linear";
+
+			this.replotUmapHeatmap = function(){replotUmapHeatmap(viewSetup);};
 
 			
 

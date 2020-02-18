@@ -24,6 +24,8 @@ export function getPointCloudMaterialInstanced(options) {
 			uniform mat4 projectionMatrix;
 
 			attribute vec3 position;
+			attribute float selection;
+			varying float vSelection;
 
 			attribute float size;
 			attribute vec3 customColor;
@@ -35,13 +37,14 @@ export function getPointCloudMaterialInstanced(options) {
 			varying vec3 vColor;
 
 			void main() {
-			vColor = customColor;
-			vAlpha = alpha;
-			vec3 newPosition = position + offset;
-			slicePosition = newPosition;
-			vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
-			gl_PointSize = size * ( 300.0 / -mvPosition.z );
-			gl_Position = projectionMatrix * mvPosition;
+				vColor = customColor;
+				vAlpha = alpha;
+				vec3 newPosition = position + offset;
+				slicePosition = newPosition;
+				vSelection = selection;
+				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+				gl_PointSize = size * ( 300.0 / -mvPosition.z );
+				gl_Position = projectionMatrix * mvPosition;
 
 			}`,
 		fragmentShader: `
@@ -52,6 +55,7 @@ export function getPointCloudMaterialInstanced(options) {
 			varying vec3 vColor;
 			varying float vAlpha;
 			varying vec3 slicePosition;
+			varying float vSelection;
 			uniform float xClippingPlaneMax;
 			uniform float xClippingPlaneMin;
 			uniform float yClippingPlaneMax;
@@ -60,6 +64,7 @@ export function getPointCloudMaterialInstanced(options) {
 			uniform float zClippingPlaneMin;
 
 			void main() {
+				if(vSelection==0.0) discard;
 				if(slicePosition.x<xClippingPlaneMin) discard;
 				if(slicePosition.x>xClippingPlaneMax) discard;
 				if(slicePosition.y<yClippingPlaneMin) discard;
@@ -521,7 +526,12 @@ export function getMoleculeAtomsMaterialInstanced(options) {
 			attribute vec3 instanceColor;
 			// attribute vec3 instanceColor;
 			// attribute float instanceScale;
-		
+			attribute float atomIndex;
+
+			varying float encodedR;
+			varying float encodedG;
+			varying float encodedB;
+
 			varying vec3 vLightFront;
 			varying vec3 vIndirectFront;
 			varying vec3 slicePosition;
@@ -587,6 +597,15 @@ export function getMoleculeAtomsMaterialInstanced(options) {
 				#include <lights_lambert_vertex>
 				#include <shadowmap_vertex>
 				#include <fog_vertex>
+
+				encodedR = floor(atomIndex / 100000000.0);
+				encodedG = floor((atomIndex - encodedR) / 10000.0);
+				encodedB = atomIndex - encodedR - encodedG;
+
+				encodedR = (encodedR + 1000.0) * 0.000001 + 5. * 0.0000001;
+				encodedG = encodedG * 0.000001 + 5. * 0.0000001;
+				encodedB = encodedB * 0.000001 + 5. * 0.0000001;
+				
 		
 			}
 			`;
@@ -597,6 +616,13 @@ export function getMoleculeAtomsMaterialInstanced(options) {
 			
 			varying vec3 vLightFront;
 			varying vec3 vIndirectFront;
+
+			varying float encodedR;
+			varying float encodedG;
+			varying float encodedB;
+			float r;
+			float g;
+			float b;
 
 			varying vec3 slicePosition;
 			varying float vSelection;
@@ -703,6 +729,11 @@ export function getMoleculeAtomsMaterialInstanced(options) {
 				#include <fog_fragment>
 				#include <premultiplied_alpha_fragment>
 				#include <dithering_fragment>
+
+				r = floor(gl_FragColor.x * 100.) * 0.01 + encodedR;
+				g = floor(gl_FragColor.y * 100.) * 0.01 + encodedG;
+				b = floor(gl_FragColor.z * 100.) * 0.01 + encodedB;
+				gl_FragColor = vec4(r,g,b,gl_FragColor.w);
 			}
 			`;
 		material.userData.shader = shader;

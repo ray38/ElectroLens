@@ -4,43 +4,127 @@ import {getAxis} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {getHeatmapMaterial} from "./Materials.js";
 
-export function arrangeDataToComparison(view){
+export function arrangeDataForUmap(view){
 
 	var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
 
-		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
-		var XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
+		var X = view.options.plotUmapXSpatiallyResolvedData, Y = view.options.plotUmapYSpatiallyResolvedData;
 
 		var Data = view.overallSpatiallyResolvedData;
+		var propertyList = view.plotSetup.spatiallyResolvedPropertyList;
+
+		console.log(view.UmapCalculatedSpatiallyResolved != true);
+
+		if (view.UmapCalculatedSpatiallyResolved != true) {
+
+			console.log("start PCA");
+			const { UMAP } = require('umap-js');
+			var filtered = propertyList.filter(function(value, index, arr){
+			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
+			});
+
+
+			var arrays = getArrays2(Data, filtered);
+			
+			// const umap = new UMAP();
+			// const embedding = umap.fit(arrays);
+			const umap = new UMAP({
+				nComponents: 2,
+				nEpochs: 10,
+				nNeighbors: 15,
+			  });
+			const nEpochs = umap.initializeFit(arrays);
+			for (let i = 0; i < nEpochs; i++) {
+				console.log('start iteration: ', i)
+				umap.step();
+				// console.log('aftre', umap.getEmbedding())
+			}
+			const embedding = umap.getEmbedding();
+
+			console.log('after umap fitting', embedding)
+
+
+			for (var i = 0; i < Data.length; i++) {
+			    for (var j = 1; j <= 2; j++) {
+			    	var tempName = "_Umap" + j.toString();
+			    	Data[i][tempName] = embedding[i][j-1];
+			    }
+			}
+			view.UmapCalculatedSpatiallyResolved = true;
+			view.UmapResult = umap;
+
+
+			console.log("Finished Storing umap");
+
+		}
 	}
 
 	if (options.plotData == 'moleculeData'){
-		var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
-		var XTransform = view.options.plotXTransformMoleculeData, YTransform = view.options.plotYTransformMoleculeData;
+
+		var X = view.options.plotUmapXMoleculeData, Y = view.options.plotUmapYMoleculeData;
 
 		var Data = view.overallMoleculeData;
+		var propertyList = view.plotSetup.moleculePropertyList;
+
+		console.log(view.UmapCalculatedMolecule != true);
+
+		if (view.UmapCalculatedMolecule != true) {
+
+			console.log("start PCA");
+			const { UMAP } = require('umap-js');
+			var filtered = propertyList.filter(function(value, index, arr){
+			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
+			});
+
+			var arrays = getArrays2(Data, filtered);
+			
+			const umap = new UMAP({
+				nComponents: 2,
+				nEpochs: 10,
+				nNeighbors: 15,
+			  });
+			const nEpochs = umap.initializeFit(arrays);
+			for (let i = 0; i < nEpochs; i++) {
+				console.log('start iteration: ', i)
+				umap.step();
+				// console.log('aftre', umap.getEmbedding())
+			}
+			const embedding = umap.getEmbedding();
+
+			console.log('after umap fitting', embedding)
+
+
+			for (var i = 0; i < Data.length; i++) {
+			    for (var j = 1; j <= 2; j++) {
+			    	var tempName = "_Umap" + j.toString();
+			    	Data[i][tempName] = embedding[i][j-1];
+			    }
+			}
+			view.UmapCalculatedSpatiallyResolved = true;
+			view.UmapResult = umap;
+
+
+			console.log("Finished Storing umap");
+
+		}
 	}
+
+
 
 
 	var numPerSide = view.options.numPerSide;
 
 	var heatmapStep = [];
 
-	var linThres = Math.pow(10,view.options.symlog10thres)
 
 	for (var i=1; i <= numPerSide; i++) {
 		heatmapStep.push(""+i);
 	}
 	
-	if (XTransform == 'linear') {var xValue = function(d) {return d[X];}}
-	if (YTransform == 'linear') {var yValue = function(d) {return d[Y];}}
+	var xValue = function(d) {return d[X];}
+	var yValue = function(d) {return d[Y];}
 
-	if (XTransform == 'log10') {var xValue = function(d) {return Math.log10(d[X]);};}
-	if (YTransform == 'log10') {var yValue = function(d) {return Math.log10(d[Y]);};}
-
-	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
-	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
 
 	var xMin = d3.min(Data, xValue);
 	var xMax = d3.max(Data, xValue);
@@ -59,6 +143,8 @@ export function arrangeDataToComparison(view){
 	var yScale = d3.scaleQuantize()
 	.domain([yMin, yMax])
 	.range(heatmapStep);
+
+
 	
 	var xMap = function(d) {return xScale(xValue(d));};
 	var yMap = function(d) {return yScale(yValue(d));}; 
@@ -71,67 +157,21 @@ export function arrangeDataToComparison(view){
 
 	view.xScale = xScale;
 	view.yScale = yScale;
-	view.xValue = xValue;
-	view.yValue = yValue;
 
-	//const colorArray = [[1, 0, 0],[0, 1, 0], [0, 0, 1], [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]];
-	const colorArray = [
-		{'r': 1, 'g': 0, 'b':0 },
-		{'r': 0, 'g': 1, 'b':0 },
-		{'r': 0, 'g': 0, 'b':1 },
-		{'r': 1, 'g': 1, 'b':0 },
-		{'r': 1, 'g': 0, 'b':1 },
-		{'r': 0, 'g': 1, 'b':1 },
-		{'r': 1, 'g': 1, 'b':1 }
-	]
-	var colorDict = {};
-	var colorCounter  = 0
-
-	// var voxelToHeatmapMap = new Uint32Array(Data.length);
+	//console.log(xScale.invertExtent(""+50))
+	
 	for (var i=0; i<Data.length; i++){
-		var systemName = Data[i].name;
-		if (!(systemName in colorDict)) {
-			colorDict[systemName] = colorArray[colorCounter];
-			colorCounter += 1
-		}
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 		
 		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true, highlighted: false};
+		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
-	view.colorDict = colorDict;
-	
-			
+
 }
 
-function getUniqueSelectedSystemList(list){
-	var result = [];
-	
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].selected){
-			if (!result.includes(list[i].name)){ result.push(list[i].name);}
-		}
-	}
-	return result;
-}
-
-function getColorAverage(systemList, colorDict){
-	var weight = 1/systemList.length;
-	var result = {'r':0, 'g':0, 'b':0};
-	var tempColor;
-	systemList.forEach(systemName => {
-		tempColor = colorDict[systemName];
-		result.r += weight * tempColor.r;
-		result.g += weight * tempColor.g;
-		result.b += weight * tempColor.b;
-	});
-	//console.log('result color', result);
-	return result;
-}
-
-export function getComparison(view){
+export function getUmapHeatmap(view){
 
 	
 
@@ -150,12 +190,11 @@ export function getComparison(view){
 	var alphas = new Float32Array(num);
 
 	var heatmapInformation = [];
+	
 	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
-	
-	var colorDict = view.colorDict;
 	
 	var i = 0;
 	var i3 = 0;
@@ -166,8 +205,6 @@ export function getComparison(view){
 	var yPlotScale = view.yPlotScale;
 
 	var XYtoHeatmapMap = {}
-
-	
 	
 	for (var x in data){
 		for (var y in data[x]){
@@ -181,29 +218,33 @@ export function getComparison(view){
 			positions[i3 + 1] = yPlot;
 			positions[i3 + 2] = 0
 			
-			// var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
-			var systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
-			if (systemRepresented.length > 0) {
-				var color = getColorAverage(systemRepresented,colorDict);
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor( numberDatapointsRepresented );
+				
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
-				sizes[i] = options.pointCloudSize * 0.5 * (systemRepresented.length);
+				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha;
 			}
 			else {
 				colors[i3 + 0] = 1;
 				colors[i3 + 1] = 1;
 				colors[i3 + 2] = 1;
-				sizes[i] = options.pointCloudSize * 0.5;
+				sizes[i] = options.pointCloudSize;
 				alphas[i] = options.pointCloudAlpha/2;
 			}
 
 			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
 				sizes[i] = 3 * sizes[i];
 			}
 			else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
 			}
 			
 			
@@ -212,7 +253,7 @@ export function getComparison(view){
 
 			var tempInfo = {x:xPlot-50, 
 							y:yPlot-50, 
-							systemRepresented: systemRepresented,
+							numberDatapointsRepresented: numberDatapointsRepresented,
 							xStart: view.xScale.invertExtent(x)[0],
 							xEnd: 	view.xScale.invertExtent(x)[1],
 							yStart: view.yScale.invertExtent(y)[0],
@@ -220,10 +261,11 @@ export function getComparison(view){
 							heatmapX: x,
 							heatmapY: y
 							};
+			//console.log(tempInfo);
+			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
 			heatmapInformation.push(tempInfo)
 		}
 	}
-	
 	view.heatmapInformation = heatmapInformation;
 	view.XYtoHeatmapMap = XYtoHeatmapMap;
 	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
@@ -234,11 +276,12 @@ export function getComparison(view){
 	var material = getHeatmapMaterial();
 	var System = new THREE.Points(geometry, material);
 
-	return System;
+	return System
 	
 }
 
-export function updateComparison(view){
+
+export function updateUmapHeatmap(view){
 	var options = view.options;
 	var System = view.heatmapPlot;
 	var data = view.data;
@@ -246,21 +289,18 @@ export function updateComparison(view){
 	var colors = new Float32Array(num *3);
 	var sizes = new Float32Array(num);
 	var alphas = new Float32Array(num);
-	var colorDict = view.colorDict;
-
 	var lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
-
 	var i = 0;
 	var i3 = 0;
 	for (var x in data){
 		for (var y in data[x]){
 			
-			var systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
-			if (systemRepresented.length > 0) {
-				var color = getColorAverage(systemRepresented,colorDict);
+			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			if (numberDatapointsRepresented > 0) {
+				var color = lut.getColor( numberDatapointsRepresented );
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -276,9 +316,13 @@ export function updateComparison(view){
 				alphas[i] = options.pointCloudAlpha/2;
 			}
 			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
+				// data[x][y].highlighted = true;
+				// view.highlightedIndexList.push(i);
 				sizes[i] = 3 * sizes[i];
 			}
 			else {
+				// data[x][y].highlighted = false;
+				// view.highlightedIndexList.splice(view.highlightedIndexList.indexOf(i),1);
 			}
 			i++;
 			i3 += 3;
@@ -293,8 +337,8 @@ export function updateComparison(view){
 }
 
 
-export function replotComparison(view){
 
+export function replotUmapHeatmap(view){
 	if ("covariance" in view) {
 		view.scene.remove(view.covariance);
 		delete view.covariance;
@@ -314,42 +358,63 @@ export function replotComparison(view){
 		view.scene.remove(view.PCAGroup);
 		delete view.PCAGroup;
 	}
-
+	
 	if ("UmapGroup" in view) {
 		view.scene.remove(view.UmapGroup);
 		delete view.UmapGroup;
     }
+    
+	console.log("replotting Umap Heatmap");
+	//initializePCATooltip(view);
+	arrangeDataForUmap(view);
+	var UmapGroup = new THREE.Group()
 
-	/*var options = view.options;
-	//var options = view.options;
-	if (options.plotData == 'spatiallyResolvedData'){
-		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
-	}
+	var UmapPlot = getUmapHeatmap(view);
+	var UmapAxis = getAxis(view);
 
-	if (options.plotData == 'spatiallyResolvedData'){
-		arrangeDataToHeatmap(view,view.overallMoleculeData);
-	}*/
+	UmapGroup.add(UmapPlot);
+	UmapGroup.add(UmapAxis);
 
-	arrangeDataToComparison(view);
-	console.log(view.data);
-	var comparison = new THREE.Group();
-
-	var comparisonPlot = getComparison(view);
-	var comparisonAxis = getAxis(view);
-	//var heatmapLabels = getHeatmapLabels(view);
-
-	/*for (const systemName in comparisonPlots) {
-		comparison.add(comparisonPlots[systemName]);
-	}*/
-	comparison.add(comparisonPlot);
-	comparison.add(comparisonAxis);
-	//heatmap.add(heatmapLabels)
-	view.heatmapPlot = comparisonPlot;
-	view.comparison = comparison;
-	view.scene.add( comparison );
+	view.heatmapPlot = UmapPlot;
+	view.UmapGroup = UmapGroup;
+	view.scene.add( UmapGroup );
 	changeLegend(view);
 	changeTitle(view);
 
+}
+
+
+// Returns all values of an attribute or mapping function in an array of objects
+function pluck(arr, mapper){
+  return arr.map(function(d){ return typeof(mapper) === "string" ? d[mapper] : mapper(d); });
+}
+
+// Given a data set (an array of objects)
+// and a list of columns (an array with a list of numeric columns),
+// calculate the Pearson correlation coeffient for each pair of columns
+// and return a correlation matrix, where each object takes the form
+// {column_a, column_a, correlation}
+// Dependencies: pluck
+
+function getArrays(data, cols){
+	var result = [];
+	for (const col of cols){
+		var temp = pluck(data, col);
+		result.push(temp);
+	}
+	return result;
+}
+
+function getArrays2(data,propertyList){
+	var result = [];
+	for (const datapoint of data){
+		var temp = [];
+		for (const property of propertyList){
+			temp.push(datapoint[property])
+		}
+		result.push(temp);
+	}
+	return result;
 }
 
 function countListSelected(list) {
@@ -361,18 +426,6 @@ function countListSelected(list) {
 	return count;
 }
 
-function heatmapPointCount(data){
-	var count = 0;
-	for (var x in data){
-		for (var y in data[x]){
-			count = count + 1;
-		}
-    }
-    
-	return count;
-}
-
-
 function isAnyHighlighted(list) {
 
 	for (var i = 0; i < list.length; i++) {
@@ -380,4 +433,14 @@ function isAnyHighlighted(list) {
 	}
 	return false;
 	
+}
+
+function heatmapPointCount(data){
+	var count = 0;
+	for (var x in data){
+		for (var y in data[x]){
+			count = count + 1;
+		}
+	}
+	return count;
 }

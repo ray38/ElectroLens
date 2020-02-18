@@ -9,7 +9,7 @@ import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometr
 import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip,/*hover3DViewSpatiallyResolved, hover3DViewMolecule*/} from "./3DViews/tooltip.js";
-import {hover3DViewSpatiallyResolved, hover3DViewMolecule, click3DViewSpatiallyResolved} from "./3DViews/selection.js";
+import {hover3DViewSpatiallyResolved, hover3DViewMoleculeBall, hover3DViewMoleculeSprite, click3DViewMolecule, click3DViewSpatiallyResolved,gpuPickMolecule} from "./3DViews/selection.js";
 import {combineData, readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 
@@ -29,7 +29,7 @@ import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis, addTitle, update2DHeatmapTitlesLocation} from "./2DHeatmaps/Utilities.js";
 import {initialize2DPlotTooltip,updateHeatmapTooltip,  updateCovarianceTooltip/*, hoverHeatmap,clickHeatmap */} from "./2DHeatmaps/tooltip.js";
 import {selectionControl, updatePlaneSelection, hoverHeatmap,clickHeatmap} from "./2DHeatmaps/selection.js";
-import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap} from "./2DHeatmaps/Selection/Utilities.js";
+import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap,updateAllPlotsMolecule, updateAllPlotsMoleculeScale,updateAllPlotsSpatiallyResolved} from "./2DHeatmaps/Selection/Utilities.js";
 
 import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
@@ -196,6 +196,7 @@ function main(views,plotSetup) {
 		progressBar.animate(100);)*/
 		var htmlUI = document.getElementById("UI");
 		htmlUI.parentNode.removeChild(htmlUI);
+		render();
 		animate();
 	});
 
@@ -203,6 +204,7 @@ function main(views,plotSetup) {
 	function init() {
 		
 		console.log('started initialization')
+		//const { UMAP } = require('umap-js');
 		container = document.getElementById( 'container' );
 		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1 } );
 		renderer.setPixelRatio( window.devicePixelRatio );
@@ -271,7 +273,9 @@ function main(views,plotSetup) {
 			addOptionBox(view);
 			setupHUD(view);
 
-			view.controller.addEventListener( 'change', render );
+			view.controller.addEventListener( 'change', function( event ) {
+				render();
+			} );
 
 			if (view.viewType == '3DView'){
 				view.controller.autoRotate = false;
@@ -315,21 +319,15 @@ function main(views,plotSetup) {
 				setupOptionBox2DHeatmap(view,plotSetup);
 				
 				addTitle(view);
-
-				/*
-				getAxis(view);
-				arrangeDataToHeatmap(view)
-				getHeatmap(view);
-				addHeatmapLabels(view);
-				insertLegend(view);*/
 				
 			}
 
 		}
 		
 		
-		//stats = new Stats();
-		//container.appendChild( stats.dom );
+		stats = new Stats();
+		container.appendChild( stats.dom );
+
 		container.addEventListener( 'mousemove', throttle(onDocumentMouseMove, 20), false );
 		container.addEventListener( 'click', onDocumentMouseClick,  false );
 		container.addEventListener( 'mousedown', function( event ) {
@@ -356,7 +354,6 @@ function main(views,plotSetup) {
 				}
 			}
 		}, false );
-
 
 		window.addEventListener( "keydown", onKeyDown, true);
 		
@@ -434,6 +431,9 @@ function main(views,plotSetup) {
 			setupViewCameraSceneController(temp_view,renderer);
 			addOptionBox(temp_view);
 			setupHUD(temp_view);
+			temp_view.controller.addEventListener( 'change', function( event ) {
+				render();
+			} );
 
 			
 			temp_view.controller.enableRotate=false;
@@ -441,6 +441,7 @@ function main(views,plotSetup) {
 			setupOptionBox2DHeatmap(temp_view,plotSetup);
 			updateOptionBoxLocation(views);
 			addTitle(temp_view)
+			render();
 			
 
 			/*
@@ -505,88 +506,102 @@ function main(views,plotSetup) {
 				var distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
 				if (view.viewType == "2DHeatmap"){
-					if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){
-						var needsUpdate = hoverHeatmap(view,mouseEvent);
-						if (needsUpdate) {
-							// console.log('updating plots');
-							updateAllPlots(views);
+					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
+						|| view.options.plotType == "PCA" || view.options.plotType == "Umap") 
+						&& typeof view.heatmapPlot != "undefined"){
+
+						if (view.options.plotData == "spatiallyResolvedData") {
+							var needsUpdate = hoverHeatmap(view,mouseEvent);
+							if (needsUpdate) {
+								console.log('updating plots');
+								updateAllPlotsSpatiallyResolved(views);
+							}
+						} else if (view.options.plotData == "moleculeData") {
+							var needsUpdate = hoverHeatmap(view,mouseEvent);
+							if (needsUpdate) {
+								console.log('updating plots');
+								updateAllPlotsMolecule(views);
+							}
 						}
-						// updateHeatmapTooltip(view);
 					}
 					if (view.options.plotType == "Correlation" && typeof view.covariancePlot != "undefined"){
 						updateCovarianceTooltip(view);
 					}
 				} else if (view.viewType == "3DView") {
-					/*if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
-						
-						var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
-						// console.log('picking', needsUpdate);
-						if (needsUpdate) {
-							// console.log('updating plots');
-							updateAllPlots(views);
+					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
+						if (view.options.atomsStyle == "ball") {
+							var pickingResult = gpuPickMolecule(view, renderer, view.scene,mouseEvent, windowWidth, windowHeight);
+							var needsUpdate = hover3DViewMoleculeBall(view, plotSetup, pickingResult);
+							if (needsUpdate) {
+								updateAllPlotsMoleculeScale(views);
+							}
+						} else if (view.options.atomsStyle == "sprite"){
+							var needsUpdate = hover3DViewMoleculeSprite(view, plotSetup, mouseEvent);
+							if (needsUpdate) {
+								updateAllPlotsMoleculeScale(views);
+							}
 						}
-					}*/
+					}
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
 						var needsUpdate = hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
-						// console.log('picking', needsUpdate);
 						if (needsUpdate) {
-							// console.log('updating plots');
-							updateAllPlots(views);
+							updateAllPlotsSpatiallyResolved(views);
 						}
 					}
 					
 				}
-				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);}
 			}
 		}
+		render();
 	}
 
 	function onDocumentMouseClick( mouseEvent ) {
 		if (mouseDrag) {
 			return;
 		}
-		console.log('mouse clicked')
+		
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
 			if (view.controllerEnabled){
 				if (view.viewType == "2DHeatmap"){
-					if (view.options.plotType == "Heatmap" && 
+					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
+						|| view.options.plotType == "PCA" || view.options.plotType == "Umap")  && 
 						typeof view.heatmapPlot != "undefined" &&
 						!(view.options.planeSelection || view.options.brushSelection)){
-						console.log('2d map mouse clicked event')
-						var needsUpdate = clickHeatmap(view, views);
-						if (needsUpdate) {
-							console.log('updating plots');
-							updateAllPlots(views);
-						}
+							if (view.options.plotData == "spatiallyResolvedData") {
+								var needsUpdate = clickHeatmap(view, views);
+								if (needsUpdate) {
+									updateAllPlotsSpatiallyResolved(views);
+								}
+							} else if (view.options.plotData == "moleculeData") {
+								var needsUpdate = clickHeatmap(view, views);
+								if (needsUpdate) {
+									updateAllPlotsMolecule(views);
+								}
+							}
+						
 						// updateHeatmapTooltip(view);
 					}
 				} 
 				else if (view.viewType == "3DView") {
-					/* if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
-						
-						var needsUpdate = hover3DViewMolecule(view, plotSetup, mouseEvent);
-						console.log('picking', needsUpdate);
+					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule) {
+						var needsUpdate = click3DViewMolecule(view, views, plotSetup);
 						if (needsUpdate) {
-							console.log('updating plots');
-							updateAllPlots(views);
+							updateAllPlotsMolecule(views);
 						}
-					} */
+					}
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
 						var needsUpdate = click3DViewSpatiallyResolved(view, views, plotSetup);
-						// console.log('picking', needsUpdate);
 						if (needsUpdate) {
-							// console.log('updating plots');
-							updateAllPlots(views);
+							updateAllPlotsSpatiallyResolved(views);
 						}
 					}
-					
 				}
-				//if (view.viewType == "3DView" && view.systemMoleculeDataBoolean ){update3DViewTooltip(view);} 
 			}
 		}
+		render();
 	}
 
 	function updateSize() {
@@ -602,7 +617,6 @@ function main(views,plotSetup) {
 				var height = Math.floor( windowHeight * view.height );
 				var left   = Math.floor( windowWidth  * view.left );
 				var top    = Math.floor( windowHeight * (1-view.top) - height );
-				// console.log('top', view.top,(1-view.top), top)
 
 				view.windowLeft = left;
 				view.windowTop = windowHeight * view.top;
@@ -616,17 +630,17 @@ function main(views,plotSetup) {
 	}
 
 	function animate() {
-		render();
+		// render();
 		//processClick();
 		processSelection( );
-		//stats.update();
+		stats.update();
 
-		for ( var ii = 0; ii < views.length; ++ii ) {
+		/*for ( var ii = 0; ii < views.length; ++ii ) {
 			var view = views[ii];
 			if (view.viewType == '3DView') {
 				view.controller.update();
 			}
-		}
+		}*/
 
 		requestAnimationFrame( animate );
 	}

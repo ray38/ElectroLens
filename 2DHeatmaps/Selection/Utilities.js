@@ -1,10 +1,11 @@
 import {updateHeatmap} from "../HeatmapView.js";
 import {updatePCAHeatmap} from "../PCAView.js";
+import {updateUmapHeatmap} from "../UmapView.js";
 import {updateComparison} from "../comparisonView.js"
 //import {updatePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
 
 import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
-import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry,updateMoleculeGeometry} from "../../3DViews/MoleculeView.js";
+import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry,updateMoleculeGeometry,updateMoleculeGeometryScale} from "../../3DViews/MoleculeView.js";
 
 
 /*export function heatmapsResetSelection(views){
@@ -76,7 +77,7 @@ export function updateAllPlots(views){
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
 			updateComparison(view);
 		}
-		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Dim. Reduction'){
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
 			updatePCAHeatmap(view);
 		}
 
@@ -86,6 +87,79 @@ export function updateAllPlots(views){
 			}
 			if (view.systemMoleculeDataBoolean) {
 				updateMoleculeGeometry(view)
+				// changeMoleculeGeometry(view);
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+			}
+		}
+	}
+}
+
+export function updateAllPlotsSpatiallyResolved(views){
+	for (var ii =  0; ii < views.length; ii++ ) {
+		var view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
+			updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
+			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
+		}
+
+		if (view.viewType == '3DView'){
+			if (view.systemSpatiallyResolvedDataBoolean) {
+				updatePointCloudGeometry(view);
+			}
+		}
+	}
+}
+
+export function updateAllPlotsMolecule(views){
+	for (var ii =  0; ii < views.length; ii++ ) {
+		var view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
+			updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
+			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
+		}
+
+		if (view.viewType == '3DView'){
+			if (view.systemMoleculeDataBoolean) {
+				updateMoleculeGeometry(view)
+				// changeMoleculeGeometry(view);
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+			}
+		}
+	}
+}
+
+export function updateAllPlotsMoleculeScale(views){
+	for (var ii =  0; ii < views.length; ii++ ) {
+		var view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
+			updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
+			updatePCAHeatmap(view);
+		}
+
+		if (view.viewType == '3DView'){
+			if (view.systemMoleculeDataBoolean) {
+				updateMoleculeGeometryScale(view)
 				// changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
