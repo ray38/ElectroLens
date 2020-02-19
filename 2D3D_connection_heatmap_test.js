@@ -484,10 +484,11 @@ function main(views, plotSetup) {
 		mouseY = mouseEvent.clientY;
 		if (mouseHold == false) {
 			_MultiviewControlControllerControlJs.updateController(views, windowWidth, windowHeight, mouseX, mouseY);
+			activeView = updateActiveView(views);
 		} else {
 			mouseDrag = true;
+			return;
 		}
-		activeView = updateActiveView(views);
 
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
@@ -1950,18 +1951,6 @@ function deselectAllSpatiallyResolvedData(views, spatiallyResolvedData) {
 		spatiallyResolvedData[i].selected = false;
 		spatiallyResolvedData[i].highlighted = false;
 	}
-
-	/*for (var ii =  0; ii < views.length; ++ii ) {
- 	var view = views[ii];
- 	if (view.viewType == '2DHeatmap'){
- 		var data = view.data;
- 		for (var x in data){
- 			for (var y in data[x]){
- 				data[x][y].selected = false;
- 			}
- 		}
- 	}
- }*/
 }
 
 function selectAllSpatiallyResolvedData(views, spatiallyResolvedData) {
@@ -1969,18 +1958,6 @@ function selectAllSpatiallyResolvedData(views, spatiallyResolvedData) {
 		spatiallyResolvedData[i].selected = true;
 		spatiallyResolvedData[i].highlighted = false;
 	}
-
-	/*for (var ii =  0; ii < views.length; ++ii ) {
- 	var view = views[ii];
- 	if (view.viewType == '2DHeatmap'){
- 		var data = view.data;
- 		for (var x in data){
- 			for (var y in data[x]){
- 				data[x][y].selected = true;
- 			}
- 		}
- 	}
- }*/
 }
 
 function deselectAllMoleculeData(views, overallMoleculeData) {
@@ -2008,6 +1985,9 @@ function updateAllPlots(views) {
 		}
 		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA') {
 			_PCAViewJs.updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap') {
+			_UmapViewJs.updateUmapHeatmap(view);
 		}
 
 		if (view.viewType == '3DView') {
@@ -2084,6 +2064,9 @@ function updateAllPlotsMoleculeScale(views) {
 		}
 		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA') {
 			_PCAViewJs.updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap') {
+			_UmapViewJs.updateUmapHeatmap(view);
 		}
 
 		if (view.viewType == '3DView') {
@@ -2171,7 +2154,7 @@ function arrangeDataForUmap(view) {
 
 		if (view.UmapCalculatedSpatiallyResolved != true) {
 
-			console.log("start PCA");
+			console.log("start Umap");
 
 			var _require = require('umap-js');
 
@@ -2187,8 +2170,8 @@ function arrangeDataForUmap(view) {
 			// const embedding = umap.fit(arrays);
 			var umap = new UMAP({
 				nComponents: 2,
-				nEpochs: 10,
-				nNeighbors: 15
+				nEpochs: options.UmapNumEpochs,
+				nNeighbors: options.UmapNumNeighbours
 			});
 			var nEpochs = umap.initializeFit(arrays);
 			for (var _i4 = 0; _i4 < nEpochs; _i4++) {
@@ -2239,8 +2222,8 @@ function arrangeDataForUmap(view) {
 
 			var umap = new UMAP({
 				nComponents: 2,
-				nEpochs: 10,
-				nNeighbors: 15
+				nEpochs: options.UmapNumEpochs,
+				nNeighbors: options.UmapNumNeighbours
 			});
 			var nEpochs = umap.initializeFit(arrays);
 			for (var _i5 = 0; _i5 < nEpochs; _i5++) {
@@ -3647,6 +3630,8 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 			this.plotUmapXTransformSpatiallyResolvedData = "linear";
 			this.plotUmapYTransformSpatiallyResolvedData = "linear";
 
+			this.UmapNumEpochs = 100;
+			this.UmapNumNeighbours = 15;
 			this.plotUmapXMoleculeData = "_Umap1";
 			this.plotUmapYMoleculeData = "_Umap2";
 			this.plotUmapXTransformMoleculeData = "linear";
@@ -4170,7 +4155,7 @@ function unhighlightAll(views) {
 				});
 			}
 		} else if (view.viewType == "2DHeatmap") {
-			if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
+			if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison" || view.options.plotType == "PCA" || view.options.plotType == "Umap") && typeof view.heatmapPlot != "undefined") {
 				view.highlightedIndexList = [];
 				for (var x in view.data) {
 					for (var y in view.data[x]) {
@@ -4181,31 +4166,6 @@ function unhighlightAll(views) {
 		}
 	}
 }
-
-/* export function clickHighlightOther2DHeatmaps(currentViewID, views) {
-	for ( var ii = 0; ii < views.length; ++ii ){
-		var view = views[ii];
-		if (view.viewType == "2DHeatmap" &&
-			view.options.plotType == "Heatmap" &&
-			typeof view.heatmapPlot != "undefined" &&
-			view.options.plotID != currentViewID
-			){
-			var i = 0;
-			for (var x in view.data){
-				for (var y in view.data[x]){
-					for (var datapoint in view.data[x][y].list) {
-						if (datapoint.highlighted){
-							view.data[x][y].highlighted = true;
-							if (view.highlightedIndexList.indexOf(i) == -1) {view.highlightedIndexList.push(i);}
-							break;
-						}
-					}
-					i++;
-				}
-			}
-		}
-	}
-} */
 
 function deselectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData) {
 	for (var i = 0; i < overallSpatiallyResolvedData.length; i++) {
@@ -4250,7 +4210,7 @@ function selectHighlightedMoleculeData(views, overallMoleculeData) {
 function clickUpdateAll2DHeatmaps(views) {
 	for (var ii = 0; ii < views.length; ++ii) {
 		var view = views[ii];
-		if (view.viewType == "2DHeatmap" && view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined") {
+		if (view.viewType == "2DHeatmap" && (view.options.plotType == "Heatmap" || view.options.plotType == "Comparison" || view.options.plotType == "PCA" || view.options.plotType == "Umap") && typeof view.heatmapPlot != "undefined") {
 			var i = 0;
 			for (var x in view.data) {
 				for (var y in view.data[x]) {
@@ -4865,6 +4825,9 @@ function setupOptionBox2DPCAFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean == false && view.overallSpatiallyResolvedDataBoolean) {
@@ -4886,6 +4849,9 @@ function setupOptionBox2DPCAFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 	}
 
 	plotFolder.add(options, 'replotPCAHeatmap').name("Calculate & Plot");
@@ -4946,6 +4912,9 @@ function setupOptionBox2DPCAFolder(view, plotSetup, folder) {
 		moleculeFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
 
+		moleculeFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
+
 		moleculeFolder.close();
 
 		spatiallyResolvedFolder.add(options, 'plotPCAXSpatiallyResolvedData', PCASpatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
@@ -4966,6 +4935,9 @@ function setupOptionBox2DPCAFolder(view, plotSetup, folder) {
 
 		spatiallyResolvedFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 	}
@@ -5021,7 +4993,7 @@ function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
 		for (var i = 1; i <= 2; i++) {
 			UmapMoleculeDataFeatureList.push("_Umap" + i.toString());
 		}
-		var UmapMoleculeDataFeatureChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(UmapoleculeDataFeatureList);
+		var UmapMoleculeDataFeatureChoiceObject = _UtilitiesOtherJs.arrayToIdenticalObject(UmapMoleculeDataFeatureList);
 	}
 	var options = view.options;
 	var plotFolder = folder.addFolder('Plot Setting');
@@ -5065,6 +5037,10 @@ function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
 	}
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
+		plotFolder.add(options, 'UmapNumEpochs', 10, 1000).step(10).name('Num Epochs');
+
+		plotFolder.add(options, 'UmapNumNeighbours', 1, 100).step(1).name('Num Neighbors');
+
 		plotFolder.add(options, 'plotUmapXMoleculeData', UmapMoleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
@@ -5083,9 +5059,16 @@ function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean == false && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add(options, 'UmapNumEpochs', 10, 1000).step(10).name('Num Epochs');
+
+		plotFolder.add(options, 'UmapNumNeighbours', 1, 100).step(1).name('Num Neighbors');
+
 		plotFolder.add(options, 'plotUmapXSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
@@ -5104,6 +5087,9 @@ function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 	}
 
 	plotFolder.add(options, 'replotUmapHeatmap').name("Calculate & Plot");
@@ -5145,6 +5131,10 @@ function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
 	});
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
+		moleculeFolder.add(options, 'UmapNumEpochs', 10, 1000).step(10).name('Num Epochs');
+
+		moleculeFolder.add(options, 'UmapNumNeighbours', 1, 100).step(1).name('Num Neighbors');
+
 		moleculeFolder.add(options, 'plotUmapXMoleculeData', UmapMoleculeDataFeatureChoiceObject).name('X').onChange(function (value) {
 			//updatePointCloudGeometry(view);
 		});
@@ -5164,7 +5154,14 @@ function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
 		moleculeFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
 
+		moleculeFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
+
 		moleculeFolder.close();
+
+		spatiallyResolvedFolder.add(options, 'UmapNumEpochs', 10, 1000).step(10).name('Num Epochs');
+
+		spatiallyResolvedFolder.add(options, 'UmapNumNeighbours', 1, 100).step(1).name('Num Neighbors');
 
 		spatiallyResolvedFolder.add(options, 'plotUmapXSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
 			//updatePointCloudGeometry(view);
@@ -5184,6 +5181,9 @@ function setupOptionBox2DUmapFolder(view, plotSetup, folder) {
 
 		spatiallyResolvedFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 	}
@@ -5291,6 +5291,9 @@ function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean == false && view.overallSpatiallyResolvedDataBoolean) {
@@ -5312,6 +5315,9 @@ function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 
 		plotFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 	}
 
 	plotFolder.add(options, 'replotComparison').name("Plot");
@@ -5372,6 +5378,9 @@ function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 		moleculeFolder.add(options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add(options, 'deselectAllMoleculeData').name('Deselect all');
 
+		moleculeFolder.add(options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add(options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
+
 		moleculeFolder.close();
 
 		spatiallyResolvedFolder.add(options, 'plotXSpatiallyResolvedData', spatiallyResolvedFeatureChoiceObject).name('X').onChange(function (value) {
@@ -5392,6 +5401,9 @@ function setupOptionBox2DComparisonFolder(view, plotSetup, folder) {
 
 		spatiallyResolvedFolder.add(options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add(options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add(options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add(options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 	}
@@ -5521,9 +5533,6 @@ function updateCovarianceTooltip(view) {
 
 		var interesctIndex = intersects[0].index;
 		view.tooltip.innerHTML = "x: " + view.covarianceInformation[interesctIndex].x + '<br>' + "y: " + view.covarianceInformation[interesctIndex].y + '<br>' + "Correlation: " + view.covarianceInformation[interesctIndex].correlation;
-
-		//view.System.geometry.attributes.size.array[ interesctIndex ]  = 2 * view.options.pointCloudSize;
-		//view.System.geometry.attributes.size.needsUpdate = true;
 
 		if (view.INTERSECTED != intersects[0].index) {
 			if (view.INTERSECTED != null) {
@@ -7285,8 +7294,7 @@ function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScaleArr, u
 	geometry.attributes.instanceColor.needsUpdate = true;
 	geometry.attributes.selection.needsUpdate = true;
 	geometry.attributes.atomIndex.needsUpdate = true;
-	console.log('num instances', geometry.maxInstancedCount);
-	console.log(sumIndexArr);
+	// console.log('num instances',geometry.maxInstancedCount );
 }
 
 function updateOffsetArray(systemDimension, latticeVectors, geometry, options) {
@@ -7777,6 +7785,8 @@ function gpuPickMolecule(view, renderer, scene, mouseEvent, windowWidth, windowH
     var left = Math.floor(windowWidth * view.left);
     var top = Math.floor(windowHeight * view.top);
 
+    // camera.setViewOffset(renderer.domElement.width, renderer.domElement.height,
+    //     mouseEvent.clientX * window.devicePixelRatio | 0,  mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1 );
     camera.setViewOffset(width, height, mouseEvent.clientX * window.devicePixelRatio | 0, mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1);
     camera.updateProjectionMatrix();
     renderer.setRenderTarget(pickingTexture);
@@ -7792,7 +7802,7 @@ function gpuPickMolecule(view, renderer, scene, mouseEvent, windowWidth, windowH
 
     renderer.readRenderTargetPixels(pickingTexture, 0, 0, 1, 1, pixelBuffer);
     var pickingResult = parsePixelBuffer(pixelBuffer);
-    console.log(pickingResult);
+    // console.log(pickingResult);
 
     camera.clearViewOffset();
     camera.updateProjectionMatrix();

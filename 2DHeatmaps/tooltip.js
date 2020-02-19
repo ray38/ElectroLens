@@ -100,8 +100,6 @@ export function updateCovarianceTooltip(view){
 									"y: " + view.covarianceInformation[interesctIndex].y + '<br>' +
 									"Correlation: " + view.covarianceInformation[interesctIndex].correlation;
 
-		//view.System.geometry.attributes.size.array[ interesctIndex ]  = 2 * view.options.pointCloudSize;
-		//view.System.geometry.attributes.size.needsUpdate = true;
 
 
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {

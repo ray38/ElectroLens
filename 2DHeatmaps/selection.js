@@ -500,7 +500,9 @@ export function unhighlightAll(views) {
 			}
 
 		} else if (view.viewType == "2DHeatmap"){
-			if (view.options.plotType == "Heatmap" && typeof view.heatmapPlot != "undefined"){
+			if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
+				|| view.options.plotType == "PCA" || view.options.plotType == "Umap")
+				&& typeof view.heatmapPlot != "undefined"){
 				view.highlightedIndexList = [];
 				for (var x in view.data){
 					for (var y in view.data[x]){
@@ -512,30 +514,6 @@ export function unhighlightAll(views) {
 	}
 }
 
-/* export function clickHighlightOther2DHeatmaps(currentViewID, views) {
-	for ( var ii = 0; ii < views.length; ++ii ){
-		var view = views[ii];
-		if (view.viewType == "2DHeatmap" &&
-			view.options.plotType == "Heatmap" &&
-			typeof view.heatmapPlot != "undefined" &&
-			view.options.plotID != currentViewID
-			){
-			var i = 0;
-			for (var x in view.data){
-				for (var y in view.data[x]){
-					for (var datapoint in view.data[x][y].list) {
-						if (datapoint.highlighted){
-							view.data[x][y].highlighted = true;
-							if (view.highlightedIndexList.indexOf(i) == -1) {view.highlightedIndexList.push(i);}
-							break;
-						}
-					}
-					i++;
-				}
-			}
-		}
-	}
-} */
 
 export function deselectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData){
 	for (var i=0; i<overallSpatiallyResolvedData.length; i++){
@@ -574,7 +552,8 @@ export function clickUpdateAll2DHeatmaps(views) {
 	for ( var ii = 0; ii < views.length; ++ii ){
 		var view = views[ii];
 		if (view.viewType == "2DHeatmap" &&
-			view.options.plotType == "Heatmap" &&
+			(view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
+			|| view.options.plotType == "PCA" || view.options.plotType == "Umap")  &&
 			typeof view.heatmapPlot != "undefined"
 			){
 			var i = 0;

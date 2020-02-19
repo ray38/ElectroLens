@@ -208,7 +208,7 @@ export function gpuPickMolecule(view, renderer, scene,mouseEvent, windowWidth, w
 
     renderer.readRenderTargetPixels(pickingTexture, 0, 0, 1, 1, pixelBuffer);
     const pickingResult = parsePixelBuffer(pixelBuffer);
-    console.log(pickingResult);
+    // console.log(pickingResult);
 
     camera.clearViewOffset();
     camera.updateProjectionMatrix();

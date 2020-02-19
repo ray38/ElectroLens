@@ -18,7 +18,7 @@ export function arrangeDataForUmap(view){
 
 		if (view.UmapCalculatedSpatiallyResolved != true) {
 
-			console.log("start PCA");
+			console.log("start Umap");
 			const { UMAP } = require('umap-js');
 			var filtered = propertyList.filter(function(value, index, arr){
 			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
@@ -31,8 +31,8 @@ export function arrangeDataForUmap(view){
 			// const embedding = umap.fit(arrays);
 			const umap = new UMAP({
 				nComponents: 2,
-				nEpochs: 10,
-				nNeighbors: 15,
+				nEpochs: options.UmapNumEpochs,
+				nNeighbors: options.UmapNumNeighbours,
 			  });
 			const nEpochs = umap.initializeFit(arrays);
 			for (let i = 0; i < nEpochs; i++) {
@@ -81,8 +81,8 @@ export function arrangeDataForUmap(view){
 			
 			const umap = new UMAP({
 				nComponents: 2,
-				nEpochs: 10,
-				nNeighbors: 15,
+				nEpochs: options.UmapNumEpochs,
+				nNeighbors: options.UmapNumNeighbours,
 			  });
 			const nEpochs = umap.initializeFit(arrays);
 			for (let i = 0; i < nEpochs; i++) {

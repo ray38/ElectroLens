@@ -18,18 +18,6 @@ export function deselectAllSpatiallyResolvedData(views,spatiallyResolvedData){
 			spatiallyResolvedData[i].selected = false;
 			spatiallyResolvedData[i].highlighted = false;
 		}
-
-	/*for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
-		if (view.viewType == '2DHeatmap'){
-			var data = view.data;
-			for (var x in data){
-				for (var y in data[x]){
-					data[x][y].selected = false;
-				}
-			}
-		}
-	}*/
 }
 
 export function selectAllSpatiallyResolvedData(views,spatiallyResolvedData){
@@ -37,18 +25,6 @@ export function selectAllSpatiallyResolvedData(views,spatiallyResolvedData){
 			spatiallyResolvedData[i].selected = true;
 			spatiallyResolvedData[i].highlighted = false;
 		}
-
-	/*for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
-		if (view.viewType == '2DHeatmap'){
-			var data = view.data;
-			for (var x in data){
-				for (var y in data[x]){
-					data[x][y].selected = true;
-				}
-			}
-		}
-	}*/
 }
 
 export function deselectAllMoleculeData(views,overallMoleculeData){
@@ -56,7 +32,6 @@ export function deselectAllMoleculeData(views,overallMoleculeData){
 			overallMoleculeData[i].selected = false;
 			overallMoleculeData[i].highlighted = false;
 		}
-
 }
 
 export function selectAllMoleculeData(views,overallMoleculeData){
@@ -79,6 +54,9 @@ export function updateAllPlots(views){
 		}
 		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
 			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
 		}
 
 		if (view.viewType == '3DView'){
@@ -155,6 +133,9 @@ export function updateAllPlotsMoleculeScale(views){
 		}
 		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
 			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
 		}
 
 		if (view.viewType == '3DView'){

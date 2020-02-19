@@ -206,8 +206,7 @@ export function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScal
 	geometry.attributes.instanceColor.needsUpdate = true;
 	geometry.attributes.selection.needsUpdate = true;
 	geometry.attributes.atomIndex.needsUpdate = true;
-	console.log('num instances',geometry.maxInstancedCount );
-	console.log(sumIndexArr)
+	// console.log('num instances',geometry.maxInstancedCount );
 }
 
 export function updateOffsetArray(systemDimension, latticeVectors, geometry, options) {

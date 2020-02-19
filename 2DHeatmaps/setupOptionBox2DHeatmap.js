@@ -637,6 +637,9 @@ export function setupOptionBox2DPCAFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean  == false && view.overallSpatiallyResolvedDataBoolean) {
@@ -666,6 +669,9 @@ export function setupOptionBox2DPCAFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 	}
 
 	plotFolder.add(options, 'replotPCAHeatmap').name("Calculate & Plot");
@@ -749,6 +755,9 @@ export function setupOptionBox2DPCAFolder(view,plotSetup, folder){
 
 		moleculeFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+		
+		moleculeFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 
 		moleculeFolder.close();
 
@@ -779,6 +788,9 @@ export function setupOptionBox2DPCAFolder(view,plotSetup, folder){
 
 		spatiallyResolvedFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 
@@ -846,7 +858,7 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 		for (var i = 1; i <= 2; i++) {
 			UmapMoleculeDataFeatureList.push("_Umap"+i.toString());
 		}
-		var UmapMoleculeDataFeatureChoiceObject = arrayToIdenticalObject(UmapoleculeDataFeatureList);
+		var UmapMoleculeDataFeatureChoiceObject = arrayToIdenticalObject(UmapMoleculeDataFeatureList);
 	}
 	var options = view.options;
 	var plotFolder			= folder.addFolder( 'Plot Setting' );
@@ -897,6 +909,10 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 	
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean == false) {
+		plotFolder.add( options, 'UmapNumEpochs', 10, 1000).step(10).name( 'Num Epochs' );
+
+		plotFolder.add( options, 'UmapNumNeighbours', 1, 100).step(1).name( 'Num Neighbors' );
+
 		plotFolder.add( options, 'plotUmapXMoleculeData', UmapMoleculeDataFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
@@ -923,9 +939,16 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean  == false && view.overallSpatiallyResolvedDataBoolean) {
+		plotFolder.add( options, 'UmapNumEpochs', 10, 1000).step(10).name( 'Num Epochs' );
+
+		plotFolder.add( options, 'UmapNumNeighbours', 1, 100).step(1).name( 'Num Neighbors' );
+
 		plotFolder.add( options, 'plotUmapXSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
@@ -952,6 +975,10 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
+
 	}
 
 	plotFolder.add(options, 'replotUmapHeatmap').name("Calculate & Plot");
@@ -1009,6 +1036,10 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean){
+		moleculeFolder.add( options, 'UmapNumEpochs', 10, 1000).step(10).name( 'Num Epochs' );
+
+		moleculeFolder.add( options, 'UmapNumNeighbours', 1, 100).step(1).name( 'Num Neighbors' );
+
 		moleculeFolder.add( options, 'plotUmapXMoleculeData', UmapMoleculeDataFeatureChoiceObject)
 		.name( 'X' )
 		.onChange( function( value ) {
@@ -1036,8 +1067,14 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 		moleculeFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
 
+		moleculeFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
+
 		moleculeFolder.close();
 
+		spatiallyResolvedFolder.add( options, 'UmapNumEpochs', 10, 1000).step(10).name( 'Num Epochs' );
+
+		spatiallyResolvedFolder.add( options, 'UmapNumNeighbours', 1, 100).step(1).name( 'Num Neighbors' );
 
 		spatiallyResolvedFolder.add( options, 'plotUmapXSpatiallyResolvedData', UmapSpatiallyResolvedFeatureChoiceObject)
 		.name( 'X' )
@@ -1065,6 +1102,9 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 
 		spatiallyResolvedFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 
@@ -1196,6 +1236,9 @@ export function setupOptionBox2DComparisonFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		plotFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 	}
 
 	if (view.overallMoleculeDataBoolean  == false && view.overallSpatiallyResolvedDataBoolean) {
@@ -1225,6 +1268,9 @@ export function setupOptionBox2DComparisonFolder(view,plotSetup, folder){
 
 		plotFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		plotFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		plotFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		plotFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 	}
 
 	plotFolder.add(options, 'replotComparison').name("Plot");
@@ -1308,6 +1354,9 @@ export function setupOptionBox2DComparisonFolder(view,plotSetup, folder){
 
 		moleculeFolder.add( options, 'selectAllMoleculeData').name('Select all');
 		moleculeFolder.add( options, 'deselectAllMoleculeData').name('Deselect all');
+		
+		moleculeFolder.add( options, 'selectHighlightedMoleculeData').name('Select highlighted');
+		moleculeFolder.add( options, 'deselectHighlightedMoleculeData').name('Deselect highlighted');
 
 		moleculeFolder.close();
 
@@ -1338,6 +1387,9 @@ export function setupOptionBox2DComparisonFolder(view,plotSetup, folder){
 
 		spatiallyResolvedFolder.add( options, 'selectAllSpatiallyResolvedData').name('Select all');
 		spatiallyResolvedFolder.add( options, 'deselectAllSpatiallyResolvedData').name('Deselect all');
+
+		spatiallyResolvedFolder.add( options, 'selectHighlightedSpatiallyResolvedData').name('Select highlighted');
+		spatiallyResolvedFolder.add( options, 'deselectHighlightedSpatiallyResolvedData').name('Deselect highlighted');
 
 		spatiallyResolvedFolder.open();
 

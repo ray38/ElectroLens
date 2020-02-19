@@ -367,14 +367,18 @@ function main(views,plotSetup) {
 		if (e.keyCode == 70) {
 			for (var ii =  0; ii < views.length; ++ii ) {
 				var view = views[ii];
-				if (view.controllerEnabled) {view.options.toggleFullscreen.call();}
+				if (view.controllerEnabled) {
+					view.options.toggleFullscreen.call();
+				}
 			}
+			render();
 		}
 		if (e.keyCode == 76) {
 			for (var ii =  0; ii < views.length; ++ii ) {
 				var view = views[ii];
 				if (view.controllerEnabled) {view.options.toggleLegend.call();}
 			}
+			render();
 		}
 		if (e.keyCode == 49) {
 			//planeSelection = !planeSelection;
@@ -483,11 +487,16 @@ function main(views,plotSetup) {
 	function onDocumentMouseMove( mouseEvent ) {
 		mouseX = mouseEvent.clientX;
 		mouseY = mouseEvent.clientY;
-		if (mouseHold == false){updateController(views, windowWidth, windowHeight, mouseX, mouseY);}
+		if (mouseHold == false){
+			updateController(views, windowWidth, windowHeight, mouseX, mouseY);
+			activeView = updateActiveView(views);
+		}
 		else {
 			mouseDrag = true; 
+			return;
 		}
-		activeView = updateActiveView(views);
+		
+
 
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];

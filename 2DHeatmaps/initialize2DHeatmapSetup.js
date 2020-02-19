@@ -169,6 +169,8 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.plotUmapXTransformSpatiallyResolvedData = "linear";
 			this.plotUmapYTransformSpatiallyResolvedData = "linear";
 
+			this.UmapNumEpochs = 100;
+			this.UmapNumNeighbours = 15;
 			this.plotUmapXMoleculeData = "_Umap1";
 			this.plotUmapYMoleculeData = "_Umap2";
 			this.plotUmapXTransformMoleculeData = "linear";
