@@ -1,6 +1,9 @@
 function electroLensMain(){(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
+exports.__esModule = true;
+exports.render = render;
+
 var _MultiviewControlInitializeViewSetupsJs = require("./MultiviewControl/initializeViewSetups.js");
 
 var _DHeatmapsInitialize2DHeatmapSetupJs = require("./2DHeatmaps/initialize2DHeatmapSetup.js");
@@ -138,7 +141,9 @@ function main(views, plotSetup) {
 	var container, stats, renderer, effect;
 	var mouseX = 0,
 	    mouseY = 0;
-	var windowWidth, windowHeight;
+	// var windowWidth, windowHeight;
+	plotSetup.windowWidth = window.innerWidth;
+	plotSetup.windowHeight = window.innerHeight;
 	var clickRequest = false;
 	var mouseHold = false;
 	var mouseDrag = false;
@@ -198,7 +203,7 @@ function main(views, plotSetup) {
   progressBar.animate(100);)*/
 		var htmlUI = document.getElementById("UI");
 		htmlUI.parentNode.removeChild(htmlUI);
-		render();
+		render(views, plotSetup);
 		animate();
 	});
 
@@ -227,6 +232,8 @@ function main(views, plotSetup) {
 		renderer.shadowMapDarkness = 0.5;
 		renderer.shadowMapWidth = 1024;
 		renderer.shadowMapHeight = 1024;
+
+		plotSetup.renderer = renderer;
 
 		container.appendChild(renderer.domElement);
 
@@ -276,7 +283,7 @@ function main(views, plotSetup) {
 			_MultiviewControlHUDControlJs.setupHUD(view);
 
 			view.controller.addEventListener('change', function (event) {
-				render();
+				render(views, plotSetup);
 			});
 
 			if (view.viewType == '3DView') {
@@ -365,6 +372,7 @@ function main(views, plotSetup) {
 					view.options.toggleFullscreen.call();
 				}
 			}
+			render(views, plotSetup);
 		}
 		if (e.keyCode == 76) {
 			for (var ii = 0; ii < views.length; ++ii) {
@@ -373,6 +381,7 @@ function main(views, plotSetup) {
 					view.options.toggleLegend.call();
 				}
 			}
+			render(views, plotSetup);
 		}
 		if (e.keyCode == 49) {
 			//planeSelection = !planeSelection;
@@ -429,7 +438,7 @@ function main(views, plotSetup) {
 			_MultiviewControlOptionBoxControlJs.addOptionBox(temp_view);
 			_MultiviewControlHUDControlJs.setupHUD(temp_view);
 			temp_view.controller.addEventListener('change', function (event) {
-				render();
+				render(views, plotSetup);
 			});
 
 			temp_view.controller.enableRotate = false;
@@ -437,7 +446,7 @@ function main(views, plotSetup) {
 			_DHeatmapsSetupOptionBox2DHeatmapJs.setupOptionBox2DHeatmap(temp_view, plotSetup);
 			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
 			_DHeatmapsUtilitiesJs.addTitle(temp_view);
-			render();
+			render(views, plotSetup);
 
 			/*
    getAxis(temp_view);
@@ -483,7 +492,7 @@ function main(views, plotSetup) {
 		mouseX = mouseEvent.clientX;
 		mouseY = mouseEvent.clientY;
 		if (mouseHold == false) {
-			_MultiviewControlControllerControlJs.updateController(views, windowWidth, windowHeight, mouseX, mouseY);
+			_MultiviewControlControllerControlJs.updateController(views, plotSetup.windowWidth, plotSetup.windowHeight, mouseX, mouseY);
 			activeView = updateActiveView(views);
 		} else {
 			mouseDrag = true;
@@ -493,13 +502,13 @@ function main(views, plotSetup) {
 		for (var ii = 0; ii < views.length; ++ii) {
 			var view = views[ii];
 			if (view.controllerEnabled) {
-				var left = Math.floor(windowWidth * view.left);
-				var top = Math.floor(windowHeight * view.top);
+				var left = Math.floor(plotSetup.windowWidth * view.left);
+				var top = Math.floor(plotSetup.windowHeight * view.top);
 				// var width  = Math.floor( windowWidth  * view.width ) + left;
 				// var height = Math.floor( windowHeight * view.height ) + top;
 				var vector = new THREE.Vector3();
 
-				vector.set((mouseEvent.clientX - left) / Math.floor(windowWidth * view.width) * 2 - 1, -((mouseEvent.clientY - top) / Math.floor(windowHeight * view.height)) * 2 + 1, 0.1);
+				vector.set((mouseEvent.clientX - left) / Math.floor(plotSetup.windowWidth * view.width) * 2 - 1, -((mouseEvent.clientY - top) / Math.floor(plotSetup.windowHeight * view.height)) * 2 + 1, 0.1);
 				vector.unproject(view.camera);
 				var dir = vector.sub(view.camera.position).normalize();
 				var distance = -view.camera.position.z / dir.z;
@@ -527,7 +536,7 @@ function main(views, plotSetup) {
 				} else if (view.viewType == "3DView") {
 					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule) {
 						if (view.options.atomsStyle == "ball") {
-							var pickingResult = _DViewsSelectionJs.gpuPickMolecule(view, renderer, view.scene, mouseEvent, windowWidth, windowHeight);
+							var pickingResult = _DViewsSelectionJs.gpuPickMolecule(view, renderer, view.scene, mouseEvent, plotSetup.windowWidth, plotSetup.windowHeight);
 							var needsUpdate = _DViewsSelectionJs.hover3DViewMoleculeBall(view, plotSetup, pickingResult);
 							if (needsUpdate) {
 								_DHeatmapsSelectionUtilitiesJs.updateAllPlotsMoleculeScale(views);
@@ -549,7 +558,7 @@ function main(views, plotSetup) {
 				}
 			}
 		}
-		render();
+		render(views, plotSetup);
 	}
 
 	function onDocumentMouseClick(mouseEvent) {
@@ -593,33 +602,33 @@ function main(views, plotSetup) {
 					}
 			}
 		}
-		render();
+		render(views, plotSetup);
 	}
 
-	function updateSize() {
-		if (windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
-			windowWidth = window.innerWidth;
-			windowHeight = window.innerHeight;
-			renderer.setSize(windowWidth, windowHeight);
-
-			for (var ii = 0; ii < views.length; ++ii) {
-				var view = views[ii];
-
-				var width = Math.floor(windowWidth * view.width);
-				var height = Math.floor(windowHeight * view.height);
-				var left = Math.floor(windowWidth * view.left);
-				var top = Math.floor(windowHeight * (1 - view.top) - height);
-
-				view.windowLeft = left;
-				view.windowTop = windowHeight * view.top;
-				view.windowWidth = width;
-				view.windowHeight = height;
-			}
-
-			_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
-			_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
-		}
-	}
+	/*function updateSize(views) {
+ 	if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
+ 		windowWidth  = window.innerWidth;
+ 		windowHeight = window.innerHeight;
+ 		renderer.setSize ( windowWidth, windowHeight );
+ 
+ 		for ( var ii = 0; ii < views.length; ++ii ){
+ 			var view = views[ii];
+ 				
+ 			var width  = Math.floor( windowWidth  * view.width );
+ 			var height = Math.floor( windowHeight * view.height );
+ 			var left   = Math.floor( windowWidth  * view.left );
+ 			var top    = Math.floor( windowHeight * (1-view.top) - height );
+ 
+ 			view.windowLeft = left;
+ 			view.windowTop = windowHeight * view.top;
+ 			view.windowWidth = width;
+ 			view.windowHeight = height;
+ 		}
+ 
+ 		updateOptionBoxLocation(views);
+ 		update2DHeatmapTitlesLocation(views);
+ 	}
+ }*/
 
 	function animate() {
 		// render();
@@ -637,54 +646,43 @@ function main(views, plotSetup) {
 		requestAnimationFrame(animate);
 	}
 
-	function render() {
-		updateSize();
-		for (var ii = 0; ii < views.length; ++ii) {
-
-			var view = views[ii];
-			/*if (view.viewType == '3DView' ) {
-   	if (view.options.animate){
-   		animatePointCloudGeometry(view);
-   		view.System.geometry.attributes.size.needsUpdate = true;
-   	}
-   	//if (view.systemMoleculeDataBoolean) {
-   	//	updateLineBond(view);
-   	//}
-   	
-   }*/
-			//view.controller.update();
-
-			var camera = view.camera;
-
-			var width = Math.floor(windowWidth * view.width);
-			var height = Math.floor(windowHeight * view.height);
-			var left = Math.floor(windowWidth * view.left);
-			var top = Math.floor(windowHeight * (1 - view.top) - height);
-			// console.log('top', view.top,(1-view.top), top)
-
-			view.windowLeft = left;
-			view.windowTop = windowHeight * view.top;
-			view.windowWidth = width;
-			view.windowHeight = height;
-
-			renderer.setViewport(left, top, width, height);
-			renderer.setScissor(left, top, width, height);
-			//renderer.clearDepth(); // important for draw fat line
-			renderer.setScissorTest(true);
-			renderer.setClearColor(0xffffff, 1); // border color
-			renderer.clearColor(); // clear color buffer
-			renderer.setClearColor(view.background, view.backgroundAlpha);
-			//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
-			//else {renderer.setClearColor( view.background );}
-
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
-			renderer.clear();
-			renderer.render(view.scene, camera);
-			//effect.render( view.scene, camera  );
-			renderer.render(view.sceneHUD, view.cameraHUD);
-		}
-	}
+	/*function render() {
+ 	updateSize();
+ 	for ( var ii = 0; ii < views.length; ++ii ) {
+ 
+ 		var view = views[ii];
+ 		
+ 		var camera = view.camera;
+ 		
+ 		var width  = Math.floor( windowWidth  * view.width );
+ 		var height = Math.floor( windowHeight * view.height );
+ 		var left   = Math.floor( windowWidth  * view.left );
+ 		var top    = Math.floor( windowHeight * (1-view.top) - height );
+ 		// console.log('top', view.top,(1-view.top), top)
+ 
+ 		view.windowLeft = left;
+ 		view.windowTop = windowHeight * view.top;
+ 		view.windowWidth = width;
+ 		view.windowHeight = height;
+ 
+ 		renderer.setViewport( left, top, width, height );
+ 		renderer.setScissor( left, top, width, height );
+ 		//renderer.clearDepth(); // important for draw fat line
+ 		renderer.setScissorTest( true );
+ 		renderer.setClearColor( 0xffffff, 1 ); // border color
+ 		renderer.clearColor(); // clear color buffer
+ 		renderer.setClearColor( view.background, view.backgroundAlpha);
+ 		//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
+ 		//else {renderer.setClearColor( view.background );}
+ 
+ 		camera.aspect = width / height;
+ 		camera.updateProjectionMatrix();
+ 		renderer.clear();
+ 		renderer.render( view.scene, camera );
+ 		//effect.render( view.scene, camera  );
+ 		renderer.render( view.sceneHUD, view.cameraHUD );
+ 	}
+ }*/
 
 	function processSelection() {
 		if (activeView != null) {
@@ -692,6 +690,70 @@ function main(views, plotSetup) {
 				_DHeatmapsSelectionJs.selectionControl(views, activeView, mouseHold);
 			}
 		}
+	}
+}
+
+function render(views, plotSetup) {
+	var renderer = plotSetup.renderer;
+	updateSize(views, plotSetup);
+	for (var ii = 0; ii < views.length; ++ii) {
+
+		var view = views[ii];
+
+		var camera = view.camera;
+
+		var width = Math.floor(plotSetup.windowWidth * view.width);
+		var height = Math.floor(plotSetup.windowHeight * view.height);
+		var left = Math.floor(plotSetup.windowWidth * view.left);
+		var top = Math.floor(plotSetup.windowHeight * (1 - view.top) - height);
+		// console.log('top', view.top,(1-view.top), top)
+
+		view.windowLeft = left;
+		view.windowTop = plotSetup.windowHeight * view.top;
+		view.windowWidth = width;
+		view.windowHeight = height;
+
+		renderer.setViewport(left, top, width, height);
+		renderer.setScissor(left, top, width, height);
+		//renderer.clearDepth(); // important for draw fat line
+		renderer.setScissorTest(true);
+		renderer.setClearColor(0xffffff, 1); // border color
+		renderer.clearColor(); // clear color buffer
+		renderer.setClearColor(view.background, view.backgroundAlpha);
+		//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
+		//else {renderer.setClearColor( view.background );}
+
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
+		renderer.clear();
+		renderer.render(view.scene, camera);
+		//effect.render( view.scene, camera  );
+		renderer.render(view.sceneHUD, view.cameraHUD);
+	}
+}
+
+function updateSize(views, plotSetup) {
+	if (plotSetup.windowWidth != window.innerWidth || plotSetup.windowHeight != window.innerHeight) {
+		plotSetup.windowWidth = window.innerWidth;
+		plotSetup.windowHeight = window.innerHeight;
+		plotSetup.renderer.setSize(plotSetup.windowWidth, plotSetup.windowHeight);
+
+		for (var ii = 0; ii < views.length; ++ii) {
+			var view = views[ii];
+
+			var width = Math.floor(plotSetup.windowWidth * view.width);
+			var height = Math.floor(plotSetup.windowHeight * view.height);
+			var left = Math.floor(plotSetup.windowWidth * view.left);
+			var top = Math.floor(plotSetup.windowHeight * (1 - view.top) - height);
+
+			view.windowLeft = left;
+			view.windowTop = plotSetup.windowHeight * view.top;
+			view.windowWidth = width;
+			view.windowHeight = height;
+		}
+
+		_MultiviewControlOptionBoxControlJs.updateOptionBoxLocation(views);
+		_DHeatmapsUtilitiesJs.update2DHeatmapTitlesLocation(views);
 	}
 }
 
@@ -1563,179 +1625,6 @@ function updatePCAHeatmap(view) {
 	System.geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 }
 
-/*export function getPCAHeatmap(view){
-	var uniforms = {
-
-		color:     { value: new THREE.Color( 0xffffff ) },
-		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
-
-	};
-
-	var shaderMaterial = new THREE.ShaderMaterial( {
-
-		uniforms:       uniforms,
-		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-		blending:       THREE.AdditiveBlending,
-		depthTest:      false,
-		transparent:    true
-
-	});
-
-	var options = view.options;
-	var scene = view.scene;
-
-	if (options.plotData == 'spatiallyResolvedData'){
-		var X = view.options.plotPCAXSpatiallyResolvedData, Y = view.options.plotPCAYSpatiallyResolvedData;
-	}
-
-	if (options.plotData == 'moleculeData'){
-		var X = view.options.plotPCAXMoleculeData, Y = view.options.plotPCAYMoleculeData;
-	}
-
-	
-	
-	var data = view.data;
-	
-	var num = heatmapPointCount(data);
-	
-	
-	var geometry = new THREE.BufferGeometry();
-	var colors = new Float32Array(num *3);
-	var positions = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-
-	var PCAHeatmapInformation = [];
-	//console.log(spatiallyResolvedData.length);
-	//console.log(num);
-	
-	var lut = new THREE.Lut( options.colorMap, 500 );
-	lut.setMax( 1000);
-	lut.setMin( 0 );
-	view.lut = lut;
-	
-	var i = 0;
-	var i3 = 0;
-
-	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
-	
-	for (var x in data){
-		for (var y in data[x]){
-			var xPlot = xPlotScale(parseFloat(x));
-			var yPlot = yPlotScale(parseFloat(y));
-			
-			positions[i3 + 0] = xPlot;
-			positions[i3 + 1] = yPlot;
-			positions[i3 + 2] = 0
-			
-			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
-			if (numberDatapointsRepresented > 0) {
-				var color = lut.getColor( numberDatapointsRepresented );
-			
-				colors[i3 + 0] = color.r;
-				colors[i3 + 1] = color.g;
-				colors[i3 + 2] = color.b;
-			}
-			else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
-			}
-			sizes[i] = options.pointCloudSize;
-			alphas[i] = options.pointCloudAlpha;
-			
-			i++;
-			i3 += 3;
-
-			var tempInfo = {x:xPlot-50, 
-							y:yPlot-50, 
-							numberDatapointsRepresented: numberDatapointsRepresented,
-							xStart: view.xScale.invertExtent(x)[0],
-							xEnd: 	view.xScale.invertExtent(x)[1],
-							yStart: view.yScale.invertExtent(y)[0],
-							yEnd: 	view.yScale.invertExtent(y)[1]
-							};
-			//console.log(tempInfo);
-			//console.log(view.xScale.invertExtent(""+xPlot)[0], view.xScale.invertExtent(""+xPlot)[1])
-			PCAHeatmapInformation.push(tempInfo)
-		}
-	}
-	
-	view.PCAHeatmapInformation = PCAHeatmapInformation;
-	geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-
-	var System = new THREE.Points(geometry, shaderMaterial);
-	//return System;
-
-	//particles.name = 'scatterPoints';
-			
-	view.PCAHeatmapPlot = System;
-	//view.attributes = particles.attributes;
-	//view.geometry = particles.geometry;
-	//scene.add(System);
-
-	return System
-	
-}
-
-
-export function updatePCAHeatmap(view){
-	var options = view.options;
-	var System = view.PCAHeatmapPlot;
-	var data = view.data;
-	var num = heatmapPointCount(data);
-	var colors = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-	var lut = new THREE.Lut( options.colorMap, 500 );
-	lut.setMax( 1000);
-	lut.setMin( 0 );
-	view.lut = lut;
-	var i = 0;
-	var i3 = 0;
-	for (var x in data){
-		for (var y in data[x]){
-			
-			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
-			if (numberDatapointsRepresented > 0) {
-				var color = lut.getColor( numberDatapointsRepresented );
-			
-				colors[i3 + 0] = color.r;
-				colors[i3 + 1] = color.g;
-				colors[i3 + 2] = color.b;
-				sizes[i] = options.pointCloudSize;
-				alphas[i] = options.pointCloudAlpha;
-			}
-			else {
-				colors[i3 + 0] = 100;
-				colors[i3 + 1] = 100;
-				colors[i3 + 2] = 100;
-				sizes[i] = options.pointCloudSize;
-				alphas[i] = options.pointCloudAlpha/2;
-			}
-			
-			
-			
-			i++;
-			i3 += 3;
-		}
-	}
-	
-	//geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-	System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-	System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
-
-}*/
-
 function replotPCAHeatmap(view) {
 	if ("covariance" in view) {
 		view.scene.remove(view.covariance);
@@ -2045,7 +1934,7 @@ function updateAllPlotsMolecule(views) {
 
 		if (view.viewType == '3DView') {
 			if (view.systemMoleculeDataBoolean) {
-				_DViewsMoleculeViewJs.updateMoleculeGeometry(view);
+				_DViewsMoleculeViewJs.updateMoleculeGeometryScale(view);
 				// changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
@@ -6135,13 +6024,24 @@ var _MaterialsJs = require("./Materials.js");
 	view.scene.add(atoms);
 }*/
 
-function addAtoms(view, moleculeData, lut) {
+function addAtoms(view, moleculeData) {
 
 	var systemDimension = view.systemDimension;
 	var latticeVectors = view.systemLatticeVectors;
 	var options = view.options;
 	var sizeCode = options.moleculeSizeCodeBasis;
 	var colorCode = options.moleculeColorCodeBasis;
+
+	if (colorCode != "atom") {
+		var colorMap = options.colorMap;
+		var numberOfColors = 512;
+
+		var lut = new THREE.Lut(colorMap, numberOfColors);
+		lut.setMax(options.moleculeColorSettingMax);
+		lut.setMin(options.moleculeColorSettingMin);
+		//view.lut = lut;
+		view.moleculeLut = lut;
+	}
 
 	if (options.atomsStyle == "sprite") {
 		var geometry = new THREE.InstancedBufferGeometry();
@@ -6479,19 +6379,19 @@ function getMoleculeGeometry(view) {
 	var sizeCode = options.moleculeSizeCodeBasis;
 	var colorCode = options.moleculeColorCodeBasis;
 
-	if (colorCode != "atom") {
-		var colorMap = options.colorMap;
-		var numberOfColors = 512;
-
-		var lut = new THREE.Lut(colorMap, numberOfColors);
-		lut.setMax(options.moleculeColorSettingMax);
-		lut.setMin(options.moleculeColorSettingMin);
-		//view.lut = lut;
-		view.moleculeLut = lut;
-	}
+	/* if (colorCode != "atom") {
+ 	var colorMap = options.colorMap;
+ 	var numberOfColors = 512;
+ 
+ 	var lut = new THREE.Lut( colorMap, numberOfColors );
+ 	lut.setMax( options.moleculeColorSettingMax );
+ 	lut.setMin( options.moleculeColorSettingMin );
+ 	//view.lut = lut;
+ 	view.moleculeLut = lut;
+ } */
 
 	if (options.showAtoms) {
-		addAtoms(view, moleculeData, lut);
+		addAtoms(view, moleculeData);
 	}
 
 	if (options.showBonds) {
@@ -6508,12 +6408,23 @@ function updateMoleculeGeometrySpriteAtom(view) {
 	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 	var atoms = view.molecule.atoms;
 	var geometry = atoms.geometry;
+	if (colorCode != "atom") {
+		var colorMap = options.colorMap;
+		var numberOfColors = 512;
+
+		var lut = new THREE.Lut(colorMap, numberOfColors);
+		lut.setMax(options.moleculeColorSettingMax);
+		lut.setMin(options.moleculeColorSettingMin);
+		//view.lut = lut;
+		view.moleculeLut = lut;
+	}
 
 	var positions = new Float32Array(moleculeData.length * 3);
 	var colors = new Float32Array(moleculeData.length * 3);
 	var sizes = new Float32Array(moleculeData.length);
 	var alphas = new Float32Array(moleculeData.length);
 
+	var atomSize;
 	var i3 = 0;
 	for (var i = 0; i < moleculeData.length; i++) {
 		var atomData = moleculeData[i];
@@ -6576,6 +6487,17 @@ function updateMoleculeGeometryBallAtom(view) {
 	var currentFrame = options.currentFrame.toString();
 	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 
+	if (colorCode != "atom") {
+		var colorMap = options.colorMap;
+		var numberOfColors = 512;
+
+		var lut = new THREE.Lut(colorMap, numberOfColors);
+		lut.setMax(options.moleculeColorSettingMax);
+		lut.setMin(options.moleculeColorSettingMin);
+		//view.lut = lut;
+		view.moleculeLut = lut;
+	}
+
 	var unitCellOffsetArr = new Float32Array(moleculeData.length * 3);
 	var unitCellScaleArr = new Float32Array(moleculeData.length);
 	var unitCellColorArr = new Float32Array(moleculeData.length * 3);
@@ -6583,6 +6505,7 @@ function updateMoleculeGeometryBallAtom(view) {
 	var unitCellIndexArr = new Float32Array(moleculeData.length);
 	var t0 = performance.now();
 	unitCellSelectionArr.fill(0);
+	var atomSize;
 	for (var i = 0; i < moleculeData.length; i++) {
 		var atomData = moleculeData[i];
 		unitCellIndexArr[i] = i;
@@ -6593,10 +6516,10 @@ function updateMoleculeGeometryBallAtom(view) {
 			var color = lut.getColor(atomData[colorCode]);
 		}
 		if (sizeCode == "atom") {
-			var atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom];
+			atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom];
 		} else {
 			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-			var atomSize = options.atomSize * tempSize;
+			atomSize = options.atomSize * tempSize;
 		}
 
 		unitCellOffsetArr[i * 3 + 0] = atomData.x;
@@ -6632,13 +6555,14 @@ function updateMoleculeGeometryBallAtomScale(view) {
 
 	var unitCellScaleArr = new Float32Array(moleculeData.length);
 	var t0 = performance.now();
+	var atomSize;
 	for (var i = 0; i < moleculeData.length; i++) {
 		var atomData = moleculeData[i];
 		if (sizeCode == "atom") {
-			var atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom];
+			atomSize = options.atomSize * _AtomSetupJs.atomRadius[atomData.atom];
 		} else {
 			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin) / (options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
-			var atomSize = options.atomSize * tempSize;
+			atomSize = options.atomSize * tempSize;
 		}
 
 		if (moleculeData[i].highlighted) {

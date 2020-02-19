@@ -132,7 +132,9 @@ function main(views,plotSetup) {
 
 	var container, stats, renderer, effect;
 	var mouseX = 0, mouseY = 0;
-	var windowWidth, windowHeight;
+	// var windowWidth, windowHeight;
+	plotSetup.windowWidth  = window.innerWidth;
+	plotSetup.windowHeight = window.innerHeight;
 	var clickRequest = false;
 	var mouseHold = false;
 	var mouseDrag = false;
@@ -196,7 +198,7 @@ function main(views,plotSetup) {
 		progressBar.animate(100);)*/
 		var htmlUI = document.getElementById("UI");
 		htmlUI.parentNode.removeChild(htmlUI);
-		render();
+		render(views, plotSetup);
 		animate();
 	});
 
@@ -226,6 +228,8 @@ function main(views,plotSetup) {
 		renderer.shadowMapDarkness = 0.5;
 		renderer.shadowMapWidth = 1024;
 		renderer.shadowMapHeight = 1024;
+
+		plotSetup.renderer = renderer;
 
 		container.appendChild( renderer.domElement );
 
@@ -274,7 +278,7 @@ function main(views,plotSetup) {
 			setupHUD(view);
 
 			view.controller.addEventListener( 'change', function( event ) {
-				render();
+				render(views, plotSetup);
 			} );
 
 			if (view.viewType == '3DView'){
@@ -371,14 +375,14 @@ function main(views,plotSetup) {
 					view.options.toggleFullscreen.call();
 				}
 			}
-			render();
+			render(views, plotSetup);
 		}
 		if (e.keyCode == 76) {
 			for (var ii =  0; ii < views.length; ++ii ) {
 				var view = views[ii];
 				if (view.controllerEnabled) {view.options.toggleLegend.call();}
 			}
-			render();
+			render(views, plotSetup);
 		}
 		if (e.keyCode == 49) {
 			//planeSelection = !planeSelection;
@@ -436,7 +440,7 @@ function main(views,plotSetup) {
 			addOptionBox(temp_view);
 			setupHUD(temp_view);
 			temp_view.controller.addEventListener( 'change', function( event ) {
-				render();
+				render(views, plotSetup);
 			} );
 
 			
@@ -445,7 +449,7 @@ function main(views,plotSetup) {
 			setupOptionBox2DHeatmap(temp_view,plotSetup);
 			updateOptionBoxLocation(views);
 			addTitle(temp_view)
-			render();
+			render(views, plotSetup);
 			
 
 			/*
@@ -488,7 +492,7 @@ function main(views,plotSetup) {
 		mouseX = mouseEvent.clientX;
 		mouseY = mouseEvent.clientY;
 		if (mouseHold == false){
-			updateController(views, windowWidth, windowHeight, mouseX, mouseY);
+			updateController(views, plotSetup.windowWidth, plotSetup.windowHeight, mouseX, mouseY);
 			activeView = updateActiveView(views);
 		}
 		else {
@@ -501,14 +505,14 @@ function main(views,plotSetup) {
 		for ( var ii = 0; ii < views.length; ++ii ){
 			var view = views[ii];
 			if (view.controllerEnabled){
-				var left   = Math.floor( windowWidth  * view.left );
-				var top    = Math.floor( windowHeight * view.top );
+				var left   = Math.floor( plotSetup.windowWidth  * view.left );
+				var top    = Math.floor( plotSetup.windowHeight * view.top );
 				// var width  = Math.floor( windowWidth  * view.width ) + left;
 				// var height = Math.floor( windowHeight * view.height ) + top;
 				var vector = new THREE.Vector3();
 			
-				vector.set(	(((mouseEvent.clientX-left)/Math.floor( windowWidth  * view.width )) * 2 - 1),
-							(-((mouseEvent.clientY-top)/Math.floor( windowHeight * view.height )) * 2 + 1),
+				vector.set(	(((mouseEvent.clientX-left)/Math.floor( plotSetup.windowWidth  * view.width )) * 2 - 1),
+							(-((mouseEvent.clientY-top)/Math.floor( plotSetup.windowHeight * view.height )) * 2 + 1),
 							0.1);
 				vector.unproject( view.camera );
 				var dir = vector.sub( view.camera.position ).normalize();
@@ -539,7 +543,7 @@ function main(views,plotSetup) {
 				} else if (view.viewType == "3DView") {
 					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
 						if (view.options.atomsStyle == "ball") {
-							var pickingResult = gpuPickMolecule(view, renderer, view.scene,mouseEvent, windowWidth, windowHeight);
+							var pickingResult = gpuPickMolecule(view, renderer, view.scene,mouseEvent, plotSetup.windowWidth, plotSetup.windowHeight);
 							var needsUpdate = hover3DViewMoleculeBall(view, plotSetup, pickingResult);
 							if (needsUpdate) {
 								updateAllPlotsMoleculeScale(views);
@@ -562,7 +566,7 @@ function main(views,plotSetup) {
 				}
 			}
 		}
-		render();
+		render(views, plotSetup);
 	}
 
 	function onDocumentMouseClick( mouseEvent ) {
@@ -610,10 +614,10 @@ function main(views,plotSetup) {
 				}
 			}
 		}
-		render();
+		render(views, plotSetup);
 	}
 
-	function updateSize() {
+	/*function updateSize(views) {
 		if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
 			windowWidth  = window.innerWidth;
 			windowHeight = window.innerHeight;
@@ -636,7 +640,7 @@ function main(views,plotSetup) {
 			updateOptionBoxLocation(views);
 			update2DHeatmapTitlesLocation(views);
 		}
-	}
+	}*/
 
 	function animate() {
 		// render();
@@ -654,22 +658,11 @@ function main(views,plotSetup) {
 		requestAnimationFrame( animate );
 	}
 
-	function render() {
+	/*function render() {
 		updateSize();
 		for ( var ii = 0; ii < views.length; ++ii ) {
 
 			var view = views[ii];
-			/*if (view.viewType == '3DView' ) {
-				if (view.options.animate){
-					animatePointCloudGeometry(view);
-					view.System.geometry.attributes.size.needsUpdate = true;
-				}
-				//if (view.systemMoleculeDataBoolean) {
-				//	updateLineBond(view);
-				//}
-				
-			}*/
-			//view.controller.update();
 			
 			var camera = view.camera;
 			
@@ -701,7 +694,7 @@ function main(views,plotSetup) {
 			//effect.render( view.scene, camera  );
 			renderer.render( view.sceneHUD, view.cameraHUD );
 		}
-	}
+	}*/
 
 	
 
@@ -709,5 +702,70 @@ function main(views,plotSetup) {
 		if (activeView != null){
 			if (activeView.viewType == '2DHeatmap') {selectionControl(views, activeView, mouseHold);}
 		}
+	}
+}
+
+
+export function render(views, plotSetup) {
+	var renderer = plotSetup.renderer;
+	updateSize(views, plotSetup);
+	for ( var ii = 0; ii < views.length; ++ii ) {
+
+		var view = views[ii];
+		
+		var camera = view.camera;
+		
+		var width  = Math.floor( plotSetup.windowWidth  * view.width );
+		var height = Math.floor( plotSetup.windowHeight * view.height );
+		var left   = Math.floor( plotSetup.windowWidth  * view.left );
+		var top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
+		// console.log('top', view.top,(1-view.top), top)
+
+		view.windowLeft = left;
+		view.windowTop = plotSetup.windowHeight * view.top;
+		view.windowWidth = width;
+		view.windowHeight = height;
+
+		renderer.setViewport( left, top, width, height );
+		renderer.setScissor( left, top, width, height );
+		//renderer.clearDepth(); // important for draw fat line
+		renderer.setScissorTest( true );
+		renderer.setClearColor( 0xffffff, 1 ); // border color
+		renderer.clearColor(); // clear color buffer
+		renderer.setClearColor( view.background, view.backgroundAlpha);
+		//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
+		//else {renderer.setClearColor( view.background );}
+
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
+		renderer.clear();
+		renderer.render( view.scene, camera );
+		//effect.render( view.scene, camera  );
+		renderer.render( view.sceneHUD, view.cameraHUD );
+	}
+}
+
+function updateSize(views, plotSetup) {
+	if ( plotSetup.windowWidth != window.innerWidth || plotSetup.windowHeight != window.innerHeight) {
+		plotSetup.windowWidth  = window.innerWidth;
+		plotSetup.windowHeight = window.innerHeight;
+		plotSetup.renderer.setSize ( plotSetup.windowWidth, plotSetup.windowHeight );
+
+		for ( var ii = 0; ii < views.length; ++ii ){
+			var view = views[ii];
+				
+			var width  = Math.floor( plotSetup.windowWidth  * view.width );
+			var height = Math.floor( plotSetup.windowHeight * view.height );
+			var left   = Math.floor( plotSetup.windowWidth  * view.left );
+			var top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
+
+			view.windowLeft = left;
+			view.windowTop = plotSetup.windowHeight * view.top;
+			view.windowWidth = width;
+			view.windowHeight = height;
+		}
+
+		updateOptionBoxLocation(views);
+		update2DHeatmapTitlesLocation(views);
 	}
 }

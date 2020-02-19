@@ -114,7 +114,7 @@ export function updateAllPlotsMolecule(views){
 
 		if (view.viewType == '3DView'){
 			if (view.systemMoleculeDataBoolean) {
-				updateMoleculeGeometry(view)
+				updateMoleculeGeometryScale(view)
 				// changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
