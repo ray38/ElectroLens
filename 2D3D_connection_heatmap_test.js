@@ -605,31 +605,6 @@ function main(views, plotSetup) {
 		render(views, plotSetup);
 	}
 
-	/*function updateSize(views) {
- 	if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
- 		windowWidth  = window.innerWidth;
- 		windowHeight = window.innerHeight;
- 		renderer.setSize ( windowWidth, windowHeight );
- 
- 		for ( var ii = 0; ii < views.length; ++ii ){
- 			var view = views[ii];
- 				
- 			var width  = Math.floor( windowWidth  * view.width );
- 			var height = Math.floor( windowHeight * view.height );
- 			var left   = Math.floor( windowWidth  * view.left );
- 			var top    = Math.floor( windowHeight * (1-view.top) - height );
- 
- 			view.windowLeft = left;
- 			view.windowTop = windowHeight * view.top;
- 			view.windowWidth = width;
- 			view.windowHeight = height;
- 		}
- 
- 		updateOptionBoxLocation(views);
- 		update2DHeatmapTitlesLocation(views);
- 	}
- }*/
-
 	function animate() {
 		// render();
 		//processClick();
@@ -645,44 +620,6 @@ function main(views, plotSetup) {
 
 		requestAnimationFrame(animate);
 	}
-
-	/*function render() {
- 	updateSize();
- 	for ( var ii = 0; ii < views.length; ++ii ) {
- 
- 		var view = views[ii];
- 		
- 		var camera = view.camera;
- 		
- 		var width  = Math.floor( windowWidth  * view.width );
- 		var height = Math.floor( windowHeight * view.height );
- 		var left   = Math.floor( windowWidth  * view.left );
- 		var top    = Math.floor( windowHeight * (1-view.top) - height );
- 		// console.log('top', view.top,(1-view.top), top)
- 
- 		view.windowLeft = left;
- 		view.windowTop = windowHeight * view.top;
- 		view.windowWidth = width;
- 		view.windowHeight = height;
- 
- 		renderer.setViewport( left, top, width, height );
- 		renderer.setScissor( left, top, width, height );
- 		//renderer.clearDepth(); // important for draw fat line
- 		renderer.setScissorTest( true );
- 		renderer.setClearColor( 0xffffff, 1 ); // border color
- 		renderer.clearColor(); // clear color buffer
- 		renderer.setClearColor( view.background, view.backgroundAlpha);
- 		//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
- 		//else {renderer.setClearColor( view.background );}
- 
- 		camera.aspect = width / height;
- 		camera.updateProjectionMatrix();
- 		renderer.clear();
- 		renderer.render( view.scene, camera );
- 		//effect.render( view.scene, camera  );
- 		renderer.render( view.sceneHUD, view.cameraHUD );
- 	}
- }*/
 
 	function processSelection() {
 		if (activeView != null) {
@@ -927,8 +864,14 @@ function arrangeDataToHeatmap(view) {
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true, highlighted: false };
+		if (!(heatmapX in view.data)) {
+			view.data[heatmapX] = {};
+		}
+
+		if (!(heatmapY in view.data[heatmapX])) {
+			view.data[heatmapX][heatmapY] = { list: [], selected: true, highlighted: false };
+		}
+
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 }
@@ -966,7 +909,9 @@ function getHeatmap(view) {
 
 	for (var x in data) {
 		for (var y in data[x]) {
-			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			if (!(x in XYtoHeatmapMap)) {
+				XYtoHeatmapMap[x] = {};
+			}
 			XYtoHeatmapMap[x][y] = i;
 
 			var xPlot = xPlotScale(parseFloat(x));
@@ -1446,8 +1391,13 @@ function arrangeDataForPCA(view) {
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true };
+		if (!(heatmapX in view.data)) {
+			view.data[heatmapX] = {};
+		}
+
+		if (!(heatmapY in view.data[heatmapX])) {
+			view.data[heatmapX][heatmapY] = { list: [], selected: true, highlighted: false };
+		}
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 
@@ -2188,8 +2138,13 @@ function arrangeDataForUmap(view) {
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true };
+		if (!(heatmapX in view.data)) {
+			view.data[heatmapX] = {};
+		}
+
+		if (!(heatmapY in view.data[heatmapX])) {
+			view.data[heatmapX][heatmapY] = { list: [], selected: true, highlighted: false };
+		}
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 }
@@ -2735,8 +2690,13 @@ function arrangeDataToComparison(view) {
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || { list: [], selected: true, highlighted: false };
+		if (!(heatmapX in view.data)) {
+			view.data[heatmapX] = {};
+		}
+
+		if (!(heatmapY in view.data[heatmapX])) {
+			view.data[heatmapX][heatmapY] = { list: [], selected: true, highlighted: false };
+		}
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 	view.colorDict = colorDict;
@@ -2892,13 +2852,13 @@ function updateComparison(view) {
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
-				sizes[i] = options.pointCloudSize;
+				sizes[i] = options.pointCloudSize * 0.5 * systemRepresented.length;
 				alphas[i] = options.pointCloudAlpha;
 			} else {
 				colors[i3 + 0] = 1;
 				colors[i3 + 1] = 1;
 				colors[i3 + 2] = 1;
-				sizes[i] = options.pointCloudSize;
+				sizes[i] = options.pointCloudSize * 0.5;
 				alphas[i] = options.pointCloudAlpha / 2;
 			}
 			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
@@ -2953,7 +2913,6 @@ function replotComparison(view) {
  }*/
 
 	arrangeDataToComparison(view);
-	console.log(view.data);
 	var comparison = new THREE.Group();
 
 	var comparisonPlot = getComparison(view);
@@ -3342,6 +3301,8 @@ var _SelectionUtilitiesJs = require("./Selection/Utilities.js");
 
 var _UtilitiesSaveDataJs = require("../Utilities/saveData.js");
 
+var _D3D_connection_heatmapJs = require("../2D3D_connection_heatmap.js");
+
 function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 	var defaultSetting = {
 		background: new THREE.Color(0, 0, 0),
@@ -3393,9 +3354,11 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 			this.colorMap = 'rainbow';
 			this.resetCamera = function () {
 				viewSetup.controller.reset();
+				_D3D_connection_heatmapJs.render(views, plotSetup);
 			};
 			this.replotHeatmap = function () {
 				_HeatmapViewJs.replotHeatmap(viewSetup);
+				_D3D_connection_heatmapJs.render(views, plotSetup);
 			};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function () {
@@ -3492,6 +3455,7 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 			this.covarianceTransformSpatiallyResolvedData = "linear";
 			this.replotCovariance = function () {
 				_covarianceViewJs.replotCovariance(viewSetup);
+				_D3D_connection_heatmapJs.render(views, plotSetup);
 			};
 
 			this.plotPCAXSpatiallyResolvedData = "_PC1";
@@ -3508,10 +3472,12 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 			//this.nPCAComponentsMolecule = plotSetup.moleculePropertyList.length;
 			this.replotPCAHeatmap = function () {
 				_PCAViewJs.replotPCAHeatmap(viewSetup);
+				_D3D_connection_heatmapJs.render(views, plotSetup);
 			};
 
 			this.replotComparison = function () {
 				_comparisonViewJs.replotComparison(viewSetup);
+				_D3D_connection_heatmapJs.render(views, plotSetup);
 			};
 
 			this.plotUmapXSpatiallyResolvedData = "_Umap1";
@@ -3528,6 +3494,11 @@ function initialize2DHeatmapSetup(viewSetup, views, plotSetup) {
 
 			this.replotUmapHeatmap = function () {
 				_UmapViewJs.replotUmapHeatmap(viewSetup);
+				_D3D_connection_heatmapJs.render(views, plotSetup);
+			};
+
+			this.render = function () {
+				_D3D_connection_heatmapJs.render(views, plotSetup);
 			};
 		}()
 	};
@@ -3543,7 +3514,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/active2DView.js":25,"../MultiviewControl/calculateViewportSizes.js":26,"../MultiviewControl/colorLegend.js":27,"../Utilities/saveData.js":37,"./HeatmapView.js":2,"./PCAView.js":4,"./Selection/Utilities.js":5,"./UmapView.js":6,"./comparisonView.js":8,"./covarianceView.js":9,"./selection.js":11}],11:[function(require,module,exports){
+},{"../2D3D_connection_heatmap.js":1,"../MultiviewControl/active2DView.js":25,"../MultiviewControl/calculateViewportSizes.js":26,"../MultiviewControl/colorLegend.js":27,"../Utilities/saveData.js":37,"./HeatmapView.js":2,"./PCAView.js":4,"./Selection/Utilities.js":5,"./UmapView.js":6,"./comparisonView.js":8,"./covarianceView.js":9,"./selection.js":11}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -7314,6 +7285,8 @@ var _systemEdgeJs = require("./systemEdge.js");
 
 var _UtilitiesSaveDataJs = require("../Utilities/saveData.js");
 
+var _D3D_connection_heatmapJs = require("../2D3D_connection_heatmap.js");
+
 function initialize3DViewSetup(viewSetup, views, plotSetup) {
 
 	var systemDimension = viewSetup.systemDimension;
@@ -7385,6 +7358,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 		yPlotMax: yPlotMax,
 		zPlotMin: zPlotMin,
 		zPlotMax: zPlotMax,
+
 		options: new function () {
 			this.cameraFov = 50;
 			this.backgroundColor = "#000000";
@@ -7433,6 +7407,7 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.planeOpacity = 0.05;
 			this.resetCamera = function () {
 				viewSetup.controller.reset();
+				_D3D_connection_heatmapJs.render(views, plotSetup);
 			};
 			this.systemEdgeBoolean = true;
 			this.autoRotateSystem = false;
@@ -7516,6 +7491,10 @@ function initialize3DViewSetup(viewSetup, views, plotSetup) {
 			this.cameraLightPositionX = 0;
 			this.cameraLightPositionY = 0;
 			this.cameraLightPositionZ = 0;
+
+			this.render = function () {
+				_D3D_connection_heatmapJs.render(views, plotSetup);
+			};
 		}()
 	};
 
@@ -7529,7 +7508,7 @@ function extendObject(obj, src) {
 	return obj;
 }
 
-},{"../MultiviewControl/calculateViewportSizes.js":26,"../MultiviewControl/colorLegend.js":27,"../Utilities/saveData.js":37,"./systemEdge.js":22}],20:[function(require,module,exports){
+},{"../2D3D_connection_heatmap.js":1,"../MultiviewControl/calculateViewportSizes.js":26,"../MultiviewControl/colorLegend.js":27,"../Utilities/saveData.js":37,"./systemEdge.js":22}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8091,6 +8070,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		} else {
 			_MoleculeViewJs.removeMoleculeGeometry(view);
 		}
+		options.render.call();
 	});
 
 	systemInfoFolder.add(options, 'showPointCloud').name('Show Point Cloud').onChange(function (value) {
@@ -8099,6 +8079,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		} else {
 			_PointCloud_selectionJs.removePointCloudGeometry(view);
 		}
+		options.render.call();
 	});
 
 	systemInfoFolder.open();
@@ -8109,6 +8090,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		//updatePointCloudGeometry(view);
 		options.toggleSystemEdge.call();
 		gui.updateDisplay();
+		options.render.call();
 	});
 	viewFolder.add(options, 'autoRotateSystem').name('Rotate System').onChange(function (value) {
 		view.controller.autoRotate = value;
@@ -8121,6 +8103,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			if (options.showMolecule && view.systemMoleculeDataBoolean) {
 				_MoleculeViewJs.changeMoleculeGeometry(view);
 			}
+			options.render.call();
 		});
 	}
 
@@ -8135,6 +8118,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
 		}
+		options.render.call();
 	});
 
 	PBCFolder.add(options, 'yPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
@@ -8144,6 +8128,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
 		}
+		options.render.call();
 	});
 
 	PBCFolder.add(options, 'zPBC', { '1': 1, '3': 3, '5': 5, '7': 7, '9': 9 }).onChange(function (value) {
@@ -8153,6 +8138,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		if (options.showMolecule && view.systemMoleculeDataBoolean) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
 		}
+		options.render.call();
 	});
 	PBCFolder.close();
 
@@ -8167,18 +8153,22 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		moleculeFolder.add(options, 'showAtoms').name('Show Atoms').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'showBonds').name('Show Bonds').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'atomsStyle', { "sprite": "sprite", "ball": "ball" }).name('Atom Style').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
-		moleculeFolder.add(options, 'bondsStyle', { "line": "line", "tube": "tube", "fatline": "fatline" }).name('Bond Style').onChange(function (value) {
+		moleculeFolder.add(options, 'bondsStyle', { "line": "line", "tube": "tube" /*, "fatline": "fatline"*/ }).name('Bond Style').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'moleculeColorCodeBasis', moleculeDataFeatureChoiceObject).name('Color Basis').onChange(function (value) {
@@ -8192,15 +8182,18 @@ function setupOptionBox3DView(view, plotSetup) {
 				_MultiviewControlColorLegendJs.changeLegendMolecule(view);
 			}
 			gui.updateDisplay();
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'moleculeColorSettingMin', -100, 100).step(0.1).name('Color Scale Min').onChange(function (value) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
+			options.render.call();
 		});
 		moleculeFolder.add(options, 'moleculeColorSettingMax', -100, 100).step(0.1).name('Color Scale Max').onChange(function (value) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegendMolecule(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'moleculeSizeCodeBasis', moleculeDataFeatureChoiceObject).name('Size Basis').onChange(function (value) {
@@ -8208,31 +8201,39 @@ function setupOptionBox3DView(view, plotSetup) {
 			_UtilitiesScaleJs.adjustScaleAccordingToDefaultMoleculeData(view);
 			_MoleculeViewJs.updateMoleculeGeometry(view);
 			gui.updateDisplay();
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'moleculeSizeSettingMin', -100, 100).step(0.1).name('Size Scale Min').onChange(function (value) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeFolder.add(options, 'moleculeSizeSettingMax', -100, 100).step(0.1).name('Size Scale Max').onChange(function (value) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'atomSize', 0.01, 2).step(0.01).name('Atom Size').onChange(function (value) {
 			_MoleculeViewJs.updateMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeFolder.add(options, 'bondSize', 0.01, 0.5).step(0.01).name('Bond Size').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeFolder.add(options, 'moleculeAlpha', 0.1, 1.0).step(0.1).name('Molecule Opacity').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'maxBondLength', 0.1, 4).step(0.1).name('Bond Max').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add(options, 'minBondLength', 0.1, 4).step(0.1).name('Bond Min').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.close();
@@ -8264,22 +8265,27 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		moleculeAdditionalFolder.add(options, 'atomModelSegments', 4, 50).step(1).name('Atom Resolution').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeAdditionalFolder.add(options, 'bondModelSegments', 4, 30).step(1).name('Bond Resolution').onChange(function (value) {
 			_MoleculeViewJs.changeMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeAdditionalFolder.close();
 
 		moleculeAdditionalFolder.add(options, 'cameraLightPositionX', -20000, 20000).step(50).name('Cam. Light X').onChange(function (value) {
 			_MultiviewControlSetupViewBasicJs.updateCamLightPosition(view);
+			options.render.call();
 		});
 
 		moleculeAdditionalFolder.add(options, 'cameraLightPositionY', -20000, 20000).step(50).name('Cam. Light Y').onChange(function (value) {
 			_MultiviewControlSetupViewBasicJs.updateCamLightPosition(view);
+			options.render.call();
 		});
 
 		moleculeAdditionalFolder.add(options, 'cameraLightPositionZ', -20000, 20000).step(50).name('Cam. Light Z').onChange(function (value) {
 			_MultiviewControlSetupViewBasicJs.updateCamLightPosition(view);
+			options.render.call();
 		});
 	}
 
@@ -8301,33 +8307,41 @@ function setupOptionBox3DView(view, plotSetup) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegend(view);
 			gui.updateDisplay();
+			options.render.call();
 		});
 
 		pointCloudFolder.add(options, 'colorMap', _UtilitiesColorMapJs.colorMapDict).name('Color Scheme').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegend(view);
+			options.render.call();
 		});
 
 		pointCloudFolder.add(options, 'pointCloudParticles', 0, 100).step(0.1).name('Density').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
+			options.render.call();
 		});
 
 		pointCloudFolder.add(options, 'pointCloudAlpha', 0, 1).step(0.01).name('Opacity').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
+			options.render.call();
 		});
 		pointCloudFolder.add(options, 'pointCloudSize', 0.01, 1).step(0.01).name('Size').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
+			options.render.call();
 		});
 		pointCloudFolder.add(options, 'pointCloudColorSettingMin', -1000, 1000).step(0.001).name('Color Scale Min').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegend(view);
+			options.render.call();
 		});
 		pointCloudFolder.add(options, 'pointCloudColorSettingMax', -1000, 1000).step(0.001).name('Color Scale Max').onChange(function (value) {
 			_PointCloud_selectionJs.updatePointCloudGeometry(view);
 			_MultiviewControlColorLegendJs.changeLegend(view);
+			options.render.call();
 		});
 		pointCloudFolder.add(options, 'pointCloudMaxPointPerBlock', 10, 200).step(10).name('Max Density').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
+			options.render.call();
 		});
 		// pointCloudFolder.add( options, 'animate')
 		// .onChange( function( value ) {
@@ -8363,6 +8377,7 @@ function setupOptionBox3DView(view, plotSetup) {
 
 		pointCloudAdditionalFolder.add(options, 'pointCloudTotalMagnitude', -5, 10).step(1).name('Dens. Magnitude').onChange(function (value) {
 			_PointCloud_selectionJs.changePointCloudGeometry(view);
+			options.render.call();
 		});
 		pointCloudAdditionalFolder.close();
 	}
@@ -8375,6 +8390,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
+		options.render.call();
 	});
 	sliderFolder.add(options, 'x_high', view.xPlotMin, view.xPlotMax).step(1).name('x high').onChange(function (value) {
 		if (view.systemSpatiallyResolvedDataBoolean) {
@@ -8384,6 +8400,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
+		options.render.call();
 	});
 	sliderFolder.add(options, 'y_low', view.yPlotMin, view.yPlotMax).step(1).name('y low').onChange(function (value) {
 		if (view.systemSpatiallyResolvedDataBoolean) {
@@ -8393,6 +8410,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
+		options.render.call();
 	});
 	sliderFolder.add(options, 'y_high', view.yPlotMin, view.yPlotMax).step(1).name('y high').onChange(function (value) {
 		if (view.systemSpatiallyResolvedDataBoolean) {
@@ -8402,6 +8420,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
+		options.render.call();
 	});
 	sliderFolder.add(options, 'z_low', view.zPlotMin, view.zPlotMax).step(1).name('z low').onChange(function (value) {
 		if (view.systemSpatiallyResolvedDataBoolean) {
@@ -8411,6 +8430,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
+		options.render.call();
 	});
 	sliderFolder.add(options, 'z_high', view.zPlotMin, view.zPlotMax).step(1).name('z high').onChange(function (value) {
 		if (view.systemSpatiallyResolvedDataBoolean) {
@@ -8420,6 +8440,7 @@ function setupOptionBox3DView(view, plotSetup) {
 			_MoleculeViewJs.updateMoleculeGeometrySlider(view);
 		}
 		//updatePlane(options);
+		options.render.call();
 	});
 
 	sliderFolder.add(options, 'x_slider', view.xPlotMin, view.xPlotMax).step(1).onChange(function (value) {
@@ -8433,6 +8454,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		}
 		//updatePlane(options);
 		gui.updateDisplay();
+		options.render.call();
 	});
 	sliderFolder.add(options, 'y_slider', view.yPlotMin, view.yPlotMax).step(1).onChange(function (value) {
 		options.y_low = value - 1;
@@ -8445,6 +8467,7 @@ function setupOptionBox3DView(view, plotSetup) {
 		}
 		//updatePlane(options);
 		gui.updateDisplay();
+		options.render.call();
 	});
 	sliderFolder.add(options, 'z_slider', view.zPlotMin, view.zPlotMax).step(1).onChange(function (value) {
 		options.z_low = value - 1;
@@ -8457,10 +8480,12 @@ function setupOptionBox3DView(view, plotSetup) {
 		}
 		//updatePlane(options);
 		gui.updateDisplay();
+		options.render.call();
 	});
 
-	detailFolder.add(options, 'cameraFov', 30, 150).step(5).name('Camera Fov').onChange(function (value) {
+	detailFolder.add(options, 'cameraFov', 10, 150).step(5).name('Camera Fov').onChange(function (value) {
 		_MultiviewControlSetupViewBasicJs.updateCameraFov(view);
+		options.render.call();
 	});
 
 	detailFolder.add(options, 'autoRotateSpeed', 0.1, 30.0).step(0.1).name('Rotate Speed').onChange(function (value) {
@@ -8473,6 +8498,7 @@ function setupOptionBox3DView(view, plotSetup) {
 
 	detailFolder.addColor(options, 'backgroundColor').name('background').onChange(function (value) {
 		view.background = new THREE.Color(value);
+		options.render.call();
 	});
 
 	//sliderFolder.open();

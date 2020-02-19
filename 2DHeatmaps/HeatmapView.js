@@ -128,9 +128,16 @@ export function arrangeDataToHeatmap(view){
 	for (var i=0; i<Data.length; i++){
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
-		
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true, highlighted: false};
+
+		if (!(heatmapX in view.data)) {
+			view.data[heatmapX] = {};
+		}
+
+		if (!(heatmapY in view.data[heatmapX])) {
+			view.data[heatmapX][heatmapY] = { list: [], selected: true, highlighted: false };
+		}
+
+
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 	
@@ -175,7 +182,9 @@ export function getHeatmap(view){
 	
 	for (var x in data){
 		for (var y in data[x]){
-			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
+			if (!(x in XYtoHeatmapMap)){
+				XYtoHeatmapMap[x] = {};
+			}
 			XYtoHeatmapMap[x][y] = i;
 
 			var xPlot = xPlotScale(parseFloat(x));

@@ -54,6 +54,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		} else {
 			removeMoleculeGeometry(view);
 		}
+		options.render.call();
 	});
 
 	systemInfoFolder.add( options, 'showPointCloud')
@@ -64,6 +65,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		} else {
 			removePointCloudGeometry(view);
 		}
+		options.render.call();
 	});
 
 	systemInfoFolder.open();
@@ -80,6 +82,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		//updatePointCloudGeometry(view);
 		options.toggleSystemEdge.call();
 		gui.updateDisplay();
+		options.render.call();
 	});
 	viewFolder.add( options, 'autoRotateSystem')
 	.name('Rotate System')
@@ -96,6 +99,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			if (options.showMolecule && view.systemMoleculeDataBoolean){
 				changeMoleculeGeometry(view);
 			}
+			options.render.call();
 		});
 	}
 
@@ -111,18 +115,21 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		options.render.call();
 	});
 
 	PBCFolder.add( options, 'yPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		options.render.call();
 	});
 
 	PBCFolder.add( options, 'zPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		options.render.call();
 	});
 	PBCFolder.close();
 	
@@ -144,24 +151,28 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Show Atoms' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'showBonds')
 		.name( 'Show Bonds' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'atomsStyle',{"sprite":"sprite", "ball":"ball"})
 		.name( 'Atom Style' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
-		moleculeFolder.add( options, 'bondsStyle',{"line":"line", "tube":"tube", "fatline": "fatline"})
+		moleculeFolder.add( options, 'bondsStyle',{"line":"line", "tube":"tube"/*, "fatline": "fatline"*/})
 		.name( 'Bond Style' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'moleculeColorCodeBasis', moleculeDataFeatureChoiceObject)
@@ -173,6 +184,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			updateMoleculeGeometry(view);
 			if (value != "atom"){changeLegendMolecule(view);}
 			gui.updateDisplay();
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'moleculeColorSettingMin', -100, 100 ).step( 0.1 )
@@ -180,12 +192,14 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
 			changeLegendMolecule(view);	
+			options.render.call();
 		});
 		moleculeFolder.add( options, 'moleculeColorSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
 			changeLegendMolecule(view);	
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'moleculeSizeCodeBasis', moleculeDataFeatureChoiceObject)
@@ -195,33 +209,39 @@ export function setupOptionBox3DView(view,plotSetup){
 			adjustScaleAccordingToDefaultMoleculeData(view);
 			updateMoleculeGeometry(view);
 			gui.updateDisplay();
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'moleculeSizeSettingMin', -100, 100 ).step( 0.1 )
 		.name( 'Size Scale Min' )
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeFolder.add( options, 'moleculeSizeSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Size Scale Max' )
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'atomSize', 0.01, 2 ).step( 0.01 )
 		.name( 'Atom Size' )
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeFolder.add( options, 'bondSize', 0.01, 0.5 ).step( 0.01 )
 		.name( 'Bond Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeFolder.add( options, 'moleculeAlpha', 0.1, 1.0 ).step( 0.1 )
 		.name( 'Molecule Opacity' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 
@@ -229,12 +249,14 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Bond Max' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.add( options, 'minBondLength', 0.1, 4 ).step( 0.1 )
 		.name( 'Bond Min' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 
 		moleculeFolder.close();
@@ -268,11 +290,13 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Atom Resolution' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeAdditionalFolder.add( options, 'bondModelSegments', 4, 30 ).step( 1 )
 		.name( 'Bond Resolution' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			options.render.call();
 		});
 		moleculeAdditionalFolder.close();
 
@@ -280,18 +304,21 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Cam. Light X' )
 		.onChange( function( value ) {
 			updateCamLightPosition(view);
+			options.render.call();
 		});
 
 		moleculeAdditionalFolder.add( options, 'cameraLightPositionY', -20000, 20000 ).step( 50 )
 		.name( 'Cam. Light Y' )
 		.onChange( function( value ) {
 			updateCamLightPosition(view);
+			options.render.call();
 		});
 
 		moleculeAdditionalFolder.add( options, 'cameraLightPositionZ', -20000, 20000 ).step( 50 )
 		.name( 'Cam. Light Z' )
 		.onChange( function( value ) {
 			updateCamLightPosition(view);
+			options.render.call();
 		});
 
 
@@ -322,6 +349,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			updatePointCloudGeometry(view);
 			changeLegend(view);	
 			gui.updateDisplay();
+			options.render.call();
 		});
 		
 		pointCloudFolder.add( options, 'colorMap', colorMapDict )
@@ -329,40 +357,47 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ){
 			updatePointCloudGeometry(view);
 			changeLegend(view);		
+			options.render.call();
 		});
 
 		pointCloudFolder.add( options, 'pointCloudParticles', 0, 100 ).step( 0.1 )
 		.name( 'Density' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
+			options.render.call();
 		});
 		
 		pointCloudFolder.add( options, 'pointCloudAlpha', 0, 1 ).step( 0.01 )
 		.name( 'Opacity' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
+			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudSize', 0.01, 1 ).step( 0.01 )
 		.name( 'Size' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
+			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Min' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
 			changeLegend(view);	
+			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.001 )
 		.name( 'Color Scale Max' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
 			changeLegend(view);	
+			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudMaxPointPerBlock', 10, 200 ).step( 10 )
 		.name( 'Max Density')
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
+			options.render.call();
 		});
 		// pointCloudFolder.add( options, 'animate')
 		// .onChange( function( value ) {
@@ -400,6 +435,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Dens. Magnitude' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
+			options.render.call();
 		});
 		pointCloudAdditionalFolder.close();
 
@@ -411,6 +447,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
+			options.render.call();
 	});
 	sliderFolder.add( options, 'x_high', view.xPlotMin, view.xPlotMax ).step( 1 )
 	.name( 'x high' )
@@ -418,6 +455,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
+			options.render.call();
 	});
 	sliderFolder.add( options, 'y_low', view.yPlotMin, view.yPlotMax ).step( 1 )
 	.name( 'y low' )
@@ -425,6 +463,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
+			options.render.call();
 	});
 	sliderFolder.add( options, 'y_high', view.yPlotMin, view.yPlotMax ).step( 1 )
 	.name( 'y high' )
@@ -432,6 +471,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
+			options.render.call();
 	});
 	sliderFolder.add( options, 'z_low', view.zPlotMin, view.zPlotMax  ).step( 1 )
 	.name( 'z low' )
@@ -439,6 +479,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
+			options.render.call();
 	});
 	sliderFolder.add( options, 'z_high', view.zPlotMin, view.zPlotMax ).step( 1 )
 	.name( 'z high' )
@@ -446,6 +487,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
+			options.render.call();
 	});
 
 	sliderFolder.add( options,'x_slider', view.xPlotMin, view.xPlotMax  ).step( 1 ).onChange( function( value ) {
@@ -455,6 +497,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	    gui.updateDisplay();
+		options.render.call();
 	});
 	sliderFolder.add( options,'y_slider', view.yPlotMin, view.yPlotMax  ).step( 1 ).onChange( function( value ) {
 		options.y_low = value-1;
@@ -463,6 +506,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	    gui.updateDisplay();
+		options.render.call();
 	});
 	sliderFolder.add( options,'z_slider', view.zPlotMin, view.zPlotMax  ).step( 1 ).onChange( function( value ) {
 		options.z_low = value-1;
@@ -471,12 +515,14 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (view.systemMoleculeDataBoolean){updateMoleculeGeometrySlider(view);}
 		//updatePlane(options);
 	    gui.updateDisplay();
+		options.render.call();
 	});
 
-	detailFolder.add( options, 'cameraFov', 30, 150 ).step( 5 )
+	detailFolder.add( options, 'cameraFov', 10, 150 ).step( 5 )
 	.name( 'Camera Fov' )
 	.onChange( function( value ) {
 		updateCameraFov(view);
+		options.render.call();
 	});
 
 	detailFolder.add( options, 'autoRotateSpeed', 0.1, 30.0 ).step( 0.1 )
@@ -497,6 +543,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	.name('background')
 	.onChange( function( value ) {
 		view.background = new THREE.Color(value);
+		options.render.call();
 	});
 
 	//sliderFolder.open();

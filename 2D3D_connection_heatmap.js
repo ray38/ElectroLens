@@ -617,30 +617,6 @@ function main(views,plotSetup) {
 		render(views, plotSetup);
 	}
 
-	/*function updateSize(views) {
-		if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
-			windowWidth  = window.innerWidth;
-			windowHeight = window.innerHeight;
-			renderer.setSize ( windowWidth, windowHeight );
-
-			for ( var ii = 0; ii < views.length; ++ii ){
-				var view = views[ii];
-					
-				var width  = Math.floor( windowWidth  * view.width );
-				var height = Math.floor( windowHeight * view.height );
-				var left   = Math.floor( windowWidth  * view.left );
-				var top    = Math.floor( windowHeight * (1-view.top) - height );
-
-				view.windowLeft = left;
-				view.windowTop = windowHeight * view.top;
-				view.windowWidth = width;
-				view.windowHeight = height;
-			}
-
-			updateOptionBoxLocation(views);
-			update2DHeatmapTitlesLocation(views);
-		}
-	}*/
 
 	function animate() {
 		// render();
@@ -658,43 +634,6 @@ function main(views,plotSetup) {
 		requestAnimationFrame( animate );
 	}
 
-	/*function render() {
-		updateSize();
-		for ( var ii = 0; ii < views.length; ++ii ) {
-
-			var view = views[ii];
-			
-			var camera = view.camera;
-			
-			var width  = Math.floor( windowWidth  * view.width );
-			var height = Math.floor( windowHeight * view.height );
-			var left   = Math.floor( windowWidth  * view.left );
-			var top    = Math.floor( windowHeight * (1-view.top) - height );
-			// console.log('top', view.top,(1-view.top), top)
-
-			view.windowLeft = left;
-			view.windowTop = windowHeight * view.top;
-			view.windowWidth = width;
-			view.windowHeight = height;
-
-			renderer.setViewport( left, top, width, height );
-			renderer.setScissor( left, top, width, height );
-			//renderer.clearDepth(); // important for draw fat line
-			renderer.setScissorTest( true );
-			renderer.setClearColor( 0xffffff, 1 ); // border color
-			renderer.clearColor(); // clear color buffer
-			renderer.setClearColor( view.background, view.backgroundAlpha);
-			//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
-			//else {renderer.setClearColor( view.background );}
-
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
-			renderer.clear();
-			renderer.render( view.scene, camera );
-			//effect.render( view.scene, camera  );
-			renderer.render( view.sceneHUD, view.cameraHUD );
-		}
-	}*/
 
 	
 

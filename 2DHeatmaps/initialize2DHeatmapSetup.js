@@ -9,6 +9,7 @@ import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colo
 import {selectHighlightedSpatiallyResolvedData, deselectHighlightedSpatiallyResolvedData, selectHighlightedMoleculeData, deselectHighlightedMoleculeData, clickUpdateAll2DHeatmaps} from "./selection.js";
 import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, deselectAllMoleculeData, selectAllMoleculeData, updateAllPlots,updateAllPlotsSpatiallyResolved, updateAllPlotsMolecule} from "./Selection/Utilities.js";
 import {saveOverallMoleculeData, saveOverallSpatiallyResolvedData} from "../Utilities/saveData.js";
+import {render} from "../2D3D_connection_heatmap.js"
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
@@ -50,8 +51,14 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.pointCloudAlpha = 1.0;
 			this.pointCloudSize = 3.0;
 			this.colorMap = 'rainbow';
-			this.resetCamera = function(){viewSetup.controller.reset();};
-			this.replotHeatmap = function(){replotHeatmap(viewSetup)};
+			this.resetCamera = function(){
+				viewSetup.controller.reset();
+				render(views, plotSetup);
+			};
+			this.replotHeatmap = function(){
+				replotHeatmap(viewSetup);
+				render(views, plotSetup);
+			};
 			this.fullscreenBoolean = false;
 			this.toggleFullscreen = function(){
 										if (!viewSetup.options.fullscreenBoolean){
@@ -144,7 +151,10 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 
 			this.covarianceTransformMoleculeData = "linear";
 			this.covarianceTransformSpatiallyResolvedData = "linear";
-			this.replotCovariance = function(){replotCovariance(viewSetup)};
+			this.replotCovariance = function(){
+				replotCovariance(viewSetup);
+				render(views, plotSetup);
+			};
 
 
 			this.plotPCAXSpatiallyResolvedData = "_PC1";
@@ -159,9 +169,15 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 
 			//this.nPCAComponentsSpatiallyResolved = plotSetup.spatiallyResolvedPropertyList.length;
 			//this.nPCAComponentsMolecule = plotSetup.moleculePropertyList.length;
-			this.replotPCAHeatmap = function(){replotPCAHeatmap(viewSetup)};
+			this.replotPCAHeatmap = function(){
+				replotPCAHeatmap(viewSetup);
+				render(views, plotSetup);
+			};
 
-			this.replotComparison = function() {replotComparison(viewSetup)};
+			this.replotComparison = function() {
+				replotComparison(viewSetup);
+				render(views, plotSetup);
+			};
 
 
 			this.plotUmapXSpatiallyResolvedData = "_Umap1";
@@ -176,10 +192,13 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 			this.plotUmapXTransformMoleculeData = "linear";
 			this.plotUmapYTransformMoleculeData = "linear";
 
-			this.replotUmapHeatmap = function(){replotUmapHeatmap(viewSetup);};
+			this.replotUmapHeatmap = function(){
+				replotUmapHeatmap(viewSetup);
+				render(views, plotSetup);
+			};
 
 			
-
+			this.render = function(){render(views, plotSetup)}
 
 		}
 	}

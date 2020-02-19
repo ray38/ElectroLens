@@ -97,8 +97,13 @@ export function arrangeDataToComparison(view){
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 		
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true, highlighted: false};
+		if (!(heatmapX in view.data)) {
+			view.data[heatmapX] = {};
+		}
+
+		if (!(heatmapY in view.data[heatmapX])) {
+			view.data[heatmapX][heatmapY] = { list: [], selected: true, highlighted: false };
+		}
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 	view.colorDict = colorDict;
@@ -265,14 +270,14 @@ export function updateComparison(view){
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
 				colors[i3 + 2] = color.b;
-				sizes[i] = options.pointCloudSize;
+				sizes[i] = options.pointCloudSize * 0.5 * (systemRepresented.length);
 				alphas[i] = options.pointCloudAlpha;
 			}
 			else {
 				colors[i3 + 0] = 1;
 				colors[i3 + 1] = 1;
 				colors[i3 + 2] = 1;
-				sizes[i] = options.pointCloudSize;
+				sizes[i] = options.pointCloudSize * 0.5;
 				alphas[i] = options.pointCloudAlpha/2;
 			}
 			if (data[x][y].highlighted || isAnyHighlighted(data[x][y]['list'])) {
@@ -331,7 +336,6 @@ export function replotComparison(view){
 	}*/
 
 	arrangeDataToComparison(view);
-	console.log(view.data);
 	var comparison = new THREE.Group();
 
 	var comparisonPlot = getComparison(view);

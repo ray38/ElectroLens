@@ -2,6 +2,7 @@ import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateView
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {addSystemEdge, removeSystemEdge} from "./systemEdge.js";
 import {saveSystemMoleculeData, saveSystemSpatiallyResolvedData} from "../Utilities/saveData.js";
+import {render} from "../2D3D_connection_heatmap.js"
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	
 	var systemDimension = viewSetup.systemDimension;
@@ -76,6 +77,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		yPlotMax : yPlotMax,
 		zPlotMin : zPlotMin,
 		zPlotMax : zPlotMax,
+		
 		options: new function(){
 			this.cameraFov = 50;
 			this.backgroundColor = "#000000";
@@ -122,7 +124,10 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.planeVisibilityF = false;
 			this.planeVisibilityB = false;
 			this.planeOpacity = 0.05;
-			this.resetCamera = function(){viewSetup.controller.reset();};
+			this.resetCamera = function(){
+				viewSetup.controller.reset();
+				render(views, plotSetup);
+			};
 			this.systemEdgeBoolean = true;
 			this.autoRotateSystem = false;
 			this.autoRotateSpeed = 2.0;
@@ -206,6 +211,8 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.cameraLightPositionX = 0;
 			this.cameraLightPositionY = 0;
 			this.cameraLightPositionZ = 0;
+
+			this.render = function(){render(views, plotSetup)}
 		}
 	}
 

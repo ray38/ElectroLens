@@ -185,8 +185,13 @@ export function arrangeDataForPCA(view){
 		var heatmapX = xMap(Data[i]);
 		var heatmapY = yMap(Data[i]);
 		
-		view.data[heatmapX] = view.data[heatmapX] || {};
-		view.data[heatmapX][heatmapY] = view.data[heatmapX][heatmapY] || {list:[], selected:true};
+		if (!(heatmapX in view.data)) {
+			view.data[heatmapX] = {};
+		}
+
+		if (!(heatmapY in view.data[heatmapX])) {
+			view.data[heatmapX][heatmapY] = { list: [], selected: true, highlighted: false };
+		}
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 
