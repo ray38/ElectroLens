@@ -511,20 +511,6 @@ export function getMoleculeGeometry(view){
 	//var moleculeData = view.systemMoleculeData;
 	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 	var neighborsData = view.systemMoleculeDataFramedBondsDict[currentFrame];
-
-	var sizeCode = options.moleculeSizeCodeBasis;
-	var colorCode = options.moleculeColorCodeBasis;
-
-	/* if (colorCode != "atom") {
-		var colorMap = options.colorMap;
-		var numberOfColors = 512;
-
-		var lut = new THREE.Lut( colorMap, numberOfColors );
-		lut.setMax( options.moleculeColorSettingMax );
-		lut.setMin( options.moleculeColorSettingMin );
-		//view.lut = lut;
-		view.moleculeLut = lut;
-	} */
 	
 	
 	if (options.showAtoms){
@@ -808,51 +794,54 @@ export function updateMoleculeGeometry(view){
 
 	var options = view.options;
 
-	var t0 = performance.now();
-	if(options.showAtoms) {
-		var systemDimension = view.systemDimension;
-		var latticeVectors = view.systemLatticeVectors;
+	if (options.showMolecule){
+		var t0 = performance.now();
+		if(options.showAtoms) {
+			var systemDimension = view.systemDimension;
+			var latticeVectors = view.systemLatticeVectors;
 
-		
-		
-		if (options.atomsStyle == "sprite") {
-			updateMoleculeGeometrySpriteAtom(view);
-			updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
-			updateClippingPlaneSpriteAtom(view);
 			
+			
+			if (options.atomsStyle == "sprite") {
+				updateMoleculeGeometrySpriteAtom(view);
+				updateOffsetArray(systemDimension, latticeVectors, view.molecule.atoms.geometry, options);
+				updateClippingPlaneSpriteAtom(view);
+				
 
-		} else if (options.atomsStyle == "ball") {
-			updateMoleculeGeometryBallAtom(view)
-			updateClippingPlaneBallAtom(view);
+			} else if (options.atomsStyle == "ball") {
+				updateMoleculeGeometryBallAtom(view)
+				updateClippingPlaneBallAtom(view);
+			}
+
 		}
 
-	}
+		if (options.showBonds) {
+			var systemDimension = view.systemDimension;
+			var latticeVectors = view.systemLatticeVectors;
 
-	if (options.showBonds) {
-		var systemDimension = view.systemDimension;
-		var latticeVectors = view.systemLatticeVectors;
+			updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
 
-		updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
+			if (options.bondsStyle == "line") {
+				view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
+				view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
+				view.molecule.bonds.material.uniforms.yClippingPlaneMax.value = options.y_high;
+				view.molecule.bonds.material.uniforms.yClippingPlaneMin.value = options.y_low;
+				view.molecule.bonds.material.uniforms.zClippingPlaneMax.value = options.z_high;
+				view.molecule.bonds.material.uniforms.zClippingPlaneMin.value = options.z_low;
 
-		if (options.bondsStyle == "line") {
-			view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
-			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
-			view.molecule.bonds.material.uniforms.yClippingPlaneMax.value = options.y_high;
-			view.molecule.bonds.material.uniforms.yClippingPlaneMin.value = options.y_low;
-			view.molecule.bonds.material.uniforms.zClippingPlaneMax.value = options.z_high;
-			view.molecule.bonds.material.uniforms.zClippingPlaneMin.value = options.z_low;
-
-		} else if (options.bondsStyle == "tube") {
-			var bondsMaterialShader = view.molecule.bonds.material.userData.shader;
-			bondsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
-			bondsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
-			bondsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
-			bondsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
-			bondsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
-			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
+			} else if (options.bondsStyle == "tube") {
+				var bondsMaterialShader = view.molecule.bonds.material.userData.shader;
+				bondsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
+				bondsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
+				bondsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
+				bondsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
+				bondsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
+				bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;
+			}
 		}
+		// console.log('update molecule replicate took: ', performance.now() - t0);
 	}
-	// console.log('update molecule replicate took: ', performance.now() - t0);
+	
 }
 
 
@@ -891,8 +880,9 @@ export function updateMoleculeGeometryScale(view){
 export function changeMoleculeGeometry(view){
 
 	removeMoleculeGeometry(view);
-	getMoleculeGeometry(view);
-
+	if (view.options.showMolecule) {
+		getMoleculeGeometry(view);
+	}
 }
 
 export function removeMoleculeGeometry(view){

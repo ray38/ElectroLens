@@ -3,6 +3,8 @@ import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLe
 import {addSystemEdge, removeSystemEdge} from "./systemEdge.js";
 import {saveSystemMoleculeData, saveSystemSpatiallyResolvedData} from "../Utilities/saveData.js";
 import {render} from "../2D3D_connection_heatmap.js"
+import {changePointCloudGeometry} from "./PointCloud_selection.js";
+import {changeMoleculeGeometry} from "./MoleculeView.js";
 export function initialize3DViewSetup(viewSetup,views,plotSetup){
 	
 	var systemDimension = viewSetup.systemDimension;
@@ -79,6 +81,10 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 		zPlotMax : zPlotMax,
 		
 		options: new function(){
+			this.plotID = "";
+			this.sync3DView = false;
+			this.toggleSync = function() {toggleSync(viewSetup,views);}
+			this.syncOptions = function() {syncOptions(viewSetup,views);}
 			this.cameraFov = 50;
 			this.backgroundColor = "#000000";
 			this.backgroundAlpha = 0.0;
@@ -226,4 +232,93 @@ function extendObject(obj, src) {
         if (src.hasOwnProperty(key)) obj[key] = src[key];
     }
     return obj;
+}
+
+export function toggleSync(currentView, views) {
+	for ( var ii = 0; ii < views.length; ++ii ) {
+		var view = views[ii];
+		view.options.sync3DView = currentView.options.sync3DView
+		view.gui.updateDisplay();
+	}
+}
+
+export function syncOptions(currentView, views){
+	var syncPropertyList = [
+			'cameraFov',
+			'backgroundColor',
+			'backgroundAlpha',
+			'showPointCloud',
+			'showMolecule',
+			'atomSize',
+			'bondSize',
+			'moleculeTransparency',
+			'maxBondLength',
+			'minBondLength',
+			'xPBC',
+			'yPBC',
+			'zPBC',
+			'pointCloudTotalMagnitude',
+			'pointCloudParticles',
+			'pointCloudMaxPointPerBlock',
+			'pointCloudColorSettingMax',
+			'pointCloudColorSettingMin',
+			'pointCloudAlpha',
+			'pointCloudSize',
+			'propertyOfInterest',
+			'colorMap',
+			'systemEdgeBoolean',
+			'legendX',
+			'legendY',
+			'legendWidth',
+			'legendHeight',
+			'legendTick',
+			'legendFontsize',
+			'legendShownBoolean',
+			'moleculeColorCodeBasis',
+			'moleculeColorMap',
+			'moleculeColorSettingMax',
+			'moleculeColorSettingMin',
+			'moleculeSizeCodeBasis',
+			'moleculeSizeSettingMax',
+			'moleculeSizeSettingMin',
+			'moleculeAlpha',
+			'atomModelSegments',
+			'bondModelSegments',
+			'showAtoms',
+			'showBonds',
+			'atomsStyle',
+			'bondsStyle',
+			'legendXMolecule',
+			'legendYMolecule',
+			'legendWidthMolecule',
+			'legendHeightMolecule',
+			'legendTickMolecule',
+			'legendFontsizeMolecule',
+			'legendShownBooleanMolecule',
+			'cameraLightPositionX',
+			'cameraLightPositionY',
+			'cameraLightPositionZ'
+	];
+
+	var currentOption = currentView.options;
+	var currentPlotID = currentOption.PlotID;
+	for ( var ii = 0; ii < views.length; ++ii ) {
+		var view = views[ii];
+		var options = view.options;
+		var plotID = options.plotID;
+
+		if (plotID !== currentPlotID && options.sync3DView){
+			for (var i = 0; i < syncPropertyList.length; i++) {
+				var property = syncPropertyList[i];
+				options[property] = currentOption[property]
+			}
+			changePointCloudGeometry(view);
+			changePointCloudGeometry(view);
+			options.toggleSystemEdge.call();
+			// options.toggleLegend.call();
+			// options.toggleLegendMolecule.call();
+			view.gui.updateDisplay();
+		}
+	}
+	currentOption.render.call();
 }

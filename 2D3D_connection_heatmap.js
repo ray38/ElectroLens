@@ -283,7 +283,9 @@ function main(views,plotSetup) {
 
 			if (view.viewType == '3DView'){
 				view.controller.autoRotate = false;
-								
+				view.options.plotID = "3D_View_" + ii;
+
+							
 
 				if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0){
 					view.systemSpatiallyResolvedDataBoolean = true;
@@ -304,7 +306,7 @@ function main(views,plotSetup) {
 
 				setupOptionBox3DView(view,plotSetup);
 				addSystemEdge(view);
-				initialize3DViewTooltip(view);
+				initialize3DViewTooltip(view);	
 			}
 			if (view.viewType == '2DHeatmap'){
 
@@ -646,42 +648,49 @@ function main(views,plotSetup) {
 
 
 export function render(views, plotSetup) {
-	var renderer = plotSetup.renderer;
-	updateSize(views, plotSetup);
-	for ( var ii = 0; ii < views.length; ++ii ) {
+	try {
+		var renderer = plotSetup.renderer;
+		updateSize(views, plotSetup);
+		for ( var ii = 0; ii < views.length; ++ii ) {
 
-		var view = views[ii];
-		
-		var camera = view.camera;
-		
-		var width  = Math.floor( plotSetup.windowWidth  * view.width );
-		var height = Math.floor( plotSetup.windowHeight * view.height );
-		var left   = Math.floor( plotSetup.windowWidth  * view.left );
-		var top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
-		// console.log('top', view.top,(1-view.top), top)
+			var view = views[ii];
+			
+			var camera = view.camera;
+			
+			var width  = Math.floor( plotSetup.windowWidth  * view.width );
+			var height = Math.floor( plotSetup.windowHeight * view.height );
+			var left   = Math.floor( plotSetup.windowWidth  * view.left );
+			var top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
+			// console.log('top', view.top,(1-view.top), top)
 
-		view.windowLeft = left;
-		view.windowTop = plotSetup.windowHeight * view.top;
-		view.windowWidth = width;
-		view.windowHeight = height;
+			view.windowLeft = left;
+			view.windowTop = plotSetup.windowHeight * view.top;
+			view.windowWidth = width;
+			view.windowHeight = height;
 
-		renderer.setViewport( left, top, width, height );
-		renderer.setScissor( left, top, width, height );
-		//renderer.clearDepth(); // important for draw fat line
-		renderer.setScissorTest( true );
-		renderer.setClearColor( 0xffffff, 1 ); // border color
-		renderer.clearColor(); // clear color buffer
-		renderer.setClearColor( view.background, view.backgroundAlpha);
-		//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
-		//else {renderer.setClearColor( view.background );}
+			renderer.setViewport( left, top, width, height );
+			renderer.setScissor( left, top, width, height );
+			//renderer.clearDepth(); // important for draw fat line
+			renderer.setScissorTest( true );
+			renderer.setClearColor( 0xffffff, 1 ); // border color
+			renderer.clearColor(); // clear color buffer
+			renderer.setClearColor( view.background, view.backgroundAlpha);
+			//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
+			//else {renderer.setClearColor( view.background );}
 
-		camera.aspect = width / height;
-		camera.updateProjectionMatrix();
-		renderer.clear();
-		renderer.render( view.scene, camera );
-		//effect.render( view.scene, camera  );
-		renderer.render( view.sceneHUD, view.cameraHUD );
+			camera.aspect = width / height;
+			camera.updateProjectionMatrix();
+			renderer.clear();
+			renderer.render( view.scene, camera );
+			//effect.render( view.scene, camera  );
+			renderer.render( view.sceneHUD, view.cameraHUD );
+		}
+		console.log('called render')
 	}
+	catch (err) {
+		console.log('render error', err)
+	}
+	
 }
 
 function updateSize(views, plotSetup) {

@@ -46,6 +46,12 @@ export function setupOptionBox3DView(view,plotSetup){
 	if (view.systemMoleculeDataBoolean) { systemInfoFolder.add( options, 'saveSystemMoleculeData').name('Save Molecule');}
 	if (view.systemSpatiallyResolvedDataBoolean) {systemInfoFolder.add( options, 'saveSystemSpatiallyResolvedData').name('Save Spatially Resolved');}
 
+	systemInfoFolder.add(options, 'sync3DView')
+	.name('Sync options')
+	.onChange(function (value){
+		options.toggleSync.call();
+	})
+
 	systemInfoFolder.add( options, 'showMolecule')
 	.name('Show Molecule')
 	.onChange( function( value ) {
@@ -54,6 +60,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		} else {
 			removeMoleculeGeometry(view);
 		}
+		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
 
@@ -65,6 +72,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		} else {
 			removePointCloudGeometry(view);
 		}
+		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
 
@@ -115,6 +123,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
 
@@ -122,6 +131,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
 
@@ -129,6 +139,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	.onChange( function( value ){
 		if (options.showPointCloud && view.systemSpatiallyResolvedDataBoolean){updatePointCloudGeometry(view);}
 		if (options.showMolecule && view.systemMoleculeDataBoolean){updateMoleculeGeometry(view);}
+		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
 	PBCFolder.close();
@@ -151,6 +162,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Show Atoms' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -158,6 +170,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Show Bonds' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -165,6 +178,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Atom Style' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -172,6 +186,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Bond Style' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -183,6 +198,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			adjustScaleAccordingToDefaultMoleculeData(view);
 			updateMoleculeGeometry(view);
 			if (value != "atom"){changeLegendMolecule(view);}
+			if (options.sync3DView) {options.syncOptions.call();}
 			gui.updateDisplay();
 			options.render.call();
 		});
@@ -192,6 +208,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
 			changeLegendMolecule(view);	
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		moleculeFolder.add( options, 'moleculeColorSettingMax', -100, 100 ).step( 0.1 )
@@ -199,6 +216,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
 			changeLegendMolecule(view);	
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -208,6 +226,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			//adjustColorScaleAccordingToDefault(view);
 			adjustScaleAccordingToDefaultMoleculeData(view);
 			updateMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			gui.updateDisplay();
 			options.render.call();
 		});
@@ -216,12 +235,14 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Size Scale Min' )
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		moleculeFolder.add( options, 'moleculeSizeSettingMax', -100, 100 ).step( 0.1 )
 		.name( 'Size Scale Max' )
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -229,18 +250,21 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Atom Size' )
 		.onChange( function( value ) {
 			updateMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		moleculeFolder.add( options, 'bondSize', 0.01, 0.5 ).step( 0.01 )
 		.name( 'Bond Size' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		moleculeFolder.add( options, 'moleculeAlpha', 0.1, 1.0 ).step( 0.1 )
 		.name( 'Molecule Opacity' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -249,6 +273,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Bond Max' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -256,6 +281,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Bond Min' )
 		.onChange( function( value ) {
 			changeMoleculeGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -334,6 +360,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	
 
 	if (view.systemSpatiallyResolvedDataBoolean) {
+		console.log('inserting spatially resolved folder')
 		pointCloudFolder.add( options, 'interactiveSpatiallyResolved')
 		.name( 'Interactive?' )
 		.onChange( function( value ) {
@@ -348,6 +375,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
 			updatePointCloudGeometry(view);
 			changeLegend(view);	
+			if (options.sync3DView) {options.syncOptions.call();}
 			gui.updateDisplay();
 			options.render.call();
 		});
@@ -356,7 +384,8 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Color Scheme' )
 		.onChange( function( value ){
 			updatePointCloudGeometry(view);
-			changeLegend(view);		
+			changeLegend(view);	
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 
@@ -364,6 +393,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Density' )
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		
@@ -371,12 +401,14 @@ export function setupOptionBox3DView(view,plotSetup){
 		.name( 'Opacity' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudSize', 0.01, 1 ).step( 0.01 )
 		.name( 'Size' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMin', -1000, 1000 ).step( 0.001 )
@@ -384,6 +416,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
 			changeLegend(view);	
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudColorSettingMax', -1000, 1000 ).step( 0.001 )
@@ -391,12 +424,14 @@ export function setupOptionBox3DView(view,plotSetup){
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);
 			changeLegend(view);	
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		pointCloudFolder.add( options, 'pointCloudMaxPointPerBlock', 10, 200 ).step( 10 )
 		.name( 'Max Density')
 		.onChange( function( value ) {
 			changePointCloudGeometry(view);
+			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
 		// pointCloudFolder.add( options, 'animate')
@@ -537,12 +572,14 @@ export function setupOptionBox3DView(view,plotSetup){
 	.name('background transparency')
 	.onChange( function( value ) {
 		view.backgroundAlpha = value;
+		if (options.sync3DView) {options.syncOptions.call();}
 	});
 
 	detailFolder.addColor(options,'backgroundColor')
 	.name('background')
 	.onChange( function( value ) {
 		view.background = new THREE.Color(value);
+		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
 
