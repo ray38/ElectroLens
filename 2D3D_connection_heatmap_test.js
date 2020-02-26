@@ -669,7 +669,7 @@ function render(views, plotSetup) {
 			//effect.render( view.scene, camera  );
 			renderer.render(view.sceneHUD, view.cameraHUD);
 		}
-		console.log('called render');
+		// console.log('called render')
 	} catch (err) {
 		console.log('render error', err);
 	}
@@ -7742,7 +7742,9 @@ function gpuPickMolecule(view, renderer, scene, mouseEvent, windowWidth, windowH
 
     // camera.setViewOffset(renderer.domElement.width, renderer.domElement.height,
     //     mouseEvent.clientX * window.devicePixelRatio | 0,  mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1 );
-    camera.setViewOffset(width, height, mouseEvent.clientX * window.devicePixelRatio | 0, mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1);
+    // camera.setViewOffset(width, height,
+    //     mouseEvent.clientX * window.devicePixelRatio | 0,  mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1 );
+    camera.setViewOffset(width, height, mouseEvent.clientX | 0, mouseEvent.clientY | 0, 1, 1);
     camera.updateProjectionMatrix();
     renderer.setRenderTarget(pickingTexture);
 

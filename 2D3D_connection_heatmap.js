@@ -685,7 +685,7 @@ export function render(views, plotSetup) {
 			//effect.render( view.scene, camera  );
 			renderer.render( view.sceneHUD, view.cameraHUD );
 		}
-		console.log('called render')
+		// console.log('called render')
 	}
 	catch (err) {
 		console.log('render error', err)

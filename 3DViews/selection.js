@@ -192,8 +192,9 @@ export function gpuPickMolecule(view, renderer, scene,mouseEvent, windowWidth, w
 
     // camera.setViewOffset(renderer.domElement.width, renderer.domElement.height,
     //     mouseEvent.clientX * window.devicePixelRatio | 0,  mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1 );
-    camera.setViewOffset(width, height,
-        mouseEvent.clientX * window.devicePixelRatio | 0,  mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1 );
+    // camera.setViewOffset(width, height,
+    //     mouseEvent.clientX * window.devicePixelRatio | 0,  mouseEvent.clientY * window.devicePixelRatio | 0, 1, 1 );
+	camera.setViewOffset(width, height, mouseEvent.clientX  | 0, mouseEvent.clientY  | 0, 1, 1);
     camera.updateProjectionMatrix();
     renderer.setRenderTarget(pickingTexture);
 
