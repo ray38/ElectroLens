@@ -10,7 +10,7 @@ import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip,/*hover3DViewSpatiallyResolved, hover3DViewMolecule*/} from "./3DViews/tooltip.js";
 import {hover3DViewSpatiallyResolved, hover3DViewMoleculeBall, hover3DViewMoleculeSprite, click3DViewMolecule, click3DViewSpatiallyResolved,gpuPickMolecule} from "./3DViews/selection.js";
-import {combineData, readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {combineData, readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVSpatiallyResolvedDataFastCSV,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
@@ -175,8 +175,10 @@ function main(views,plotSetup) {
 				queue.defer(processSpatiallyResolvedData,view,plotSetup);
 			}
 			else{
-				queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
-				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,overallSpatiallyResolvedData,plotSetup);
+				// queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
+				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,plotSetup);
+				queue.defer(readCSVSpatiallyResolvedDataFastCSV,view,plotSetup);
+				
 			}
 
 			if(view.moleculeData != null && view.moleculeData.data != null){
@@ -649,6 +651,7 @@ function main(views,plotSetup) {
 
 export function render(views, plotSetup) {
 	try {
+		// console.log('called render')
 		var renderer = plotSetup.renderer;
 		updateSize(views, plotSetup);
 		for ( var ii = 0; ii < views.length; ++ii ) {
@@ -685,7 +688,7 @@ export function render(views, plotSetup) {
 			//effect.render( view.scene, camera  );
 			renderer.render( view.sceneHUD, view.cameraHUD );
 		}
-		// console.log('called render')
+		// console.log('end render')
 	}
 	catch (err) {
 		console.log('render error', err)

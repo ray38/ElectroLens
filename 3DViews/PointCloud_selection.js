@@ -3,6 +3,7 @@ import {getOffsetArray, updateOffsetArray} from "./Utilities.js";
 
 export function getPointCloudGeometry(view){
 
+	var t0 = performance.now();
 	var gridSpacing = view.spatiallyResolvedData.gridSpacing;
 	var systemDimension = view.systemDimension;
 	var latticeVectors = view.systemLatticeVectors;
@@ -14,17 +15,22 @@ export function getPointCloudGeometry(view){
 
 	var num_blocks = view.systemSpatiallyResolvedData.length;
 	var points_in_block = new Float32Array(num_blocks);
+	var voxelVolume = gridSpacing.x * gridSpacing.y * gridSpacing.z
 	var pointCloudDensity = Math.pow(10,options.pointCloudTotalMagnitude) * options.pointCloudParticles;
+	var pointCloudNum = pointCloudDensity * voxelVolume;
+	var maxPointPerBlock = options.pointCloudMaxPointPerBlock;
+	var densityProperty = options.density;
 	var count = 0;
 
-	var voxelVolume = gridSpacing.x * gridSpacing.y * gridSpacing.z
+	console.log("before get num_points: ", performance.now() - t0)
 
 	for ( var k = 0; k < num_blocks; k ++) {
-		var num_points  = Math.min(Math.floor(spatiallyResolvedData[k][options.density] * pointCloudDensity * voxelVolume), options.pointCloudMaxPointPerBlock);
+		var num_points  = min(~~(spatiallyResolvedData[k][densityProperty] * pointCloudNum), maxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
 	console.log("total points in cloud: ", count)
+	console.log("after get num_points: ", performance.now() - t0)
 
 	
 
@@ -35,7 +41,7 @@ export function getPointCloudGeometry(view){
 	var selections = new Float32Array( count);
 	selections.fill(1);
 	// var parentBlock = new Float32Array( count);
-	var voxelPointDict = {};
+	// var voxelPointDict = {};
 	var pointVoxelMap = new Uint32Array(count);
 
 	var colorMap = options.colorMap;
@@ -46,25 +52,48 @@ export function getPointCloudGeometry(view){
 	lut.setMin( options.pointCloudColorSettingMin );
 	view.lut = lut;
 
-	var i = 0, i3 = 0;
-	var temp_num_points = 0;
+	
 
-	var xTempBeforeTransform, yTempBeforeTransform, zTempBeforeTransform, x, y, z, color;
+	var xTempBeforeTransform, yTempBeforeTransform, zTempBeforeTransform;
+	console.log("setup: ", performance.now() - t0)
+
+	var numRandom = Math.min(1000, count)
+	var randomLookUpX = new Float32Array( numRandom );
+	var randomLookUpY = new Float32Array( numRandom );
+	var randomLookUpZ = new Float32Array( numRandom );
+	for (let i = numRandom; i--;) {
+		xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
+		yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
+		zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
+
+		randomLookUpX[i] = latticeVectors.u11 * xTempBeforeTransform + latticeVectors.u21 * yTempBeforeTransform + latticeVectors.u31 * zTempBeforeTransform;
+		randomLookUpY[i] = latticeVectors.u12 * xTempBeforeTransform + latticeVectors.u22 * yTempBeforeTransform + latticeVectors.u32 * zTempBeforeTransform;
+		randomLookUpZ[i] = latticeVectors.u13 * xTempBeforeTransform + latticeVectors.u23 * yTempBeforeTransform + latticeVectors.u33 * zTempBeforeTransform;
+	}
+	console.log("after generating random: ", performance.now() - t0)
+
+	var i = 0, i3 = 0, lookupNum;
+	var temp_num_points = 0;
+	var x, y, z, color;
 	for ( var k = 0; k < num_blocks; k ++) {
 		temp_num_points  =  points_in_block[k];
-		voxelPointDict[ k ] = [];
+		// voxelPointDict[ k ] = [];
 		if (temp_num_points > 0){
 			
 			for (var j = 0; j < temp_num_points; j ++){
 
-				xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
+				/*xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
 				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
 				zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
 
 				x = latticeVectors.u11 * xTempBeforeTransform + latticeVectors.u21 * yTempBeforeTransform + latticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
 				y = latticeVectors.u12 * xTempBeforeTransform + latticeVectors.u22 * yTempBeforeTransform + latticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
 				z = latticeVectors.u13 * xTempBeforeTransform + latticeVectors.u23 * yTempBeforeTransform + latticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
-				
+				*/
+				lookupNum = i % numRandom;
+				x = randomLookUpX[lookupNum] + spatiallyResolvedData[k].x;
+				y = randomLookUpY[lookupNum] + spatiallyResolvedData[k].y;
+				z = randomLookUpZ[lookupNum] + spatiallyResolvedData[k].z;
 				positions[ i3 + 0 ] = x;
 				positions[ i3 + 1 ] = y;
 				positions[ i3 + 2 ] = z;
@@ -105,12 +134,13 @@ export function getPointCloudGeometry(view){
 
 				// parentBlock[i] = k;
 				pointVoxelMap[ i ] = k;
-				voxelPointDict[k].push(i);
+				// voxelPointDict[k].push(i);
 				i++;
 				i3+=3;
 			}
 		}			
 	}
+	console.log("after looping: ", performance.now() - t0)
 
 	
 	var geometry = new THREE.InstancedBufferGeometry();
@@ -125,14 +155,17 @@ export function getPointCloudGeometry(view){
 	geometry.maxInstancedCount = offsetResult.counter;
 
 	var System = new THREE.Points( geometry, getPointCloudMaterialInstanced(options) );
+	scene.add( System );
 	System.userData.pointVoxelMap = pointVoxelMap;
-	System.userData.voxelPointDict = voxelPointDict;
+	// System.userData.voxelPointDict = voxelPointDict;
 	System.frustumCulled = false;
 	view.System = System;
 	view.pointVoxelMap = pointVoxelMap;
 
-	scene.add( System );
-	options.render.call();
+
+	// options.render.call();
+	console.log("added to scene: ", performance.now() - t0)
+	setTimeout(function(){ options.render.call() }, 20);
 }
 
 
@@ -282,7 +315,7 @@ export function removePointCloudGeometry(view){
 		view.scene.remove(view.System);
 		delete view.System;
 	}
-	view.options.render.call();
+	//view.options.render.call();
 }
 
 
@@ -294,3 +327,7 @@ export function changePointCloudGeometry(view){
 	
 
 }
+
+function min(a, b) {
+	return a < b ? a : b;
+  }
