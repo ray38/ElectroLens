@@ -160,7 +160,7 @@ export function getPointCloudGeometry(view){
 	// System.userData.voxelPointDict = voxelPointDict;
 	System.frustumCulled = false;
 	view.System = System;
-	view.pointVoxelMap = pointVoxelMap;
+	// view.pointVoxelMap = pointVoxelMap;
 
 
 	// options.render.call();
