@@ -103,7 +103,7 @@ export function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCel
 	combinedGeometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3 ));
 	combinedGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1 ));
 	combinedGeometry.setAttribute('atomIndex', new THREE.InstancedBufferAttribute(sumIndexArr, 1 ));
-	console.log(sumIndexArr)
+	// console.log(sumIndexArr)
 	combinedGeometry.maxInstancedCount = totalNumInstances;
 
 	return combinedGeometry;

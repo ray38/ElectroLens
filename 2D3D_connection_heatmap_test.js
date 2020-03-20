@@ -6726,7 +6726,8 @@ function getPointCloudGeometry(view) {
 
 	console.log("before get num_points: ", performance.now() - t0);
 
-	for (var k = 0; k < num_blocks; k++) {
+	// for ( var k = 0; k < num_blocks; k ++) {
+	for (var k = num_blocks; k--;) {
 		var num_points = min(~ ~(spatiallyResolvedData[k][densityProperty] * pointCloudNum), maxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
@@ -6740,8 +6741,6 @@ function getPointCloudGeometry(view) {
 	var alphas = new Float32Array(count);
 	var selections = new Float32Array(count);
 	selections.fill(1);
-	// var parentBlock = new Float32Array( count);
-	// var voxelPointDict = {};
 	var pointVoxelMap = new Uint32Array(count);
 
 	var colorMap = options.colorMap;
@@ -6775,12 +6774,13 @@ function getPointCloudGeometry(view) {
 	    lookupNum;
 	var temp_num_points = 0;
 	var x, y, z, color;
-	for (var k = 0; k < num_blocks; k++) {
+	// for ( var k = 0; k < num_blocks; k ++) {
+	for (var k = num_blocks; k--;) {
 		temp_num_points = points_in_block[k];
-		// voxelPointDict[ k ] = [];
 		if (temp_num_points > 0) {
 
-			for (var j = 0; j < temp_num_points; j++) {
+			// for (var j = 0; j < temp_num_points; j ++){
+			for (var j = temp_num_points; j--;) {
 
 				/*xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
     yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
@@ -6858,7 +6858,7 @@ function getPointCloudGeometry(view) {
 	// System.userData.voxelPointDict = voxelPointDict;
 	System.frustumCulled = false;
 	view.System = System;
-	view.pointVoxelMap = pointVoxelMap;
+	// view.pointVoxelMap = pointVoxelMap;
 
 	// options.render.call();
 	console.log("added to scene: ", performance.now() - t0);
@@ -7132,7 +7132,7 @@ function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCellOffset
 	combinedGeometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(sumColorArr, 3));
 	combinedGeometry.setAttribute('selection', new THREE.InstancedBufferAttribute(sumSelectionArr, 1));
 	combinedGeometry.setAttribute('atomIndex', new THREE.InstancedBufferAttribute(sumIndexArr, 1));
-	console.log(sumIndexArr);
+	// console.log(sumIndexArr)
 	combinedGeometry.maxInstancedCount = totalNumInstances;
 
 	return combinedGeometry;
@@ -9986,7 +9986,7 @@ function readCSVSpatiallyResolvedData(view, plotSetup, callback) {
 			if (d.length === 0) {
 				console.log("File empty");
 			}
-			console.log('end loading');
+			console.log('end loading', d.length);
 			d.forEach(function (d, i) {
 				var n = +d[density];
 				if (n > densityCutoffLow && n < densityCutoffUp) {
@@ -10097,54 +10097,67 @@ function readCSVSpatiallyResolvedDataFastCSV(view, plotSetup, callback) {
 		console.log('no spatially resolved data loaded');
 		callback(null);
 	} else {
-		if (view.frameBool && !plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty)) {
-			alert("The frame property Not in spatiallyResolvedPropertyList");
-		}
-		console.log('started loading');
-		var filename = view.spatiallyResolvedData.dataFilename;
-		var propertyList = plotSetup.spatiallyResolvedPropertyList;
-		var density = plotSetup.pointcloudDensity;
-		var densityCutoffLow = plotSetup.densityCutoffLow;
-		var densityCutoffUp = plotSetup.densityCutoffUp;
-		var systemName = view.moleculeName;
-
-		var count = 0;
+		var filename;
+		var propertyList;
+		var density;
+		var densityCutoffLow;
+		var densityCutoffUp;
+		var systemName;
+		var count;
 		var n, currentFrame;
-		var stream = fs.createReadStream(filename);
+		var stream;
+		var csvStream;
 
-		var csvStream = csv.parseStream(stream, { headers: true }).on("data", function (d) {
-			count = count + 1;
-			// console.log("reading row: ", count,d);
-			n = +d[density];
-			if (n > densityCutoffLow && n < densityCutoffUp) {
-				var temp = {
-					x: +d.x,
-					y: +d.y,
-					z: +d.z,
-					selected: true,
-					highlighted: false,
-					name: systemName
-				};
-				for (var i = 0; i < propertyList.length; i++) {
-					temp[propertyList[i]] = +d[propertyList[i]];
-				}
-
-				if (view.frameBool) {
-					currentFrame = (+d[plotSetup.frameProperty]).toString();
-				} else {
-					temp["__frame__"] = 1;
-					currentFrame = 1..toString();
-				}
-
-				!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
-
-				view.systemSpatiallyResolvedData.push(temp);
-				view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
+		(function () {
+			if (view.frameBool && !plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty)) {
+				alert("The frame property Not in spatiallyResolvedPropertyList");
 			}
-		}).on("end", function () {
-			console.log(" End of file import, read: ", count);
-			callback(null);
-		});
+			console.log('started loading');
+			filename = view.spatiallyResolvedData.dataFilename;
+			propertyList = plotSetup.spatiallyResolvedPropertyList;
+			density = plotSetup.pointcloudDensity;
+			densityCutoffLow = plotSetup.densityCutoffLow;
+			densityCutoffUp = plotSetup.densityCutoffUp;
+			systemName = view.moleculeName;
+			count = 0;
+			stream = fs.createReadStream(filename, { highWaterMark: 5096 * 1024 });
+
+			var t0 = performance.now();
+
+			csvStream = csv.parseStream(stream, { headers: true, quote: null }).on("data", function (d) {
+				count = count + 1;
+				n = +d[density];
+				if (n > densityCutoffLow && n < densityCutoffUp) {
+					var temp = {
+						x: +d.x,
+						y: +d.y,
+						z: +d.z,
+						selected: true,
+						highlighted: false,
+						name: systemName
+					};
+					for (var i = 0; i < propertyList.length; i++) {
+						temp[propertyList[i]] = +d[propertyList[i]];
+					}
+
+					if (view.frameBool) {
+						currentFrame = (+d[plotSetup.frameProperty]).toString();
+					} else {
+						temp["__frame__"] = 1;
+						currentFrame = 1..toString();
+					}
+
+					!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
+
+					view.systemSpatiallyResolvedData.push(temp);
+					view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
+				}
+			}).on("end", function () {
+				console.log(" End of file import, read: ", count);
+				console.log(" took: ", performance.now() - t0);
+				callback(null);
+			});
+		})();
 	}
 }
 

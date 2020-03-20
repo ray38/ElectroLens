@@ -134,7 +134,7 @@ export function readCSVSpatiallyResolvedData(view,plotSetup,callback){
 			if(d.length === 0){
 				console.log("File empty")
 			}
-			console.log('end loading')
+			console.log('end loading', d.length)
 			d.forEach(function (d,i) {
 				var n = +d[density];
 				if (n > densityCutoffLow && n < densityCutoffUp){
@@ -265,12 +265,13 @@ export function readCSVSpatiallyResolvedDataFastCSV(view,plotSetup,callback){
 
 		var count = 0;
 		var n, currentFrame;
-		var stream = fs.createReadStream(filename);
+		var stream = fs.createReadStream(filename, {highWaterMark : 5096 * 1024});
+
+		let t0 = performance.now();
 
 		var csvStream = csv.parseStream(stream, { headers: true })
 			.on("data", function(d) {
 				count = count +1;
-				// console.log("reading row: ", count,d);
 				n = +d[density];
 				if (n > densityCutoffLow && n < densityCutoffUp){
 					var temp = {
@@ -302,6 +303,7 @@ export function readCSVSpatiallyResolvedDataFastCSV(view,plotSetup,callback){
 			})
 			.on("end", function() {
 				console.log(" End of file import, read: ",count);
+				console.log(" took: ",performance.now() - t0);
 				callback(null);
 			});
 

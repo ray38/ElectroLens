@@ -24,7 +24,8 @@ export function getPointCloudGeometry(view){
 
 	console.log("before get num_points: ", performance.now() - t0)
 
-	for ( var k = 0; k < num_blocks; k ++) {
+	// for ( var k = 0; k < num_blocks; k ++) {
+	for (let k=num_blocks; k--;){
 		var num_points  = min(~~(spatiallyResolvedData[k][densityProperty] * pointCloudNum), maxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
@@ -40,8 +41,6 @@ export function getPointCloudGeometry(view){
 	var alphas = new Float32Array( count);
 	var selections = new Float32Array( count);
 	selections.fill(1);
-	// var parentBlock = new Float32Array( count);
-	// var voxelPointDict = {};
 	var pointVoxelMap = new Uint32Array(count);
 
 	var colorMap = options.colorMap;
@@ -75,12 +74,13 @@ export function getPointCloudGeometry(view){
 	var i = 0, i3 = 0, lookupNum;
 	var temp_num_points = 0;
 	var x, y, z, color;
-	for ( var k = 0; k < num_blocks; k ++) {
+	// for ( var k = 0; k < num_blocks; k ++) {
+	for (let k=num_blocks; k--;){
 		temp_num_points  =  points_in_block[k];
-		// voxelPointDict[ k ] = [];
 		if (temp_num_points > 0){
 			
-			for (var j = 0; j < temp_num_points; j ++){
+			// for (var j = 0; j < temp_num_points; j ++){
+			for (let j = temp_num_points; j--;){
 
 				/*xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
 				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
