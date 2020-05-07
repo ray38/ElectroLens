@@ -9,11 +9,15 @@ export function initialize2DPlotTooltip(view){
 	tempTooltip.innerHTML = "";
 	//tempTooltip.style.width = 100;
 	//tempTooltip.style.height = 100;
+	
 	tempTooltip.style.backgroundColor = "blue";
 	tempTooltip.style.opacity = 0.9;
 	tempTooltip.style.color = "white";
 	tempTooltip.style.top = 0 + 'px';
 	tempTooltip.style.left = 0 + 'px';
+	console.log('tooltip: ', tempTooltip);
+	tempTooltip.style.pointerEvents = "none";
+	console.log('tooltip: ', tempTooltip);
 	view.tooltip = tempTooltip;
 	document.body.appendChild(tempTooltip);
 }

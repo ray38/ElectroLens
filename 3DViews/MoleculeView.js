@@ -1,7 +1,8 @@
 import {colorSetup, atomRadius} from "./AtomSetup.js";
 import {hexToRgb, colorToRgb, rgbToHex} from "../Utilities/other.js";
 import {getOffsetArray, updateOffsetArray, getPeriodicReplicatesInstancesMolecule, updatePeriodicReplicatesInstancesMolecule, updatePeriodicReplicatesInstancesMoleculeScale} from "./Utilities.js";
-import {shaderMaterial2, MoleculeMaterial, MoleculeMaterialInstanced, getMoleculeMaterialInstanced,getMoleculeAtomsMaterialInstanced, getMoleculeAtomSpriteMaterialInstanced, getMoleculeBondLineMaterialInstanced} from "./Materials.js";
+import { getMoleculeMaterialInstanced,getMoleculeAtomsMaterialInstanced, getMoleculeAtomSpriteMaterialInstanced, getMoleculeBondLineMaterialInstanced} from "./Materials.js";
+import {disposeMeshOrGroup} from '../Utilities/dispose.js';
 
 /*function addAtoms(view, moleculeData, lut){
 
@@ -890,6 +891,8 @@ export function removeMoleculeGeometry(view){
 	if (view.molecule != null ){
 		view.scene.remove(view.molecule.atoms);
 		view.scene.remove(view.molecule.bonds);
+		disposeMeshOrGroup(view.molecule.atoms)
+		disposeMeshOrGroup(view.molecule.bonds)
 		delete view.molecule;
 	}
 }

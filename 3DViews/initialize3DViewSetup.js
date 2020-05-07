@@ -101,7 +101,7 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 			this.pointCloudColorSettingMax = 1.2;
 			this.pointCloudColorSettingMin = 0.0;
 			this.pointCloudAlpha = 1;
-			this.pointCloudSize = 0.1;
+			this.pointCloudSize = 0.05;
 			this.animate = false;
 			this.currentFrame = 1;
 			this.xPBC = 1;
@@ -307,13 +307,13 @@ export function syncOptions(currentView, views){
 		var options = view.options;
 		var plotID = options.plotID;
 
-		if (plotID !== currentPlotID && options.sync3DView){
+		if (view.viewType == "3DView" && plotID !== currentPlotID && options.sync3DView){
 			for (var i = 0; i < syncPropertyList.length; i++) {
 				var property = syncPropertyList[i];
 				options[property] = currentOption[property]
 			}
 			changePointCloudGeometry(view);
-			changePointCloudGeometry(view);
+			changeMoleculeGeometry(view);
 			options.toggleSystemEdge.call();
 			// options.toggleLegend.call();
 			// options.toggleLegendMolecule.call();

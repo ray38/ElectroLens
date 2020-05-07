@@ -1,6 +1,6 @@
 import {addTitle,changeTitle} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
-import {getAxis} from "./Utilities.js";
+import {getAxis,dispose2DPlots} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 
 export function arrangeDataForCovariance(view){
@@ -244,7 +244,7 @@ export function updateCovariance(view){
 
 
 export function replotCovariance(view){
-	if ("covariance" in view) {
+	/*if ("covariance" in view) {
 		view.scene.remove(view.covariance);
 		delete view.covariance;
 	}
@@ -268,7 +268,7 @@ export function replotCovariance(view){
 		view.scene.remove(view.UmapGroup);
 		delete view.UmapGroup;
     }
-	/*var options = view.options;
+	var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
 		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
@@ -278,6 +278,8 @@ export function replotCovariance(view){
 		arrangeDataToHeatmap(view,view.overallMoleculeData);
 	}*/
 
+	dispose2DPlots(view);
+	
 	arrangeDataForCovariance(view);
 	var covariance = new THREE.Group()
 

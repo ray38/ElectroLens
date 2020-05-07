@@ -1,4 +1,36 @@
+import {disposeMeshOrGroup} from '../Utilities/dispose.js';
 
+export function dispose2DPlots(view) {
+	if ("covariance" in view) {
+		view.scene.remove(view.covariance);
+		disposeMeshOrGroup(view.covariance);
+		delete view.covariance;
+	}
+
+	if ("comparison" in view) {
+		view.scene.remove(view.comparison);
+		disposeMeshOrGroup(view.comparison);
+		delete view.comparison;
+	}
+	
+	if ("heatmap" in view) {
+		view.scene.remove(view.heatmap);
+		disposeMeshOrGroup(view.heatmap);
+		delete view.heatmap;
+	}
+	
+	if ("PCAGroup" in view) {
+		view.scene.remove(view.PCAGroup);
+		disposeMeshOrGroup(view.PCAGroup);
+		delete view.PCAGroup;
+	}
+
+	if ("UmapGroup" in view) {
+		view.scene.remove(view.UmapGroup);
+		disposeMeshOrGroup(view.UmapGroup);
+		delete view.UmapGroup;
+    }
+}
 
 export function getAxis(view){
 	var geometry = new THREE.Geometry();
@@ -98,4 +130,34 @@ function calculateTitlePositionLeft(view, elementWidth){
 	var margin = (view.windowWidth - elementWidth) / 2;
 	console.log(view.windowWidth, elementWidth, margin);
 	return view.windowLeft + margin;
+}
+
+export function countListSelected(list) {
+	let count = 0;
+	
+	// for (let i = 0; i < list.length; i++) {
+	for (let i = list.length; i--;) {
+		if (list[i].selected){ count += 1;}
+	}
+	return count;
+}
+
+export function isAnyHighlighted(list) {
+
+	// for (let i = 0; i < list.length; i++) {
+	for (let i = list.length; i--;) {
+		if (list[i].highlighted){ return true; }
+	}
+	return false;
+	
+}
+
+export function heatmapPointCount(data){
+	let count = 0;
+	for (let x in data){
+		for (let y in data[x]){
+			count = count + 1;
+		}
+	}
+	return count;
 }

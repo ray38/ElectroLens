@@ -1,6 +1,6 @@
-import {addTitle,changeTitle} from "./Utilities.js";
+import {addTitle,changeTitle, countListSelected, isAnyHighlighted, heatmapPointCount} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
-import {getAxis} from "./Utilities.js";
+import {getAxis, dispose2DPlots} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {getHeatmapMaterial} from "./Materials.js";
 
@@ -29,39 +29,40 @@ export function arrangeDataToComparison(view){
 
 	var linThres = Math.pow(10,view.options.symlog10thres)
 
-	for (var i=1; i <= numPerSide; i++) {
+	let xValue, yValue;
+	for (let i=1; i <= numPerSide; i++) {
 		heatmapStep.push(""+i);
 	}
 	
-	if (XTransform == 'linear') {var xValue = function(d) {return d[X];}}
-	if (YTransform == 'linear') {var yValue = function(d) {return d[Y];}}
+	if (XTransform == 'linear') {xValue = function(d) {return d[X];}}
+	if (YTransform == 'linear') {yValue = function(d) {return d[Y];}}
 
-	if (XTransform == 'log10') {var xValue = function(d) {return Math.log10(d[X]);};}
-	if (YTransform == 'log10') {var yValue = function(d) {return Math.log10(d[Y]);};}
+	if (XTransform == 'log10') {xValue = function(d) {return Math.log10(d[X]);};}
+	if (YTransform == 'log10') {yValue = function(d) {return Math.log10(d[Y]);};}
 
-	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
-	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
+	if (XTransform == 'neglog10') {xValue = function(d) {return Math.log10(-1*d[X]);}}
+	if (YTransform == 'neglog10') {yValue = function(d) {return Math.log10(-1*d[Y]);}}
 
-	var xMin = d3.min(Data, xValue);
-	var xMax = d3.max(Data, xValue);
-	var yMin = d3.min(Data, yValue);
-	var yMax = d3.max(Data, yValue);
+	let xMin = d3.min(Data, xValue);
+	let xMax = d3.max(Data, xValue);
+	let yMin = d3.min(Data, yValue);
+	let yMax = d3.max(Data, yValue);
 
 	view.xMin = xMin;
 	view.xMax = xMax;
 	view.yMin = yMin;
 	view.yMax = yMax;
 
-	var xScale = d3.scaleQuantize()
+	let xScale = d3.scaleQuantize()
 	.domain([xMin, xMax])
 	.range(heatmapStep);
 	
-	var yScale = d3.scaleQuantize()
+	let yScale = d3.scaleQuantize()
 	.domain([yMin, yMax])
 	.range(heatmapStep);
 	
-	var xMap = function(d) {return xScale(xValue(d));};
-	var yMap = function(d) {return yScale(yValue(d));}; 
+	let xMap = function(d) {return xScale(xValue(d));};
+	let yMap = function(d) {return yScale(yValue(d));}; 
 	
 	view.data = {};
 	view.dataXMin = d3.min(Data,xValue);
@@ -84,18 +85,18 @@ export function arrangeDataToComparison(view){
 		{'r': 0, 'g': 1, 'b':1 },
 		{'r': 1, 'g': 1, 'b':1 }
 	]
-	var colorDict = {};
-	var colorCounter  = 0
+	const colorDict = {};
+	let colorCounter  = 0;
 
 	// var voxelToHeatmapMap = new Uint32Array(Data.length);
-	for (var i=0; i<Data.length; i++){
-		var systemName = Data[i].name;
+	for (let i=0; i<Data.length; i++){
+		const systemName = Data[i].name;
 		if (!(systemName in colorDict)) {
 			colorDict[systemName] = colorArray[colorCounter];
 			colorCounter += 1
 		}
-		var heatmapX = xMap(Data[i]);
-		var heatmapY = yMap(Data[i]);
+		let heatmapX = xMap(Data[i]);
+		let heatmapY = yMap(Data[i]);
 		
 		if (!(heatmapX in view.data)) {
 			view.data[heatmapX] = {};
@@ -114,7 +115,7 @@ export function arrangeDataToComparison(view){
 function getUniqueSelectedSystemList(list){
 	var result = [];
 	
-	for (var i = 0; i < list.length; i++) {
+	for (let i = 0; i < list.length; i++) {
 		if (list[i].selected){
 			if (!result.includes(list[i].name)){ result.push(list[i].name);}
 		}
@@ -140,30 +141,30 @@ export function getComparison(view){
 
 	
 
-	var options = view.options;
+	const options = view.options;
 	
 	
-	var data = view.data;
+	const data = view.data;
 	
-	var num = heatmapPointCount(data);
+	const num = heatmapPointCount(data);
 	
 	
-	var geometry = new THREE.BufferGeometry();
-	var colors = new Float32Array(num *3);
-	var positions = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
+	const geometry = new THREE.BufferGeometry();
+	const colors = new Float32Array(num *3);
+	const positions = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
 
-	var heatmapInformation = [];
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const heatmapInformation = [];
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
 	
-	var colorDict = view.colorDict;
+	const colorDict = view.colorDict;
 	
-	var i = 0;
-	var i3 = 0;
+	let i = 0;
+	let i3 = 0;
 
 	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
 	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
@@ -173,9 +174,8 @@ export function getComparison(view){
 	var XYtoHeatmapMap = {}
 
 	
-	
-	for (var x in data){
-		for (var y in data[x]){
+	for (let x in data){
+		for (let y in data[x]){
 			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
 			XYtoHeatmapMap[x][y] = i;
 
@@ -300,7 +300,7 @@ export function updateComparison(view){
 
 export function replotComparison(view){
 
-	if ("covariance" in view) {
+	/*if ("covariance" in view) {
 		view.scene.remove(view.covariance);
 		delete view.covariance;
 	}
@@ -314,7 +314,7 @@ export function replotComparison(view){
 		view.scene.remove(view.heatmap);
 		delete view.heatmap;
 	}
-
+	
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
 		delete view.PCAGroup;
@@ -325,7 +325,7 @@ export function replotComparison(view){
 		delete view.UmapGroup;
     }
 
-	/*var options = view.options;
+	var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
 		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
@@ -334,6 +334,8 @@ export function replotComparison(view){
 	if (options.plotData == 'spatiallyResolvedData'){
 		arrangeDataToHeatmap(view,view.overallMoleculeData);
 	}*/
+
+	dispose2DPlots(view);
 
 	arrangeDataToComparison(view);
 	var comparison = new THREE.Group();
@@ -356,7 +358,7 @@ export function replotComparison(view){
 
 }
 
-function countListSelected(list) {
+/*function countListSelected(list) {
 	var count = 0;
 	
 	for (var i = 0; i < list.length; i++) {
@@ -384,4 +386,4 @@ function isAnyHighlighted(list) {
 	}
 	return false;
 	
-}
+}*/

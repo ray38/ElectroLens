@@ -1002,7 +1002,7 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 	.onChange( function( value ) {
 		updateHeatmap(view);
 	});
-	viewFolder.add( options, 'pointCloudSize', 0, 10 ).step( 0.1 )
+	viewFolder.add( options, 'pointCloudSize', 0, 3 ).step( 0.01 )
 	.name( 'Point Size' )
 	.onChange( function( value ) {
 		updateHeatmap(view);
@@ -1294,7 +1294,7 @@ export function setupOptionBox2DComparisonFolder(view,plotSetup, folder){
 	.onChange( function( value ) {
 		updateComparison(view);
 	});
-	viewFolder.add( options, 'pointCloudSize', 0, 10 ).step( 0.1 )
+	viewFolder.add( options, 'pointCloudSize', 0, 50 ).step( 0.1 )
 	.name( 'Point Size' )
 	.onChange( function( value ) {
 		updateComparison(view);

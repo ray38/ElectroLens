@@ -1,4 +1,4 @@
-import {addTitle,changeTitle} from "./Utilities.js";
+import {addTitle,changeTitle, countListSelected, isAnyHighlighted, heatmapPointCount} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
 import {getAxis} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
@@ -22,7 +22,7 @@ export function arrangeDataForPCA(view){
 			console.log("start PCA");
 			const { PCA } = require('ml-pca');
 			var filtered = propertyList.filter(function(value, index, arr){
-			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
+			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
 
@@ -84,7 +84,7 @@ export function arrangeDataForPCA(view){
 			console.log("start PCA");
 			const { PCA } = require('ml-pca');
 			var filtered = propertyList.filter(function(value, index, arr){
-			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
+			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
 
@@ -385,7 +385,7 @@ export function updatePCAHeatmap(view){
 
 
 export function replotPCAHeatmap(view){
-	if ("covariance" in view) {
+	/*if ("covariance" in view) {
 		view.scene.remove(view.covariance);
 		delete view.covariance;
 	}
@@ -409,7 +409,7 @@ export function replotPCAHeatmap(view){
 		view.scene.remove(view.UmapGroup);
 		delete view.UmapGroup;
     }
-	/*var options = view.options;
+	var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
 		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
@@ -418,6 +418,9 @@ export function replotPCAHeatmap(view){
 	if (options.plotData == 'spatiallyResolvedData'){
 		arrangeDataToHeatmap(view,view.overallMoleculeData);
 	}*/
+
+	dispose2DPlots(view);
+	
 	console.log("replotting PCA Heatmap");
 	initializePCATooltip(view);
 	arrangeDataForPCA(view);
@@ -471,7 +474,7 @@ function getArrays2(data,propertyList){
 	return result;
 }
 
-function countListSelected(list) {
+/*function countListSelected(list) {
 	var count = 0;
 	
 	for (var i = 0; i < list.length; i++) {
@@ -497,7 +500,7 @@ function heatmapPointCount(data){
 		}
 	}
 	return count;
-}
+}*/
 
 export function initializePCATooltip(view){
 

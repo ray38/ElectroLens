@@ -7,7 +7,7 @@ import {updateCamLightPosition, updateCameraFov} from "../MultiviewControl/setup
 import {colorMapDict} from "../Utilities/colorMap.js";
 export function setupOptionBox3DView(view,plotSetup){
 
-	var options = view.options;
+	const options = view.options;
 
 	if (view.systemSpatiallyResolvedDataBoolean) {
 		var propertyList = plotSetup["spatiallyResolvedPropertyList"];
@@ -50,6 +50,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	.name('Sync options')
 	.onChange(function (value){
 		options.toggleSync.call();
+		options.syncOptions.call();
 	})
 
 	systemInfoFolder.add( options, 'showMolecule')
@@ -90,6 +91,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		//updatePointCloudGeometry(view);
 		options.toggleSystemEdge.call();
 		gui.updateDisplay();
+		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
 	viewFolder.add( options, 'autoRotateSystem')
@@ -404,7 +406,7 @@ export function setupOptionBox3DView(view,plotSetup){
 			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
-		pointCloudFolder.add( options, 'pointCloudSize', 0.01, 1 ).step( 0.01 )
+		pointCloudFolder.add( options, 'pointCloudSize', 0.01, 0.3 ).step( 0.001 )
 		.name( 'Size' )
 		.onChange( function( value ) {
 			updatePointCloudGeometry(view);

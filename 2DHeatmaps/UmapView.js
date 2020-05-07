@@ -1,4 +1,4 @@
-import {addTitle,changeTitle} from "./Utilities.js";
+import {addTitle,changeTitle, countListSelected, isAnyHighlighted, heatmapPointCount} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
 import {getAxis} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
@@ -21,7 +21,7 @@ export function arrangeDataForUmap(view){
 			console.log("start Umap");
 			const { UMAP } = require('umap-js');
 			var filtered = propertyList.filter(function(value, index, arr){
-			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
+			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
 
@@ -74,7 +74,7 @@ export function arrangeDataForUmap(view){
 			console.log("start PCA");
 			const { UMAP } = require('umap-js');
 			var filtered = propertyList.filter(function(value, index, arr){
-			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
+			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
 			var arrays = getArrays2(Data, filtered);
@@ -344,7 +344,7 @@ export function updateUmapHeatmap(view){
 
 
 export function replotUmapHeatmap(view){
-	if ("covariance" in view) {
+	/*if ("covariance" in view) {
 		view.scene.remove(view.covariance);
 		delete view.covariance;
 	}
@@ -367,7 +367,9 @@ export function replotUmapHeatmap(view){
 	if ("UmapGroup" in view) {
 		view.scene.remove(view.UmapGroup);
 		delete view.UmapGroup;
-    }
+	}*/
+	
+	dispose2DPlots(view);
     
 	console.log("replotting Umap Heatmap");
 	//initializePCATooltip(view);
@@ -422,7 +424,7 @@ function getArrays2(data,propertyList){
 	return result;
 }
 
-function countListSelected(list) {
+/*function countListSelected(list) {
 	var count = 0;
 	
 	for (var i = 0; i < list.length; i++) {
@@ -448,4 +450,4 @@ function heatmapPointCount(data){
 		}
 	}
 	return count;
-}
+}*/

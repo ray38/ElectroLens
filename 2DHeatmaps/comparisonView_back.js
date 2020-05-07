@@ -28,18 +28,20 @@ export function arrangeDataToComparison(view){
 
 	var linThres = Math.pow(10,view.options.symlog10thres)
 
-	for (var i=1; i <= numPerSide; i++) {
+	for (let i=1; i <= numPerSide; i++) {
 		heatmapStep.push(""+i);
 	}
+
+	let xValue, yValue;
 	
-	if (XTransform == 'linear') {var xValue = function(d) {return d[X];}}
-	if (YTransform == 'linear') {var yValue = function(d) {return d[Y];}}
+	if (XTransform == 'linear') {xValue = function(d) {return d[X];}}
+	if (YTransform == 'linear') {yValue = function(d) {return d[Y];}}
 
-	if (XTransform == 'log10') {var xValue = function(d) {return Math.log10(d[X]);};}
-	if (YTransform == 'log10') {var yValue = function(d) {return Math.log10(d[Y]);};}
+	if (XTransform == 'log10') {xValue = function(d) {return Math.log10(d[X]);};}
+	if (YTransform == 'log10') {yValue = function(d) {return Math.log10(d[Y]);};}
 
-	if (XTransform == 'neglog10') {var xValue = function(d) {return Math.log10(-1*d[X]);}}
-	if (YTransform == 'neglog10') {var yValue = function(d) {return Math.log10(-1*d[Y]);}}
+	if (XTransform == 'neglog10') {xValue = function(d) {return Math.log10(-1*d[X]);}}
+	if (YTransform == 'neglog10') {yValue = function(d) {return Math.log10(-1*d[Y]);}}
 
 	var xMin = d3.min(Data, xValue);
 	var xMax = d3.max(Data, xValue);

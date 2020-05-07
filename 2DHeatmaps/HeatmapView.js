@@ -1,7 +1,7 @@
-import {addTitle,changeTitle} from "./Utilities.js";
+import {addTitle,changeTitle, countListSelected, isAnyHighlighted, heatmapPointCount} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
-import {getAxis} from "./Utilities.js";
-import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
+import {getAxis, dispose2DPlots} from "./Utilities.js";
+import {changeLegend/*, insertLegend, removeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule*/} from "../MultiviewControl/colorLegend.js";
 import {getHeatmapMaterial} from "./Materials.js";
 
 export function arrangeDataToHeatmap(view){
@@ -258,6 +258,7 @@ export function getHeatmap(view){
 
 
 export function updateHeatmap(view){
+	const t0 = performance.now();
 	var options = view.options;
 	var System = view.heatmapPlot;
 	var data = view.data;
@@ -309,6 +310,7 @@ export function updateHeatmap(view){
 	System.geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
 	System.geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	System.geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+	console.log("updating 2D heatmap took: ", performance.now()-t0);
 
 }
 
@@ -364,27 +366,31 @@ export function getHeatmapLabels(view){
 }
 
 export function replotHeatmap(view){
-	if ("covariance" in view) {
+	/*if ("covariance" in view) {
 		view.scene.remove(view.covariance);
+		delete view.covariance;
 	}
 
 	if ("comparison" in view) {
 		view.scene.remove(view.comparison);
+		delete view.comparison;
 	}
 	
 	if ("heatmap" in view) {
 		view.scene.remove(view.heatmap);
+		delete view.heatmap;
 	}
 	
 	if ("PCAGroup" in view) {
 		view.scene.remove(view.PCAGroup);
+		delete view.PCAGroup;
 	}
 
 	if ("UmapGroup" in view) {
 		view.scene.remove(view.UmapGroup);
 		delete view.UmapGroup;
     }
-	/*var options = view.options;
+	var options = view.options;
 	//var options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
 		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
@@ -393,6 +399,8 @@ export function replotHeatmap(view){
 	if (options.plotData == 'spatiallyResolvedData'){
 		arrangeDataToHeatmap(view,view.overallMoleculeData);
 	}*/
+
+	dispose2DPlots(view);
 
 	arrangeDataToHeatmap(view);
 	var heatmap = new THREE.Group()
@@ -413,10 +421,11 @@ export function replotHeatmap(view){
 
 }
 
-function countListSelected(list) {
-	var count = 0;
+/*function countListSelected(list) {
+	let count = 0;
 	
-	for (var i = 0; i < list.length; i++) {
+	// for (let i = 0; i < list.length; i++) {
+	for (let i = list.length; i--;) {
 		if (list[i].selected){ count += 1;}
 	}
 	return count;
@@ -424,7 +433,8 @@ function countListSelected(list) {
 
 function isAnyHighlighted(list) {
 
-	for (var i = 0; i < list.length; i++) {
+	// for (let i = 0; i < list.length; i++) {
+	for (let i = list.length; i--;) {
 		if (list[i].highlighted){ return true; }
 	}
 	return false;
@@ -432,11 +442,11 @@ function isAnyHighlighted(list) {
 }
 
 function heatmapPointCount(data){
-	var count = 0;
-	for (var x in data){
-		for (var y in data[x]){
+	let count = 0;
+	for (let x in data){
+		for (let y in data[x]){
 			count = count + 1;
 		}
 	}
 	return count;
-}
+}*/

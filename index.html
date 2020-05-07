@@ -15,6 +15,8 @@
     .text-divider{margin: 1.2em 0; line-height: 0; text-align: center;}
     .text-divider span{background-color: #ffffff; padding: 0.5em;}
     .text-divider:before{ content: " "; display: block; border-top: 1px solid #e3e3e3; border-bottom: 1px solid #f7f7f7;}
+    .load-window{overflow: scroll;height: 15%; width: 80%;left: 10%;align-items: center;}
+    .config-window{overflow: scroll;height: 75%; width: 80%;left: 10%;align-items: center;}
   </style>
   <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
   <script src="vendor/jquery/jquery-3.4.1.js"></script>
@@ -79,7 +81,7 @@
 
       <h5 id="divider" class="text-divider"><span>OR</span></h5>
 
-      <div id="form_wrapper"class="inner2 card border-primary">
+      <div id="form_wrapper"class="inner card border-primary"style="height: 50rem;">
         <div class="card-header">Setup Configuration</div>
         <div class="card-body" style="overflow-y:scroll;">
           <form id="configForm" >
@@ -703,10 +705,13 @@
 
 
 
-    <script src="2D3D_connection_heatmap_test.js"></script>
+    <script  type="module" src="2D3D_connection_heatmap.js"></script>
+    <!--
     <script>
       electroLensMain();
     </script>
+    -->
+    
  
 </body>
 </html>

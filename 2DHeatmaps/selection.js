@@ -1,16 +1,16 @@
-import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap, updateSelectionFromComparison} from "./Selection/Utilities.js";
+import {updateAllPlots} from "./Selection/Utilities.js";
 import {updateHeatmapTooltip} from "./tooltip.js";
 
 function spawnPlane(view){
 
-	var selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide } );
-	var scene = view.scene;
-	var mousePosition = view.mousePosition;
-	var selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
+	const selectionPlaneMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide } );
+	const scene = view.scene;
+	const mousePosition = view.mousePosition;
+	const selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
 	selectionPlane.geometry.attributes.position.needsUpdate = true;
 	var p = selectionPlane.geometry.attributes.position.array;
 
-	var i = 0;
+	let i = 0;
 	p[i++] = mousePosition.x-0.01;
 	p[i++] = mousePosition.y+0.01;
 	p[i++] = mousePosition.z;
@@ -27,26 +27,26 @@ function spawnPlane(view){
 	selectionPlane.name = 'selectionPlane';
 	view.currentSelectionPlane = selectionPlane;
 	scene.add( selectionPlane );
+	console.log("spawning plane")
 	//updateSelection();
 }
 
 function updatePlane(view, plane){
-	var scene = view.scene;
-
-	var mousePosition = view.mousePosition;
+	// console.log("updating selection plane")
+	const scene = view.scene;
+	const mousePosition = view.mousePosition;
 	
+	const selectionPlane = view.currentSelectionPlane;
 	
-	var selectionPlane = view.currentSelectionPlane
+	const pOriginal = plane.geometry.attributes.position.array;
 	
+	const originalFirstVerticesCoordx = pOriginal[0],
+		  originalFirstVerticesCoordy = pOriginal[1],
+		  originalFirstVerticesCoordz = pOriginal[2];
 	
-	var pOriginal = plane.geometry.attributes.position.array;
-	
-	var originalFirstVerticesCoordx = pOriginal[0],
-		originalFirstVerticesCoordy = pOriginal[1],
-		originalFirstVerticesCoordz = pOriginal[2];
-	
-	var p = selectionPlane.geometry.attributes.position.array
-	var i = 0;
+	const p = selectionPlane.geometry.attributes.position.array;
+	console.log("updating selection plane", p)
+	let i = 0;
 	p[i++] = originalFirstVerticesCoordx;
 	p[i++] = originalFirstVerticesCoordy;
 	p[i++] = originalFirstVerticesCoordz;
@@ -66,10 +66,10 @@ function updatePlane(view, plane){
 
 function spawnBrush(view){
 
-	var selectionBrushMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
-	var scene = view.scene;
-	var mousePosition = view.mousePosition;
-	var selectionBrush = new THREE.Mesh( new THREE.CircleGeometry( view.options.selectionBrushSize, 32 ), selectionBrushMaterial );
+	const selectionBrushMaterial = new THREE.MeshBasicMaterial( {  color: 0xffffff, opacity: 0.5,transparent: true, side: THREE.DoubleSide,needsUpdate : true } );
+	const scene = view.scene;
+	const mousePosition = view.mousePosition;
+	const selectionBrush = new THREE.Mesh( new THREE.CircleGeometry( view.options.selectionBrushSize, 32 ), selectionBrushMaterial );
 	//selectionPlane.geometry.attributes.position.needsUpdate = true;
 	selectionBrush.position.set(mousePosition.x, mousePosition.y, mousePosition.z);
 
@@ -83,7 +83,7 @@ function spawnBrush(view){
 
 function updateBrush(view,tempBrush){
 
-	var mousePosition = view.mousePosition;
+	const mousePosition = view.mousePosition;
 	tempBrush.position.set(mousePosition.x, mousePosition.y, mousePosition.z);
 	console.log("update brush");
 	//updateSelection();
@@ -92,7 +92,7 @@ function updateBrush(view,tempBrush){
 
 export function updatePlaneSelection(views,view) {
 	//var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
-	var tempSelectionPlane = view.currentSelectionPlane;
+	const tempSelectionPlane = view.currentSelectionPlane;
 	//console.log(tempSelectionPlane)
 	if (tempSelectionPlane != null){
 		
@@ -193,7 +193,7 @@ function applyBrushSelection(view, mouseHold){
 }
 
 export function selectionControl(views, view, mouseHold){
-
+	console.log("called selection control")
 	if (view.options.planeSelection){
 		applyPlaneSelection(view, mouseHold);
 	}

@@ -256,25 +256,25 @@ export function readCSVSpatiallyResolvedDataFastCSV(view,plotSetup,callback){
 			alert("The frame property Not in spatiallyResolvedPropertyList");
 		}
 		console.log('started loading')
-		var filename = view.spatiallyResolvedData.dataFilename;
-		var propertyList = plotSetup.spatiallyResolvedPropertyList;
-		var density = plotSetup.pointcloudDensity;
-		var densityCutoffLow = plotSetup.densityCutoffLow;
-		var densityCutoffUp = plotSetup.densityCutoffUp;
-		var systemName = view.moleculeName;
+		const filename = view.spatiallyResolvedData.dataFilename;
+		const propertyList = plotSetup.spatiallyResolvedPropertyList;
+		const density = plotSetup.pointcloudDensity;
+		const densityCutoffLow = plotSetup.densityCutoffLow;
+		const densityCutoffUp = plotSetup.densityCutoffUp;
+		const systemName = view.moleculeName;
 
-		var count = 0;
-		var n, currentFrame;
-		var stream = fs.createReadStream(filename, {highWaterMark : 5096 * 1024});
+		let count = 0;
+		let n, currentFrame;
+		const stream = fs.createReadStream(filename, {highWaterMark : 5096 * 1024});
 
 		let t0 = performance.now();
 
-		var csvStream = csv.parseStream(stream, { headers: true })
+		csv.parseStream(stream, { headers: true, quote:null})
 			.on("data", function(d) {
 				count = count +1;
 				n = +d[density];
 				if (n > densityCutoffLow && n < densityCutoffUp){
-					var temp = {
+					let temp = {
 							x:+d.x,
 							y:+d.y,
 							z:+d.z,
@@ -282,7 +282,8 @@ export function readCSVSpatiallyResolvedDataFastCSV(view,plotSetup,callback){
 							highlighted: false,
 							name: systemName
 						}
-					for (var i = 0; i < propertyList.length; i++) {
+					// for (let i = 0; i < propertyList.length; i++) {
+					for (let i = propertyList.length; i--;) {
 						temp[propertyList[i]] = +d[propertyList[i]];
 					}
 
@@ -493,8 +494,8 @@ function addViewDataToOverallDataMolecule(view, overallMoleculeData) {
 }
 
 export function combineData(views, overallSpatiallyResolvedData,overallMoleculeData){
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ++ii ) {
+		let view = views[ii];
 		
 		if (view.viewType == '3DView'){
 			if(view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length != 0){

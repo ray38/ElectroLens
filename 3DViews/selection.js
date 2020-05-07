@@ -1,38 +1,38 @@
-import {unhighlightAll, unhighlightHeatmapPoints,highlightVia2DHeatmap,unhighlightVia2DHeatmap,clickUpdateAll2DHeatmaps, clickUpdateVia2DHeatmap } from "../2DHeatmaps/selection.js";
+import {unhighlightAll,highlightVia2DHeatmap,unhighlightVia2DHeatmap,clickUpdateAll2DHeatmaps, clickUpdateVia2DHeatmap } from "../2DHeatmaps/selection.js";
 
 
 function getCorrespondingHeatmapPointIndexSpatiallyResolved(view, voxelIndex, twoDPlot){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-    var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+    const options = view.options;
+	const currentFrame = options.currentFrame.toString();
+    const spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
     
-    var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-    var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-    var highlightDataPoint = spatiallyResolvedData[voxelIndex];
+    const xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+    const xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+    const highlightDataPoint = spatiallyResolvedData[voxelIndex];
 
-    var xMap = function(d) {return xScale(xValue(d));};
-    var yMap = function(d) {return yScale(yValue(d));}; 
+    const xMap = function(d) {return xScale(xValue(d));};
+    const yMap = function(d) {return yScale(yValue(d));}; 
 
-    var heatmapX = xMap(highlightDataPoint);
-    var heatmapY = yMap(highlightDataPoint);
+    const heatmapX = xMap(highlightDataPoint);
+    const heatmapY = yMap(highlightDataPoint);
     
-    var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
+    const heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
     return heatmapPointIndex
 }
 
 export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-    var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+    const options = view.options;
+	const currentFrame = options.currentFrame.toString();
+    const spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
 
-	var mouse = new THREE.Vector2();
+	const mouse = new THREE.Vector2();
 	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
 	
 	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-    var intersects = view.raycaster.intersectObject( view.System );
-    var pointVoxelMap = view.System.userData.pointVoxelMap ;
+    const intersects = view.raycaster.intersectObject( view.System );
+    const pointVoxelMap = view.System.userData.pointVoxelMap ;
 	if ( intersects.length > 0 ) {
         // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
         // if there is intersection
@@ -40,7 +40,7 @@ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
             // console.log('changed intersection, deal with previously hovered points')
             // changed intersection, deal with previously hovered points
             if (view.INTERSECTED != null ){
-                var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+                const indexIn3DView = pointVoxelMap[view.INTERSECTED]
                 // console.log('if there is previous intersection', indexIn3DView)
                 // if there is previous intersection
                 
@@ -49,8 +49,8 @@ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
                     plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
                     // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                     // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                    var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-                    var heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
+                    const twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+                    const heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
                     unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
                     
                 } else {
@@ -65,7 +65,7 @@ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
             }
 
             view.INTERSECTED = intersects[ 0 ].index;
-            var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+            const indexIn3DView = pointVoxelMap[view.INTERSECTED]
             // console.log('deal with currently intersected points', indexIn3DView)
             // deal with currently intersected points
             
@@ -74,8 +74,8 @@ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
                 plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
                 // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                 // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-                heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
+                const twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+                const heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
                 highlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
             } else {
                 // console.log('if there is no active 2D plot, store current state, and highlight the voxel')
@@ -97,7 +97,7 @@ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
         // console.log('no current intersection ', view.INTERSECTED)
         // no current intersection 
 		if (view.INTERSECTED != null ){
-            var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+            const indexIn3DView = pointVoxelMap[view.INTERSECTED]
             //console.log('if there is previous intersection ', indexIn3DView)
             // if there is previous intersection
             
@@ -106,8 +106,8 @@ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
                 plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
                 // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                 // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-                var heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
+                const twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+                const heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
                 unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
                 
             } else {
@@ -133,21 +133,21 @@ export function hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent){
 
 
 export function click3DViewSpatiallyResolved(view, views, plotSetup){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
-    var pointVoxelMap = view.System.userData.pointVoxelMap ;
+    const options = view.options;
+	const currentFrame = options.currentFrame.toString();
+	const spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
+    const pointVoxelMap = view.System.userData.pointVoxelMap ;
 	if (view.INTERSECTED != null){
         //currently point under mouse
-        var indexIn3DView = pointVoxelMap[view.INTERSECTED]
+        const indexIn3DView = pointVoxelMap[view.INTERSECTED]
         if (plotSetup.active2DPlotSpatiallyResolved && 
             plotSetup.active2DPlotSpatiallyResolved.options.plotData == 'spatiallyResolvedData' && 
             plotSetup.active2DPlotSpatiallyResolved.heatmapPlot) {
             // has active 2D plot, handle it there
-            var twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
-            var heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
+            const twoDPlot = plotSetup.active2DPlotSpatiallyResolved;
+            const heatmapPointIndex = getCorrespondingHeatmapPointIndexSpatiallyResolved(view,indexIn3DView, twoDPlot);
             clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views);
-            return true
+            return true;
             
         } else {
             // no active 2D plot
@@ -164,8 +164,6 @@ export function click3DViewSpatiallyResolved(view, views, plotSetup){
             clickUpdateAll2DHeatmaps(views);
             return true;
         }
-
-
 		
 	} else {
         // no point intersected, unhighlight all
@@ -180,14 +178,14 @@ export function click3DViewSpatiallyResolved(view, views, plotSetup){
 //Molecule
 
 export function gpuPickMolecule(view, renderer, scene,mouseEvent, windowWidth, windowHeight) {
-    var camera = view.camera;
-    var pickingTexture = new THREE.WebGLRenderTarget(1, 1, { type: THREE.FloatType} );
-    var pixelBuffer = new Float32Array(4);
+    const camera = view.camera;
+    const pickingTexture = new THREE.WebGLRenderTarget(1, 1, { type: THREE.FloatType} );
+    const pixelBuffer = new Float32Array(4);
         
-    var width  = Math.floor( windowWidth  * view.width );
-    var height = Math.floor( windowHeight * view.height );
-    var left   = Math.floor( windowWidth  * view.left );
-    var top    = Math.floor( windowHeight * view.top);
+    const width  = Math.floor( windowWidth  * view.width );
+    const height = Math.floor( windowHeight * view.height );
+    const left   = Math.floor( windowWidth  * view.left );
+    const top    = Math.floor( windowHeight * view.top);
 
 
     // camera.setViewOffset(renderer.domElement.width, renderer.domElement.height,
@@ -243,34 +241,34 @@ function parsePixelBuffer(pixelBuffer) {
 }
 
 function getCorrespondingHeatmapPointIndexMolecule(view, voxelIndex, twoDPlot){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-    var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+    const options = view.options;
+	const currentFrame = options.currentFrame.toString();
+    const moleculeData = view.systemMoleculeDataFramed[currentFrame];
     
-    var xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
-    var xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
-    var highlightDataPoint = moleculeData[voxelIndex];
+    const xScale = twoDPlot.xScale , yScale =  twoDPlot.yScale;
+    const xValue = twoDPlot.xValue , yValue =  twoDPlot.yValue;
+    const highlightDataPoint = moleculeData[voxelIndex];
 
-    var xMap = function(d) {return xScale(xValue(d));};
-    var yMap = function(d) {return yScale(yValue(d));}; 
+    const xMap = function(d) {return xScale(xValue(d));};
+    const yMap = function(d) {return yScale(yValue(d));}; 
 
-    var heatmapX = xMap(highlightDataPoint);
-    var heatmapY = yMap(highlightDataPoint);
+    const heatmapX = xMap(highlightDataPoint);
+    const heatmapY = yMap(highlightDataPoint);
     
-    var heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
-    return heatmapPointIndex
+    const heatmapPointIndex = twoDPlot.XYtoHeatmapMap[heatmapX][heatmapY];
+    return heatmapPointIndex;
 }
 
 
 
 export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-    var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-    var intersectClass = pickingResult.encodedClass;
+    const options = view.options;
+	const currentFrame = options.currentFrame.toString();
+    const moleculeData = view.systemMoleculeDataFramed[currentFrame];
+    const intersectClass = pickingResult.encodedClass;
 
     if (intersectClass && intersectClass == 1) {
-        var intersectIndex = pickingResult.encodedID;
+        const intersectIndex = pickingResult.encodedID;
         // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
         // if there is intersection
         if ( view.INTERSECTED != intersectIndex ) {
@@ -278,7 +276,7 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
             // changed intersection, deal with previously hovered points
             if (view.INTERSECTED != null ){
                 // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
-                var indexIn3DView = view.INTERSECTED;
+                const indexIn3DView = view.INTERSECTED;
                 // console.log('if there is previous intersection', indexIn3DView)
                 // if there is previous intersection
                 
@@ -287,8 +285,8 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
                     plotSetup.active2DPlotMolecule.heatmapPlot) {
                     // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                     // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                    var twoDPlot = plotSetup.active2DPlotMolecule;
-                    var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
+                    const twoDPlot = plotSetup.active2DPlotMolecule;
+                    const heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
                     unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
                     
                 } else {
@@ -305,7 +303,7 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
 
             view.INTERSECTED = intersectIndex;
             
-            var indexIn3DView = intersectIndex;
+            const indexIn3DView = intersectIndex;
             // console.log('deal with currently intersected points', indexIn3DView)
             // deal with currently intersected points
             
@@ -314,8 +312,8 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
                 plotSetup.active2DPlotMolecule.heatmapPlot) {
                 // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                 // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                var twoDPlot = plotSetup.active2DPlotMolecule;
-                heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
+                const twoDPlot = plotSetup.active2DPlotMolecule;
+                let heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
                 highlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
             } else {
                 // console.log('if there is no active 2D plot, store current state, and highlight the atom', moleculeData[indexIn3DView].highlighted)
@@ -348,8 +346,8 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
                 plotSetup.active2DPlotMolecule.heatmapPlot) {
                 // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                 // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                var twoDPlot = plotSetup.active2DPlotMolecule;
-                var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
+                const twoDPlot = plotSetup.active2DPlotMolecule;
+                const heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
                 unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
                 
             } else {
@@ -375,18 +373,18 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
 
 
 export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-    var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+    const options = view.options;
+	const currentFrame = options.currentFrame.toString();
+    const moleculeData = view.systemMoleculeDataFramed[currentFrame];
 
-	var mouse = new THREE.Vector2();
+	const mouse = new THREE.Vector2();
 	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
 	
 	view.raycaster.params.Points.threshold = view.options.pointCloudSize *3.5;
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
     //var intersects = view.raycaster.intersectObject( view.System );
-    var intersects = view.raycaster.intersectObject( view.molecule.atoms );
+    const intersects = view.raycaster.intersectObject( view.molecule.atoms );
     // var pointVoxelMap = view.System.userData.pointVoxelMap ;
 	if ( intersects.length > 0 ) {
         /*if (view.options.atomsStyle == "ball") {
@@ -395,7 +393,7 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
         else {
             var intersectIndex = intersects[ 0 ].index;
         }*/
-        var intersectIndex = intersects[ 0 ].index;
+        const intersectIndex = intersects[ 0 ].index;
         // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
         // if there is intersection
         if ( view.INTERSECTED != intersectIndex ) {
@@ -403,7 +401,7 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
             // changed intersection, deal with previously hovered points
             if (view.INTERSECTED != null ){
                 // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
-                var indexIn3DView = view.INTERSECTED;
+                const indexIn3DView = view.INTERSECTED;
                 // console.log('if there is previous intersection', indexIn3DView)
                 // if there is previous intersection
                 
@@ -412,8 +410,8 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
                     plotSetup.active2DPlotMolecule.heatmapPlot) {
                     // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                     // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                    var twoDPlot = plotSetup.active2DPlotMolecule;
-                    var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
+                    const twoDPlot = plotSetup.active2DPlotMolecule;
+                    const heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
                     unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
                     
                 } else {
@@ -429,7 +427,7 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
 
             view.INTERSECTED = intersectIndex;
             // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
-            var indexIn3DView = intersectIndex;
+            const indexIn3DView = intersectIndex;
             // console.log('deal with currently intersected points', indexIn3DView)
             // deal with currently intersected points
             
@@ -438,8 +436,8 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
                 plotSetup.active2DPlotMolecule.heatmapPlot) {
                 // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                 // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                var twoDPlot = plotSetup.active2DPlotMolecule;
-                heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
+                const twoDPlot = plotSetup.active2DPlotMolecule;
+                const heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
                 highlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
             } else {
                 // console.log('if there is no active 2D plot, store current state, and highlight the voxel')
@@ -463,7 +461,7 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
 		if (view.INTERSECTED != null ){
             // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
 
-            var indexIn3DView = view.INTERSECTED ;
+            const indexIn3DView = view.INTERSECTED ;
             //console.log('if there is previous intersection ', indexIn3DView)
             // if there is previous intersection
             
@@ -472,8 +470,8 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
                 plotSetup.active2DPlotMolecule.heatmapPlot) {
                 // console.log('if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there')
                 // if there is active 2D plot, get the corresponding heatmap point on the 2D plot, and handle it there
-                var twoDPlot = plotSetup.active2DPlotMolecule;
-                var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
+                const twoDPlot = plotSetup.active2DPlotMolecule;
+                const heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
                 unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot);
                 
             } else {
@@ -499,20 +497,20 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
 
 
 export function click3DViewMolecule(view, views, plotSetup){
-    var options = view.options;
-	var currentFrame = options.currentFrame.toString();
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
+    const options = view.options;
+	const currentFrame = options.currentFrame.toString();
+	const moleculeData = view.systemMoleculeDataFramed[currentFrame];
     // var pointVoxelMap = view.System.userData.pointVoxelMap ;
 	if (view.INTERSECTED != null){
         //currently point under mouse
         // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
-        var indexIn3DView = view.INTERSECTED;
+        const indexIn3DView = view.INTERSECTED;
         if (plotSetup.active2DPlotMolecule && 
             plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
             plotSetup.active2DPlotMolecule.heatmapPlot) {
             // has active 2D plot, handle it there
-            var twoDPlot = plotSetup.active2DPlotMolecule;
-            var heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
+            const twoDPlot = plotSetup.active2DPlotMolecule;
+            const heatmapPointIndex = getCorrespondingHeatmapPointIndexMolecule(view,indexIn3DView, twoDPlot);
             clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views);
             return true
             
@@ -532,8 +530,6 @@ export function click3DViewMolecule(view, views, plotSetup){
             return true;
         }
 
-
-		
 	} else {
         // no point intersected, unhighlight all
         unhighlightAll(views);

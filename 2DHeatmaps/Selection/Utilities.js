@@ -4,8 +4,8 @@ import {updateUmapHeatmap} from "../UmapView.js";
 import {updateComparison} from "../comparisonView.js"
 //import {updatePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
 
-import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
-import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry,updateMoleculeGeometry,updateMoleculeGeometryScale} from "../../3DViews/MoleculeView.js";
+import {updatePointCloudGeometry,updatePointCloudGeometrySelection} from "../../3DViews/PointCloud_selection.js";
+import {updateMoleculeGeometry,updateMoleculeGeometryScale} from "../../3DViews/MoleculeView.js";
 
 
 /*export function heatmapsResetSelection(views){
@@ -44,6 +44,7 @@ export function selectAllMoleculeData(views,overallMoleculeData){
 
 
 export function updateAllPlots(views){
+	const t0 = performance.now();
 	for (var ii =  0; ii < views.length; ii++ ) {
 		var view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
@@ -61,7 +62,8 @@ export function updateAllPlots(views){
 
 		if (view.viewType == '3DView'){
 			if (view.systemSpatiallyResolvedDataBoolean) {
-				updatePointCloudGeometry(view);
+				// updatePointCloudGeometry(view);
+				updatePointCloudGeometrySelection(view);
 			}
 			if (view.systemMoleculeDataBoolean) {
 				updateMoleculeGeometry(view)
@@ -70,9 +72,11 @@ export function updateAllPlots(views){
 			}
 		}
 	}
+	console.log("update all plots took: ", performance.now() - t0)
 }
 
 export function updateAllPlotsSpatiallyResolved(views){
+	const t0 = performance.now();
 	for (var ii =  0; ii < views.length; ii++ ) {
 		var view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
@@ -90,13 +94,16 @@ export function updateAllPlotsSpatiallyResolved(views){
 
 		if (view.viewType == '3DView'){
 			if (view.systemSpatiallyResolvedDataBoolean) {
-				updatePointCloudGeometry(view);
+				// updatePointCloudGeometry(view);
+				updatePointCloudGeometrySelection(view);
 			}
 		}
 	}
+	console.log("update all plots spatially resolved took: ", performance.now() - t0)
 }
 
 export function updateAllPlotsMolecule(views){
+	const t0 = performance.now();
 	for (var ii =  0; ii < views.length; ii++ ) {
 		var view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
@@ -114,12 +121,14 @@ export function updateAllPlotsMolecule(views){
 
 		if (view.viewType == '3DView'){
 			if (view.systemMoleculeDataBoolean) {
-				updateMoleculeGeometryScale(view)
+				// updateMoleculeGeometryScale(view)
+				updateMoleculeGeometry(view)
 				// changeMoleculeGeometry(view);
 				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
 		}
 	}
+	console.log("update all plots molecule took: ", performance.now() - t0)
 }
 
 export function updateAllPlotsMoleculeScale(views){

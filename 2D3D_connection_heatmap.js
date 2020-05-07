@@ -4,13 +4,12 @@ import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {initialize2DHeatmapSetup} from "./2DHeatmaps/initialize2DHeatmapSetup.js";
 import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.js";
 
-import {arrangeDataToHeatmap, getHeatmap, updateHeatmap, replotHeatmap, addHeatmapLabels} from "./2DHeatmaps/HeatmapView.js";
-import {getPointCloudGeometry, updatePointCloudGeometry, changePointCloudGeometry,animatePointCloudGeometry} from "./3DViews/PointCloud_selection.js";
-import {getMoleculeGeometry, updateLineBond} from "./3DViews/MoleculeView.js";
+import {getPointCloudGeometry} from "./3DViews/PointCloud_selection.js";
+import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip,/*hover3DViewSpatiallyResolved, hover3DViewMolecule*/} from "./3DViews/tooltip.js";
 import {hover3DViewSpatiallyResolved, hover3DViewMoleculeBall, hover3DViewMoleculeSprite, click3DViewMolecule, click3DViewSpatiallyResolved,gpuPickMolecule} from "./3DViews/selection.js";
-import {combineData, readCSV,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse,readCSVSpatiallyResolvedDataFastCSV,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {combineData/*,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse*/,readCSVSpatiallyResolvedDataFastCSV,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
 
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
@@ -29,11 +28,11 @@ import {updateController} from "./MultiviewControl/controllerControl.js";
 import {getAxis, addTitle, update2DHeatmapTitlesLocation} from "./2DHeatmaps/Utilities.js";
 import {initialize2DPlotTooltip,updateHeatmapTooltip,  updateCovarianceTooltip/*, hoverHeatmap,clickHeatmap */} from "./2DHeatmaps/tooltip.js";
 import {selectionControl, updatePlaneSelection, hoverHeatmap,clickHeatmap} from "./2DHeatmaps/selection.js";
-import {heatmapsResetSelection, deselectAll, selectAll, updateAllPlots, updateSelectionFromHeatmap,updateAllPlotsMolecule, updateAllPlotsMoleculeScale,updateAllPlotsSpatiallyResolved} from "./2DHeatmaps/Selection/Utilities.js";
+import { updateAllPlots, updateSelectionFromHeatmap,updateAllPlotsMolecule, updateAllPlotsMoleculeScale,updateAllPlotsSpatiallyResolved} from "./2DHeatmaps/Selection/Utilities.js";
 
 import {fullscreenOneView} from "./MultiviewControl/calculateViewportSizes.js";
 
-import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "./MultiviewControl/colorLegend.js";
+import {insertLegend/*, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule*/} from "./MultiviewControl/colorLegend.js";
 
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "./Utilities/scale.js";
 
@@ -152,8 +151,8 @@ function main(views,plotSetup) {
 	
 	var queue=d3.queue();
 
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ++ii ) {
+		let view = views[ii];
 		view.plotSetup = plotSetup;
 
 		if (plotSetup.frameProperty != null){
@@ -238,24 +237,26 @@ function main(views,plotSetup) {
 		plotSetup.active2DPlotSpatiallyResolved = null;
 		plotSetup.active2DPlotMolecule = null;
 
+		let defaultScalesSpatiallyResolvedData, defaultScalesMoleculeData;
+
 		if (overallSpatiallyResolvedData.length > 0){
-			var defaultScalesSpatiallyResolvedData = calcDefaultScalesSpatiallyResolvedData(plotSetup,overallSpatiallyResolvedData);
+			defaultScalesSpatiallyResolvedData = calcDefaultScalesSpatiallyResolvedData(plotSetup,overallSpatiallyResolvedData);
 		}
 
 		if (overallMoleculeData.length > 0){
-			var defaultScalesMoleculeData = calcDefaultScalesMoleculeData(plotSetup,overallMoleculeData);
+			defaultScalesMoleculeData = calcDefaultScalesMoleculeData(plotSetup,overallMoleculeData);
 		}
 		
 
-		for (var ii =  0; ii < views.length; ++ii ) {
-			var view = views[ii];
+		for (let ii =  0; ii < views.length; ++ii ) {
+			let view = views[ii];
 
 			view.overallSpatiallyResolvedData = overallSpatiallyResolvedData;
 			view.overallMoleculeData = overallMoleculeData;
 
 			if (view.frameBool){
 				if ( view.systemMoleculeData != null && view.systemMoleculeData.length > 0){
-					var frameValue = function(d) {return d[view.frameProperty];}
+					const frameValue = function(d) {return d[view.frameProperty];}
 					view.frameMin = d3.min(view.systemMoleculeData,frameValue);
 					view.frameMax = d3.max(view.systemMoleculeData,frameValue);
 					view.options.currentFrame = view.frameMin;
@@ -263,7 +264,7 @@ function main(views,plotSetup) {
 				}
 				else{
 					if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0){
-						var frameValue = function(d) {return d[view.frameProperty];}
+						const frameValue = function(d) {return d[view.frameProperty];}
 						view.frameMin = d3.min(view.systemSpatiallyResolvedData,frameValue);
 						view.frameMax = d3.max(view.systemSpatiallyResolvedData,frameValue);
 						view.options.currentFrame = view.frameMin;
@@ -373,8 +374,8 @@ function main(views,plotSetup) {
 	function onKeyDown(e){
 		if (e.keyCode == 72) {showHideAllOptionBoxes(views,showOptionBoxesBool); showOptionBoxesBool = !showOptionBoxesBool;}
 		if (e.keyCode == 70) {
-			for (var ii =  0; ii < views.length; ++ii ) {
-				var view = views[ii];
+			for (let ii =  0; ii < views.length; ++ii ) {
+				let view = views[ii];
 				if (view.controllerEnabled) {
 					view.options.toggleFullscreen.call();
 				}
@@ -382,8 +383,8 @@ function main(views,plotSetup) {
 			render(views, plotSetup);
 		}
 		if (e.keyCode == 76) {
-			for (var ii =  0; ii < views.length; ++ii ) {
-				var view = views[ii];
+			for (let ii =  0; ii < views.length; ++ii ) {
+				let view = views[ii];
 				if (view.controllerEnabled) {view.options.toggleLegend.call();}
 			}
 			render(views, plotSetup);
@@ -403,7 +404,7 @@ function main(views,plotSetup) {
 			activeView.gui.updateDisplay();
 		}
 		if (e.keyCode == 107 || e.keyCode == 65) {
-			var temp_view = {"viewType": "2DHeatmap"}
+			const temp_view = {"viewType": "2DHeatmap"}
 			temp_view.plotSetup = plotSetup;
 			
 			if (overallSpatiallyResolvedData.length > 0){
@@ -470,6 +471,7 @@ function main(views,plotSetup) {
 		}
 	}
 
+	
 
 	function updateActiveView(views){
 		for ( var ii = 0; ii < views.length; ++ii ){
@@ -480,48 +482,59 @@ function main(views,plotSetup) {
 		}
 	}
 
-	function throttle(callback, interval) {
-		let enableCall = true;
-	  
-		return function(...args) {
-		  if (!enableCall) return;
-	  
-		  enableCall = false;
-		  callback.apply(this, args);
-		  setTimeout(() => enableCall = true, interval);
-		}
-	}
+	
 
 	function onDocumentMouseMove( mouseEvent ) {
 		mouseX = mouseEvent.clientX;
 		mouseY = mouseEvent.clientY;
+		for ( let ii = 0; ii < views.length; ++ii ){
+			const view = views[ii];
+			const left   = Math.floor( plotSetup.windowWidth  * view.left );
+			const top    = Math.floor( plotSetup.windowHeight * view.top );
+			// var width  = Math.floor( windowWidth  * view.width ) + left;
+			// var height = Math.floor( windowHeight * view.height ) + top;
+			const vector = new THREE.Vector3();
+		
+			vector.set(	(((mouseEvent.clientX-left)/Math.floor( plotSetup.windowWidth  * view.width )) * 2 - 1),
+						(-((mouseEvent.clientY-top)/Math.floor( plotSetup.windowHeight * view.height )) * 2 + 1),
+						0.1);
+			vector.unproject( view.camera );
+			const dir = vector.sub( view.camera.position ).normalize();
+			const distance = - view.camera.position.z/dir.z;
+			view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
+			// selectionControl(views, activeView, mouseHold);
+		}
+
 		if (mouseHold == false){
 			updateController(views, plotSetup.windowWidth, plotSetup.windowHeight, mouseX, mouseY);
 			activeView = updateActiveView(views);
 		}
 		else {
-			mouseDrag = true; 
+			mouseDrag = true;
+			processSelection();
+			render(views, plotSetup);
 			return;
 		}
 		
 
 
-		for ( var ii = 0; ii < views.length; ++ii ){
-			var view = views[ii];
+		for ( let ii = 0; ii < views.length; ++ii ){
+			const view = views[ii];
 			if (view.controllerEnabled){
-				var left   = Math.floor( plotSetup.windowWidth  * view.left );
-				var top    = Math.floor( plotSetup.windowHeight * view.top );
+				/*const left   = Math.floor( plotSetup.windowWidth  * view.left );
+				const top    = Math.floor( plotSetup.windowHeight * view.top );
 				// var width  = Math.floor( windowWidth  * view.width ) + left;
 				// var height = Math.floor( windowHeight * view.height ) + top;
-				var vector = new THREE.Vector3();
+				const vector = new THREE.Vector3();
 			
 				vector.set(	(((mouseEvent.clientX-left)/Math.floor( plotSetup.windowWidth  * view.width )) * 2 - 1),
 							(-((mouseEvent.clientY-top)/Math.floor( plotSetup.windowHeight * view.height )) * 2 + 1),
 							0.1);
 				vector.unproject( view.camera );
-				var dir = vector.sub( view.camera.position ).normalize();
-				var distance = - view.camera.position.z/dir.z;
+				const dir = vector.sub( view.camera.position ).normalize();
+				const distance = - view.camera.position.z/dir.z;
 				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
+				selectionControl(views, activeView, mouseHold);*/
 				if (view.viewType == "2DHeatmap"){
 					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
 						|| view.options.plotType == "PCA" || view.options.plotType == "Umap") 
@@ -625,7 +638,7 @@ function main(views,plotSetup) {
 	function animate() {
 		// render();
 		//processClick();
-		processSelection( );
+		// processSelection( );
 		stats.update();
 
 		/*for ( var ii = 0; ii < views.length; ++ii ) {
@@ -643,7 +656,9 @@ function main(views,plotSetup) {
 
 	function processSelection(){
 		if (activeView != null){
-			if (activeView.viewType == '2DHeatmap') {selectionControl(views, activeView, mouseHold);}
+			if (activeView.viewType == '2DHeatmap') {
+				selectionControl(views, activeView, mouseHold);
+			}
 		}
 	}
 }
@@ -652,18 +667,18 @@ function main(views,plotSetup) {
 export function render(views, plotSetup) {
 	try {
 		// console.log('called render')
-		var renderer = plotSetup.renderer;
+		const renderer = plotSetup.renderer;
 		updateSize(views, plotSetup);
-		for ( var ii = 0; ii < views.length; ++ii ) {
+		for ( let ii = 0; ii < views.length; ++ii ) {
 
-			var view = views[ii];
+			const view = views[ii];
 			
-			var camera = view.camera;
+			const camera = view.camera;
 			
-			var width  = Math.floor( plotSetup.windowWidth  * view.width );
-			var height = Math.floor( plotSetup.windowHeight * view.height );
-			var left   = Math.floor( plotSetup.windowWidth  * view.left );
-			var top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
+			const width  = Math.floor( plotSetup.windowWidth  * view.width );
+			const height = Math.floor( plotSetup.windowHeight * view.height );
+			const left   = Math.floor( plotSetup.windowWidth  * view.left );
+			const top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
 			// console.log('top', view.top,(1-view.top), top)
 
 			view.windowLeft = left;
@@ -702,13 +717,13 @@ function updateSize(views, plotSetup) {
 		plotSetup.windowHeight = window.innerHeight;
 		plotSetup.renderer.setSize ( plotSetup.windowWidth, plotSetup.windowHeight );
 
-		for ( var ii = 0; ii < views.length; ++ii ){
-			var view = views[ii];
+		for ( let ii = 0; ii < views.length; ++ii ){
+			const view = views[ii];
 				
-			var width  = Math.floor( plotSetup.windowWidth  * view.width );
-			var height = Math.floor( plotSetup.windowHeight * view.height );
-			var left   = Math.floor( plotSetup.windowWidth  * view.left );
-			var top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
+			const width  = Math.floor( plotSetup.windowWidth  * view.width );
+			const height = Math.floor( plotSetup.windowHeight * view.height );
+			const left   = Math.floor( plotSetup.windowWidth  * view.left );
+			const top    = Math.floor( plotSetup.windowHeight * (1-view.top) - height );
 
 			view.windowLeft = left;
 			view.windowTop = plotSetup.windowHeight * view.top;
@@ -718,5 +733,17 @@ function updateSize(views, plotSetup) {
 
 		updateOptionBoxLocation(views);
 		update2DHeatmapTitlesLocation(views);
+	}
+}
+
+function throttle(callback, interval) {
+	let enableCall = true;
+  
+	return function(...args) {
+	  if (!enableCall) return;
+  
+	  enableCall = false;
+	  callback.apply(this, args);
+	  setTimeout(() => enableCall = true, interval);
 	}
 }
