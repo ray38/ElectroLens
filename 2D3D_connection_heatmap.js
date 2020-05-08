@@ -128,7 +128,7 @@ function handleViewSetup(data){
 
 function main(views,plotSetup) {
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-
+	document.body.style.backgroundColor = "black";
 	var container, stats, renderer, effect;
 	var mouseX = 0, mouseY = 0;
 	// var windowWidth, windowHeight;

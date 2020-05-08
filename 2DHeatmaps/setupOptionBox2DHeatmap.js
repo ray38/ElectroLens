@@ -26,7 +26,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 	console.log(view.overallMoleculeDataBoolean);
 	console.log(view.overallSpatiallyResolvedDataBoolean);
 
-	gui.width = 200;
+	gui.width = 250;
 	//gui.height = 10;
 
 	gui.add( options, 'plotID');

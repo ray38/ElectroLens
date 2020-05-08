@@ -25,7 +25,7 @@ export function setupOptionBox3DView(view,plotSetup){
 	}
 	var gui = view.gui;
 	//gui.remember(options);
-	gui.width = 200;
+	gui.width = 250;
 
 	var systemInfoFolder	= gui.addFolder( 'System Info' );
 	var viewFolder 			= gui.addFolder( 'View Control' );
