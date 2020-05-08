@@ -26,7 +26,7 @@ export function initialize2DPlotTooltip(view){
 export function updateHeatmapTooltip(view){
 	// console.log('updating 2d map tooltip',view.INTERSECTED);
 	if (view.options.plotType == "Comparison"){
-		if (view.INTERSECTED) {
+		if (view.INTERSECTED !== null) {
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
@@ -40,7 +40,7 @@ export function updateHeatmapTooltip(view){
 	}
 
 	if (view.options.plotType == "Heatmap"){
-		if (view.INTERSECTED) {
+		if (view.INTERSECTED !== null) {
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
@@ -54,7 +54,7 @@ export function updateHeatmapTooltip(view){
 	}
 
 	if (view.options.plotType == "PCA"){
-		if (view.INTERSECTED) {
+		if (view.INTERSECTED !== null) {
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
@@ -68,7 +68,7 @@ export function updateHeatmapTooltip(view){
 	}
 
 	if (view.options.plotType == "Umap"){
-		if (view.INTERSECTED) {
+		if (view.INTERSECTED !== null) {
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
