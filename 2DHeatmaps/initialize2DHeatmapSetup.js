@@ -9,7 +9,7 @@ import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colo
 import {selectHighlightedSpatiallyResolvedData, deselectHighlightedSpatiallyResolvedData, selectHighlightedMoleculeData, deselectHighlightedMoleculeData, clickUpdateAll2DHeatmaps} from "./selection.js";
 import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, deselectAllMoleculeData, selectAllMoleculeData, updateAllPlots,updateAllPlotsSpatiallyResolved, updateAllPlotsMolecule} from "./Selection/Utilities.js";
 import {saveOverallMoleculeData, saveOverallSpatiallyResolvedData} from "../Utilities/saveData.js";
-import {render} from "../2D3D_connection_heatmap.js"
+import {render} from "../ElectroLensMain.js"
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 	var defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),

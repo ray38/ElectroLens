@@ -2,7 +2,7 @@ import {fullscreenOneView, deFullscreen} from "../MultiviewControl/calculateView
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {addSystemEdge, removeSystemEdge} from "./systemEdge.js";
 import {saveSystemMoleculeData, saveSystemSpatiallyResolvedData} from "../Utilities/saveData.js";
-import {render} from "../2D3D_connection_heatmap.js"
+import {render} from "../ElectroLensMain.js"
 import {changePointCloudGeometry} from "./PointCloud_selection.js";
 import {changeMoleculeGeometry} from "./MoleculeView.js";
 export function initialize3DViewSetup(viewSetup,views,plotSetup){

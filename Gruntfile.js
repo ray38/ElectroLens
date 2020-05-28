@@ -11,7 +11,7 @@ module.exports = function (grunt) {
                // if the source file has an extension of es6 then
                // we change the name of the source file accordingly.
                // The result file's extension is always .js
-               "./2D3D_connection_heatmap_test.js": ["./2D3D_connection_heatmap.js"]
+               "./ElectroLensMainPython.js": ["./ElectroLensMain.js"]
             }
          }
       }/*,
