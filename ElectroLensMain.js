@@ -1,5 +1,3 @@
-
-
 import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {initialize2DHeatmapSetup} from "./2DHeatmaps/initialize2DHeatmapSetup.js";
 import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.js";
@@ -291,6 +289,7 @@ function main(views,plotSetup) {
 							
 
 				if (view.systemSpatiallyResolvedData != null && view.systemSpatiallyResolvedData.length > 0){
+					
 					view.systemSpatiallyResolvedDataBoolean = true;
 					view.defaultScalesSpatiallyResolvedData = defaultScalesSpatiallyResolvedData;
 					adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view);
@@ -298,6 +297,7 @@ function main(views,plotSetup) {
 					insertLegend(view);
 				}
 				if (view.systemMoleculeData != null && view.systemMoleculeData.length > 0){
+					console.log("adding moleulce")
 					view.systemMoleculeDataBoolean = true;
 					view.defaultScalesMoleculeData = defaultScalesMoleculeData;
 					adjustScaleAccordingToDefaultMoleculeData(view);

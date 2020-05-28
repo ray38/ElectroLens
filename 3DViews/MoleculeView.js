@@ -285,6 +285,7 @@ function addAtoms(view, moleculeData){
 		atoms.frustumCulled = false;
 		// atoms.userData.numVerticesPerAtom = sphereTemplate.attributes.position.count;
 	}
+	console.log("atoms",atoms)
 	view.molecule.atoms = atoms;
 	view.scene.add(atoms);
 }
@@ -512,7 +513,7 @@ export function getMoleculeGeometry(view){
 	//var moleculeData = view.systemMoleculeData;
 	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 	var neighborsData = view.systemMoleculeDataFramedBondsDict[currentFrame];
-	
+	console.log(moleculeData)
 	
 	if (options.showAtoms){
 		addAtoms(view, moleculeData);

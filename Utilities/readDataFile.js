@@ -96,9 +96,11 @@ export function processMoleculeData(view,plotSetup,callback){
 		}
 
 		!(currentFrame in view.systemMoleculeDataFramed) && (view.systemMoleculeDataFramed[currentFrame] = []);
-
+		console.log(temp)
 		view.systemMoleculeData.push(temp);
 		view.systemMoleculeDataFramed[currentFrame].push(temp);
+
+		
 
 	})
 	console.log('end processing molecule data');
