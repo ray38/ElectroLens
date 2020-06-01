@@ -7,9 +7,12 @@ import {getHeatmapMaterial} from "./Materials.js";
 export function arrangeDataForPCA(view){
 
 	const options = view.options;
+	let X,Y;
 	if (options.plotData == 'spatiallyResolvedData'){
 
-		// const X = view.options.plotPCAXSpatiallyResolvedData, Y = view.options.plotPCAYSpatiallyResolvedData;
+		// const 
+		X = view.options.plotPCAXSpatiallyResolvedData;
+		Y = view.options.plotPCAYSpatiallyResolvedData;
 		// const XTransform = view.options.plotPCAXTransformSpatiallyResolvedData, YTransform = view.options.plotPCAYTransformSpatiallyResolvedData;
 
 		const Data = view.overallSpatiallyResolvedData;
@@ -71,11 +74,12 @@ export function arrangeDataForPCA(view){
 
 	if (options.plotData == 'moleculeData'){
 
-		var X = view.options.plotPCAXMoleculeData, Y = view.options.plotPCAYMoleculeData;
-		var XTransform = view.options.plotPCAXTransformMoleculeData, YTransform = view.options.plotPCAYTransformMoleculeData;
+		X = view.options.plotPCAXMoleculeData;
+		Y = view.options.plotPCAYMoleculeData;
+		// var XTransform = view.options.plotPCAXTransformMoleculeData, YTransform = view.options.plotPCAYTransformMoleculeData;
 
-		var Data = view.overallMoleculeData;
-		var propertyList = view.plotSetup.moleculePropertyList;
+		const Data = view.overallMoleculeData;
+		const propertyList = view.plotSetup.moleculePropertyList;
 
 		console.log(view.PCACalculatedMolecule != true);
 
@@ -83,14 +87,14 @@ export function arrangeDataForPCA(view){
 
 			console.log("start PCA");
 			const { PCA } = require('ml-pca');
-			var filtered = propertyList.filter(function(value, index, arr){
+			const filtered = propertyList.filter(function(value, index, arr){
 			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
 
-		    var arrays = getArrays2(Data, filtered);
+		    const arrays = getArrays2(Data, filtered);
 		    const pca = new PCA(arrays/*, {nCompNIPALS:options.nPCAComponentsMolecule}*/);
-		    var transformed = pca.predict(arrays);
+		    const transformed = pca.predict(arrays);
 
 		    console.log("Finished Calculating PCA");
 
@@ -131,11 +135,7 @@ export function arrangeDataForPCA(view){
 		}
 	}
 
-
-
-
 	const numPerSide = view.options.numPerSide;
-
 	const heatmapStep = [];
 
 
@@ -198,7 +198,7 @@ export function arrangeDataForPCA(view){
 	const PCAResultText = "";
 	PCAResultText += X + " explained: " + view.PCAExplainedVariance[X].toExponential(4) + '<br>';
 
-	for (var property in view.PCALoadingMatrix[X]){
+	for (const property in view.PCALoadingMatrix[X]){
 		if(typeof view.PCALoadingMatrix[X][property] !== "undefined"){
 			PCAResultText += property + ": " + view.PCALoadingMatrix[X][property].toExponential(4) + '<br>';
 		}
@@ -208,7 +208,7 @@ export function arrangeDataForPCA(view){
 
 	PCAResultText += Y + " explained: " + view.PCAExplainedVariance[Y].toExponential(4) + '<br>';
 
-	for (var property in view.PCALoadingMatrix[Y]){
+	for (const property in view.PCALoadingMatrix[Y]){
 		if(typeof view.PCALoadingMatrix[Y][property] !== "undefined"){
 			PCAResultText += property + ": " + view.PCALoadingMatrix[Y][property].toExponential(4) + '<br>';
 		}
@@ -252,8 +252,8 @@ export function getPCAHeatmap(view){
 
 	const XYtoHeatmapMap = {}
 	
-	for (var x in data){
-		for (var y in data[x]){
+	for (const x in data){
+		for (const y in data[x]){
 			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
 			XYtoHeatmapMap[x][y] = i;
 

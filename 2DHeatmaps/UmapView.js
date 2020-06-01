@@ -6,13 +6,15 @@ import {getHeatmapMaterial} from "./Materials.js";
 
 export function arrangeDataForUmap(view){
 
-	var options = view.options;
+	const options = view.options;
+	let X,Y;
 	if (options.plotData == 'spatiallyResolvedData'){
 
-		var X = view.options.plotUmapXSpatiallyResolvedData, Y = view.options.plotUmapYSpatiallyResolvedData;
+		X = view.options.plotUmapXSpatiallyResolvedData;
+		Y = view.options.plotUmapYSpatiallyResolvedData;
 
-		var Data = view.overallSpatiallyResolvedData;
-		var propertyList = view.plotSetup.spatiallyResolvedPropertyList;
+		const Data = view.overallSpatiallyResolvedData;
+		const propertyList = view.plotSetup.spatiallyResolvedPropertyList;
 
 		console.log(view.UmapCalculatedSpatiallyResolved != true);
 
@@ -20,12 +22,12 @@ export function arrangeDataForUmap(view){
 
 			console.log("start Umap");
 			const { UMAP } = require('umap-js');
-			var filtered = propertyList.filter(function(value, index, arr){
+			const filtered = propertyList.filter(function(value, index, arr){
 			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
 
-			var arrays = getArrays2(Data, filtered);
+			const arrays = getArrays2(Data, filtered);
 			
 			// const umap = new UMAP();
 			// const embedding = umap.fit(arrays);
@@ -45,9 +47,9 @@ export function arrangeDataForUmap(view){
 			console.log('after umap fitting', embedding)
 
 
-			for (var i = 0; i < Data.length; i++) {
-			    for (var j = 1; j <= 2; j++) {
-			    	var tempName = "_Umap" + j.toString();
+			for (let i = 0; i < Data.length; i++) {
+			    for (let j = 1; j <= 2; j++) {
+			    	const tempName = "_Umap" + j.toString();
 			    	Data[i][tempName] = embedding[i][j-1];
 			    }
 			}
@@ -62,10 +64,11 @@ export function arrangeDataForUmap(view){
 
 	if (options.plotData == 'moleculeData'){
 
-		var X = view.options.plotUmapXMoleculeData, Y = view.options.plotUmapYMoleculeData;
+		X = view.options.plotUmapXMoleculeData;
+		Y = view.options.plotUmapYMoleculeData;
 
-		var Data = view.overallMoleculeData;
-		var propertyList = view.plotSetup.moleculePropertyList;
+		const Data = view.overallMoleculeData;
+		const propertyList = view.plotSetup.moleculePropertyList;
 
 		console.log(view.UmapCalculatedMolecule != true);
 
@@ -73,11 +76,11 @@ export function arrangeDataForUmap(view){
 
 			console.log("start PCA");
 			const { UMAP } = require('umap-js');
-			var filtered = propertyList.filter(function(value, index, arr){
+			const filtered = propertyList.filter(function(value, index, arr){
 			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
-			var arrays = getArrays2(Data, filtered);
+			const arrays = getArrays2(Data, filtered);
 			
 			const umap = new UMAP({
 				nComponents: 2,
@@ -95,9 +98,9 @@ export function arrangeDataForUmap(view){
 			console.log('after umap fitting', embedding)
 
 
-			for (var i = 0; i < Data.length; i++) {
-			    for (var j = 1; j <= 2; j++) {
-			    	var tempName = "_Umap" + j.toString();
+			for (let i = 0; i < Data.length; i++) {
+			    for (let j = 1; j <= 2; j++) {
+			    	const tempName = "_Umap" + j.toString();
 			    	Data[i][tempName] = embedding[i][j-1];
 			    }
 			}
@@ -110,44 +113,38 @@ export function arrangeDataForUmap(view){
 		}
 	}
 
+	const numPerSide = view.options.numPerSide;
+	const heatmapStep = [];
 
-
-
-	var numPerSide = view.options.numPerSide;
-
-	var heatmapStep = [];
-
-
-	for (var i=1; i <= numPerSide; i++) {
+	for (let i=1; i <= numPerSide; i++) {
 		heatmapStep.push(""+i);
 	}
 	
-	var xValue = function(d) {return d[X];}
-	var yValue = function(d) {return d[Y];}
+	const xValue = function(d) {return d[X];}
+	const yValue = function(d) {return d[Y];}
 
-
-	var xMin = d3.min(Data, xValue);
-	var xMax = d3.max(Data, xValue);
-	var yMin = d3.min(Data, yValue);
-	var yMax = d3.max(Data, yValue);
+	const xMin = d3.min(Data, xValue);
+	const xMax = d3.max(Data, xValue);
+	const yMin = d3.min(Data, yValue);
+	const yMax = d3.max(Data, yValue);
 
 	view.xMin = xMin;
 	view.xMax = xMax;
 	view.yMin = yMin;
 	view.yMax = yMax;
 
-	var xScale = d3.scaleQuantize()
+	const xScale = d3.scaleQuantize()
 	.domain([xMin, xMax])
 	.range(heatmapStep);
 	
-	var yScale = d3.scaleQuantize()
+	const yScale = d3.scaleQuantize()
 	.domain([yMin, yMax])
 	.range(heatmapStep);
 
 
 	
-	var xMap = function(d) {return xScale(xValue(d));};
-	var yMap = function(d) {return yScale(yValue(d));}; 
+	const xMap = function(d) {return xScale(xValue(d));};
+	const yMap = function(d) {return yScale(yValue(d));}; 
 	
 	view.data = {};
 	view.dataXMin = d3.min(Data,xValue);
@@ -160,9 +157,9 @@ export function arrangeDataForUmap(view){
 
 	//console.log(xScale.invertExtent(""+50))
 	
-	for (var i=0; i<Data.length; i++){
-		var heatmapX = xMap(Data[i]);
-		var heatmapY = yMap(Data[i]);
+	for (let i=0; i<Data.length; i++){
+		const heatmapX = xMap(Data[i]);
+		const heatmapY = yMap(Data[i]);
 		
 		if (!(heatmapX in view.data)) {
 			view.data[heatmapX] = {};
@@ -178,55 +175,47 @@ export function arrangeDataForUmap(view){
 
 export function getUmapHeatmap(view){
 
+	const options = view.options;
+	const data = view.data;
 	
+	const num = heatmapPointCount(data);
+	
+	const geometry = new THREE.BufferGeometry();
+	const colors = new Float32Array(num *3);
+	const positions = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
 
-	var options = view.options;
+	const heatmapInformation = [];
 	
-	
-	var data = view.data;
-	
-	var num = heatmapPointCount(data);
-	
-	
-	var geometry = new THREE.BufferGeometry();
-	var colors = new Float32Array(num *3);
-	var positions = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-
-	var heatmapInformation = [];
-	
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
 	
-	var i = 0;
-	var i3 = 0;
+	let i = 0;
+	let i3 = 0;
 
-	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
+	const xPlotScale = view.xPlotScale;
+	const yPlotScale = view.yPlotScale;
 
-	var XYtoHeatmapMap = {}
+	const XYtoHeatmapMap = {}
 	
-	for (var x in data){
-		for (var y in data[x]){
+	for (const x in data){
+		for (const y in data[x]){
 			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
 			XYtoHeatmapMap[x][y] = i;
 
-			var xPlot = xPlotScale(parseFloat(x));
-			var yPlot = yPlotScale(parseFloat(y));
+			const xPlot = xPlotScale(parseFloat(x));
+			const yPlot = yPlotScale(parseFloat(y));
 			
 			positions[i3 + 0] = xPlot;
 			positions[i3 + 1] = yPlot;
 			positions[i3 + 2] = 0
 			
-			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			const numberDatapointsRepresented = countListSelected(data[x][y]['list']);
 			if (numberDatapointsRepresented > 0) {
-				var color = lut.getColor( numberDatapointsRepresented );
-				
+				const color = lut.getColor( numberDatapointsRepresented );
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -256,7 +245,7 @@ export function getUmapHeatmap(view){
 			i++;
 			i3 += 3;
 
-			var tempInfo = {x:xPlot-50, 
+			const tempInfo = {x:xPlot-50, 
 							y:yPlot-50, 
 							numberDatapointsRepresented: numberDatapointsRepresented,
 							xStart: view.xScale.invertExtent(x)[0],
@@ -278,8 +267,8 @@ export function getUmapHeatmap(view){
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
-	var material = getHeatmapMaterial();
-	var System = new THREE.Points(geometry, material);
+	const material = getHeatmapMaterial();
+	const System = new THREE.Points(geometry, material);
 
 	return System
 	
@@ -287,25 +276,25 @@ export function getUmapHeatmap(view){
 
 
 export function updateUmapHeatmap(view){
-	var options = view.options;
-	var System = view.heatmapPlot;
-	var data = view.data;
-	var num = heatmapPointCount(data);
-	var colors = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const options = view.options;
+	const System = view.heatmapPlot;
+	const data = view.data;
+	const num = heatmapPointCount(data);
+	const colors = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
-	var i = 0;
-	var i3 = 0;
-	for (var x in data){
-		for (var y in data[x]){
+	let i = 0;
+	let i3 = 0;
+	for (const x in data){
+		for (const y in data[x]){
 			
-			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			const numberDatapointsRepresented = countListSelected(data[x][y]['list']);
 			if (numberDatapointsRepresented > 0) {
-				var color = lut.getColor( numberDatapointsRepresented );
+				const color = lut.getColor( numberDatapointsRepresented );
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -350,10 +339,10 @@ export function replotUmapHeatmap(view){
 	console.log("replotting Umap Heatmap");
 	//initializePCATooltip(view);
 	arrangeDataForUmap(view);
-	var UmapGroup = new THREE.Group()
+	const UmapGroup = new THREE.Group()
 
-	var UmapPlot = getUmapHeatmap(view);
-	var UmapAxis = getAxis(view);
+	const UmapPlot = getUmapHeatmap(view);
+	const UmapAxis = getAxis(view);
 
 	UmapGroup.add(UmapPlot);
 	UmapGroup.add(UmapAxis);
@@ -380,18 +369,18 @@ function pluck(arr, mapper){
 // Dependencies: pluck
 
 function getArrays(data, cols){
-	var result = [];
+	const result = [];
 	for (const col of cols){
-		var temp = pluck(data, col);
+		const temp = pluck(data, col);
 		result.push(temp);
 	}
 	return result;
 }
 
 function getArrays2(data,propertyList){
-	var result = [];
+	const result = [];
 	for (const datapoint of data){
-		var temp = [];
+		const temp = [];
 		for (const property of propertyList){
 			temp.push(datapoint[property])
 		}

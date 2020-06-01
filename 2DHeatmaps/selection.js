@@ -8,7 +8,7 @@ function spawnPlane(view){
 	const mousePosition = view.mousePosition;
 	const selectionPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1), selectionPlaneMaterial );
 	selectionPlane.geometry.attributes.position.needsUpdate = true;
-	var p = selectionPlane.geometry.attributes.position.array;
+	const p = selectionPlane.geometry.attributes.position.array;
 
 	let i = 0;
 	p[i++] = mousePosition.x-0.01;
@@ -91,29 +91,27 @@ function updateBrush(view,tempBrush){
 
 
 export function updatePlaneSelection(views,view) {
-	//var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
 	const tempSelectionPlane = view.currentSelectionPlane;
 	//console.log(tempSelectionPlane)
 	if (tempSelectionPlane != null){
 		
 		if (view.viewType == '2DHeatmap' && (view.options.plotType == "Heatmap" || view.options.plotType == 'PCA' || view.options.plotType == 'Umap'|| view.options.plotType == 'Comparison')) {
-			var p = tempSelectionPlane.geometry.attributes.position.array;
-			var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
-				ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
-			var tempx,tempy;
+			const p = tempSelectionPlane.geometry.attributes.position.array;
+			const xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
+				  ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
 
 			console.log('updating plane selection')
 			
-			var data = view.data;
-			var xPlotScale = view.xPlotScale;
-			var yPlotScale = view.yPlotScale;
-			for (var x in data){
-				for (var y in data[x]){
-					tempx = xPlotScale(parseFloat(x));
-					tempy = yPlotScale(parseFloat(y));
+			const data = view.data;
+			const xPlotScale = view.xPlotScale;
+			const yPlotScale = view.yPlotScale;
+			for (const x in data){
+				for (const y in data[x]){
+					const tempx = xPlotScale(parseFloat(x));
+					const tempy = yPlotScale(parseFloat(y));
 					if (tempx>xmin && tempx<xmax && tempy>ymin && tempy<ymax){
 						data[x][y].highlighted = true;
-						for (var i = 0; i < data[x][y]['list'].length; i++) {
+						for (let i = 0; i < data[x][y]['list'].length; i++) {
 							data[x][y]['list'][i].highlighted = true;
 						}
 					}
@@ -127,30 +125,25 @@ export function updatePlaneSelection(views,view) {
 
 
 export function updateBrushSelection(views,view) {
-	//var tempSelectionPlane = temp_view.scene.getObjectByName('selectionPlane');
-	var tempSelectionBrush = view.currentSelectionBrush;
-	//console.log(tempSelectionPlane)
+	const tempSelectionBrush = view.currentSelectionBrush;
 	if (tempSelectionBrush != null){
 		if (view.viewType == '2DHeatmap' && (view.options.plotType == "Heatmap" || view.options.plotType == 'PCA' || view.options.plotType == 'Umap'|| view.options.plotType == 'Comparison')) {
-			var location = tempSelectionBrush.position;
-			var radius2   = view.options.selectionBrushSize ** 2;
-			//var xmin = Math.min(p[0],p[9]), xmax = Math.max(p[0],p[9]),
-			//	ymin = Math.min(p[1],p[10]), ymax = Math.max(p[1],p[10]);
-			var tempx,tempy,temp_dist2;
+			const location = tempSelectionBrush.position;
+			const radius2   = view.options.selectionBrushSize ** 2;
 
 			console.log('updating plane selection')
 			
-			var data = view.data;
-			var xPlotScale = view.xPlotScale;
-			var yPlotScale = view.yPlotScale;
-			for (var x in data){
-				for (var y in data[x]){
-					tempx = xPlotScale(parseFloat(x));
-					tempy = yPlotScale(parseFloat(y));
-					temp_dist2 = (tempx-location.x)**2 + (tempy-location.y)**2 
+			const data = view.data;
+			const xPlotScale = view.xPlotScale;
+			const yPlotScale = view.yPlotScale;
+			for (const x in data){
+				for (const y in data[x]){
+					const tempx = xPlotScale(parseFloat(x));
+					const tempy = yPlotScale(parseFloat(y));
+					const temp_dist2 = (tempx-location.x)**2 + (tempy-location.y)**2 
 					if (temp_dist2 < radius2){
 						data[x][y].highlighted = true;
-						for (var i = 0; i < data[x][y]['list'].length; i++) {
+						for (let i = 0; i < data[x][y]['list'].length; i++) {
 							data[x][y]['list'][i].highlighted = true;
 						}
 					}
@@ -166,9 +159,7 @@ export function updateBrushSelection(views,view) {
 
 
 function applyPlaneSelection(view, mouseHold) {
-	var tempPlane = view.currentSelectionPlane;
-	//var temp = view.scene.getObjectByName('selectionPlane');
-	//console.log(mouseHold)
+	const tempPlane = view.currentSelectionPlane;
 	if (mouseHold) {
 		if (tempPlane != null){
 			updatePlane(view,tempPlane);
@@ -181,7 +172,7 @@ function applyPlaneSelection(view, mouseHold) {
 
 function applyBrushSelection(view, mouseHold){
 	//updateBrushSelection(view, mouseHold);
-	var tempBrush = view.currentSelectionBrush;
+	const tempBrush = view.currentSelectionBrush;
 	if (mouseHold) {
 		if (tempBrush != null){
 			updateBrush(view,tempBrush);
@@ -209,9 +200,9 @@ export function clickHeatmap(view, views){
 	if (view.INTERSECTED != null){
 		// console.log('currently heatmap point under mouse', view.highlightedIndexList)
 		//currently heatmap point under mouse
-		var indexInList = view.highlightedIndexList.indexOf(view.INTERSECTED);
-		var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
-		var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+		const indexInList = view.highlightedIndexList.indexOf(view.INTERSECTED);
+		const heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+		const heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
 		if ( indexInList > -1){
 			// console.log('was highlighted')
 			// was highlighted
@@ -256,12 +247,12 @@ export function clickHeatmap(view, views){
 
 
 export function hoverHeatmap(view, mouseEvent){
-	var mouse = new THREE.Vector2();
+	const mouse = new THREE.Vector2();
 	mouse.set(	(((mouseEvent.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((mouseEvent.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
 	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.heatmapPlot );
+	const intersects = view.raycaster.intersectObject( view.heatmapPlot );
 	if ( intersects.length > 0 ) {
 		// has intersection
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {
@@ -273,8 +264,8 @@ export function hoverHeatmap(view, mouseEvent){
 					unhighlightHeatmapPoints(view.INTERSECTED, view);
 				} else {
 					// previously hovered was in highlight list, back to its original state
-					var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
-					var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+					const heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+					const heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
 					// console.log('calling restore 1', view.IntersectState);
 					if (view.IntersectState){
 						restoreState(view.data[heatmapX][heatmapY].list, view.IntersectState);
@@ -286,8 +277,8 @@ export function hoverHeatmap(view, mouseEvent){
 			} 
 			// current intersection
 			view.INTERSECTED = intersects[ 0 ].index;
-			var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
-			var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+			const heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+			const heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
 			if (view.highlightedIndexList.indexOf(view.INTERSECTED) > -1) {
 				// if current intersection in highlight list, store current state, and highlight all
 				view.IntersectState = getCurrentState(view.data[heatmapX][heatmapY].list);
@@ -316,8 +307,8 @@ export function hoverHeatmap(view, mouseEvent){
 				unhighlightHeatmapPoints(view.INTERSECTED, view);
 			} else {
 				// previously hovered was in highlight list, back to its original state
-				var heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
-				var heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
+				const heatmapX = view.heatmapInformation[view.INTERSECTED].heatmapX;
+				const heatmapY = view.heatmapInformation[view.INTERSECTED].heatmapY;
 				// console.log('calling restore 2', view.IntersectState);
 				if (view.IntersectState){
 					restoreState(view.data[heatmapX][heatmapY].list, view.IntersectState);
@@ -339,8 +330,8 @@ export function hoverHeatmap(view, mouseEvent){
 }
 
 export function highlightVia2DHeatmap(heatmapPointIndex, twoDPlot) {
-	var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
-	var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
+	const heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
+	const heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
 	if (twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex) > -1) {
 		// if current intersection in highlight list, store current state, and highlight all
 		twoDPlot.IntersectState = getCurrentState(twoDPlot.data[heatmapX][heatmapY].list);
@@ -352,8 +343,8 @@ export function highlightVia2DHeatmap(heatmapPointIndex, twoDPlot) {
 }
 
 export function unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot) {
-	var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
-	var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
+	const heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
+	const heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
 	if (twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex) == -1) {
 		// previously hovered was not in highlight list, unhighlight all;
 		unhighlightHeatmapPoints(heatmapPointIndex, twoDPlot);
@@ -370,9 +361,9 @@ export function unhighlightVia2DHeatmap(heatmapPointIndex, twoDPlot) {
 
 
 export function clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views) {
-	var indexInList = twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex);
-	var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
-	var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
+	const indexInList = twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex);
+	const heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
+	const heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
 
 	if ( indexInList > -1){
 		console.log('was highlighted')
@@ -410,8 +401,8 @@ export function clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views) {
 }
 
 function getCurrentState(list) {
-	var result = [];
-	for (var i = 0; i < list.length; i++) {
+	const result = [];
+	for (let i = 0; i < list.length; i++) {
 		result.push(list[i].highlighted);
 	}
 	return result;
@@ -419,16 +410,16 @@ function getCurrentState(list) {
 
 function restoreState(list, state) {
 
-	for (var i = 0; i < list.length; i++) {
+	for (let i = 0; i < list.length; i++) {
 		list[i].highlighted = state[i];
 	}
 }
 
 function highlightHeatmapPoints(index, view) {
-	var heatmapX = view.heatmapInformation[index].heatmapX;
-	var heatmapY = view.heatmapInformation[index].heatmapY;
+	const heatmapX = view.heatmapInformation[index].heatmapX;
+	const heatmapY = view.heatmapInformation[index].heatmapY;
 
-	var dataset = view.data[heatmapX][heatmapY];
+	const dataset = view.data[heatmapX][heatmapY];
 	//dataset.highlighted = true;
 
 	dataset.list.forEach(datapoint => {
@@ -437,10 +428,10 @@ function highlightHeatmapPoints(index, view) {
 }
 
 function unhighlightHeatmapPoints(index, view) {
-	var heatmapX = view.heatmapInformation[index].heatmapX;
-	var heatmapY = view.heatmapInformation[index].heatmapY;
+	const heatmapX = view.heatmapInformation[index].heatmapX;
+	const heatmapY = view.heatmapInformation[index].heatmapY;
 	
-	var dataset = view.data[heatmapX][heatmapY];
+	const dataset = view.data[heatmapX][heatmapY];
 	//dataset.highlighted = false;
 
 	dataset.list.forEach(datapoint => {
@@ -449,8 +440,8 @@ function unhighlightHeatmapPoints(index, view) {
 }
 
 export function unhighlightAll(views) {
-	for ( var ii = 0; ii < views.length; ++ii ){
-		var view = views[ii];
+	for ( let ii = 0; ii < views.length; ++ii ){
+		const view = views[ii];
 		if (view.viewType == "3DView") {
 			if (view.systemMoleculeDataBoolean ) {
 				view.systemMoleculeData.forEach(datapoint => {
@@ -469,8 +460,8 @@ export function unhighlightAll(views) {
 				|| view.options.plotType == "PCA" || view.options.plotType == "Umap")
 				&& typeof view.heatmapPlot != "undefined"){
 				view.highlightedIndexList = [];
-				for (var x in view.data){
-					for (var y in view.data[x]){
+				for (const x in view.data){
+					for (const y in view.data[x]){
 						view.data[x][y].highlighted = false;
 					}
 				}
@@ -481,7 +472,7 @@ export function unhighlightAll(views) {
 
 
 export function deselectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData){
-	for (var i=0; i<overallSpatiallyResolvedData.length; i++){
+	for (let i=0; i<overallSpatiallyResolvedData.length; i++){
 		if (overallSpatiallyResolvedData[i].highlighted){overallSpatiallyResolvedData[i].selected = false};
 		overallSpatiallyResolvedData[i].highlighted = false;
 	}
@@ -489,7 +480,7 @@ export function deselectHighlightedSpatiallyResolvedData(views, overallSpatially
 }
 
 export function selectHighlightedSpatiallyResolvedData(views, overallSpatiallyResolvedData){
-	for (var i=0; i<overallSpatiallyResolvedData.length; i++){
+	for (let i=0; i<overallSpatiallyResolvedData.length; i++){
 		if (overallSpatiallyResolvedData[i].highlighted){overallSpatiallyResolvedData[i].selected = true};
 		overallSpatiallyResolvedData[i].highlighted = false;
 	}
@@ -497,7 +488,7 @@ export function selectHighlightedSpatiallyResolvedData(views, overallSpatiallyRe
 }
 
 export function deselectHighlightedMoleculeData(views, overallMoleculeData){
-	for (var i=0; i<overallMoleculeData.length; i++){
+	for (let i=0; i<overallMoleculeData.length; i++){
 		if (overallMoleculeData[i].highlighted){overallMoleculeData[i].selected = false};
 		overallMoleculeData[i].highlighted = false;
 	}
@@ -505,7 +496,7 @@ export function deselectHighlightedMoleculeData(views, overallMoleculeData){
 }
 
 export function selectHighlightedMoleculeData(views, overallMoleculeData){
-	for (var i=0; i<overallMoleculeData.length; i++){
+	for (let i=0; i<overallMoleculeData.length; i++){
 		if (overallMoleculeData[i].highlighted){overallMoleculeData[i].selected = true};
 		overallMoleculeData[i].highlighted = false;
 	}
@@ -514,17 +505,17 @@ export function selectHighlightedMoleculeData(views, overallMoleculeData){
 
 
 export function clickUpdateAll2DHeatmaps(views) {
-	for ( var ii = 0; ii < views.length; ++ii ){
-		var view = views[ii];
+	for ( let ii = 0; ii < views.length; ++ii ){
+		const view = views[ii];
 		if (view.viewType == "2DHeatmap" &&
 			(view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
 			|| view.options.plotType == "PCA" || view.options.plotType == "Umap")  &&
 			typeof view.heatmapPlot != "undefined"
 			){
-			var i = 0;
-			for (var x in view.data){
-				for (var y in view.data[x]){
-					var highlightedFound = isAnyHighlighted(view.data[x][y].list)
+			let i = 0;
+			for (const x in view.data){
+				for (const y in view.data[x]){
+					const highlightedFound = isAnyHighlighted(view.data[x][y].list)
 					if (highlightedFound) {
 						view.data[x][y].highlighted = true;
 						if (view.highlightedIndexList.indexOf(i) == -1) {
@@ -533,7 +524,7 @@ export function clickUpdateAll2DHeatmaps(views) {
 						}
 					} else {
 						view.data[x][y].highlighted = false;
-						var indexInList = view.highlightedIndexList.indexOf(i);
+						const indexInList = view.highlightedIndexList.indexOf(i);
 						if ( indexInList != -1) {
 							// console.log('removing from highlighted list')
 							view.highlightedIndexList.splice(i,1);
@@ -548,7 +539,7 @@ export function clickUpdateAll2DHeatmaps(views) {
 }
 
 function isAnyHighlighted(list){
-	for (var i = 0; i < list.length; i++) {
+	for (let i = 0; i < list.length; i++) {
 		if (list[i].highlighted){ return true; }
 	}
 	return false;
@@ -556,12 +547,12 @@ function isAnyHighlighted(list){
 //function findListHighlighted(list) {
 	
 function highlightAll(list) {
-	for (var i = 0; i < list.length; i++) {
+	for (let i = 0; i < list.length; i++) {
 		list[i].highlighted = true;
 	}
 }
 function areAllHighlighted(list) {
-	for (var i = 0; i < list.length; i++) {
+	for (let i = 0; i < list.length; i++) {
 		if (list[i].highlighted == false){ 
 			return false;
 		}
@@ -570,37 +561,11 @@ function areAllHighlighted(list) {
 }
 
 function areAllTrue(list) {
-	for (var i = 0; i < list.length; i++) {
+	for (let i = 0; i < list.length; i++) {
 		if (list[i] == false){
 			return false;
 		}
 	}
 	return true;
 }
-
-/* export function clickUnhighlightOther2DHeatmaps(currentViewID, views) {
-	for ( var ii = 0; ii < views.length; ++ii ){
-		var view = views[ii];
-		if (view.viewType == "2DHeatmap" &&
-			view.options.plotType == "Heatmap" &&
-			typeof view.heatmapPlot != "undefined" &&
-			view.options.plotID != currentViewID
-			){
-			var i = 0;
-			for (var x in view.data){
-				for (var y in view.data[x]){
-					for (var datapoint in view.data[x][y].list) {
-						if (datapoint.highlighted){
-							view.data[x][y].highlighted = true;
-							
-							break;
-						}
-					}
-					i++;
-				}
-			}
-		}
-	}
-} */
-
 

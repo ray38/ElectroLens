@@ -11,7 +11,7 @@ import {deselectAllSpatiallyResolvedData, selectAllSpatiallyResolvedData, desele
 import {saveOverallMoleculeData, saveOverallSpatiallyResolvedData} from "../Utilities/saveData.js";
 import {render} from "../ElectroLensMain.js"
 export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
-	var defaultSetting = {
+	const defaultSetting = {
 		background: new THREE.Color( 0,0,0 ),
 		backgroundAlpha: 1.0,
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
@@ -211,7 +211,7 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 }
 
 function extendObject(obj, src) {
-    for (var key in src) {
+    for (const key in src) {
         if (src.hasOwnProperty(key) && !(key in obj)) obj[key] = src[key];
     }
     return obj;

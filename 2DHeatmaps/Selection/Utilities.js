@@ -161,23 +161,13 @@ export function updateAllPlotsMoleculeScale(views){
 export function updateSelectionFromHeatmap(view){
 	console.log('called update heatmap');
 	const data = view.data;
-	for (var x in data){
-		for (var y in data[x]){
+	for (const x in data){
+		for (const y in data[x]){
 			if (data[x][y].highlighted) {
-				for (var i = 0; i < data[x][y]['list'].length; i++) {
+				for (let i = 0; i < data[x][y]['list'].length; i++) {
 					data[x][y]['list'][i].highlighted = true;
 				}
 			}
-			/* if (data[x][y].selected) {
-				for (var i = 0; i < data[x][y]['list'].length; i++) {
-					data[x][y]['list'][i].selected = true;
-				}
-			} */
-			/*else {
-				for (var i = 0; i < data[x][y]['list'].length; i++) {
-					data[x][y]['list'][i].selected = false;
-				}
-			}*/
 		}
 	}
 }
@@ -188,11 +178,11 @@ export function updateSelectionFromComparison(view){
 
 	console.log(Object.keys(overallData))
 	Object.keys(overallData).forEach((systemName, index) => { 
-		var data = overallData[systemName].data;
-		for (var x in data){
-			for (var y in data[x]){
+		const data = overallData[systemName].data;
+		for (const x in data){
+			for (const y in data[x]){
 				if (data[x][y].selected) {
-					for (var i = 0; i < data[x][y]['list'].length; i++) {
+					for (let i = 0; i < data[x][y]['list'].length; i++) {
 						data[x][y]['list'][i].selected = true;
 					}
 				}

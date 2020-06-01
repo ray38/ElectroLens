@@ -5,52 +5,32 @@ import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLe
 
 export function arrangeDataForCovariance(view){
 
-	var options = view.options;
+	const options = view.options;
+	let Transform, Data, propertyList;
 	if (options.plotData == 'spatiallyResolvedData'){
 
-		var Transform = view.options.covarianceTransformSpatiallyResolvedData
+		Transform = view.options.covarianceTransformSpatiallyResolvedData
 
-		var Data = view.overallSpatiallyResolvedData;
-		var propertyList = view.plotSetup.spatiallyResolvedPropertyList;
+		Data = view.overallSpatiallyResolvedData;
+		propertyList = view.plotSetup.spatiallyResolvedPropertyList;
 	}
 
 	if (options.plotData == 'moleculeData'){
 
-		var Transform = view.options.covarianceTransformMoleculeData
+		Transform = view.options.covarianceTransformMoleculeData
 
-		var Data = view.overallMoleculeData;
-		var propertyList = view.plotSetup.moleculePropertyList;
+		Data = view.overallMoleculeData;
+		propertyList = view.plotSetup.moleculePropertyList;
 	}
 
 
-	/*var meanDict = {};
-
-
-	for (var i=0; i<propertyList.length; i++){
-		if (Transform == 'linear') {var value = function(d) {return d[propertyList[i]];}}
-		if (Transform == 'log10')  {var value = function(d) {return Math.log10(d[propertyList[i]]);};}
-		var tempMean = d3.min(Data, value);
-		meanDict[propertyList[i]] = tempMean
-	}
-	
-
-
-
-	view.data = {}
-
-	for (var i=0; i<propertyList.length; i++){
-		for (var j=0; j<i; j++){
-
-		}
-
-	}*/
-	var filtered = propertyList.filter(function(value, index, arr){
+	const filtered = propertyList.filter(function(value, index, arr){
 	    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
 	});
 
 
-    var corrMatrix = jz.arr.correlationMatrix(Data, filtered);
-    var grid = data2grid.grid(corrMatrix);
+    const corrMatrix = jz.arr.correlationMatrix(Data, filtered);
+    const grid = data2grid.grid(corrMatrix);
     view.data = grid;
 
 			
@@ -58,14 +38,14 @@ export function arrangeDataForCovariance(view){
 
 
 export function getCovariance(view){
-	var uniforms = {
+	const uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
 		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
 
 	};
 
-	var shaderMaterial = new THREE.ShaderMaterial( {
+	const shaderMaterial = new THREE.ShaderMaterial( {
 
 		uniforms:       uniforms,
 		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
@@ -77,64 +57,52 @@ export function getCovariance(view){
 
 	});
 
-	var options = view.options;
-	var scene = view.scene;
+	const options = view.options;
+	const scene = view.scene;
 
+	let propertyList;
 	if (options.plotData == 'spatiallyResolvedData'){
-		//var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
-		var propertyList = view.plotSetup.spatiallyResolvedPropertyList;
+		propertyList = view.plotSetup.spatiallyResolvedPropertyList;
 	}
 
 	if (options.plotData == 'moleculeData'){
-		//var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
-		var propertyList = view.plotSetup.moleculePropertyList;
+		propertyList = view.plotSetup.moleculePropertyList;
 	}
 
-	var filtered = propertyList.filter(function(value, index, arr){
+	const filtered = propertyList.filter(function(value, index, arr){
 	    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
 	});
 	
-	var data = view.data;
-	console.log(data)
+	const data = view.data;
 	
-	//var num = propertyList.length ** 2;
-	var num = filtered.length ** 2;
+	const num = filtered.length ** 2;
+	
+	const geometry = new THREE.BufferGeometry();
+	const colors = new Float32Array(num *3);
+	const positions = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
 
-	console.log(num);
-	console.log(options.pointCloudSize);
-	console.log(options.pointCloudAlpha);
+	const covarianceInformation = [];
 	
-	var geometry = new THREE.BufferGeometry();
-	var colors = new Float32Array(num *3);
-	var positions = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-
-	var covarianceInformation = [];
-	//console.log(spatiallyResolvedData.length);
-	//console.log(num);
-	
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1);
 	lut.setMin( 0 );
 	view.lut = lut;
 	
-	var i = 0;
-	var i3 = 0;
+	let i = 0;
+	let i3 = 0;
 
-	
-	//var ii = 0, jj = 0;
-	//var step = 100 / propertyList.length;
-	var step = 100 / filtered.length;
+	const step = 100 / filtered.length;
 	for (const datapoint of data){
 		
 		positions[i3 + 0] = datapoint.row * step - 50 - (step/2);
 		positions[i3 + 1] = datapoint.column * step - 50 - (step/2);
 		positions[i3 + 2] = 0
 		
-		var tempCorrelation = datapoint.correlation;
+		const tempCorrelation = datapoint.correlation;
 
-		var color = lut.getColor( 1-Math.abs(tempCorrelation) );
+		const color = lut.getColor( 1-Math.abs(tempCorrelation) );
 	
 		colors[i3 + 0] = color.r;
 		colors[i3 + 1] = color.g;
@@ -147,7 +115,7 @@ export function getCovariance(view){
 		i++;
 		i3 += 3;
 
-		var tempInfo = { 
+		const tempInfo = { 
 						correlation: tempCorrelation,
 						x:datapoint.column_x,
 						y:datapoint.column_y
@@ -166,15 +134,8 @@ export function getCovariance(view){
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
-	var System = new THREE.Points(geometry, shaderMaterial);
-	//return System;
-
-	//particles.name = 'scatterPoints';
-			
+	const System = new THREE.Points(geometry, shaderMaterial);
 	view.covariancePlot = System;
-	//view.attributes = particles.attributes;
-	//view.geometry = particles.geometry;
-	//scene.add(System);
 
 	return System
 	
@@ -183,43 +144,38 @@ export function getCovariance(view){
 
 export function updateCovariance(view){
 
-	var options = view.options;
-	var System = view.covariancePlot;
-	var data = view.data;
+	const options = view.options;
+	const System = view.covariancePlot;
+	const data = view.data;
 
-
+	let propertyList;
 	if (options.plotData == 'spatiallyResolvedData'){
-		//var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
-		var propertyList = view.plotSetup.spatiallyResolvedPropertyList;
+		 propertyList = view.plotSetup.spatiallyResolvedPropertyList;
 	}
 
 	if (options.plotData == 'moleculeData'){
-		//var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
-		var propertyList = view.plotSetup.moleculePropertyList;
+		propertyList = view.plotSetup.moleculePropertyList;
 	}
 
-	var filtered = propertyList.filter(function(value, index, arr){
+	const filtered = propertyList.filter(function(value, index, arr){
 	    return (value != "atom") && (value != "x") && (value != "y") && (value != "z");
 	});
-	//var num = propertyList.length ** 2;
-	var num = filtered.length ** 2;
-	var colors = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const num = filtered.length ** 2;
+	const colors = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1);
 	lut.setMin( 0 );
 	view.lut = lut;
-	var i = 0;
-	var i3 = 0;
+	let i = 0;
+	let i3 = 0;
 
 	for (const datapoint of data){
 		
+		const tempCorrelation = datapoint.correlation;
 
-		
-		var tempCorrelation = datapoint.correlation;
-
-		var color = lut.getColor( 1-Math.abs(tempCorrelation) );
+		const color = lut.getColor( 1-Math.abs(tempCorrelation) );
 	
 		colors[i3 + 0] = color.r;
 		colors[i3 + 1] = color.g;
@@ -248,10 +204,10 @@ export function replotCovariance(view){
 	dispose2DPlots(view);
 	
 	arrangeDataForCovariance(view);
-	var covariance = new THREE.Group()
+	const covariance = new THREE.Group()
 
-	var covariancePlot = getCovariance(view);
-	var covarianceAxis = getAxis(view);
+	const covariancePlot = getCovariance(view);
+	const covarianceAxis = getAxis(view);
 
 	covariance.add(covariancePlot);
 	covariance.add(covarianceAxis);

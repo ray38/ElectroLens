@@ -6,28 +6,29 @@ import {getHeatmapMaterial} from "./Materials.js";
 
 export function arrangeDataToComparison(view){
 
-	var options = view.options;
+	const options = view.options;
+	let X,Y,XTransform,YTransform,Data;
 	if (options.plotData == 'spatiallyResolvedData'){
 
-		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
-		var XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
+		X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
+		XTransform = view.options.plotXTransformSpatiallyResolvedData, YTransform = view.options.plotYTransformSpatiallyResolvedData;
 
-		var Data = view.overallSpatiallyResolvedData;
+		Data = view.overallSpatiallyResolvedData;
 	}
 
 	if (options.plotData == 'moleculeData'){
-		var X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
-		var XTransform = view.options.plotXTransformMoleculeData, YTransform = view.options.plotYTransformMoleculeData;
+		X = view.options.plotXMoleculeData, Y = view.options.plotYMoleculeData;
+		XTransform = view.options.plotXTransformMoleculeData, YTransform = view.options.plotYTransformMoleculeData;
 
-		var Data = view.overallMoleculeData;
+		Data = view.overallMoleculeData;
 	}
 
 
-	var numPerSide = view.options.numPerSide;
+	const numPerSide = view.options.numPerSide;
 
-	var heatmapStep = [];
+	const heatmapStep = [];
 
-	var linThres = Math.pow(10,view.options.symlog10thres)
+	const linThres = Math.pow(10,view.options.symlog10thres)
 
 	let xValue, yValue;
 	for (let i=1; i <= numPerSide; i++) {
@@ -43,26 +44,26 @@ export function arrangeDataToComparison(view){
 	if (XTransform == 'neglog10') {xValue = function(d) {return Math.log10(-1*d[X]);}}
 	if (YTransform == 'neglog10') {yValue = function(d) {return Math.log10(-1*d[Y]);}}
 
-	let xMin = d3.min(Data, xValue);
-	let xMax = d3.max(Data, xValue);
-	let yMin = d3.min(Data, yValue);
-	let yMax = d3.max(Data, yValue);
+	const xMin = d3.min(Data, xValue);
+	const xMax = d3.max(Data, xValue);
+	const yMin = d3.min(Data, yValue);
+	const yMax = d3.max(Data, yValue);
 
 	view.xMin = xMin;
 	view.xMax = xMax;
 	view.yMin = yMin;
 	view.yMax = yMax;
 
-	let xScale = d3.scaleQuantize()
+	const xScale = d3.scaleQuantize()
 	.domain([xMin, xMax])
 	.range(heatmapStep);
 	
-	let yScale = d3.scaleQuantize()
+	const yScale = d3.scaleQuantize()
 	.domain([yMin, yMax])
 	.range(heatmapStep);
 	
-	let xMap = function(d) {return xScale(xValue(d));};
-	let yMap = function(d) {return yScale(yValue(d));}; 
+	const xMap = function(d) {return xScale(xValue(d));};
+	const yMap = function(d) {return yScale(yValue(d));}; 
 	
 	view.data = {};
 	view.dataXMin = d3.min(Data,xValue);
@@ -113,7 +114,7 @@ export function arrangeDataToComparison(view){
 }
 
 function getUniqueSelectedSystemList(list){
-	var result = [];
+	const result = [];
 	
 	for (let i = 0; i < list.length; i++) {
 		if (list[i].selected){
@@ -124,9 +125,9 @@ function getUniqueSelectedSystemList(list){
 }
 
 function getColorAverage(systemList, colorDict){
-	var weight = 1/systemList.length;
-	var result = {'r':0, 'g':0, 'b':0};
-	var tempColor;
+	const weight = 1/systemList.length;
+	const result = {'r':0, 'g':0, 'b':0};
+	const tempColor;
 	systemList.forEach(systemName => {
 		tempColor = colorDict[systemName];
 		result.r += weight * tempColor.r;
@@ -139,10 +140,7 @@ function getColorAverage(systemList, colorDict){
 
 export function getComparison(view){
 
-	
-
 	const options = view.options;
-	
 	
 	const data = view.data;
 	
@@ -168,28 +166,28 @@ export function getComparison(view){
 
 	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
 	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
+	const xPlotScale = view.xPlotScale;
+	const yPlotScale = view.yPlotScale;
 
-	var XYtoHeatmapMap = {}
+	const XYtoHeatmapMap = {}
 
 	
-	for (let x in data){
-		for (let y in data[x]){
+	for (const x in data){
+		for (const y in data[x]){
 			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
 			XYtoHeatmapMap[x][y] = i;
 
-			var xPlot = xPlotScale(parseFloat(x));
-			var yPlot = yPlotScale(parseFloat(y));
+			const xPlot = xPlotScale(parseFloat(x));
+			const yPlot = yPlotScale(parseFloat(y));
 			
 			positions[i3 + 0] = xPlot;
 			positions[i3 + 1] = yPlot;
 			positions[i3 + 2] = 0
 			
 			// var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
-			var systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
+			const systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
 			if (systemRepresented.length > 0) {
-				var color = getColorAverage(systemRepresented,colorDict);
+				const color = getColorAverage(systemRepresented,colorDict);
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -215,7 +213,7 @@ export function getComparison(view){
 			i++;
 			i3 += 3;
 
-			var tempInfo = {x:xPlot-50, 
+			const tempInfo = {x:xPlot-50, 
 							y:yPlot-50, 
 							systemRepresented: systemRepresented,
 							xStart: view.xScale.invertExtent(x)[0],
@@ -236,36 +234,36 @@ export function getComparison(view){
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
-	var material = getHeatmapMaterial();
-	var System = new THREE.Points(geometry, material);
+	const material = getHeatmapMaterial();
+	const System = new THREE.Points(geometry, material);
 
 	return System;
 	
 }
 
 export function updateComparison(view){
-	var options = view.options;
-	var System = view.heatmapPlot;
-	var data = view.data;
-	var num = heatmapPointCount(data);
-	var colors = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-	var colorDict = view.colorDict;
+	const options = view.options;
+	const System = view.heatmapPlot;
+	const data = view.data;
+	const num = heatmapPointCount(data);
+	const colors = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
+	const colorDict = view.colorDict;
 
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
 
-	var i = 0;
-	var i3 = 0;
-	for (var x in data){
-		for (var y in data[x]){
+	let i = 0;
+	let i3 = 0;
+	for (const x in data){
+		for (const y in data[x]){
 			
-			var systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
+			const systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
 			if (systemRepresented.length > 0) {
-				var color = getColorAverage(systemRepresented,colorDict);
+				const color = getColorAverage(systemRepresented,colorDict);
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -303,15 +301,10 @@ export function replotComparison(view){
 	dispose2DPlots(view);
 
 	arrangeDataToComparison(view);
-	var comparison = new THREE.Group();
+	const comparison = new THREE.Group();
 
-	var comparisonPlot = getComparison(view);
-	var comparisonAxis = getAxis(view);
-	//var heatmapLabels = getHeatmapLabels(view);
-
-	/*for (const systemName in comparisonPlots) {
-		comparison.add(comparisonPlots[systemName]);
-	}*/
+	const comparisonPlot = getComparison(view);
+	const comparisonAxis = getAxis(view);
 	comparison.add(comparisonPlot);
 	comparison.add(comparisonAxis);
 	//heatmap.add(heatmapLabels)

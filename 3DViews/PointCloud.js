@@ -23,18 +23,12 @@ export function getPointCloudGeometry(view){
 	const densityProperty = options.density;
 	let count = 0;
 
-	// console.log("before get num_points: ", performance.now() - t0)
-
-	// for ( var k = 0; k < num_blocks; k ++) {
 	for (let k=num_blocks; k--;){
-		var num_points  = min(~~(spatiallyResolvedData[k][densityProperty] * pointCloudNum), maxPointPerBlock);
+		const num_points  = min(~~(spatiallyResolvedData[k][densityProperty] * pointCloudNum), maxPointPerBlock);
 		points_in_block[k] = num_points;
 		count += num_points;
 	}
-	console.log("total points in cloud: ", count)
-	// console.log("after get num_points: ", performance.now() - t0)
-
-	
+	console.log("total points in cloud: ", count)	
 
 	const positions = new Float32Array(count*3);
 	const colors = new Float32Array(count *3);
@@ -52,10 +46,7 @@ export function getPointCloudGeometry(view){
 	lut.setMin( options.pointCloudColorSettingMin );
 	view.lut = lut;
 
-	
-
 	let xTempBeforeTransform, yTempBeforeTransform, zTempBeforeTransform;
-	// console.log("setup: ", performance.now() - t0)
 
 	const numRandom = Math.min(1000, count)
 	const randomLookUpX = new Float32Array( numRandom );
@@ -75,12 +66,10 @@ export function getPointCloudGeometry(view){
 	let i = 0, i3 = 0, lookupNum;
 	let temp_num_points = 0;
 	let x, y, z, color;
-	// for ( var k = 0; k < num_blocks; k ++) {
 	for (let k=num_blocks; k--;){
 		temp_num_points  =  points_in_block[k];
 		if (temp_num_points > 0){
 			
-			// for (var j = 0; j < temp_num_points; j ++){
 			for (let j = temp_num_points; j--;){
 
 				lookupNum = i % numRandom;
@@ -118,7 +107,6 @@ export function getPointCloudGeometry(view){
 			}
 		}			
 	}
-	// console.log("after looping: ", performance.now() - t0)
 
 	
 	const geometry = new THREE.InstancedBufferGeometry();
@@ -138,8 +126,6 @@ export function getPointCloudGeometry(view){
 	// System.userData.voxelPointDict = voxelPointDict;
 	System.frustumCulled = false;
 	view.System = System;
-	// view.pointVoxelMap = pointVoxelMap;
-
 
 	// options.render.call();
 	console.log("added to scene: ", performance.now() - t0)
@@ -154,7 +140,6 @@ export function updatePointCloudGeometry(view){
 		const pointVoxelMap = view.System.userData.pointVoxelMap ;
 		const currentFrame = options.currentFrame.toString();
 		const spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
-		// const positionArray = view.System.geometry.attributes.position.array;
 
 		const count = view.System.geometry.attributes.size.array.length;
 
@@ -176,7 +161,7 @@ export function updatePointCloudGeometry(view){
 		for (let i = 0, i3 = 0; i < count; i++){
 			let k = pointVoxelMap[i];
 
-			var color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
+			const color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
 					
 			colors[ i3 + 0 ] = color.r;
 			colors[ i3 + 1 ] = color.g;

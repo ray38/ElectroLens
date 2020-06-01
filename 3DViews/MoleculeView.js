@@ -9,8 +9,6 @@ export function getMoleculeGeometry(view){
 	view.molecule = {};
 	const options = view.options;
 	const currentFrame = options.currentFrame.toString();
-	const scene = view.scene;
-	//var moleculeData = view.systemMoleculeData;
 	const moleculeData = view.systemMoleculeDataFramed[currentFrame];
 	const neighborsData = view.systemMoleculeDataFramedBondsDict[currentFrame];
 	// console.log(moleculeData)
@@ -392,43 +390,43 @@ function createBond(options, point1, point2) {
 
 
 function updateMoleculeGeometrySpriteAtom(view) {
-	var options = view.options;
-	var sizeCode = options.moleculeSizeCodeBasis;
-	var colorCode = options.moleculeColorCodeBasis;
-	var currentFrame = options.currentFrame.toString();
+	const options = view.options;
+	const sizeCode = options.moleculeSizeCodeBasis;
+	const colorCode = options.moleculeColorCodeBasis;
+	const currentFrame = options.currentFrame.toString();
 
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
-	var atoms = view.molecule.atoms;
-	var geometry = atoms.geometry;
+	const moleculeData = view.systemMoleculeDataFramed[currentFrame];
+	const atoms = view.molecule.atoms;
+	const geometry = atoms.geometry;
 	if (colorCode != "atom" ) {
-		var colorMap = options.colorMap;
-		var numberOfColors = 512;
+		const colorMap = options.colorMap;
+		const numberOfColors = 512;
 
-		var lut = new THREE.Lut( colorMap, numberOfColors );
+		const lut = new THREE.Lut( colorMap, numberOfColors );
 		lut.setMax( options.moleculeColorSettingMax );
 		lut.setMin( options.moleculeColorSettingMin );
 		//view.lut = lut;
 		view.moleculeLut = lut;
 	}
 
-	var positions = new Float32Array(moleculeData.length * 3);
-	var colors = new Float32Array( moleculeData.length* 3);
-	var sizes = new Float32Array(moleculeData.length);
-	var alphas = new Float32Array(moleculeData.length);
+	const positions = new Float32Array(moleculeData.length * 3);
+	const colors = new Float32Array( moleculeData.length* 3);
+	const sizes = new Float32Array(moleculeData.length);
+	const alphas = new Float32Array(moleculeData.length);
 
-	var atomSize;
-	var i3 = 0;
-	for (var i = 0; i < moleculeData.length; i++) {
-		var atomData = moleculeData[i];
+	let i3 = 0;
+	for (let i = 0; i < moleculeData.length; i++) {
+		const atomData = moleculeData[i];
 		positions[i3+0] = atomData.x;
 		positions[i3+1] = atomData.y;
 		positions[i3+2] = atomData.z;
 
+		let color, atomSize;
 		if (colorCode == "atom") {
-			var color = colorToRgb(colorSetup[atomData.atom]);
+			color = colorToRgb(colorSetup[atomData.atom]);
 		}
 		else {
-			var color = lut.getColor( atomData[colorCode] );
+			color = lut.getColor( atomData[colorCode] );
 		}
 
 		colors[ i3+0 ] = color.r;
@@ -439,7 +437,7 @@ function updateMoleculeGeometrySpriteAtom(view) {
 			atomSize = options.atomSize*atomRadius[atomData.atom] * 10;
 		}
 		else {
-			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+			const tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
 			atomSize = options.atomSize*tempSize* 10;
 		}
 
@@ -659,26 +657,12 @@ export function updateMoleculeGeometrySlider(view){
 		updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
 
 		if (options.bondsStyle == "line") {
-			updateClippingPlaneLineBond(view)
-			/*view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
-			view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
-			view.molecule.bonds.material.uniforms.yClippingPlaneMax.value = options.y_high;
-			view.molecule.bonds.material.uniforms.yClippingPlaneMin.value = options.y_low;
-			view.molecule.bonds.material.uniforms.zClippingPlaneMax.value = options.z_high;
-			view.molecule.bonds.material.uniforms.zClippingPlaneMin.value = options.z_low;*/
+			updateClippingPlaneLineBond(view);
 
 		} else if (options.bondsStyle == "tube") {
-			updateClippingPlaneTubeBond(view)
-			/*const bondsMaterialShader = view.molecule.bonds.material.userData.shader;
-			bondsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
-			bondsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
-			bondsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
-			bondsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
-			bondsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
-			bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;*/
+			updateClippingPlaneTubeBond(view);
 		}
 	}
-	//  console.log('update molecule replicate took: ', performance.now() - t0);
 }
 
 
@@ -714,28 +698,13 @@ export function updateMoleculeGeometry(view){
 			updateOffsetArray(systemDimension, latticeVectors, view.molecule.bonds.geometry, options);
 
 			if (options.bondsStyle == "line") {
-				updateClippingPlaneLineBond(view)
-				/*view.molecule.bonds.material.uniforms.xClippingPlaneMax.value = options.x_high;
-				view.molecule.bonds.material.uniforms.xClippingPlaneMin.value = options.x_low;
-				view.molecule.bonds.material.uniforms.yClippingPlaneMax.value = options.y_high;
-				view.molecule.bonds.material.uniforms.yClippingPlaneMin.value = options.y_low;
-				view.molecule.bonds.material.uniforms.zClippingPlaneMax.value = options.z_high;
-				view.molecule.bonds.material.uniforms.zClippingPlaneMin.value = options.z_low;*/
+				updateClippingPlaneLineBond(view);
 	
 			} else if (options.bondsStyle == "tube") {
-				updateClippingPlaneTubeBond(view)
-				/*const bondsMaterialShader = view.molecule.bonds.material.userData.shader;
-				bondsMaterialShader.uniforms.xClippingPlaneMax.value = options.x_high;
-				bondsMaterialShader.uniforms.xClippingPlaneMin.value = options.x_low;
-				bondsMaterialShader.uniforms.yClippingPlaneMax.value = options.y_high;
-				bondsMaterialShader.uniforms.yClippingPlaneMin.value = options.y_low;
-				bondsMaterialShader.uniforms.zClippingPlaneMax.value = options.z_high;
-				bondsMaterialShader.uniforms.zClippingPlaneMin.value = options.z_low;*/
+				updateClippingPlaneTubeBond(view);
 			}
 		}
-		// console.log('update molecule replicate took: ', performance.now() - t0);
 	}
-	
 }
 
 
