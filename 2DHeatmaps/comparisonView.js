@@ -127,7 +127,7 @@ function getUniqueSelectedSystemList(list){
 function getColorAverage(systemList, colorDict){
 	const weight = 1/systemList.length;
 	const result = {'r':0, 'g':0, 'b':0};
-	const tempColor;
+	let tempColor;
 	systemList.forEach(systemName => {
 		tempColor = colorDict[systemName];
 		result.r += weight * tempColor.r;
