@@ -1,5 +1,5 @@
 export function getPointCloudMaterialInstanced(options) {
-	var uniforms = {
+	const uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
 		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) },
@@ -14,7 +14,7 @@ export function getPointCloudMaterialInstanced(options) {
 	};
 
 
-	var pointCloudMaterialInstanced = new THREE.RawShaderMaterial( {
+	const pointCloudMaterialInstanced = new THREE.RawShaderMaterial( {
 
 		uniforms:       uniforms,
 		vertexShader:   `
@@ -97,7 +97,7 @@ export function getPointCloudMaterialInstanced(options) {
 export function getMoleculeMaterialInstanced(options) {
 
 
-	var material = new THREE.MeshLambertMaterial( {
+	const material = new THREE.MeshLambertMaterial( {
 		// uniforms: uniforms,
 		vertexColors: THREE.VertexColors,
 	} );
@@ -309,7 +309,7 @@ export function getMoleculeMaterialInstanced(options) {
 
 
 export function getMoleculeAtomSpriteMaterialInstanced(options) {
-	var uniforms = {
+	const uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
 		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/ball.png" ) },
@@ -324,7 +324,7 @@ export function getMoleculeAtomSpriteMaterialInstanced(options) {
 	};
 
 
-	var pointCloudMaterialInstanced = new THREE.RawShaderMaterial( {
+	const pointCloudMaterialInstanced = new THREE.RawShaderMaterial( {
 
 		uniforms:       uniforms,
 		vertexShader:   `
@@ -397,7 +397,7 @@ export function getMoleculeAtomSpriteMaterialInstanced(options) {
 
 
 export function getMoleculeBondLineMaterialInstanced(options) {
-	var uniforms = {
+	const uniforms = {
 
 		xClippingPlaneMax: { type: 'f', value: options.x_high },
 		xClippingPlaneMin: { type: 'f', value: options.x_low  },
@@ -408,7 +408,7 @@ export function getMoleculeBondLineMaterialInstanced(options) {
 
 	};
 
-	var materialInstanced = new THREE.ShaderMaterial( {
+	const materialInstanced = new THREE.ShaderMaterial( {
 		vertexColors: THREE.VertexColors,
 		uniforms:       uniforms,
 		vertexShader:   `
@@ -452,58 +452,11 @@ export function getMoleculeBondLineMaterialInstanced(options) {
 
 }
 
-/*
-export var moleculeSpriteMaterialInstanced = new THREE.RawShaderMaterial( {
-
-	uniforms:       uniforms2,
-	vertexShader:   `
-	precision highp float;
-
-	uniform mat4 modelViewMatrix;
-	uniform mat4 projectionMatrix;
-
-	attribute vec3 position;
-
-	attribute float size;
-	attribute vec3 customColor;
-	attribute vec3 offset;
-	attribute float alpha;
-
-	varying float vAlpha;
-	varying vec3 vColor;
-
-	void main() {
-	  vColor = customColor;
-	  vAlpha = alpha;
-	  vec3 newPosition = position + offset;
-	  vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
-	  gl_PointSize = size * ( 300.0 / -mvPosition.z );
-	  gl_Position = projectionMatrix * mvPosition;
-
-	}`,
-	fragmentShader: `
-	precision highp float;
-	uniform vec3 color;
-	uniform sampler2D texture;
-
-	varying vec3 vColor;
-	varying float vAlpha;
-
-	void main() {
-	gl_FragColor = vec4( color * vColor, vAlpha );
-	gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-	}`,
-
-	blending:       THREE.AdditiveBlending,
-	depthTest:      false,
-	transparent:    true
-
-});*/
 
 export function getMoleculeAtomsMaterialInstanced(options) {
 
 
-	var material = new THREE.MeshLambertMaterial( {
+	const material = new THREE.MeshLambertMaterial( {
 		color: 0xffffff,
 		combine: THREE.MultiplyOperation,
 		vertexColors: THREE.VertexColors

@@ -2,7 +2,7 @@ import {initializeViewSetups} from "./MultiviewControl/initializeViewSetups.js";
 import {initialize2DHeatmapSetup} from "./2DHeatmaps/initialize2DHeatmapSetup.js";
 import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.js";
 
-import {getPointCloudGeometry} from "./3DViews/PointCloud_selection.js";
+import {getPointCloudGeometry} from "./3DViews/PointCloud.js";
 import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip,/*hover3DViewSpatiallyResolved, hover3DViewMolecule*/} from "./3DViews/tooltip.js";
@@ -54,21 +54,21 @@ else{
 	console.log('starting');
 	if (document.getElementById("uploader_wrapper") != null){
 		
-		var uploader = document.getElementById("uploader");
-		var uploader_wrapper = document.getElementById("uploader_wrapper");
+		const uploader = document.getElementById("uploader");
+		const uploader_wrapper = document.getElementById("uploader_wrapper");
 		uploader.addEventListener("change", handleFiles, false);
 
-		var configForm = document.getElementById("form_wrapper");
-		var divider = document.getElementById("divider");
+		const configForm = document.getElementById("form_wrapper");
+		const divider = document.getElementById("divider");
 
 		$(".save-config").click(function(e){
-			var CONFIG = readInputForm();
+			const CONFIG = readInputForm();
 			download(CONFIG, 'config.json', 'text/plain');
 		})
 
 		$( "form" ).submit(function( event ) {
 
-			var CONFIG = readInputForm();
+			const CONFIG = readInputForm();
 		    console.log("read input form");
 		    event.preventDefault();
 		    uploader.parentNode.removeChild(uploader);
@@ -88,11 +88,7 @@ else{
 
 function handleFiles() {
 
-	var file = this.files[0];
-	uploader.parentNode.removeChild(uploader);
-	uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
-	configForm.parentNode.removeChild(configForm);
-	divider.parentNode.removeChild(divider);
+	const file = this.files[0];
 
 	$.ajax({
 		url: file.path,
@@ -117,8 +113,8 @@ function handleViewSetup(data){
 	console.log("updating progress bar");
 	progressBar.set(30);*/
 	//updateProgressBar(progressBar, loadingStatus, 30, "finish reading config");
-	var views = data.views;
-	var plotSetup = data.plotSetup;
+	const views = data.views;
+	const plotSetup = data.plotSetup;
 	initializeViewSetups(views,plotSetup);
 	main(views,plotSetup);
 
@@ -126,23 +122,23 @@ function handleViewSetup(data){
 
 function main(views,plotSetup) {
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-	document.body.style.backgroundColor = "black";
-	var container, stats, renderer, effect;
-	var mouseX = 0, mouseY = 0;
+	
+	let container, stats, renderer, effect;
+	let mouseX = 0, mouseY = 0;
 	// var windowWidth, windowHeight;
 	plotSetup.windowWidth  = window.innerWidth;
 	plotSetup.windowHeight = window.innerHeight;
-	var clickRequest = false;
-	var mouseHold = false;
-	var mouseDrag = false;
+	let clickRequest = false;
+	let mouseHold = false;
+	let mouseDrag = false;
 	
-	var continuousSelection = false;
+	// var continuousSelection = false;
 
-	var activeView = views[0];
+	let activeView = views[0];
 
-	var showOptionBoxesBool = true;
-	var overallSpatiallyResolvedData = [];
-	var overallMoleculeData = [];
+	let showOptionBoxesBool = true;
+	let overallSpatiallyResolvedData = [];
+	let overallMoleculeData = [];
 
 	//initializeViewSetups(views,plotSetup);
 
@@ -192,10 +188,11 @@ function main(views,plotSetup) {
 		/*console.log("updating progress bar");
 		progressBar.animate(80);*/
 		combineData(views, overallSpatiallyResolvedData,overallMoleculeData);
+		document.body.style.backgroundColor = "black";
 		init();
 		/*console.log("updating progress bar");
 		progressBar.animate(100);)*/
-		var htmlUI = document.getElementById("UI");
+		const htmlUI = document.getElementById("UI");
 		htmlUI.parentNode.removeChild(htmlUI);
 		render(views, plotSetup);
 		animate();
@@ -219,14 +216,14 @@ function main(views,plotSetup) {
 		renderer.shadowMapEnabled = true;
 		renderer.shadowMapSoft = true;
 
-		renderer.shadowCameraNear = 1;
+		/*renderer.shadowCameraNear = 1;
 		renderer.shadowCameraFar = 60000;
 		renderer.shadowCameraFov = 100;
 
 		renderer.shadowMapBias = 0.0039;
 		renderer.shadowMapDarkness = 0.5;
 		renderer.shadowMapWidth = 1024;
-		renderer.shadowMapHeight = 1024;
+		renderer.shadowMapHeight = 1024;*/
 
 		plotSetup.renderer = renderer;
 
@@ -428,8 +425,6 @@ function main(views,plotSetup) {
 
 			temp_view.overallSpatiallyResolvedData = overallSpatiallyResolvedData;
 			temp_view.overallMoleculeData = overallMoleculeData;
-			//console.log(temp_view.spatiallyResolvedData);
-			//console.log(temp_view.overallMoleculeData);
 			if (overallSpatiallyResolvedData.length > 0){
 				temp_view.overallSpatiallyResolvedDataBoolean = true;
 			}
@@ -474,8 +469,8 @@ function main(views,plotSetup) {
 	
 
 	function updateActiveView(views){
-		for ( var ii = 0; ii < views.length; ++ii ){
-			var view = views[ii];
+		for ( let ii = 0; ii < views.length; ++ii ){
+			let view = views[ii];
 			if (view.controllerEnabled){
 				return view;
 			}
@@ -521,20 +516,6 @@ function main(views,plotSetup) {
 		for ( let ii = 0; ii < views.length; ++ii ){
 			const view = views[ii];
 			if (view.controllerEnabled){
-				/*const left   = Math.floor( plotSetup.windowWidth  * view.left );
-				const top    = Math.floor( plotSetup.windowHeight * view.top );
-				// var width  = Math.floor( windowWidth  * view.width ) + left;
-				// var height = Math.floor( windowHeight * view.height ) + top;
-				const vector = new THREE.Vector3();
-			
-				vector.set(	(((mouseEvent.clientX-left)/Math.floor( plotSetup.windowWidth  * view.width )) * 2 - 1),
-							(-((mouseEvent.clientY-top)/Math.floor( plotSetup.windowHeight * view.height )) * 2 + 1),
-							0.1);
-				vector.unproject( view.camera );
-				const dir = vector.sub( view.camera.position ).normalize();
-				const distance = - view.camera.position.z/dir.z;
-				view.mousePosition = view.camera.position.clone().add( dir.multiplyScalar( distance ) );
-				selectionControl(views, activeView, mouseHold);*/
 				if (view.viewType == "2DHeatmap"){
 					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
 						|| view.options.plotType == "PCA" || view.options.plotType == "Umap") 
@@ -641,13 +622,6 @@ function main(views,plotSetup) {
 		// processSelection( );
 		stats.update();
 
-		/*for ( var ii = 0; ii < views.length; ++ii ) {
-			var view = views[ii];
-			if (view.viewType == '3DView') {
-				view.controller.update();
-			}
-		}*/
-
 		requestAnimationFrame( animate );
 	}
 
@@ -666,7 +640,6 @@ function main(views,plotSetup) {
 
 export function render(views, plotSetup) {
 	try {
-		// console.log('called render')
 		const renderer = plotSetup.renderer;
 		updateSize(views, plotSetup);
 		for ( let ii = 0; ii < views.length; ++ii ) {
@@ -696,8 +669,22 @@ export function render(views, plotSetup) {
 			//if (view.controllerEnabled) {renderer.setClearColor( view.controllerEnabledBackground );}
 			//else {renderer.setClearColor( view.background );}
 
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
+			if (view.options.cameraType === "perspective"){
+				camera.aspect = width / height;
+				camera.updateProjectionMatrix();
+			}
+			if (view.options.cameraType === "orthographic"){
+				const aspect = width / height;
+				camera.left = view.options.cameraFrustumSize * aspect / - 2;
+				camera.right = view.options.cameraFrustumSize  * aspect / 2;
+				camera.top = view.options.cameraFrustumSize  / 2;
+				camera.bottom = - view.options.cameraFrustumSize  / 2;
+
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+			
 			renderer.clear();
 			renderer.render( view.scene, camera );
 			//effect.render( view.scene, camera  );

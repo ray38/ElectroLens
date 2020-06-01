@@ -1,10 +1,5 @@
 export function readInputForm() {
-    for (var i = 0; i < NUMBER3DVIEWS; i++) { 
-        /* document.getElementById('view'+ (i+1) +'YMax').disabled = false;
-        document.getElementById('view'+ (i+1) +'ZMax').disabled = false;
-        document.getElementById('view'+ (i+1) +'YMin').disabled = false;
-        document.getElementById('view'+ (i+1) +'ZMin').disabled = false; */
-        
+    for (let i = 0; i < NUMBER3DVIEWS; i++) {         
         document.getElementById('view'+ (i+1) +'YDim').disabled = false;
         document.getElementById('view'+ (i+1) +'ZDim').disabled = false;
         document.getElementById('view'+ (i+1) +'YNumPoints').disabled = false;
@@ -23,23 +18,24 @@ export function readInputForm() {
         document.getElementById('view'+ (i+1) +'LatVec33').disabled = false;
     }  
 
-    var tempFormResult = { };
-    var CONFIG = {"views":[],"plotSetup":{}};
+    const tempFormResult = { };
+    const CONFIG = {"views":[],"plotSetup":{}};
     $.each($('form').serializeArray(), function() {
         tempFormResult[this.name] = this.value;
     });
 
-    if (tempFormResult["boolSpatiallyResolvedData"] == "yes") {var boolSpatiallyResolved = true;}
-    else {var boolSpatiallyResolved = false;}
+    let boolSpatiallyResolved, boolMolecular, boolFramed;
+    if (tempFormResult["boolSpatiallyResolvedData"] == "yes") {boolSpatiallyResolved = true;}
+    else {boolSpatiallyResolved = false;}
 
-    if (tempFormResult["boolMolecularData"] == "yes") {var boolMolecular = true;}
-    else {var boolMolecular = false;}
+    if (tempFormResult["boolMolecularData"] == "yes") {boolMolecular = true;}
+    else {boolMolecular = false;}
 
-    if (tempFormResult["boolFramedData"] == "yes") {var boolFramed = true;}
-    else {var boolFramed = false;}
+    if (tempFormResult["boolFramedData"] == "yes") {boolFramed = true;}
+    else {boolFramed = false;}
     
 
-    var boolFormFilledCorrectly = false;
+    let boolFormFilledCorrectly = false;
 
 
     if (boolSpatiallyResolved) {
@@ -67,16 +63,13 @@ export function readInputForm() {
         console.log("Data not framed");
     }
 
-    for (var i = 1; i < NUMBER3DVIEWS+1; i++) {
-        var tempViewSetup = {"viewType": "3DView"};
+    for (let i = 1; i < NUMBER3DVIEWS+1; i++) {
+        const tempViewSetup = {"viewType": "3DView"};
         tempViewSetup["moleculeName"] = tempFormResult["view" + i + "Name"];
-        /* tempViewSetup["systemDimension"] = {"x":[Number(tempFormResult["view"+i+"XMin"]), Number(tempFormResult["view"+i+"XMax"])],
-                                            "y":[Number(tempFormResult["view"+i+"YMin"]), Number(tempFormResult["view"+i+"YMax"])],
-                                            "z":[Number(tempFormResult["view"+i+"ZMin"]), Number(tempFormResult["view"+i+"ZMax"])]}; */
         tempViewSetup["systemDimension"] = {"x": Number(tempFormResult["view"+i+"XDim"]),
                                             "y": Number(tempFormResult["view"+i+"YDim"]),
                                             "z": Number(tempFormResult["view"+i+"ZDim"])};
-        var tempU = { 	"u11":Number(tempFormResult["view"+i+"LatVec11"]), 
+        const tempU = { 	"u11":Number(tempFormResult["view"+i+"LatVec11"]), 
                         "u12":Number(tempFormResult["view"+i+"LatVec12"]), 
                         "u13":Number(tempFormResult["view"+i+"LatVec13"]), 
                         "u21":Number(tempFormResult["view"+i+"LatVec21"]), 
@@ -109,10 +102,10 @@ export function readInputForm() {
 }
 
 function normalizeLatticeVectors(U) {
-	var magnitude1 = Math.sqrt(U.u11 * U.u11 + U.u12 * U.u12 + U.u13 * U.u13);
-	var magnitude2 = Math.sqrt(U.u21 * U.u21 + U.u22 * U.u22 + U.u23 * U.u23);
-	var magnitude3 = Math.sqrt(U.u31 * U.u31 + U.u32 * U.u32 + U.u33 * U.u33);
-	var result = {
+	const magnitude1 = Math.sqrt(U.u11 * U.u11 + U.u12 * U.u12 + U.u13 * U.u13);
+	const magnitude2 = Math.sqrt(U.u21 * U.u21 + U.u22 * U.u22 + U.u23 * U.u23);
+	const magnitude3 = Math.sqrt(U.u31 * U.u31 + U.u32 * U.u32 + U.u33 * U.u33);
+	const result = {
 		"u11": U.u11 / magnitude1, 
 		"u12": U.u12 / magnitude1, 
 		"u13": U.u13 / magnitude1, 

@@ -1,11 +1,11 @@
 export function addOptionBox(view){
-	var tempGuiContainer = document.createElement('div');
+	const tempGuiContainer = document.createElement('div');
 		
 	tempGuiContainer.style.position = 'absolute';
 	tempGuiContainer.style.top = view.windowTop +1+ 'px';
 	tempGuiContainer.style.left = view.windowLeft +1+ 'px';
 	document.body.appendChild(tempGuiContainer);
-	var tempGui = new dat.GUI( { autoPlace: false } );
+	const tempGui = new dat.GUI( { autoPlace: false } );
 	view.guiContainer = tempGuiContainer;
 	view.gui = tempGui;
 
@@ -15,8 +15,8 @@ export function addOptionBox(view){
 
 export function updateOptionBoxLocation(views){
 	setTimeout(function(){
-    	for ( var ii = 0; ii < views.length; ++ii ){
-			var view = views[ii];
+    	for ( let ii = 0; ii < views.length; ++ii ){
+			const view = views[ii];
 			view.guiContainer.style.top = view.windowTop +1+ 'px';
 			view.guiContainer.style.left = view.windowLeft +1+ 'px';
 		}
@@ -26,15 +26,15 @@ export function updateOptionBoxLocation(views){
 
 
 function hideAllOptionBoxes(views){
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ++ii ) {
+		const view = views[ii];
 		view.guiContainer.style.visibility = "hidden";
 	}
 }
 
 function showAllOptionBoxes(views){
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ++ii ) {
+		const view = views[ii];
 		view.guiContainer.style.visibility = "visible";
 	}
 }

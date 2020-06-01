@@ -1,9 +1,9 @@
-import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "./PointCloud_selection.js";
+import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry} from "./PointCloud.js";
 import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, updateMoleculeGeometry,updateMoleculeGeometrySlider} from "./MoleculeView.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
-import {updateCamLightPosition, updateCameraFov} from "../MultiviewControl/setupViewBasic.js";
+import {updateCamLightPosition, updateCameraFov, switchCamera} from "../MultiviewControl/setupViewBasic.js";
 import {colorMapDict} from "../Utilities/colorMap.js";
 export function setupOptionBox3DView(view,plotSetup){
 
@@ -53,29 +53,33 @@ export function setupOptionBox3DView(view,plotSetup){
 		options.syncOptions.call();
 	})
 
-	systemInfoFolder.add( options, 'showMolecule')
-	.name('Show Molecule')
-	.onChange( function( value ) {
-		if (value == true) {
-			getMoleculeGeometry(view);
-		} else {
-			removeMoleculeGeometry(view);
-		}
-		if (options.sync3DView) {options.syncOptions.call();}
-		options.render.call();
-	});
+	if (view.systemMoleculeDataBoolean) {
+		systemInfoFolder.add( options, 'showMolecule')
+		.name('Show Molecule')
+		.onChange( function( value ) {
+			if (value == true) {
+				getMoleculeGeometry(view);
+			} else {
+				removeMoleculeGeometry(view);
+			}
+			if (options.sync3DView) {options.syncOptions.call();}
+			options.render.call();
+		});
+	}
 
-	systemInfoFolder.add( options, 'showPointCloud')
-	.name('Show Point Cloud')
-	.onChange( function( value ) {
-		if (value == true) {
-			getPointCloudGeometry(view);
-		} else {
-			removePointCloudGeometry(view);
-		}
-		if (options.sync3DView) {options.syncOptions.call();}
-		options.render.call();
-	});
+	if (view.systemSpatiallyResolvedDataBoolean) {
+		systemInfoFolder.add( options, 'showPointCloud')
+		.name('Show Point Cloud')
+		.onChange( function( value ) {
+			if (value == true) {
+				getPointCloudGeometry(view);
+			} else {
+				removePointCloudGeometry(view);
+			}
+			if (options.sync3DView) {options.syncOptions.call();}
+			options.render.call();
+		});
+	}
 
 	systemInfoFolder.open();
 
@@ -84,6 +88,12 @@ export function setupOptionBox3DView(view,plotSetup){
 
 
 	viewFolder.add( options, 'resetCamera').name('Set Camera');
+	// viewFolder.add( options, 'switchCamera').name('Switch Camera');
+	viewFolder.add( options, 'cameraType', {'perspective':'perspective', 'orthographic':'orthographic'})
+	.onChange( function( cameraType ){
+		switchCamera(cameraType, view)
+		options.render.call();
+	});
 	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.add( options, 'systemEdgeBoolean')
 	.name('System Edge')

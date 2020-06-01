@@ -1,19 +1,47 @@
 export function setupViewCameraSceneController(view,renderer){
 
-	var camera = new THREE.PerspectiveCamera( view.options.cameraFov, window.innerWidth / window.innerHeight, 1, 100000 );
-	camera.position.fromArray( view.eye );
-
-
+	const camera = new THREE.PerspectiveCamera( view.options.cameraFov, window.innerWidth / window.innerHeight, 1, 100000 );
+	// console.log("camera eye",view.eye, view.geometryCenter)
+	// console.log(view.eye[0] + view.geometryCenter[0], view.eye[1] + view.geometryCenter[1], view.eye[2] + view.geometryCenter[2])
+	// camera.position.set( view.eye[0] , view.eye[1] , view.eye[2]  );
+	camera.position.set( view.eye[0] + view.geometryCenter[0], view.eye[1] + view.geometryCenter[1], view.eye[2] + view.geometryCenter[2] );
+	// camera.rotation.set(0,0,0);
+	// camera.lookAt(view.geometryCenter[0], view.geometryCenter[1], view.geometryCenter[2] )
+	console.log("camera", camera)
+	
 	view.camera = camera;
 
-	var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+
+
+	/*
+	const aspect = window.innerWidth / window.innerHeight;
+	const cameraPerspective = new THREE.PerspectiveCamera( view.options.cameraFov, aspect, 1, 100000 );
+	cameraPerspective.position.set( view.eye[0] + view.geometryCenter[0], view.eye[1] + view.geometryCenter[1], view.eye[2] + view.geometryCenter[2] );
+
+	const cameraOrtho = new THREE.OrthographicCamera( view.options.cameraFrustumSize * aspect / - 2, view.options.cameraFrustumSize * aspect / 2, view.options.cameraFrustumSize / 2, view.options.cameraFrustumSize / - 2, 1, 100000 );
+	cameraOrtho.position.set( view.eye[0] + view.geometryCenter[0], view.eye[1] + view.geometryCenter[1], view.eye[2] + view.geometryCenter[2] );
+
+	view.camera = cameraPerspective;
+
+
+	const cameraRig = new THREE.Group();
+
+	cameraRig.add( cameraPerspective );
+	cameraRig.add( cameraOrtho );
+
+	view.cameraRig = cameraRig;
+
+*/
+
+
+	const dirLight = new THREE.DirectionalLight(0xffffff, 1);
 
 	dirLight.castShadow = true;
 	dirLight.shadowDarkness = 1.0;
 	dirLight.shadowCameraVisible = true;
 	dirLight.position.set(0,0,0);
 	view.camLight = dirLight
-	view.camera.add(dirLight);
+	view.camera.add(view.camLight);
 	
 
 	/*var dirLightHeper = new THREE.DirectionalLightHelper(dirLight, 10);
@@ -28,11 +56,15 @@ export function setupViewCameraSceneController(view,renderer){
 	view.scene.add(hemiLightHelper);*/
 
 
-	var tempController = new THREE.OrbitControls( camera, renderer.domElement );
-	tempController.minAzimuthAngle = - Infinity; // radians
-	tempController.maxAzimuthAngle = Infinity; // radians
-	tempController.minPolarAngle = - 2* Math.PI; // radians
-	tempController.maxPolarAngle = 2* Math.PI; // radians
+	const tempController = new THREE.OrbitControls( view.camera, renderer.domElement );
+	tempController.target.set( view.geometryCenter[0], view.geometryCenter[1], view.geometryCenter[2]  );
+	// camera.rotation.set(0,0,0);
+	view.camera.rotation.set(0,0,0);
+	// console.log(tempController)
+	// tempController.minAzimuthAngle = - Infinity; // radians
+	// tempController.maxAzimuthAngle = Infinity; // radians
+	// tempController.minPolarAngle = - 2* Math.PI; // radians
+	// tempController.maxPolarAngle = 2* Math.PI; // radians
 	/* var tempController = new THREE.TrackballControls( camera, renderer.domElement );
 	tempController.rotateSpeed = 20.0; */
 	/*tempController.zoomSpeed = 10.2;
@@ -41,15 +73,17 @@ export function setupViewCameraSceneController(view,renderer){
 	tempController.noPan = false;
 	tempController.staticMoving = true;*/
 	view.controller = tempController;
-	var tempScene = new THREE.Scene();
+	const tempScene = new THREE.Scene();
 
 	view.scene = tempScene;
 	view.scene.add(view.camera);
+	view.renderer = renderer;
+	// view.scene.add( cameraRig );
 
-	var left   = Math.floor( window.innerWidth  * view.left );
-	var top    = Math.floor( window.innerHeight * view.top );
-	var width  = Math.floor( window.innerWidth  * view.width );
-	var height = Math.floor( window.innerHeight * view.height );
+	const left   = Math.floor( window.innerWidth  * view.left );
+	const top    = Math.floor( window.innerHeight * view.top );
+	const width  = Math.floor( window.innerWidth  * view.width );
+	const height = Math.floor( window.innerHeight * view.height );
 
 	view.windowLeft = left;
 	view.windowTop = top;
@@ -65,4 +99,65 @@ export function updateCamLightPosition(view){
 export function updateCameraFov(view){
 	view.camera.fov = view.options.cameraFov;
 	view.camera.updateProjectionMatrix();
+}
+
+export function switchCamera(cameraType, view){
+	if (cameraType === "orthographic"){
+		view.scene.remove(view.camera);
+
+		console.log("change to orthographic")
+		view.options.cameraType = "orthographic";
+		const aspect = window.innerWidth / window.innerHeight;
+		const cameraOrtho = new THREE.OrthographicCamera( view.options.cameraFrustumSize * aspect / - 2, 
+														  view.options.cameraFrustumSize * aspect / 2, 
+														  view.options.cameraFrustumSize / 2, 
+														  view.options.cameraFrustumSize / - 2, 
+														  1, 100000 );
+		cameraOrtho.position.set( view.eye[0] + view.geometryCenter[0], 
+								  view.eye[1] + view.geometryCenter[1], 
+								  view.eye[2] + view.geometryCenter[2] );
+
+		view.camera = cameraOrtho;
+		const tempController = new THREE.OrbitControls( view.camera, view.renderer.domElement );
+		tempController.target.set( view.geometryCenter[0], view.geometryCenter[1], view.geometryCenter[2]  );
+		view.camera.rotation.set(0,0,0);
+		view.controller = tempController;
+
+		const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+
+		dirLight.castShadow = true;
+		dirLight.shadowDarkness = 1.0;
+		dirLight.shadowCameraVisible = true;
+		dirLight.position.set(0,0,0);
+		view.camLight = dirLight
+		view.camera.add(view.camLight);
+		view.scene.add(view.camera);
+	}
+	if (cameraType === "perspective"){
+		view.scene.remove(view.camera)
+
+		console.log("change to perspective")
+		view.options.cameraType = "perspective";
+		const aspect = window.innerWidth / window.innerHeight;
+		const cameraPerspective = new THREE.PerspectiveCamera( view.options.cameraFov, aspect, 1, 100000 );
+		cameraPerspective.position.set( view.eye[0] + view.geometryCenter[0], 
+										view.eye[1] + view.geometryCenter[1], 
+										view.eye[2] + view.geometryCenter[2] );
+
+		view.camera = cameraPerspective;
+		const tempController = new THREE.OrbitControls( view.camera, view.renderer.domElement );
+		tempController.target.set( view.geometryCenter[0], view.geometryCenter[1], view.geometryCenter[2]  );
+		view.camera.rotation.set(0,0,0);
+		view.controller = tempController;
+
+		const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+
+		dirLight.castShadow = true;
+		dirLight.shadowDarkness = 1.0;
+		dirLight.shadowCameraVisible = true;
+		dirLight.position.set(0,0,0);
+		view.camLight = dirLight
+		view.camera.add(view.camLight);
+		view.scene.add(view.camera);
+	}
 }

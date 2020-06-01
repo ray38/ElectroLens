@@ -1,45 +1,37 @@
 export function saveSystemMoleculeData(view, plotSetup){
-	//var data;
 	console.log("save MoleculeData");
-	var csv = convertArrayOfObjectsToCSV(view.systemMoleculeData, plotSetup["moleculePropertyList"].slice());
+	const csv = convertArrayOfObjectsToCSV(view.systemMoleculeData, plotSetup["moleculePropertyList"].slice());
 }
 
 export function saveSystemSpatiallyResolvedData(view, plotSetup){
-	//var data;
 	console.log("save SpatiallyResolvedData");
-	var csv = convertArrayOfObjectsToCSV(view.data, plotSetup["spatiallyResolvedPropertyList"].slice());
+	const csv = convertArrayOfObjectsToCSV(view.data, plotSetup["spatiallyResolvedPropertyList"].slice());
 }
 
 export function saveOverallMoleculeData(view, plotSetup){
-	//var data;
 	console.log("save overall MoleculeData");
-	var csv = convertArrayOfObjectsToCSV(view.overallMoleculeData, plotSetup["moleculePropertyList"].slice());
+	const csv = convertArrayOfObjectsToCSV(view.overallMoleculeData, plotSetup["moleculePropertyList"].slice());
 }
 
 export function saveOverallSpatiallyResolvedData(view, plotSetup){
-	//var data;
 	console.log("save overall SpatiallyResolvedData");
-	var csv = convertArrayOfObjectsToCSV(view.spatiallyResolvedData, plotSetup["spatiallyResolvedPropertyList"].slice());
+	const csv = convertArrayOfObjectsToCSV(view.spatiallyResolvedData, plotSetup["spatiallyResolvedPropertyList"].slice());
 }
 
 
 
 export function download(content, fileName, contentType) {
-	var contentToWrite = JSON.stringify(content, null, 2);
-    var a = document.createElement("a");
-    var file = new Blob([contentToWrite], {type: contentType});
+	const contentToWrite = JSON.stringify(content, null, 2);
+    const a = document.createElement("a");
+    const file = new Blob([contentToWrite], {type: contentType});
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
 }
 
 function convertArrayOfObjectsToCSV(data, keys) {
-    var result, ctr, columnDelimiter, lineDelimiter;
+    let result, ctr, columnDelimiter, lineDelimiter;
 
-    /*if (data == null || !data.length) {
-        return null;
-    }*/
-    //console.log(data);
 
     if (keys.indexOf("z") < 0) {keys.unshift("z");}
     if (keys.indexOf("y") < 0) {keys.unshift("y");}
@@ -67,32 +59,20 @@ function convertArrayOfObjectsToCSV(data, keys) {
         result += lineDelimiter;
     });
 
-    var filename = 'export.csv';
+    const filename = 'export.csv';
 
-	/*if (!result.match(/^data:text\/csv/i)) {
-	    result = 'data:text/csv;charset=utf-8,' + result;
-	}
-	var result_data = encodeURI(result);
-
-	//console.log(data);
-
-	var link = document.createElement('a');
-	link.setAttribute('href', result_data);
-	link.setAttribute('download', filename);
-	link.click();*/
-
-	var blob = new Blob([result], {type: "text/csv;charset=utf-8;"});
+	const blob = new Blob([result], {type: "text/csv;charset=utf-8;"});
 	if (navigator.msSaveBlob)
 		{ // IE 10+
 		navigator.msSaveBlob(blob, filename)
 		}
 	else
 		{
-		var link = document.createElement("a");
+		const link = document.createElement("a");
 		if (link.download !== undefined)
 			{
 				// feature detection, Browsers that support HTML5 download attribute
-				var url = URL.createObjectURL(blob);
+				const url = URL.createObjectURL(blob);
 				link.setAttribute("href", url);
 				link.setAttribute("download", filename);
 				link.style = "visibility:hidden";

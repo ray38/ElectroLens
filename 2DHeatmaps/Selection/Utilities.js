@@ -4,7 +4,7 @@ import {updateUmapHeatmap} from "../UmapView.js";
 import {updateComparison} from "../comparisonView.js"
 //import {updatePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
 
-import {updatePointCloudGeometry,updatePointCloudGeometrySelection} from "../../3DViews/PointCloud_selection.js";
+import {updatePointCloudGeometry,updatePointCloudGeometrySelection} from "../../3DViews/PointCloud.js";
 import {updateMoleculeGeometry,updateMoleculeGeometryScale} from "../../3DViews/MoleculeView.js";
 
 

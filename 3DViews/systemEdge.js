@@ -1,15 +1,16 @@
 export function addSystemEdge(view){
 
-	var options = view.options;
-	var scene = view.scene;
+	const scene = view.scene;
 	
-	var geometry = new THREE.BoxBufferGeometry(view.systemDimension.x, view.systemDimension.y, view.systemDimension.z);
-	let transformedPositionArray = transformPositionArray(geometry.attributes.position.array, view.systemLatticeVectors);
+	//const geometry = new THREE.BoxBufferGeometry(view.systemDimension.x, view.systemDimension.y, view.systemDimension.z);
+	const boxGeometry = new THREE.BoxGeometry(1,1,1).translate(0.5,0.5,0.5).scale(view.systemDimension.x, view.systemDimension.y, view.systemDimension.z);
+	const geometry = new THREE.BufferGeometry().fromGeometry(boxGeometry);
+	const transformedPositionArray = transformPositionArray(geometry.attributes.position.array, view.systemLatticeVectors);
 	geometry.setAttribute( 'position', new THREE.BufferAttribute( transformedPositionArray, 3 ) );
 
-	var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
-	var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
-	var wireframe = new THREE.LineSegments( geo, mat );
+	const geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
+	const mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
+	const wireframe = new THREE.LineSegments( geo, mat );
 	view.systemEdge = wireframe; 
 	scene.add( wireframe );
 	console.log("added edge")
@@ -20,8 +21,8 @@ export function removeSystemEdge(view){
 }
 
 function transformPositionArray(array, U){
-	var X = [], Y = [], Z = [];
-	var result = new Float32Array(array.length)
+	const X = [], Y = [], Z = [];
+	const result = new Float32Array(array.length)
 
 	for (let i = 0; i < array.length; i++) {
 		switch (i%3) {

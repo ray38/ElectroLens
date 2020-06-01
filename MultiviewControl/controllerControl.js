@@ -1,10 +1,10 @@
 export function updateController(views, windowWidth, windowHeight, mouseX, mouseY){
-	for ( var ii = 0; ii < views.length; ++ii ){
-		var view = views[ii];
-		var left   = Math.floor( windowWidth  * view.left );
-		var top    = Math.floor( windowHeight * view.top );
-		var right  = Math.floor( windowWidth  * view.width ) + left;
-		var bottom = Math.floor( windowHeight * view.height ) + top;
+	for ( let ii = 0; ii < views.length; ++ii ){
+		const view = views[ii];
+		const left   = Math.floor( windowWidth  * view.left );
+		const top    = Math.floor( windowHeight * view.top );
+		const right  = Math.floor( windowWidth  * view.width ) + left;
+		const bottom = Math.floor( windowHeight * view.height ) + top;
 		
 		// console.log(left, right, top, bottom, mouseX, mouseY)
 		if (mouseX > left && mouseX < right && mouseY > top && mouseY < bottom){

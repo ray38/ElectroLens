@@ -1,6 +1,6 @@
 export function activate2DPlotSpatiallyResolved(plotSetup, view, views) {
-    for (var ii =  0; ii < views.length; ++ii ) {
-        var tempView = views[ii];
+    for (let ii =  0; ii < views.length; ++ii ) {
+        const tempView = views[ii];
         tempView.options.activeViewSpatiallyResolved = false;
         tempView.gui.updateDisplay();
     }
@@ -12,8 +12,8 @@ export function activate2DPlotSpatiallyResolved(plotSetup, view, views) {
 }
 
 export function deactivate2DPlotsSpatiallyResolved(plotSetup, views){
-    for (var ii =  0; ii < views.length; ++ii ) {
-        var tempView = views[ii];
+    for (let ii =  0; ii < views.length; ++ii ) {
+        const tempView = views[ii];
         tempView.options.activeViewSpatiallyResolved = false;
         tempView.gui.updateDisplay();
     }
@@ -22,8 +22,8 @@ export function deactivate2DPlotsSpatiallyResolved(plotSetup, views){
 }
 
 export function activate2DPlotMolecule(plotSetup, view, views) {
-    for (var ii =  0; ii < views.length; ++ii ) {
-        var tempView = views[ii];
+    for (let ii =  0; ii < views.length; ++ii ) {
+        const tempView = views[ii];
         tempView.options.activeViewMolecule = false;
         tempView.gui.updateDisplay();
     }
@@ -35,8 +35,8 @@ export function activate2DPlotMolecule(plotSetup, view, views) {
 }
 
 export function deactivate2DPlotsMolecule(plotSetup, views){
-    for (var ii =  0; ii < views.length; ++ii ) {
-        var tempView = views[ii];
+    for (let ii =  0; ii < views.length; ++ii ) {
+        const tempView = views[ii];
         tempView.options.activeViewMolecule = false;
         tempView.gui.updateDisplay();
     }

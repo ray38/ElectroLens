@@ -423,31 +423,3 @@ function getArrays2(data,propertyList){
 	}
 	return result;
 }
-
-/*function countListSelected(list) {
-	var count = 0;
-	
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].selected){ count += 1;}
-	}
-	return count;
-}
-
-function isAnyHighlighted(list) {
-
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].highlighted){ return true; }
-	}
-	return false;
-	
-}
-
-function heatmapPointCount(data){
-	var count = 0;
-	for (var x in data){
-		for (var y in data[x]){
-			count = count + 1;
-		}
-	}
-	return count;
-}*/

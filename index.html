@@ -17,6 +17,11 @@
     .text-divider:before{ content: " "; display: block; border-top: 1px solid #e3e3e3; border-bottom: 1px solid #f7f7f7;}
     .load-window{overflow: scroll;height: 15%; width: 80%;left: 10%;align-items: center;}
     .config-window{overflow: scroll;height: 75%; width: 80%;left: 10%;align-items: center;}
+    select {
+      height:15px;
+      border-radius:0px;
+      background:#ffffff;
+    }
   </style>
   <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
   <script src="vendor/jquery/jquery-3.4.1.js"></script>
@@ -32,6 +37,7 @@
 <!--
   <script src="js/three.texttexture.js"></script>
   <script src="js/three.textsprite.js"></script>
+  <script src="js/jQuery.js"></script>
 -->
   <script src="js/three-spritetext.js"></script>
   <script src="js/jeezy.js"></script>
@@ -41,10 +47,6 @@
   <script src="js/loading-bar.js"></script>
 
   
-
-  <script src="js/jQuery.js"></script>
- 
-
   
 
   <script src="js/Detector.js"></script>
@@ -699,20 +701,10 @@
 
     <div id="container"></div>
 
-
     <section id='spinner'></section>
     
-    
 
-
-
-
-    <script  type="module" src="2D3D_connection_heatmap.js"></script>
-    <!--
-    <script>
-      electroLensMain();
-    </script>
-    -->
+    <script  type="module" src="ElectroLensMain.js"></script>
     
  
 </body>

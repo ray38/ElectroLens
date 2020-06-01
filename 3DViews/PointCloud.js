@@ -83,14 +83,6 @@ export function getPointCloudGeometry(view){
 			// for (var j = 0; j < temp_num_points; j ++){
 			for (let j = temp_num_points; j--;){
 
-				/*xTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.x;
-				yTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.y;
-				zTempBeforeTransform = (Math.random() - 0.5) * gridSpacing.z;
-
-				x = latticeVectors.u11 * xTempBeforeTransform + latticeVectors.u21 * yTempBeforeTransform + latticeVectors.u31 * zTempBeforeTransform + spatiallyResolvedData[k].x;
-				y = latticeVectors.u12 * xTempBeforeTransform + latticeVectors.u22 * yTempBeforeTransform + latticeVectors.u32 * zTempBeforeTransform + spatiallyResolvedData[k].y;
-				z = latticeVectors.u13 * xTempBeforeTransform + latticeVectors.u23 * yTempBeforeTransform + latticeVectors.u33 * zTempBeforeTransform + spatiallyResolvedData[k].z;
-				*/
 				lookupNum = i % numRandom;
 				x = randomLookUpX[lookupNum] + spatiallyResolvedData[k].x;
 				y = randomLookUpY[lookupNum] + spatiallyResolvedData[k].y;
@@ -104,21 +96,6 @@ export function getPointCloudGeometry(view){
 				colors[ i3 + 0 ] = color.r;
 				colors[ i3 + 1 ] = color.g;
 				colors[ i3 + 2 ] = color.b;
-
-				/*if (spatiallyResolvedData[k].highlighted) {
-					sizes[ i ] = options.pointCloudSize * 3;
-					alphas[ i ] = 1;
-				} else if (spatiallyResolvedData[k].selected){
-					alphas[ i ] = options.pointCloudAlpha;
-					if (options.animate) {
-						sizes[ i ] = Math.random() * options.pointCloudSize;
-					} else { 
-						sizes[ i ] = options.pointCloudSize; 
-					}
-				} else {
-					alphas[ i ] = 0;
-					sizes[ i ] = 0;
-				}*/
 
 				if (spatiallyResolvedData[k].highlighted) {
 					sizes[ i ] = options.pointCloudSize * 5;
@@ -174,7 +151,6 @@ export function updatePointCloudGeometry(view){
 	const t0 = performance.now();
 	const options = view.options;
 	if (options.showPointCloud && view.System) {
-		// var parentBlock = view.System.geometry.parentBlockMap;
 		const pointVoxelMap = view.System.userData.pointVoxelMap ;
 		const currentFrame = options.currentFrame.toString();
 		const spatiallyResolvedData = view.systemSpatiallyResolvedDataFramed[currentFrame];
@@ -198,9 +174,6 @@ export function updatePointCloudGeometry(view){
 		view.lut = lut;
 
 		for (let i = 0, i3 = 0; i < count; i++){
-			// let x = positionArray[i3 + 0];
-			// let y = positionArray[i3 + 1];
-			// let z = positionArray[i3 + 2];
 			let k = pointVoxelMap[i];
 
 			var color = lut.getColor( spatiallyResolvedData[k][options.propertyOfInterest] );
@@ -208,22 +181,6 @@ export function updatePointCloudGeometry(view){
 			colors[ i3 + 0 ] = color.r;
 			colors[ i3 + 1 ] = color.g;
 			colors[ i3 + 2 ] = color.b;
-
-			/*if (spatiallyResolvedData[k].highlighted) {
-				// console.log('found highlighted point', k );
-				sizes[ i ] = options.pointCloudSize * 3;
-				alphas[ i ] = 1;
-			} else if (spatiallyResolvedData[k].selected){
-				alphas[ i ] = options.pointCloudAlpha;
-				if (options.animate) {
-					sizes[ i ] = Math.random() * options.pointCloudSize;
-				} else { 
-					sizes[ i ] = options.pointCloudSize; 
-				}
-			} else {
-				alphas[ i ] = 0;
-				sizes[ i ] = 0;
-			}*/
 
 			if (spatiallyResolvedData[k].highlighted) {
 				sizes[ i ] = options.pointCloudSize * 3;
@@ -370,7 +327,6 @@ export function removePointCloudGeometry(view){
 		disposeMeshOrGroup(view.System);
 		delete view.System;
 	}
-	//view.options.render.call();
 }
 
 

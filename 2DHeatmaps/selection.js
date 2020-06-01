@@ -407,41 +407,6 @@ export function clickUpdateVia2DHeatmap(heatmapPointIndex, twoDPlot, views) {
 	}
 
 
-
-/*	if ( indexInList > -1){
-		// was highlighted
-		if (areAllHighlighted(twoDPlot.data[heatmapX][heatmapY].list)) {
-			// all are selected, thus unhighlight all
-			twoDPlot.highlightedIndexList.splice(indexInList, 1);
-			clickUpdateAll2DHeatmaps(views);
-		} else {
-			// not all are selected, select all
-			highlightAll(twoDPlot.data[heatmapX][heatmapY].list)
-			clickUpdateAll2DHeatmaps(views);
-		}
-	} else {
-		// console.log('not in list, add to list')
-		// not yet highlighted
-		twoDPlot.highlightedIndexList.push(heatmapPointIndex);
-		clickUpdateAll2DHeatmaps(views);
-	}
-*/
-
-
-	/*var heatmapX = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapX;
-	var heatmapY = twoDPlot.heatmapInformation[heatmapPointIndex].heatmapY;
-	if (twoDPlot.highlightedIndexList.indexOf(heatmapPointIndex) == -1) {
-		// previously hovered was not in highlight list, unhighlight all;
-		unhighlightHeatmapPoints(heatmapPointIndex, twoDPlot);
-	} else {
-		// previously hovered was in highlight list, back to its original state
-		if (twoDPlot.IntersectState){
-			restoreState(twoDPlot.data[heatmapX][heatmapY].list, twoDPlot.IntersectState);
-			twoDPlot.IntersectState = null;
-		}
-		// restoreState(twoDPlot.data[heatmapX][heatmapY].list, twoDPlot.IntersectState);
-		// twoDPlot.IntersectState = null;
-	}*/
 }
 
 function getCurrentState(list) {
