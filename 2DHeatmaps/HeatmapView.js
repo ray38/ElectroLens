@@ -6,7 +6,7 @@ import {getHeatmapMaterial} from "./Materials.js";
 
 export function arrangeDataToHeatmap(view){
 
-	var options = view.options;
+	const options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
 
 		var X = view.options.plotXSpatiallyResolvedData, Y = view.options.plotYSpatiallyResolvedData;
@@ -180,8 +180,8 @@ export function getHeatmap(view){
 
 	var XYtoHeatmapMap = {}
 	
-	for (var x in data){
-		for (var y in data[x]){
+	for (let x in data){
+		for (let y in data[x]){
 			if (!(x in XYtoHeatmapMap)){
 				XYtoHeatmapMap[x] = {};
 			}

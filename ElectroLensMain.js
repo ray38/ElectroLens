@@ -681,7 +681,6 @@ export function render(views, plotSetup) {
 				camera.bottom = - view.options.cameraFrustumSize  / 2;
 
 				camera.updateProjectionMatrix();
-				renderer.setSize( window.innerWidth, window.innerHeight );
 
 			}
 			

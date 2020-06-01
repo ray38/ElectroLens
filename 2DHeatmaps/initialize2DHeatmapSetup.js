@@ -43,6 +43,7 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		options: new function(){
 			this.plotID = "";
 			this.plotType = "Undefined";
+			this.cameraType = "perspective";
 			this.activePlotSpatiallyResolved = false;
 			this.activePlotMolecule = false;
 			this.backgroundColor = "#000000";
