@@ -1,9 +1,9 @@
 export function initialize2DPlotTooltip(view){
-	var tempRaycaster = new THREE.Raycaster();
+	const tempRaycaster = new THREE.Raycaster();
 	view.raycaster = tempRaycaster;
 	view.INTERSECTED = null;
 
-	var tempTooltip = document.createElement('div');
+	const tempTooltip = document.createElement('div');
 	tempTooltip.setAttribute('style', 'cursor: pointer; text-align: left; display:block;');
 	tempTooltip.style.position = 'absolute';
 	tempTooltip.innerHTML = "";
@@ -30,7 +30,7 @@ export function updateHeatmapTooltip(view){
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
-			var interesctIndex = view.INTERSECTED;
+			const interesctIndex = view.INTERSECTED;
 			view.tooltip.innerHTML = 	"x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
 										"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 										"systems: " + view.heatmapInformation[interesctIndex].systemRepresented;
@@ -44,7 +44,7 @@ export function updateHeatmapTooltip(view){
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
-			var interesctIndex = view.INTERSECTED;
+			const interesctIndex = view.INTERSECTED;
 			view.tooltip.innerHTML = 	"x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
 										"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 										"# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
@@ -58,7 +58,7 @@ export function updateHeatmapTooltip(view){
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
-			var interesctIndex = view.INTERSECTED;
+			const interesctIndex = view.INTERSECTED;
 			view.tooltip.innerHTML = 	"x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
 										"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 										"# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
@@ -72,7 +72,7 @@ export function updateHeatmapTooltip(view){
 			view.tooltip.style.top = event.clientY + 5  + 'px';
 			view.tooltip.style.left = event.clientX + 5  + 'px';
 	
-			var interesctIndex = view.INTERSECTED;
+			const interesctIndex = view.INTERSECTED;
 			view.tooltip.innerHTML = 	"x: " + view.heatmapInformation[interesctIndex].xStart + " : " + view.heatmapInformation[interesctIndex].xEnd  + '<br>' + 
 										"y: " + view.heatmapInformation[interesctIndex].yStart + " : " + view.heatmapInformation[interesctIndex].yEnd  + '<br>' +
 										"# points: " + view.heatmapInformation[interesctIndex].numberDatapointsRepresented;
@@ -86,20 +86,20 @@ export function updateHeatmapTooltip(view){
 
 export function updateCovarianceTooltip(view){
 
-	var mouse = new THREE.Vector2();
+	const mouse = new THREE.Vector2();
 	mouse.set(	(((event.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((event.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
 
 
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.covariancePlot );
+	const intersects = view.raycaster.intersectObject( view.covariancePlot );
 	if ( intersects.length > 0 ) {
 		//console.log("found intersect")
 		
 		view.tooltip.style.top = event.clientY + 5  + 'px';
 		view.tooltip.style.left = event.clientX + 5  + 'px';
 
-		var interesctIndex = intersects[ 0 ].index;
+		const interesctIndex = intersects[ 0 ].index;
 		view.tooltip.innerHTML = 	"x: " + view.covarianceInformation[interesctIndex].x + '<br>' + 
 									"y: " + view.covarianceInformation[interesctIndex].y + '<br>' +
 									"Correlation: " + view.covarianceInformation[interesctIndex].correlation;

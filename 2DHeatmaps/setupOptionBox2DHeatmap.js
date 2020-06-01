@@ -73,7 +73,6 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
 		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
-	const options = view.options;
 	const plotFolder			= folder.addFolder( 'Plot Setting' );
 	const viewFolder 			= folder.addFolder( 'View Control' );
 	const selectionFolder 	= folder.addFolder( 'Selection' );
