@@ -151,8 +151,6 @@ export function click3DViewSpatiallyResolved(view, views, plotSetup){
             
         } else {
             // no active 2D plot
-            // var highlightDataPoint = spatiallyResolvedData[indexIn3DView];
-            // highlightDataPoint.highlighted = true;
             if (view.intersectState == true) {
                 // if previously highlighted
                 view.intersectState = false;
@@ -275,7 +273,6 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
             // console.log('changed intersection, deal with previously hovered points')
             // changed intersection, deal with previously hovered points
             if (view.INTERSECTED != null ){
-                // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
                 const indexIn3DView = view.INTERSECTED;
                 // console.log('if there is previous intersection', indexIn3DView)
                 // if there is previous intersection
@@ -335,8 +332,6 @@ export function hover3DViewMoleculeBall(view, plotSetup, pickingResult){
         // console.log('no current intersection ', view.INTERSECTED)
         // no current intersection 
 		if (view.INTERSECTED != null ){
-            // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
-
             var indexIn3DView = view.INTERSECTED ;
             //console.log('if there is previous intersection ', indexIn3DView)
             // if there is previous intersection
@@ -383,16 +378,8 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
 	
 	view.raycaster.params.Points.threshold = view.options.pointCloudSize *3.5;
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-    //var intersects = view.raycaster.intersectObject( view.System );
     const intersects = view.raycaster.intersectObject( view.molecule.atoms );
-    // var pointVoxelMap = view.System.userData.pointVoxelMap ;
 	if ( intersects.length > 0 ) {
-        /*if (view.options.atomsStyle == "ball") {
-            var intersectIndex = Math.floor(intersects[0].face.a / view.molecule.atoms.userData.numVerticesPerAtom);
-        }
-        else {
-            var intersectIndex = intersects[ 0 ].index;
-        }*/
         const intersectIndex = intersects[ 0 ].index;
         // console.log('has intersection', view.INTERSECTED,intersects[ 0 ].index )
         // if there is intersection
@@ -400,7 +387,6 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
             // console.log('changed intersection, deal with previously hovered points')
             // changed intersection, deal with previously hovered points
             if (view.INTERSECTED != null ){
-                // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
                 const indexIn3DView = view.INTERSECTED;
                 // console.log('if there is previous intersection', indexIn3DView)
                 // if there is previous intersection
@@ -459,7 +445,6 @@ export function hover3DViewMoleculeSprite(view, plotSetup, mouseEvent){
         // console.log('no current intersection ', view.INTERSECTED)
         // no current intersection 
 		if (view.INTERSECTED != null ){
-            // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
 
             const indexIn3DView = view.INTERSECTED ;
             //console.log('if there is previous intersection ', indexIn3DView)
@@ -500,10 +485,8 @@ export function click3DViewMolecule(view, views, plotSetup){
     const options = view.options;
 	const currentFrame = options.currentFrame.toString();
 	const moleculeData = view.systemMoleculeDataFramed[currentFrame];
-    // var pointVoxelMap = view.System.userData.pointVoxelMap ;
 	if (view.INTERSECTED != null){
         //currently point under mouse
-        // var indexIn3DView = pointVoxelMap[view.INTERSECTED]
         const indexIn3DView = view.INTERSECTED;
         if (plotSetup.active2DPlotMolecule && 
             plotSetup.active2DPlotMolecule.options.plotData == 'moleculeData' && 
@@ -516,8 +499,6 @@ export function click3DViewMolecule(view, views, plotSetup){
             
         } else {
             // no active 2D plot
-            // var highlightDataPoint = spatiallyResolvedData[indexIn3DView];
-            // highlightDataPoint.highlighted = true;
             if (view.intersectState == true) {
                 // if previously highlighted
                 view.intersectState = false;

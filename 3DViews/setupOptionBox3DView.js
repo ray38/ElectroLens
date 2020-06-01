@@ -8,31 +8,32 @@ import {colorMapDict} from "../Utilities/colorMap.js";
 export function setupOptionBox3DView(view,plotSetup){
 
 	const options = view.options;
+	let propertyList, propertyChoiceObject, moleculeDataFeatureList, moleculeDataFeatureChoiceObject, moleculeFolder, pointCloudFolder;
 
 	if (view.systemSpatiallyResolvedDataBoolean) {
-		var propertyList = plotSetup["spatiallyResolvedPropertyList"];
-		var propertyChoiceObject = arrayToIdenticalObject(propertyList);
+		propertyList = plotSetup["spatiallyResolvedPropertyList"];
+		propertyChoiceObject = arrayToIdenticalObject(propertyList);
 	}
 
 	if (view.systemMoleculeDataBoolean) {
-		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
+		moleculeDataFeatureList = plotSetup["moleculePropertyList"];
 		//if (moleculeDataFeatureList.includes('atom') == false){
 		// console.log(moleculeDataFeatureList.indexOf("atom"))
 		if (moleculeDataFeatureList.indexOf("atom") < 0){
 			moleculeDataFeatureList.push("atom");
 		}
-		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
+		moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
-	var gui = view.gui;
+	const gui = view.gui;
 	//gui.remember(options);
 	gui.width = 250;
 
-	var systemInfoFolder	= gui.addFolder( 'System Info' );
-	var viewFolder 			= gui.addFolder( 'View Control' );
-	if (view.systemMoleculeDataBoolean) {var moleculeFolder = gui.addFolder( 'Molecule View Control' );}
-	if (view.systemSpatiallyResolvedDataBoolean) {var pointCloudFolder = gui.addFolder( 'Point Cloud Control' );}
-	var sliderFolder 		= gui.addFolder( 'Slider Control' );
-	var detailFolder		= gui.addFolder( 'Additional Control' );
+	const systemInfoFolder	= gui.addFolder( 'System Info' );
+	const viewFolder 			= gui.addFolder( 'View Control' );
+	if (view.systemMoleculeDataBoolean) {moleculeFolder = gui.addFolder( 'Molecule View Control' );}
+	if (view.systemSpatiallyResolvedDataBoolean) {pointCloudFolder = gui.addFolder( 'Point Cloud Control' );}
+	const sliderFolder 		= gui.addFolder( 'Slider Control' );
+	const detailFolder		= gui.addFolder( 'Additional Control' );
 
 
 	
@@ -129,7 +130,7 @@ export function setupOptionBox3DView(view,plotSetup){
 
 
 
-	var PBCFolder = viewFolder.addFolder('PBC')
+	const PBCFolder = viewFolder.addFolder('PBC')
 
 	PBCFolder.add( options, 'xPBC', {'1':1, '3':3, '5':5, '7':7, '9':9})
 	.onChange( function( value ){
@@ -272,13 +273,13 @@ export function setupOptionBox3DView(view,plotSetup){
 			if (options.sync3DView) {options.syncOptions.call();}
 			options.render.call();
 		});
-		moleculeFolder.add( options, 'moleculeAlpha', 0.1, 1.0 ).step( 0.1 )
-		.name( 'Molecule Opacity' )
-		.onChange( function( value ) {
-			changeMoleculeGeometry(view);
-			if (options.sync3DView) {options.syncOptions.call();}
-			options.render.call();
-		});
+		// moleculeFolder.add( options, 'moleculeAlpha', 0.1, 1.0 ).step( 0.1 )
+		// .name( 'Molecule Opacity' )
+		// .onChange( function( value ) {
+		// 	changeMoleculeGeometry(view);
+		// 	if (options.sync3DView) {options.syncOptions.call();}
+		// 	options.render.call();
+		// });
 
 
 		moleculeFolder.add( options, 'maxBondLength', 0.1, 4 ).step( 0.1 )
@@ -299,7 +300,7 @@ export function setupOptionBox3DView(view,plotSetup){
 
 		moleculeFolder.close();
 
-		var moleculeLegendFolder 	= moleculeFolder.addFolder( 'Molecule Legend' );
+		const moleculeLegendFolder 	= moleculeFolder.addFolder( 'Molecule Legend' );
 
 		moleculeLegendFolder.add(options,'legendXMolecule',-10,10).name("Position X").step(0.1).onChange( function( value ) {
 			changeLegend(view);	
@@ -453,7 +454,7 @@ export function setupOptionBox3DView(view,plotSetup){
 
 		pointCloudFolder.close();
 
-		var pointCloudLegendFolder 	= pointCloudFolder.addFolder( 'Point Cloud Legend' );
+		const pointCloudLegendFolder 	= pointCloudFolder.addFolder( 'Point Cloud Legend' );
 
 		pointCloudLegendFolder.add(options,'legendX',-10,10).step(0.1).onChange( function( value ) {
 			changeLegend(view);	
@@ -476,7 +477,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		pointCloudLegendFolder.add( options, 'toggleLegend').name("Toggle legend");
 		pointCloudLegendFolder.close();
 
-		var pointCloudAdditionalFolder 	= pointCloudFolder.addFolder( 'Additional' );
+		const pointCloudAdditionalFolder 	= pointCloudFolder.addFolder( 'Additional' );
 
 		pointCloudAdditionalFolder.add( options, 'pointCloudTotalMagnitude', -5, 10 ).step( 1 )
 		.name( 'Dens. Magnitude' )

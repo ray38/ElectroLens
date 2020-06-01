@@ -300,41 +300,6 @@ export function updateComparison(view){
 
 export function replotComparison(view){
 
-	/*if ("covariance" in view) {
-		view.scene.remove(view.covariance);
-		delete view.covariance;
-	}
-
-	if ("comparison" in view) {
-		view.scene.remove(view.comparison);
-		delete view.comparison;
-	}
-	
-	if ("heatmap" in view) {
-		view.scene.remove(view.heatmap);
-		delete view.heatmap;
-	}
-	
-	if ("PCAGroup" in view) {
-		view.scene.remove(view.PCAGroup);
-		delete view.PCAGroup;
-	}
-
-	if ("UmapGroup" in view) {
-		view.scene.remove(view.UmapGroup);
-		delete view.UmapGroup;
-    }
-
-	var options = view.options;
-	//var options = view.options;
-	if (options.plotData == 'spatiallyResolvedData'){
-		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
-	}
-
-	if (options.plotData == 'spatiallyResolvedData'){
-		arrangeDataToHeatmap(view,view.overallMoleculeData);
-	}*/
-
 	dispose2DPlots(view);
 
 	arrangeDataToComparison(view);
@@ -357,33 +322,3 @@ export function replotComparison(view){
 	changeTitle(view);
 
 }
-
-/*function countListSelected(list) {
-	var count = 0;
-	
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].selected){ count += 1;}
-	}
-	return count;
-}
-
-function heatmapPointCount(data){
-	var count = 0;
-	for (var x in data){
-		for (var y in data[x]){
-			count = count + 1;
-		}
-    }
-    
-	return count;
-}
-
-
-function isAnyHighlighted(list) {
-
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].highlighted){ return true; }
-	}
-	return false;
-	
-}*/

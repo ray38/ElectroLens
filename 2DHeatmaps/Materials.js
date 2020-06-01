@@ -1,12 +1,12 @@
 export function getHeatmapMaterial(options) {
-	var uniforms = {
+	const uniforms = {
 
 		color:     { value: new THREE.Color( 0xffffff ) },
 		texture:   { value: new THREE.TextureLoader().load( "textures/sprites/disc.png" ) }
 
 	};
 
-	var shaderMaterial = new THREE.ShaderMaterial( {
+	const shaderMaterial = new THREE.ShaderMaterial( {
 
 		uniforms:       uniforms,
         vertexShader:   `

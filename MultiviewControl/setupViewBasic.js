@@ -1,14 +1,8 @@
 export function setupViewCameraSceneController(view,renderer){
 
 	const camera = new THREE.PerspectiveCamera( view.options.cameraFov, window.innerWidth / window.innerHeight, 1, 100000 );
-	// console.log("camera eye",view.eye, view.geometryCenter)
-	// console.log(view.eye[0] + view.geometryCenter[0], view.eye[1] + view.geometryCenter[1], view.eye[2] + view.geometryCenter[2])
-	// camera.position.set( view.eye[0] , view.eye[1] , view.eye[2]  );
 	camera.position.set( view.eye[0] + view.geometryCenter[0], view.eye[1] + view.geometryCenter[1], view.eye[2] + view.geometryCenter[2] );
-	// camera.rotation.set(0,0,0);
-	// camera.lookAt(view.geometryCenter[0], view.geometryCenter[1], view.geometryCenter[2] )
 	console.log("camera", camera)
-	
 	view.camera = camera;
 
 
@@ -30,7 +24,7 @@ export function setupViewCameraSceneController(view,renderer){
 	cameraRig.add( cameraOrtho );
 
 	view.cameraRig = cameraRig;
-
+	// view.scene.add( cameraRig );
 */
 
 
@@ -58,7 +52,6 @@ export function setupViewCameraSceneController(view,renderer){
 
 	const tempController = new THREE.OrbitControls( view.camera, renderer.domElement );
 	tempController.target.set( view.geometryCenter[0], view.geometryCenter[1], view.geometryCenter[2]  );
-	// camera.rotation.set(0,0,0);
 	view.camera.rotation.set(0,0,0);
 	// console.log(tempController)
 	// tempController.minAzimuthAngle = - Infinity; // radians
@@ -78,7 +71,7 @@ export function setupViewCameraSceneController(view,renderer){
 	view.scene = tempScene;
 	view.scene.add(view.camera);
 	view.renderer = renderer;
-	// view.scene.add( cameraRig );
+	
 
 	const left   = Math.floor( window.innerWidth  * view.left );
 	const top    = Math.floor( window.innerHeight * view.top );

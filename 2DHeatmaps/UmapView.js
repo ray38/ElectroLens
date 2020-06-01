@@ -1,6 +1,6 @@
 import {addTitle,changeTitle, countListSelected, isAnyHighlighted, heatmapPointCount} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
-import {getAxis} from "./Utilities.js";
+import {getAxis,dispose2DPlots} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {getHeatmapMaterial} from "./Materials.js";
 
@@ -344,30 +344,6 @@ export function updateUmapHeatmap(view){
 
 
 export function replotUmapHeatmap(view){
-	/*if ("covariance" in view) {
-		view.scene.remove(view.covariance);
-		delete view.covariance;
-	}
-
-	if ("comparison" in view) {
-		view.scene.remove(view.comparison);
-		delete view.comparison;
-	}
-	
-	if ("heatmap" in view) {
-		view.scene.remove(view.heatmap);
-		delete view.heatmap;
-	}
-
-	if ("PCAGroup" in view) {
-		view.scene.remove(view.PCAGroup);
-		delete view.PCAGroup;
-	}
-	
-	if ("UmapGroup" in view) {
-		view.scene.remove(view.UmapGroup);
-		delete view.UmapGroup;
-	}*/
 	
 	dispose2DPlots(view);
     

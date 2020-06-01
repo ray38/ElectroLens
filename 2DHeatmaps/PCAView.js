@@ -1,19 +1,19 @@
 import {addTitle,changeTitle, countListSelected, isAnyHighlighted, heatmapPointCount} from "./Utilities.js";
 import {makeTextSprite, makeTextSprite2} from "../Utilities/other.js"
-import {getAxis} from "./Utilities.js";
+import {getAxis,dispose2DPlots} from "./Utilities.js";
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {getHeatmapMaterial} from "./Materials.js";
 
 export function arrangeDataForPCA(view){
 
-	var options = view.options;
+	const options = view.options;
 	if (options.plotData == 'spatiallyResolvedData'){
 
-		var X = view.options.plotPCAXSpatiallyResolvedData, Y = view.options.plotPCAYSpatiallyResolvedData;
-		var XTransform = view.options.plotPCAXTransformSpatiallyResolvedData, YTransform = view.options.plotPCAYTransformSpatiallyResolvedData;
+		// const X = view.options.plotPCAXSpatiallyResolvedData, Y = view.options.plotPCAYSpatiallyResolvedData;
+		// const XTransform = view.options.plotPCAXTransformSpatiallyResolvedData, YTransform = view.options.plotPCAYTransformSpatiallyResolvedData;
 
-		var Data = view.overallSpatiallyResolvedData;
-		var propertyList = view.plotSetup.spatiallyResolvedPropertyList;
+		const Data = view.overallSpatiallyResolvedData;
+		const propertyList = view.plotSetup.spatiallyResolvedPropertyList;
 
 		console.log(view.PCACalculatedSpatiallyResolved != true);
 
@@ -21,20 +21,20 @@ export function arrangeDataForPCA(view){
 
 			console.log("start PCA");
 			const { PCA } = require('ml-pca');
-			var filtered = propertyList.filter(function(value, index, arr){
+			const filtered = propertyList.filter(function(value, index, arr){
 			    return (value != "atom") && (value != "x") && (value != "y") && (value != "z") && (value != view.plotSetup.frameProperty);
 			});
 
 
-		    var arrays = getArrays2(Data, filtered);
+		    const arrays = getArrays2(Data, filtered);
 		    const pca = new PCA(arrays/*, {nCompNIPALS:options.nPCAComponentsSpatiallyResolved}*/);
-		    var transformed = pca.predict(arrays);
+		    const transformed = pca.predict(arrays);
 
 		    console.log("Finished Calculating PCA");
 
-			for (var i = 0; i < Data.length; i++) {
-			    for (var j = 1; j <= transformed.columns; j++) {
-			    	var tempName = "_PC" + j.toString();
+			for (let i = 0; i < Data.length; i++) {
+			    for (let j = 1; j <= transformed.columns; j++) {
+			    	const tempName = "_PC" + j.toString();
 			    	Data[i][tempName] = transformed.data[i][j-1];
 			    }
 			}
@@ -42,17 +42,17 @@ export function arrangeDataForPCA(view){
 			view.PCAResult = pca;
 
 			view.PCAExplainedVariance = {};
-			for (var i = 1; i <= pca.getExplainedVariance().length; i++){
+			for (let i = 1; i <= pca.getExplainedVariance().length; i++){
 				view.PCAExplainedVariance["_PC" + i] = pca.getExplainedVariance()[i-1];
 			}
 
 			view.PCALoadingMatrix = {};
-			var PCALoadingMatrix = pca.getLoadings().data;
+			const PCALoadingMatrix = pca.getLoadings().data;
 			console.log(PCALoadingMatrix);
 			console.log(filtered.length);
-			for (var i = 1; i <= PCALoadingMatrix.length; i++){
+			for (let i = 1; i <= PCALoadingMatrix.length; i++){
 				view.PCALoadingMatrix["_PC" + i] = {};
-				for (var j = 0; j <= filtered.length; j++){
+				for (let j = 0; j <= filtered.length; j++){
 					view.PCALoadingMatrix["_PC" + i][filtered[j]] = PCALoadingMatrix[i-1][j];
 				}
 			}
@@ -94,9 +94,9 @@ export function arrangeDataForPCA(view){
 
 		    console.log("Finished Calculating PCA");
 
-			for (var i = 0; i < Data.length; i++) {
-			    for (var j = 1; j <= transformed.columns; j++) {
-			    	var tempName = "_PC" + j.toString();
+			for (let i = 0; i < Data.length; i++) {
+			    for (let j = 1; j <= transformed.columns; j++) {
+			    	const tempName = "_PC" + j.toString();
 			    	Data[i][tempName] = transformed.data[i][j-1];
 			    }
 			}
@@ -105,17 +105,17 @@ export function arrangeDataForPCA(view){
 			view.PCAResult = pca;
 
 			view.PCAExplainedVariance = {};
-			for (var i = 1; i <= pca.getExplainedVariance().length; i++){
+			for (let i = 1; i <= pca.getExplainedVariance().length; i++){
 				view.PCAExplainedVariance["_PC" + i] = pca.getExplainedVariance()[i-1];
 			}
 
 			view.PCALoadingMatrix = {};
-			var PCALoadingMatrix = pca.getLoadings().data;
+			const PCALoadingMatrix = pca.getLoadings().data;
 			console.log(PCALoadingMatrix);
 			console.log(filtered.length);
-			for (var i = 1; i <= PCALoadingMatrix.length; i++){
+			for (let i = 1; i <= PCALoadingMatrix.length; i++){
 				view.PCALoadingMatrix["_PC" + i] = {};
-				for (var j = 0; j <= filtered.length; j++){
+				for (let j = 0; j <= filtered.length; j++){
 					view.PCALoadingMatrix["_PC" + i][filtered[j]] = PCALoadingMatrix[i-1][j];
 				}
 			}
@@ -134,41 +134,41 @@ export function arrangeDataForPCA(view){
 
 
 
-	var numPerSide = view.options.numPerSide;
+	const numPerSide = view.options.numPerSide;
 
-	var heatmapStep = [];
+	const heatmapStep = [];
 
 
-	for (var i=1; i <= numPerSide; i++) {
+	for (let i=1; i <= numPerSide; i++) {
 		heatmapStep.push(""+i);
 	}
 	
-	var xValue = function(d) {return d[X];}
-	var yValue = function(d) {return d[Y];}
+	const xValue = function(d) {return d[X];}
+	const yValue = function(d) {return d[Y];}
 
 
-	var xMin = d3.min(Data, xValue);
-	var xMax = d3.max(Data, xValue);
-	var yMin = d3.min(Data, yValue);
-	var yMax = d3.max(Data, yValue);
+	const xMin = d3.min(Data, xValue);
+	const xMax = d3.max(Data, xValue);
+	const yMin = d3.min(Data, yValue);
+	const yMax = d3.max(Data, yValue);
 
 	view.xMin = xMin;
 	view.xMax = xMax;
 	view.yMin = yMin;
 	view.yMax = yMax;
 
-	var xScale = d3.scaleQuantize()
+	const xScale = d3.scaleQuantize()
 	.domain([xMin, xMax])
 	.range(heatmapStep);
 	
-	var yScale = d3.scaleQuantize()
+	const yScale = d3.scaleQuantize()
 	.domain([yMin, yMax])
 	.range(heatmapStep);
 
 
 	
-	var xMap = function(d) {return xScale(xValue(d));};
-	var yMap = function(d) {return yScale(yValue(d));}; 
+	const xMap = function(d) {return xScale(xValue(d));};
+	const yMap = function(d) {return yScale(yValue(d));}; 
 	
 	view.data = {};
 	view.dataXMin = d3.min(Data,xValue);
@@ -181,9 +181,9 @@ export function arrangeDataForPCA(view){
 
 	//console.log(xScale.invertExtent(""+50))
 	
-	for (var i=0; i<Data.length; i++){
-		var heatmapX = xMap(Data[i]);
-		var heatmapY = yMap(Data[i]);
+	for (let i=0; i<Data.length; i++){
+		const heatmapX = xMap(Data[i]);
+		const heatmapY = yMap(Data[i]);
 		
 		if (!(heatmapX in view.data)) {
 			view.data[heatmapX] = {};
@@ -195,7 +195,7 @@ export function arrangeDataForPCA(view){
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 
-	var PCAResultText = "";
+	const PCAResultText = "";
 	PCAResultText += X + " explained: " + view.PCAExplainedVariance[X].toExponential(4) + '<br>';
 
 	for (var property in view.PCALoadingMatrix[X]){
@@ -221,52 +221,52 @@ export function getPCAHeatmap(view){
 
 	
 
-	var options = view.options;
+	const options = view.options;
 	
 	
-	var data = view.data;
+	const data = view.data;
 	
-	var num = heatmapPointCount(data);
+	const num = heatmapPointCount(data);
 	
 	
-	var geometry = new THREE.BufferGeometry();
-	var colors = new Float32Array(num *3);
-	var positions = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
+	const geometry = new THREE.BufferGeometry();
+	const colors = new Float32Array(num *3);
+	const positions = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
 
-	var heatmapInformation = [];
+	const heatmapInformation = [];
 	
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
 	
-	var i = 0;
-	var i3 = 0;
+	let i = 0;
+	let i3 = 0;
 
 	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
 	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	var xPlotScale = view.xPlotScale;
-	var yPlotScale = view.yPlotScale;
+	const xPlotScale = view.xPlotScale;
+	const yPlotScale = view.yPlotScale;
 
-	var XYtoHeatmapMap = {}
+	const XYtoHeatmapMap = {}
 	
 	for (var x in data){
 		for (var y in data[x]){
 			XYtoHeatmapMap[x] = XYtoHeatmapMap.x || {};
 			XYtoHeatmapMap[x][y] = i;
 
-			var xPlot = xPlotScale(parseFloat(x));
-			var yPlot = yPlotScale(parseFloat(y));
+			const xPlot = xPlotScale(parseFloat(x));
+			const yPlot = yPlotScale(parseFloat(y));
 			
 			positions[i3 + 0] = xPlot;
 			positions[i3 + 1] = yPlot;
 			positions[i3 + 2] = 0
 			
-			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			const numberDatapointsRepresented = countListSelected(data[x][y]['list']);
 			if (numberDatapointsRepresented > 0) {
-				var color = lut.getColor( numberDatapointsRepresented );
+				const color = lut.getColor( numberDatapointsRepresented );
 				
 			
 				colors[i3 + 0] = color.r;
@@ -297,7 +297,7 @@ export function getPCAHeatmap(view){
 			i++;
 			i3 += 3;
 
-			var tempInfo = {x:xPlot-50, 
+			const tempInfo = {x:xPlot-50, 
 							y:yPlot-50, 
 							numberDatapointsRepresented: numberDatapointsRepresented,
 							xStart: view.xScale.invertExtent(x)[0],
@@ -319,8 +319,8 @@ export function getPCAHeatmap(view){
 	geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
 	geometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
 
-	var material = getHeatmapMaterial();
-	var System = new THREE.Points(geometry, material);
+	const material = getHeatmapMaterial();
+	const System = new THREE.Points(geometry, material);
 
 	return System
 	
@@ -328,25 +328,25 @@ export function getPCAHeatmap(view){
 
 
 export function updatePCAHeatmap(view){
-	var options = view.options;
-	var System = view.heatmapPlot;
-	var data = view.data;
-	var num = heatmapPointCount(data);
-	var colors = new Float32Array(num *3);
-	var sizes = new Float32Array(num);
-	var alphas = new Float32Array(num);
-	var lut = new THREE.Lut( options.colorMap, 500 );
+	const options = view.options;
+	const System = view.heatmapPlot;
+	const data = view.data;
+	const num = heatmapPointCount(data);
+	const colors = new Float32Array(num *3);
+	const sizes = new Float32Array(num);
+	const alphas = new Float32Array(num);
+	const lut = new THREE.Lut( options.colorMap, 500 );
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
-	var i = 0;
-	var i3 = 0;
+	const i = 0;
+	const i3 = 0;
 	for (var x in data){
 		for (var y in data[x]){
 			
-			var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
+			const numberDatapointsRepresented = countListSelected(data[x][y]['list']);
 			if (numberDatapointsRepresented > 0) {
-				var color = lut.getColor( numberDatapointsRepresented );
+				const color = lut.getColor( numberDatapointsRepresented );
 			
 				colors[i3 + 0] = color.r;
 				colors[i3 + 1] = color.g;
@@ -385,49 +385,16 @@ export function updatePCAHeatmap(view){
 
 
 export function replotPCAHeatmap(view){
-	/*if ("covariance" in view) {
-		view.scene.remove(view.covariance);
-		delete view.covariance;
-	}
-
-	if ("comparison" in view) {
-		view.scene.remove(view.comparison);
-		delete view.comparison;
-	}
-	
-	if ("heatmap" in view) {
-		view.scene.remove(view.heatmap);
-		delete view.heatmap;
-	}
-
-	if ("PCAGroup" in view) {
-		view.scene.remove(view.PCAGroup);
-		delete view.PCAGroup;
-	}
-
-	if ("UmapGroup" in view) {
-		view.scene.remove(view.UmapGroup);
-		delete view.UmapGroup;
-    }
-	var options = view.options;
-	//var options = view.options;
-	if (options.plotData == 'spatiallyResolvedData'){
-		arrangeDataToHeatmap(view,view.spatiallyResolvedData);
-	}
-
-	if (options.plotData == 'spatiallyResolvedData'){
-		arrangeDataToHeatmap(view,view.overallMoleculeData);
-	}*/
 
 	dispose2DPlots(view);
 	
 	console.log("replotting PCA Heatmap");
 	initializePCATooltip(view);
 	arrangeDataForPCA(view);
-	var PCAGroup = new THREE.Group()
+	const PCAGroup = new THREE.Group()
 
-	var PCAPlot = getPCAHeatmap(view);
-	var PCAAxis = getAxis(view);
+	const PCAPlot = getPCAHeatmap(view);
+	const PCAAxis = getAxis(view);
 
 	PCAGroup.add(PCAPlot);
 	PCAGroup.add(PCAAxis);
@@ -454,18 +421,18 @@ function pluck(arr, mapper){
 // Dependencies: pluck
 
 function getArrays(data, cols){
-	var result = [];
+	const result = [];
 	for (const col of cols){
-		var temp = pluck(data, col);
+		const temp = pluck(data, col);
 		result.push(temp);
 	}
 	return result;
 }
 
 function getArrays2(data,propertyList){
-	var result = [];
+	const result = [];
 	for (const datapoint of data){
-		var temp = [];
+		const temp = [];
 		for (const property of propertyList){
 			temp.push(datapoint[property])
 		}
@@ -506,7 +473,7 @@ export function initializePCATooltip(view){
 
 	if(typeof view.PCARestultTextWindow  == "undefined")
 	{
-		var tempTooltip = document.createElement('div');
+		const tempTooltip = document.createElement('div');
 		tempTooltip.setAttribute('style', 'cursor: pointer; text-align: left; display:block;');
 		tempTooltip.style.position = 'absolute';
 		tempTooltip.innerHTML = "";

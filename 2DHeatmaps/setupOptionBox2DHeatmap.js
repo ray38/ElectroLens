@@ -7,7 +7,7 @@ import {arrayToIdenticalObject} from "../Utilities/other.js";
 import {colorMapDict} from "../Utilities/colorMap.js";
 
 dat.GUI.prototype.removeFolder = function(name) {
-  var folder = this.__folders[name];
+	const folder = this.__folders[name];
   if (!folder) {
     return;
   }
@@ -19,8 +19,8 @@ dat.GUI.prototype.removeFolder = function(name) {
 
 export function setupOptionBox2DHeatmap(view,plotSetup){
 
-	var options = view.options;
-	var gui = view.gui;
+	const options = view.options;
+	const gui = view.gui;
 	//gui.remember(options);
 
 	gui.width = 250;
@@ -34,7 +34,7 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 		try {gui.removeFolder("Plot");}
 		catch(err){console.log("not exist");}
 
-		var plotSetupFolder = gui.addFolder("Plot");
+		const plotSetupFolder = gui.addFolder("Plot");
 		if (value == "Heatmap"){
 			setupOptionBox2DHeatmapFolder(view,plotSetup, plotSetupFolder);
 		}
@@ -62,8 +62,8 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 }
 
 export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
-	var gui = view.gui;
-	var options = view.options;
+	const gui = view.gui;
+	const options = view.options;
 	if (view.overallSpatiallyResolvedDataBoolean) {
 		var spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
 		var spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
@@ -73,10 +73,10 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
 		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
-	var options = view.options;
-	var plotFolder			= folder.addFolder( 'Plot Setting' );
-	var viewFolder 			= folder.addFolder( 'View Control' );
-	var selectionFolder 	= folder.addFolder( 'Selection' );
+	const options = view.options;
+	const plotFolder			= folder.addFolder( 'Plot Setting' );
+	const viewFolder 			= folder.addFolder( 'View Control' );
+	const selectionFolder 	= folder.addFolder( 'Selection' );
 
 
 
@@ -85,7 +85,7 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 		var spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
 	}
 	
-	var detailFolder		= folder.addFolder( 'Additional Control' );
+	const detailFolder		= folder.addFolder( 'Additional Control' );
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
 		plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})

@@ -17,6 +17,7 @@ export function initialize2DHeatmapSetup(viewSetup,views,plotSetup){
 		controllerEnabledBackground: new THREE.Color( 0.1,0.1,0.1 ),
 		eye: [ 0, 0, 150 ],
 		up: [ 0, 0, 1 ],
+		geometryCenter: [0,0,0],
 		fov: 45,
 		mousePosition: [0,0],
 		viewType: '2DHeatmap',

@@ -14,28 +14,28 @@ import {updateMoleculeGeometry,updateMoleculeGeometryScale} from "../../3DViews/
 }*/
 
 export function deselectAllSpatiallyResolvedData(views,spatiallyResolvedData){
-	for (var i=0; i<spatiallyResolvedData.length; i++){
+	for (let i=0; i<spatiallyResolvedData.length; i++){
 			spatiallyResolvedData[i].selected = false;
 			spatiallyResolvedData[i].highlighted = false;
 		}
 }
 
 export function selectAllSpatiallyResolvedData(views,spatiallyResolvedData){
-	for (var i=0; i<spatiallyResolvedData.length; i++){
+	for (let i=0; i<spatiallyResolvedData.length; i++){
 			spatiallyResolvedData[i].selected = true;
 			spatiallyResolvedData[i].highlighted = false;
 		}
 }
 
 export function deselectAllMoleculeData(views,overallMoleculeData){
-	for (var i=0; i<overallMoleculeData.length; i++){
+	for (let i=0; i<overallMoleculeData.length; i++){
 			overallMoleculeData[i].selected = false;
 			overallMoleculeData[i].highlighted = false;
 		}
 }
 
 export function selectAllMoleculeData(views,overallMoleculeData){
-	for (var i=0; i<overallMoleculeData.length; i++){
+	for (let i=0; i<overallMoleculeData.length; i++){
 			overallMoleculeData[i].selected = true;
 			overallMoleculeData[i].highlighted = false;
 		}
@@ -45,8 +45,8 @@ export function selectAllMoleculeData(views,overallMoleculeData){
 
 export function updateAllPlots(views){
 	const t0 = performance.now();
-	for (var ii =  0; ii < views.length; ii++ ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
 			updateHeatmap(view);
 		}
@@ -77,8 +77,8 @@ export function updateAllPlots(views){
 
 export function updateAllPlotsSpatiallyResolved(views){
 	const t0 = performance.now();
-	for (var ii =  0; ii < views.length; ii++ ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
 			updateHeatmap(view);
 		}
@@ -104,8 +104,8 @@ export function updateAllPlotsSpatiallyResolved(views){
 
 export function updateAllPlotsMolecule(views){
 	const t0 = performance.now();
-	for (var ii =  0; ii < views.length; ii++ ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
 			updateHeatmap(view);
 		}
@@ -132,8 +132,8 @@ export function updateAllPlotsMolecule(views){
 }
 
 export function updateAllPlotsMoleculeScale(views){
-	for (var ii =  0; ii < views.length; ii++ ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
 		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
 			updateHeatmap(view);
 		}
@@ -160,7 +160,7 @@ export function updateAllPlotsMoleculeScale(views){
 
 export function updateSelectionFromHeatmap(view){
 	console.log('called update heatmap');
-	var data = view.data;
+	const data = view.data;
 	for (var x in data){
 		for (var y in data[x]){
 			if (data[x][y].highlighted) {
