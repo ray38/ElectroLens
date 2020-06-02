@@ -1,30 +1,30 @@
 export function getOffsetArray(systemDimension, latticeVectors, options) {
 
-	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+	const dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 					'y': systemDimension.x * latticeVectors.u12, 
 					'z': systemDimension.x * latticeVectors.u13};
-	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+	const dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
 					'y': systemDimension.y * latticeVectors.u22, 
 					'z': systemDimension.y * latticeVectors.u23};
-	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+	const dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
 					'y': systemDimension.z * latticeVectors.u32, 
 					'z': systemDimension.z * latticeVectors.u33};
 	
 	
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
+	const x_start = -1 * ((options.xPBC-1)/2);
+	const x_end = ((options.xPBC-1)/2) + 1;
+	const y_start = -1 * ((options.yPBC-1)/2);
+	const y_end = ((options.yPBC-1)/2) + 1;
+	const z_start = -1 * ((options.zPBC-1)/2);
+	const z_end = ((options.zPBC-1)/2) + 1;
 	
-	var counter = 0;
-	var sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
+	let counter = 0;
+	const sumDisplacement = new Float32Array(9 * 9 * 9 * 3);
 	sumDisplacement.fill(0);
-	var xStep, yStep, zStep;
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
+	let xStep, yStep, zStep;
+	for ( let i = x_start; i < x_end; i ++) {
+		for ( let j = y_start; j < y_end; j ++) {
+			for ( let k = z_start; k < z_end; k ++) {
 				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
@@ -41,38 +41,38 @@ export function getOffsetArray(systemDimension, latticeVectors, options) {
 
 
 export function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr,  unitCellIndexArr, systemDimension, latticeVectors, options) {
-	var sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
-	var sumOffsetArr = new Float32Array(unitCellOffsetArr.length * 9 * 9 * 9);
-	var sumColorArr = new Float32Array(unitCellColorArr.length * 9 * 9 * 9);
-	var sumSelectionArr = new Float32Array(unitCellSelectionArr.length * 9 * 9 * 9);
-	var sumIndexArr = new Float32Array(unitCellIndexArr.length * 9 * 9 * 9);
+	const sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
+	const sumOffsetArr = new Float32Array(unitCellOffsetArr.length * 9 * 9 * 9);
+	const sumColorArr = new Float32Array(unitCellColorArr.length * 9 * 9 * 9);
+	const sumSelectionArr = new Float32Array(unitCellSelectionArr.length * 9 * 9 * 9);
+	const sumIndexArr = new Float32Array(unitCellIndexArr.length * 9 * 9 * 9);
 	
 
-	var numInstancePerUnitCell = unitCellScaleArr.length;
+	const numInstancePerUnitCell = unitCellScaleArr.length;
 
-	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+	const dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 					'y': systemDimension.x * latticeVectors.u12, 
 					'z': systemDimension.x * latticeVectors.u13};
-	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+	const dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
 					'y': systemDimension.y * latticeVectors.u22, 
 					'z': systemDimension.y * latticeVectors.u23};
-	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+	const dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
 					'y': systemDimension.z * latticeVectors.u32, 
 					'z': systemDimension.z * latticeVectors.u33};
 	
 	
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
+	const x_start = -1 * ((options.xPBC-1)/2);
+	const x_end = ((options.xPBC-1)/2) + 1;
+	const y_start = -1 * ((options.yPBC-1)/2);
+	const y_end = ((options.yPBC-1)/2) + 1;
+	const z_start = -1 * ((options.zPBC-1)/2);
+	const z_end = ((options.zPBC-1)/2) + 1;
 	
-	var currentCellIndex = 0;
-	var xStep, yStep, zStep, currentStartingArrIndex;
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
+	let currentCellIndex = 0;
+	let xStep, yStep, zStep, currentStartingArrIndex;
+	for ( let i = x_start; i < x_end; i ++) {
+		for ( let j = y_start; j < y_end; j ++) {
+			for ( let k = z_start; k < z_end; k ++) {
 				//each unit cell
 				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex;
 				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
@@ -83,7 +83,7 @@ export function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCel
 				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-				for (var ii = 0; ii < numInstancePerUnitCell; ii ++){
+				for (let ii = 0; ii < numInstancePerUnitCell; ii ++){
 					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 0] = unitCellOffsetArr[ii * 3 + 0] + xStep;
 					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 1] = unitCellOffsetArr[ii * 3 + 1] + yStep;
 					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 2] = unitCellOffsetArr[ii * 3 + 2] + zStep;
@@ -93,9 +93,9 @@ export function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCel
 			}
 		}
 	}
-	var totalNumInstances = currentCellIndex * numInstancePerUnitCell;
+	const totalNumInstances = currentCellIndex * numInstancePerUnitCell;
 
-	var sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, Math.ceil(options.atomModelSegments / 2));
+	const sphereTemplate = new THREE.SphereBufferGeometry(1, options.atomModelSegments, Math.ceil(options.atomModelSegments / 2));
 	const combinedGeometry = new THREE.InstancedBufferGeometry();
 	combinedGeometry.copy(sphereTemplate);
 	combinedGeometry.setAttribute('instanceOffset', new THREE.InstancedBufferAttribute(sumOffsetArr, 3 ));
@@ -111,20 +111,20 @@ export function getPeriodicReplicatesInstancesMolecule(unitCellScaleArr, unitCel
 
 
 export function updatePeriodicReplicatesInstancesMoleculeScale(geometry, unitCellScaleArr, options) {
-	var numInstancePerUnitCell = unitCellScaleArr.length;
-	var sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
+	const numInstancePerUnitCell = unitCellScaleArr.length;
+	const sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
 	
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
-	var currentCellIndex = 0;
-	var currentStartingArrIndex;
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
+	const x_start = -1 * ((options.xPBC-1)/2);
+	const x_end = ((options.xPBC-1)/2) + 1;
+	const y_start = -1 * ((options.yPBC-1)/2);
+	const y_end = ((options.yPBC-1)/2) + 1;
+	const z_start = -1 * ((options.zPBC-1)/2);
+	const z_end = ((options.zPBC-1)/2) + 1;
+	let currentCellIndex = 0;
+	let currentStartingArrIndex;
+	for ( let i = x_start; i < x_end; i ++) {
+		for ( let j = y_start; j < y_end; j ++) {
+			for ( let k = z_start; k < z_end; k ++) {
 				//each unit cell
 				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex;
 				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
@@ -140,38 +140,38 @@ export function updatePeriodicReplicatesInstancesMoleculeScale(geometry, unitCel
 
 
 export function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScaleArr, unitCellOffsetArr, unitCellColorArr, unitCellSelectionArr,  unitCellIndexArr, systemDimension, latticeVectors, options) {
-	var sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
-	var sumOffsetArr = new Float32Array(unitCellOffsetArr.length * 9 * 9 * 9);
-	var sumColorArr = new Float32Array(unitCellColorArr.length * 9 * 9 * 9);
-	var sumSelectionArr = new Float32Array(unitCellSelectionArr.length * 9 * 9 * 9);
-	var sumIndexArr = new Float32Array(unitCellIndexArr.length * 9 * 9 * 9);
+	const sumScaleArr = new Float32Array(unitCellScaleArr.length * 9 * 9 * 9);
+	const sumOffsetArr = new Float32Array(unitCellOffsetArr.length * 9 * 9 * 9);
+	const sumColorArr = new Float32Array(unitCellColorArr.length * 9 * 9 * 9);
+	const sumSelectionArr = new Float32Array(unitCellSelectionArr.length * 9 * 9 * 9);
+	const sumIndexArr = new Float32Array(unitCellIndexArr.length * 9 * 9 * 9);
 	
 
-	var numInstancePerUnitCell = unitCellScaleArr.length;
+	const numInstancePerUnitCell = unitCellScaleArr.length;
 
-	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+	const dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 					'y': systemDimension.x * latticeVectors.u12, 
 					'z': systemDimension.x * latticeVectors.u13};
-	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+	const dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
 					'y': systemDimension.y * latticeVectors.u22, 
 					'z': systemDimension.y * latticeVectors.u23};
-	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+	const dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
 					'y': systemDimension.z * latticeVectors.u32, 
 					'z': systemDimension.z * latticeVectors.u33};
 	
 	
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
+	const x_start = -1 * ((options.xPBC-1)/2);
+	const x_end = ((options.xPBC-1)/2) + 1;
+	const y_start = -1 * ((options.yPBC-1)/2);
+	const y_end = ((options.yPBC-1)/2) + 1;
+	const z_start = -1 * ((options.zPBC-1)/2);
+	const z_end = ((options.zPBC-1)/2) + 1;
 	
-	var currentCellIndex = 0;
-	var xStep, yStep, zStep, currentStartingArrIndex;
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
+	let currentCellIndex = 0;
+	let xStep, yStep, zStep, currentStartingArrIndex;
+	for ( let i = x_start; i < x_end; i ++) {
+		for ( let j = y_start; j < y_end; j ++) {
+			for ( let k = z_start; k < z_end; k ++) {
 				//each unit cell
 				currentStartingArrIndex = numInstancePerUnitCell * currentCellIndex
 				sumScaleArr.set(unitCellScaleArr, currentStartingArrIndex);
@@ -182,7 +182,7 @@ export function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScal
 				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
-				for (var ii = 0; ii < numInstancePerUnitCell; ii ++){
+				for (let ii = 0; ii < numInstancePerUnitCell; ii ++){
 					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 0] = unitCellOffsetArr[ii * 3 + 0] + xStep;
 					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 1] = unitCellOffsetArr[ii * 3 + 1] + yStep;
 					sumOffsetArr[(ii + currentStartingArrIndex) * 3 + 2] = unitCellOffsetArr[ii * 3 + 2] + zStep;
@@ -192,7 +192,7 @@ export function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScal
 			}
 		}
 	}
-	var totalNumInstances = currentCellIndex * numInstancePerUnitCell;
+	let totalNumInstances = currentCellIndex * numInstancePerUnitCell;
 
 	geometry.setAttribute('instanceOffset', new THREE.InstancedBufferAttribute(sumOffsetArr, 3 ));
 	geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(sumScaleArr, 1 ));
@@ -210,32 +210,32 @@ export function updatePeriodicReplicatesInstancesMolecule(geometry, unitCellScal
 }
 
 export function updateOffsetArray(systemDimension, latticeVectors, geometry, options) {
-	var sumDisplacement = geometry.attributes.offset.array;
+	const sumDisplacement = geometry.attributes.offset.array;
 
-	var x_start = -1 * ((options.xPBC-1)/2);
-	var x_end = ((options.xPBC-1)/2) + 1;
-	var y_start = -1 * ((options.yPBC-1)/2);
-	var y_end = ((options.yPBC-1)/2) + 1;
-	var z_start = -1 * ((options.zPBC-1)/2);
-	var z_end = ((options.zPBC-1)/2) + 1;
+	const x_start = -1 * ((options.xPBC-1)/2);
+	const x_end = ((options.xPBC-1)/2) + 1;
+	const y_start = -1 * ((options.yPBC-1)/2);
+	const y_end = ((options.yPBC-1)/2) + 1;
+	const z_start = -1 * ((options.zPBC-1)/2);
+	const z_end = ((options.zPBC-1)/2) + 1;
 
-	var dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
+	const dim1Step = {'x': systemDimension.x * latticeVectors.u11, 
 					'y': systemDimension.x * latticeVectors.u12, 
 					'z': systemDimension.x * latticeVectors.u13};
-	var dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
+	const dim2Step = {'x': systemDimension.y * latticeVectors.u21, 
 					'y': systemDimension.y * latticeVectors.u22, 
 					'z': systemDimension.y * latticeVectors.u23};
-	var dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
+	const dim3Step = {'x': systemDimension.z * latticeVectors.u31, 
 					'y': systemDimension.z * latticeVectors.u32, 
 					'z': systemDimension.z * latticeVectors.u33};
 
 	
-	var xStep, yStep, zStep;
+	let xStep, yStep, zStep;
 
-	var counter = 0;
-	for ( var i = x_start; i < x_end; i ++) {
-		for ( var j = y_start; j < y_end; j ++) {
-			for ( var k = z_start; k < z_end; k ++) {
+	let counter = 0;
+	for ( let i = x_start; i < x_end; i ++) {
+		for ( let j = y_start; j < y_end; j ++) {
+			for ( let k = z_start; k < z_end; k ++) {
 				xStep = i * dim1Step.x + j * dim2Step.x + k * dim3Step.x;
 				yStep = i * dim1Step.y + j * dim2Step.y + k * dim3Step.y;
 				zStep = i * dim1Step.z + j * dim2Step.z + k * dim3Step.z;
@@ -262,7 +262,7 @@ function changeGeometry(options){
 
 
 function getGeometry(options){
-	var temp;
+	let temp;
 	if (options.view == 'pointCloud'){
 		temp = getPointCloudGeometry(options);
 	}

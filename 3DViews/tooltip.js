@@ -41,7 +41,7 @@ export function update3DViewTooltip(view){
 		const tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
 									"y: " + data.y + "<br>" +
 									"z: " + data.z + "<br>";
-		for (var property in data ) {
+		for (const property in data ) {
 			if (data.hasOwnProperty(property)) {
 				if (property != "xPlot" && property != "yPlot" && property != "zPlot" && property != "x" && property != "y" && property != "z" && property != "selected"){
 					tempDisplayedInfo += property + ": " + data[property] + "<br>";

@@ -89,7 +89,6 @@ export function arrangeDataToComparison(view){
 	const colorDict = {};
 	let colorCounter  = 0;
 
-	// var voxelToHeatmapMap = new Uint32Array(Data.length);
 	for (let i=0; i<Data.length; i++){
 		const systemName = Data[i].name;
 		if (!(systemName in colorDict)) {

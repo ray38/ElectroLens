@@ -64,24 +64,25 @@ export function setupOptionBox2DHeatmap(view,plotSetup){
 export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 	const gui = view.gui;
 	const options = view.options;
+	let spatiallyResolvedFeatureChoiceObject, moleculeDataFeatureChoiceObject;
 	if (view.overallSpatiallyResolvedDataBoolean) {
-		var spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
-		var spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
+		const spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
+		spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
 	}
 
 	if (view.overallMoleculeDataBoolean) {
-		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
-		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
+		const moleculeDataFeatureList = plotSetup["moleculePropertyList"];
+		moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
 	const plotFolder			= folder.addFolder( 'Plot Setting' );
 	const viewFolder 			= folder.addFolder( 'View Control' );
 	const selectionFolder 	= folder.addFolder( 'Selection' );
 
 
-
+	let moleculeFolder, spatiallyResolvedFolder;
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
-		var moleculeFolder = folder.addFolder( 'Molecular Data' );
-		var spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
+		moleculeFolder = folder.addFolder( 'Molecular Data' );
+		spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
 	}
 	
 	const detailFolder		= folder.addFolder( 'Additional Control' );
@@ -377,30 +378,30 @@ export function setupOptionBox2DHeatmapFolder(view,plotSetup, folder){
 }
 
 export function setupOptionBox2DCovarianceFolder(view,plotSetup, folder){
-	var gui = view.gui;
-	var options = view.options;
+	const gui = view.gui;
+	const options = view.options;
 
+	let spatiallyResolvedFeatureChoiceObject, moleculeDataFeatureChoiceObject;
 	if (view.overallSpatiallyResolvedDataBoolean) {
-		var spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
-		var spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
+		const spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
+		spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
 	}
 
 	if (view.overallMoleculeDataBoolean) {
-		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
-		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
+		const moleculeDataFeatureList = plotSetup["moleculePropertyList"];
+		moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
-	var options = view.options;
-	var plotFolder			= folder.addFolder( 'Plot Setting' );
-	var viewFolder 			= folder.addFolder( 'View Control' );
+	const plotFolder			= folder.addFolder( 'Plot Setting' );
+	const viewFolder 			= folder.addFolder( 'View Control' );
 
 
-
+	let moleculeFolder, spatiallyResolvedFolder;
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
-		var moleculeFolder = folder.addFolder( 'Molecular Data' );
-		var spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
+		moleculeFolder = folder.addFolder( 'Molecular Data' );
+		spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
 	}
 	
-	var detailFolder		= folder.addFolder( 'Additional Control' );
+	const detailFolder		= folder.addFolder( 'Additional Control' );
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
 		plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})
@@ -536,41 +537,41 @@ export function setupOptionBox2DCovarianceFolder(view,plotSetup, folder){
 
 
 export function setupOptionBox2DPCAFolder(view,plotSetup, folder){
-	var gui = view.gui;
-	var options = view.options;
+	const gui = view.gui;
+	const options = view.options;
+	let PCASpatiallyResolvedFeatureChoiceObject, PCAMoleculeDataFeatureChoiceObject;
 	if (view.overallSpatiallyResolvedDataBoolean) {
 
-		var PCASpatiallyResolvedFeatureList = [];
+		const PCASpatiallyResolvedFeatureList = [];
 
-		for (var i = 1; i <= plotSetup["spatiallyResolvedPropertyList"].length; i++) {
+		for (let i = 1; i <= plotSetup["spatiallyResolvedPropertyList"].length; i++) {
 			PCASpatiallyResolvedFeatureList.push("_PC"+i.toString());
 		}
-		var PCASpatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(PCASpatiallyResolvedFeatureList);
+		PCASpatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(PCASpatiallyResolvedFeatureList);
 	}
 
 	if (view.overallMoleculeDataBoolean) {
 
 
-		var PCAMoleculeDataFeatureList = [];
+		let PCAMoleculeDataFeatureList = [];
 
-		for (var i = 1; i <= plotSetup["moleculePropertyList"].length; i++) {
+		for (let i = 1; i <= plotSetup["moleculePropertyList"].length; i++) {
 			PCAMoleculeDataFeatureList.push("_PC"+i.toString());
 		}
-		var PCAMoleculeDataFeatureChoiceObject = arrayToIdenticalObject(PCAMoleculeDataFeatureList);
+		PCAMoleculeDataFeatureChoiceObject = arrayToIdenticalObject(PCAMoleculeDataFeatureList);
 	}
-	var options = view.options;
-	var plotFolder			= folder.addFolder( 'Plot Setting' );
-	var viewFolder 			= folder.addFolder( 'View Control' );
-	var selectionFolder 	= folder.addFolder( 'Selection' );
+	const plotFolder			= folder.addFolder( 'Plot Setting' );
+	const viewFolder 			= folder.addFolder( 'View Control' );
+	const selectionFolder 	= folder.addFolder( 'Selection' );
 
 
-
+	let moleculeFolder, spatiallyResolvedFolder;
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
-		var moleculeFolder = folder.addFolder( 'Molecular Data' );
-		var spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
+		moleculeFolder = folder.addFolder( 'Molecular Data' );
+		spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
 	}
 	
-	var detailFolder		= folder.addFolder( 'Additional Control' );
+	const detailFolder		= folder.addFolder( 'Additional Control' );
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
 		plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})
@@ -834,41 +835,42 @@ export function setupOptionBox2DPCAFolder(view,plotSetup, folder){
 
 
 export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
-	var gui = view.gui;
-	var options = view.options;
+	const gui = view.gui;
+	const options = view.options;
+
+	let UmapSpatiallyResolvedFeatureChoiceObject, UmapMoleculeDataFeatureChoiceObject;
 	if (view.overallSpatiallyResolvedDataBoolean) {
 
-		var UmapSpatiallyResolvedFeatureList = [];
+		const UmapSpatiallyResolvedFeatureList = [];
 
-		for (var i = 1; i <= 2; i++) {
+		for (let i = 1; i <= 2; i++) {
 			UmapSpatiallyResolvedFeatureList.push("_Umap"+i.toString());
 		}
-		var UmapSpatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(UmapSpatiallyResolvedFeatureList);
+		UmapSpatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(UmapSpatiallyResolvedFeatureList);
 	}
 
 	if (view.overallMoleculeDataBoolean) {
 
 
-		var UmapMoleculeDataFeatureList = [];
+		const UmapMoleculeDataFeatureList = [];
 
-		for (var i = 1; i <= 2; i++) {
+		for (let i = 1; i <= 2; i++) {
 			UmapMoleculeDataFeatureList.push("_Umap"+i.toString());
 		}
-		var UmapMoleculeDataFeatureChoiceObject = arrayToIdenticalObject(UmapMoleculeDataFeatureList);
+		UmapMoleculeDataFeatureChoiceObject = arrayToIdenticalObject(UmapMoleculeDataFeatureList);
 	}
-	var options = view.options;
-	var plotFolder			= folder.addFolder( 'Plot Setting' );
-	var viewFolder 			= folder.addFolder( 'View Control' );
-	var selectionFolder 	= folder.addFolder( 'Selection' );
+	const plotFolder			= folder.addFolder( 'Plot Setting' );
+	const viewFolder 			= folder.addFolder( 'View Control' );
+	const selectionFolder 	= folder.addFolder( 'Selection' );
 
 
-
+	let moleculeFolder, spatiallyResolvedFolder;
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
-		var moleculeFolder = folder.addFolder( 'Molecular Data' );
-		var spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
+		moleculeFolder = folder.addFolder( 'Molecular Data' );
+		spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
 	}
 	
-	var detailFolder		= folder.addFolder( 'Additional Control' );
+	const detailFolder		= folder.addFolder( 'Additional Control' );
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
 		plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})
@@ -1146,30 +1148,31 @@ export function setupOptionBox2DUmapFolder(view,plotSetup, folder){
 
 
 export function setupOptionBox2DComparisonFolder(view,plotSetup, folder){
-	var gui = view.gui;
-	var options = view.options;
+	const gui = view.gui;
+	const options = view.options;
+
+	let spatiallyResolvedFeatureChoiceObject, moleculeDataFeatureChoiceObject;
 	if (view.overallSpatiallyResolvedDataBoolean) {
-		var spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
-		var spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
+		const spatiallyResolvedFeatureList = plotSetup["spatiallyResolvedPropertyList"];
+		spatiallyResolvedFeatureChoiceObject = arrayToIdenticalObject(spatiallyResolvedFeatureList);
 	}
 
 	if (view.overallMoleculeDataBoolean) {
-		var moleculeDataFeatureList = plotSetup["moleculePropertyList"];
-		var moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
+		const moleculeDataFeatureList = plotSetup["moleculePropertyList"];
+		moleculeDataFeatureChoiceObject = arrayToIdenticalObject(moleculeDataFeatureList);
 	}
-	var options = view.options;
-	var plotFolder			= folder.addFolder( 'Plot Setting' );
-	var viewFolder 			= folder.addFolder( 'View Control' );
-	var selectionFolder 	= folder.addFolder( 'Selection' );
+	const plotFolder			= folder.addFolder( 'Plot Setting' );
+	const viewFolder 			= folder.addFolder( 'View Control' );
+	const selectionFolder 	= folder.addFolder( 'Selection' );
 
 
-
+	let moleculeFolder, spatiallyResolvedFolder;
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
-		var moleculeFolder = folder.addFolder( 'Molecular Data' );
-		var spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
+		moleculeFolder = folder.addFolder( 'Molecular Data' );
+		spatiallyResolvedFolder = folder.addFolder( 'Spatially Resolved Data' );
 	}
 	
-	var detailFolder		= folder.addFolder( 'Additional Control' );
+	const detailFolder		= folder.addFolder( 'Additional Control' );
 
 	if (view.overallMoleculeDataBoolean && view.overallSpatiallyResolvedDataBoolean) {
 		plotFolder.add( options, 'plotData', {'spatially resolved': 'spatiallyResolvedData' , 'molecular': 'moleculeData'})

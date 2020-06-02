@@ -544,25 +544,26 @@ function updateMoleculeGeometryBallAtom(view) {
 
 }
 
-/*
-function updateMoleculeGeometryBallAtomScale(view) {
-	var atoms = view.molecule.atoms;
-	var geometry = atoms.geometry;
-	var options = view.options;
-	var sizeCode = options.moleculeSizeCodeBasis;
-	var currentFrame = options.currentFrame.toString();
-	var moleculeData = view.systemMoleculeDataFramed[currentFrame];
 
-	var unitCellScaleArr = new Float32Array(moleculeData.length);
-	var t0 = performance.now();
-	var atomSize;
-	for (var i = 0; i < moleculeData.length; i++) {
-		var atomData = moleculeData[i];
+function updateMoleculeGeometryBallAtomScale(view) {
+	const atoms = view.molecule.atoms;
+	const geometry = atoms.geometry;
+	const options = view.options;
+	const sizeCode = options.moleculeSizeCodeBasis;
+	const currentFrame = options.currentFrame.toString();
+	const moleculeData = view.systemMoleculeDataFramed[currentFrame];
+
+	const unitCellScaleArr = new Float32Array(moleculeData.length);
+	const t0 = performance.now();
+	
+	for (let i = 0; i < moleculeData.length; i++) {
+		const atomData = moleculeData[i];
+		let atomSize;
 		if (sizeCode == "atom") {
 			atomSize = options.atomSize*atomRadius[atomData.atom];
 		}
 		else {
-			var tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
+			const tempSize = (atomData[sizeCode] - options.moleculeSizeSettingMin)/(options.moleculeSizeSettingMax - options.moleculeSizeSettingMin);
 			atomSize = options.atomSize * tempSize;
 		}
 
@@ -577,7 +578,7 @@ function updateMoleculeGeometryBallAtomScale(view) {
 	updatePeriodicReplicatesInstancesMoleculeScale(geometry, unitCellScaleArr, options);
 
 }
-*/
+
 
 
 

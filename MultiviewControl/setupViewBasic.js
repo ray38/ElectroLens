@@ -94,6 +94,15 @@ export function updateCameraFov(view){
 	view.camera.updateProjectionMatrix();
 }
 
+export function updateCameraFrustumSize(view){
+	view.camera.left = view.options.cameraFrustumSize * aspect / - 2, 
+	view.camera.right = view.options.cameraFrustumSize * aspect / 2, 
+	view.camera.top = view.options.cameraFrustumSize / 2, 
+	view.camera.bottom = view.options.cameraFrustumSize / - 2, 
+
+	view.camera.updateProjectionMatrix();
+}
+
 export function switchCamera(cameraType, view){
 	if (cameraType === "orthographic"){
 		view.scene.remove(view.camera);

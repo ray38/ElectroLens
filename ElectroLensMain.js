@@ -143,7 +143,7 @@ function main(views,plotSetup) {
 	//initializeViewSetups(views,plotSetup);
 
 	
-	var queue=d3.queue();
+	const queue=d3.queue();
 
 	for (let ii =  0; ii < views.length; ++ii ) {
 		let view = views[ii];
@@ -522,13 +522,13 @@ function main(views,plotSetup) {
 						&& typeof view.heatmapPlot != "undefined"){
 
 						if (view.options.plotData == "spatiallyResolvedData") {
-							var needsUpdate = hoverHeatmap(view,mouseEvent);
+							const needsUpdate = hoverHeatmap(view,mouseEvent);
 							if (needsUpdate) {
 								console.log('updating plots');
 								updateAllPlotsSpatiallyResolved(views);
 							}
 						} else if (view.options.plotData == "moleculeData") {
-							var needsUpdate = hoverHeatmap(view,mouseEvent);
+							const needsUpdate = hoverHeatmap(view,mouseEvent);
 							if (needsUpdate) {
 								console.log('updating plots');
 								updateAllPlotsMolecule(views);
@@ -541,13 +541,13 @@ function main(views,plotSetup) {
 				} else if (view.viewType == "3DView") {
 					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {
 						if (view.options.atomsStyle == "ball") {
-							var pickingResult = gpuPickMolecule(view, renderer, view.scene,mouseEvent, plotSetup.windowWidth, plotSetup.windowHeight);
-							var needsUpdate = hover3DViewMoleculeBall(view, plotSetup, pickingResult);
+							const pickingResult = gpuPickMolecule(view, renderer, view.scene,mouseEvent, plotSetup.windowWidth, plotSetup.windowHeight);
+							const needsUpdate = hover3DViewMoleculeBall(view, plotSetup, pickingResult);
 							if (needsUpdate) {
 								updateAllPlotsMoleculeScale(views);
 							}
 						} else if (view.options.atomsStyle == "sprite"){
-							var needsUpdate = hover3DViewMoleculeSprite(view, plotSetup, mouseEvent);
+							const needsUpdate = hover3DViewMoleculeSprite(view, plotSetup, mouseEvent);
 							if (needsUpdate) {
 								updateAllPlotsMoleculeScale(views);
 							}
@@ -555,7 +555,7 @@ function main(views,plotSetup) {
 					}
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
-						var needsUpdate = hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
+						const needsUpdate = hover3DViewSpatiallyResolved(view, plotSetup, mouseEvent);
 						if (needsUpdate) {
 							updateAllPlotsSpatiallyResolved(views);
 						}
@@ -572,8 +572,8 @@ function main(views,plotSetup) {
 			return;
 		}
 		
-		for ( var ii = 0; ii < views.length; ++ii ){
-			var view = views[ii];
+		for ( let ii = 0; ii < views.length; ++ii ){
+			const view = views[ii];
 			if (view.controllerEnabled){
 				if (view.viewType == "2DHeatmap"){
 					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
@@ -581,12 +581,12 @@ function main(views,plotSetup) {
 						typeof view.heatmapPlot != "undefined" &&
 						!(view.options.planeSelection || view.options.brushSelection)){
 							if (view.options.plotData == "spatiallyResolvedData") {
-								var needsUpdate = clickHeatmap(view, views);
+								const needsUpdate = clickHeatmap(view, views);
 								if (needsUpdate) {
 									updateAllPlotsSpatiallyResolved(views);
 								}
 							} else if (view.options.plotData == "moleculeData") {
-								var needsUpdate = clickHeatmap(view, views);
+								const needsUpdate = clickHeatmap(view, views);
 								if (needsUpdate) {
 									updateAllPlotsMolecule(views);
 								}
@@ -597,14 +597,14 @@ function main(views,plotSetup) {
 				} 
 				else if (view.viewType == "3DView") {
 					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule) {
-						var needsUpdate = click3DViewMolecule(view, views, plotSetup);
+						const needsUpdate = click3DViewMolecule(view, views, plotSetup);
 						if (needsUpdate) {
 							updateAllPlotsMolecule(views);
 						}
 					}
 
 					if (view.systemSpatiallyResolvedDataBoolean && view.options.interactiveSpatiallyResolved) {
-						var needsUpdate = click3DViewSpatiallyResolved(view, views, plotSetup);
+						const needsUpdate = click3DViewSpatiallyResolved(view, views, plotSetup);
 						if (needsUpdate) {
 							updateAllPlotsSpatiallyResolved(views);
 						}

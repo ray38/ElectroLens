@@ -3,7 +3,7 @@ import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, upd
 import {insertLegend, removeLegend, changeLegend, insertLegendMolecule, removeLegendMolecule, changeLegendMolecule} from "../MultiviewControl/colorLegend.js";
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "../Utilities/scale.js";
 import {arrayToIdenticalObject} from "../Utilities/other.js";
-import {updateCamLightPosition, updateCameraFov, switchCamera} from "../MultiviewControl/setupViewBasic.js";
+import {updateCamLightPosition, updateCameraFov, updateCameraFrustumSize, switchCamera} from "../MultiviewControl/setupViewBasic.js";
 import {colorMapDict} from "../Utilities/colorMap.js";
 export function setupOptionBox3DView(view,plotSetup){
 
@@ -89,12 +89,7 @@ export function setupOptionBox3DView(view,plotSetup){
 
 
 	viewFolder.add( options, 'resetCamera').name('Set Camera');
-	// viewFolder.add( options, 'switchCamera').name('Switch Camera');
-	viewFolder.add( options, 'cameraType', {'perspective':'perspective', 'orthographic':'orthographic'})
-	.onChange( function( cameraType ){
-		switchCamera(cameraType, view)
-		options.render.call();
-	});
+	
 	viewFolder.add( options, 'toggleFullscreen').name('Fullscreen');
 	viewFolder.add( options, 'systemEdgeBoolean')
 	.name('System Edge')
@@ -105,11 +100,13 @@ export function setupOptionBox3DView(view,plotSetup){
 		if (options.sync3DView) {options.syncOptions.call();}
 		options.render.call();
 	});
-	viewFolder.add( options, 'autoRotateSystem')
-	.name('Rotate System')
-	.onChange( function( value ) {
-		view.controller.autoRotate = value;
-	});
+
+	// viewFolder.add( options, 'autoRotateSystem')
+	// .name('Rotate System')
+	// .onChange( function( value ) {
+	// 	view.controller.autoRotate = value;
+	// });
+
 	if (view.frameBool){
 		viewFolder.add( options, 'currentFrame', view.frameMin, view.frameMax).step(1)
 		.name('Current Frame')
@@ -323,7 +320,7 @@ export function setupOptionBox3DView(view,plotSetup){
 		moleculeLegendFolder.add( options, 'toggleLegendMolecule').name("Toggle legend");
 		moleculeLegendFolder.close();
 
-		var moleculeAdditionalFolder 	= moleculeFolder.addFolder( 'Additional' );
+		const moleculeAdditionalFolder 	= moleculeFolder.addFolder( 'Additional' );
 
 		moleculeAdditionalFolder.add( options, 'atomModelSegments', 4, 50 ).step( 1 )
 		.name( 'Atom Resolution' )
@@ -566,18 +563,36 @@ export function setupOptionBox3DView(view,plotSetup){
 		options.render.call();
 	});
 
-	detailFolder.add( options, 'cameraFov', 10, 150 ).step( 5 )
-	.name( 'Camera Fov' )
-	.onChange( function( value ) {
-		updateCameraFov(view);
+	detailFolder.add( options, 'cameraType', {'perspective':'perspective', 'orthographic':'orthographic'})
+	.onChange( function( cameraType ){
+		switchCamera(cameraType, view)
 		options.render.call();
 	});
 
-	detailFolder.add( options, 'autoRotateSpeed', 0.1, 30.0 ).step( 0.1 )
-	.name( 'Rotate Speed' )
+	detailFolder.add( options, 'cameraFov', 10, 150 ).step( 5 )
+	.name( 'Camera Fov' )
 	.onChange( function( value ) {
-		view.controller.autoRotateSpeed = value;
+		if (view.cameraType === "perspective"){
+			updateCameraFov(view);
+			options.render.call();
+		}  
 	});
+
+	detailFolder.add( options, 'cameraFrustumSize', 10, 200 ).step( 5 )
+	.name( 'Camera Frustum' )
+	.onChange( function( value ) {
+		if (view.cameraType === "orthographic"){
+			updateCameraFrustumSize(view);
+			options.render.call();
+		}  
+	});
+
+
+	// detailFolder.add( options, 'autoRotateSpeed', 0.1, 30.0 ).step( 0.1 )
+	// .name( 'Rotate Speed' )
+	// .onChange( function( value ) {
+	// 	view.controller.autoRotateSpeed = value;
+	// });
 
 	
 
