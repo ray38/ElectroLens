@@ -204,7 +204,7 @@ function main(views,plotSetup) {
 		console.log('started initialization')
 		//const { UMAP } = require('umap-js');
 		container = document.getElementById( 'container' );
-		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1 } );
+		renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true, clearAlpha: 1, preserveDrawingBuffer: true } );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth , window.innerHeight);
 		//effect = new THREE.AnaglyphEffect( renderer );
@@ -721,6 +721,7 @@ function updateSize(views, plotSetup) {
 		update2DHeatmapTitlesLocation(views);
 	}
 }
+
 
 function throttle(callback, interval) {
 	let enableCall = true;

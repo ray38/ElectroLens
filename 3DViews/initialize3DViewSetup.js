@@ -140,46 +140,9 @@ export function initialize3DViewSetup(viewSetup,views,plotSetup){
 				viewSetup.camera.rotation.set(0,0,0);
 				render(views, plotSetup);
 			};
-			/*this.switchCamera = function(){
-				if (viewSetup.options.cameraType === "perspective"){
-					viewSetup.scene.remove(viewSetup.camera);
-
-					console.log("change to orthographic")
-					viewSetup.options.cameraType = "orthographic";
-					const aspect = window.innerWidth / window.innerHeight;
-					const cameraOrtho = new THREE.OrthographicCamera( viewSetup.options.cameraFrustumSize * aspect / - 2, 
-																	  viewSetup.options.cameraFrustumSize * aspect / 2, 
-																	  viewSetup.options.cameraFrustumSize / 2, 
-																	  viewSetup.options.cameraFrustumSize / - 2, 
-																	  1, 100000 );
-					cameraOrtho.position.set( viewSetup.eye[0] + viewSetup.geometryCenter[0], 
-											  viewSetup.eye[1] + viewSetup.geometryCenter[1], 
-											  viewSetup.eye[2] + viewSetup.geometryCenter[2] );
-
-					viewSetup.camera = cameraOrtho;
-					const tempController = new THREE.OrbitControls( viewSetup.camera, viewSetup.renderer.domElement );
-					tempController.target.set( viewSetup.geometryCenter[0], viewSetup.geometryCenter[1], viewSetup.geometryCenter[2]  );
-					viewSetup.camera.rotation.set(0,0,0);
-					viewSetup.controller = tempController;
-				}
-				if (viewSetup.options.cameraType === "orthographic"){
-					viewSetup.scene.remove(viewSetup.camera)
-
-					console.log("change to perspective")
-					viewSetup.options.cameraType = "perspective";
-					const aspect = window.innerWidth / window.innerHeight;
-					const cameraPerspective = new THREE.PerspectiveCamera( viewSetup.options.cameraFov, aspect, 1, 100000 );
-					cameraPerspective.position.set( viewSetup.eye[0] + viewSetup.geometryCenter[0], 
-											 		viewSetup.eye[1] + viewSetup.geometryCenter[1], 
-											  		viewSetup.eye[2] + viewSetup.geometryCenter[2] );
-
-					viewSetup.camera = cameraPerspective;
-					const tempController = new THREE.OrbitControls( viewSetup.camera, viewSetup.renderer.domElement );
-					tempController.target.set( viewSetup.geometryCenter[0], viewSetup.geometryCenter[1], viewSetup.geometryCenter[2]  );
-					viewSetup.camera.rotation.set(0,0,0);
-					viewSetup.controller = tempController;
-				}
-			}*/
+			this.saveScreenshot = function(){
+											saveAsImage(viewSetup);
+										}
 			this.systemEdgeBoolean = true;
 			this.autoRotateSystem = false;
 			this.autoRotateSpeed = 2.0;
@@ -384,4 +347,36 @@ function getGeometryCenter(viewSetup){
 
 	return [x_mid_transform, y_mid_transform, z_mid_transform];
 	// return [0, 0, roughSystemSize*2];
+}
+
+function saveAsImage(view) {
+	let imgData, imgNode;
+	const strDownloadMime = "image/octet-stream";
+
+	try {
+		const strMime = "image/jpeg";
+		imgData = view.renderer.domElement.toDataURL(strMime);
+
+		console.log(imgData)
+
+		saveFile(imgData.replace(strMime, strDownloadMime), "screenshot.jpg");
+
+	} catch (e) {
+		console.log(e);
+		return;
+	}
+
+}
+
+const saveFile = function (strData, filename) {
+	const link = document.createElement('a');
+	if (typeof link.download === 'string') {
+		document.body.appendChild(link); //Firefox requires the link to be in the body
+		link.download = filename;
+		link.href = strData;
+		link.click();
+		document.body.removeChild(link); //remove the link when done
+	} else {
+		location.replace(uri);
+	}
 }

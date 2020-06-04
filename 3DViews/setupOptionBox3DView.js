@@ -587,6 +587,8 @@ export function setupOptionBox3DView(view,plotSetup){
 		}  
 	});
 
+	detailFolder.add( options, 'saveScreenshot').name('Take Screenshot');
+
 
 	// detailFolder.add( options, 'autoRotateSpeed', 0.1, 30.0 ).step( 0.1 )
 	// .name( 'Rotate Speed' )
