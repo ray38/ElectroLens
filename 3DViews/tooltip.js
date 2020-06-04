@@ -38,7 +38,7 @@ export function update3DViewTooltip(view){
 
 		const data = view.systemMoleculeData[ intersects[ 0 ].object.dataIndex ];
 
-		const tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
+		let tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
 									"y: " + data.y + "<br>" +
 									"z: " + data.z + "<br>";
 		for (const property in data ) {

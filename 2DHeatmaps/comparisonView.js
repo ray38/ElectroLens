@@ -163,8 +163,6 @@ export function getComparison(view){
 	let i = 0;
 	let i3 = 0;
 
-	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
 	const xPlotScale = view.xPlotScale;
 	const yPlotScale = view.yPlotScale;
 
@@ -183,7 +181,6 @@ export function getComparison(view){
 			positions[i3 + 1] = yPlot;
 			positions[i3 + 2] = 0
 			
-			// var numberDatapointsRepresented = countListSelected(data[x][y]['list']);
 			const systemRepresented = getUniqueSelectedSystemList(data[x][y]['list']);
 			if (systemRepresented.length > 0) {
 				const color = getColorAverage(systemRepresented,colorDict);

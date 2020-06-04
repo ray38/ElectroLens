@@ -50,7 +50,7 @@ export function getAxis(view){
 export function addTitle(view) {
 
 	const options = view.options;
-	const titleText = "";
+	let titleText = "";
 	if (options.plotType == "Undefined"){
 		titleText += "Undefined Plot";
 	}

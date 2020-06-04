@@ -63,12 +63,6 @@ export function arrangeDataForPCA(view){
 
 			console.log("Finished Storing PCA");
 
-
-			/*view.PCAPropertyListSpatiallyResolved = [];
-
-			for (var i = 1; i <= options.nPCAComponentsSpatiallyResolved; i++) {
-				view.PCAPropertyListSpatiallyResolved.push("_PC"+i.toString());
-			}*/
 		}
 	}
 
@@ -195,7 +189,7 @@ export function arrangeDataForPCA(view){
 		view.data[heatmapX][heatmapY]['list'].push(Data[i]);
 	}
 
-	const PCAResultText = "";
+	let PCAResultText = "";
 	PCAResultText += X + " explained: " + view.PCAExplainedVariance[X].toExponential(4) + '<br>';
 
 	for (const property in view.PCALoadingMatrix[X]){
@@ -245,8 +239,6 @@ export function getPCAHeatmap(view){
 	let i = 0;
 	let i3 = 0;
 
-	//var xPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
-	//var yPlotScale = d3.scaleLinear().domain([0, options.numPerSide]).range([-50,50]);
 	const xPlotScale = view.xPlotScale;
 	const yPlotScale = view.yPlotScale;
 
@@ -339,10 +331,10 @@ export function updatePCAHeatmap(view){
 	lut.setMax( 1000);
 	lut.setMin( 0 );
 	view.lut = lut;
-	const i = 0;
-	const i3 = 0;
-	for (var x in data){
-		for (var y in data[x]){
+	let i = 0;
+	let i3 = 0;
+	for (const x in data){
+		for (const y in data[x]){
 			
 			const numberDatapointsRepresented = countListSelected(data[x][y]['list']);
 			if (numberDatapointsRepresented > 0) {
@@ -441,33 +433,6 @@ function getArrays2(data,propertyList){
 	return result;
 }
 
-/*function countListSelected(list) {
-	var count = 0;
-	
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].selected){ count += 1;}
-	}
-	return count;
-}
-
-function isAnyHighlighted(list) {
-
-	for (var i = 0; i < list.length; i++) {
-		if (list[i].highlighted){ return true; }
-	}
-	return false;
-	
-}
-
-function heatmapPointCount(data){
-	var count = 0;
-	for (var x in data){
-		for (var y in data[x]){
-			count = count + 1;
-		}
-	}
-	return count;
-}*/
 
 export function initializePCATooltip(view){
 
