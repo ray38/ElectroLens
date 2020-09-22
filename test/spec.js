@@ -10,7 +10,7 @@ const app = new Application({
     args: [path.join(__dirname, '..')]
 });
 
-describe('ElectroLens', function() {
+describe('ElectroLens Tests', function() {
     this.timeout(2000);
 
     beforeEach(() => {
@@ -28,15 +28,21 @@ describe('ElectroLens', function() {
         return assert.strictEqual(count,1); //example used equal, deprecated
     });
 
-    // it('has the correct title', async() => {
-    //     const title = await app.client.waitUntilWindowLoaded().getTitle();
-    //     return assert.strictEqual(title, titleString);
-    // });
+    it('has the correct title', async() => {
+        await app.client.waitUntilWindowLoaded();
+        const title = await app.client.getTitle();
+        return assert.strictEqual(title, titleString);
+    });
 
-    // it('does not have the developer tools open', async() => {
-    //     const devToolsAreOpen = await app.client.waitUntilWindowLoaded().browserWindow.isDevToolsOpened();
-    //     return assert.strictEqual(devToolsAreOpen, false);
-    // });
+    // it('has a disabled submit button', async () => {
+    //     await app.client.waitUntilWindowLoaded();
+    //     // const buttonDisabled = await app.client.$('#formSubmitButton');
+    //     const buttonDisabled = await app.client.getElementProperty('formSubmitButton', 'disabled');
+    //     const buttonLabel = await app.client.$('#formSubmitButton');
+    //     console.log(buttonLabel);
+    //     return assert.strictEqual(buttonDisabled.disabled, true);
+    //   });
+      
 
     // snippet for logging memory utilization during test
     //app.rendererProcess.getProcessMemoryInfo().then((info)=> console.log(info))
