@@ -1,17 +1,18 @@
 {
-  "name": "ElectroLens",
-  "version": "0.1.0",
+  "name": "electrolens",
+  "version": "0.3.0",
   "description": "Tool to visualize at electron density data",
   "main": "main.js",
+  "productName": "ElectroLens",
   "scripts": {
     "start": "electron .",
     "build": "babel --presets es2015 es6 -d es5",
     "pack": "build --dir",
     "dist": "build -w",
     "test": "mocha",
-    "package-win": "electron-packager . ElectroLens --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/win/logo.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName='ElectroLens'",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/logo.icns --prune=true --out=release-builds",
-    "package-linux": "electron-packager . ElectroLens --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/64x64.png --prune=true --out=release-builds"
+    "package-win": "electron-packager . --overwrite --asar --platform=win32 --arch=ia32 --icon=assets/icons/win/logo.ico --out=release-builds",
+    "package-mac": "electron-packager . --overwrite --asar --platform=darwin  --arch=x64 --icon=assets/icons/mac/logo.icns --out=release-builds",
+    "package-linux": "electron-packager . --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/64x64.png --out=release-builds"
   },
   "build": {
     "appId": "ray38.medfordgroup.ElectroLens",
