@@ -11,7 +11,6 @@ const app = new Application({
 });
 
 describe('ElectroLens Tests', async() => {
-    //this.timeout(2000);
 
     beforeEach(() => {
         return app.start();
