@@ -10,8 +10,8 @@ const app = new Application({
     args: [path.join(__dirname, '..')]
 });
 
-describe('ElectroLens Tests', function() {
-    this.timeout(2000);
+describe('ElectroLens Tests', async() => {
+    //this.timeout(2000);
 
     beforeEach(() => {
         return app.start();
