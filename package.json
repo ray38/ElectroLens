@@ -9,7 +9,7 @@
     "build": "babel --presets es2015 es6 -d es5",
     "pack": "build --dir",
     "dist": "build -w",
-    "test": "xvfb-maybe mocha test/spec.js",
+    "test": "xvfb-run mocha test/spec.js",
     "package-win": "electron-packager . --overwrite --asar --platform=win32 --arch=ia32 --icon=assets/icons/win/logo.ico --out=release-builds",
     "package-mac": "electron-packager . --overwrite --asar --platform=darwin  --arch=x64 --icon=assets/icons/mac/logo.icns --out=release-builds",
     "package-linux": "electron-packager . --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/64x64.png --out=release-builds"

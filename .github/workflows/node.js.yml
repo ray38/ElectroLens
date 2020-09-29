@@ -22,7 +22,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-    - run: npm install electron
+    - run: npm install electron@9.3.0
     - run: npm install mocha
     - run: npm install spectron
     - run: npm test
