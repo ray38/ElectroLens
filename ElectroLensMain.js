@@ -520,7 +520,7 @@ function main(views,plotSetup) {
 					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
 						|| view.options.plotType == "PCA" || view.options.plotType == "Umap") 
 						&& typeof view.heatmapPlot != "undefined"){
-
+						console.log("process hover");
 						if (view.options.plotData == "spatiallyResolvedData") {
 							const needsUpdate = hoverHeatmap(view,mouseEvent);
 							if (needsUpdate) {

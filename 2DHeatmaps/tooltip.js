@@ -23,7 +23,7 @@ export function initialize2DPlotTooltip(view){
 }
 
 
-export function updateHeatmapTooltip(view){
+export function updateHeatmapTooltip(view, event){
 	// console.log('updating 2d map tooltip',view.INTERSECTED);
 	if (view.options.plotType == "Comparison"){
 		if (view.INTERSECTED !== null) {
@@ -84,7 +84,7 @@ export function updateHeatmapTooltip(view){
 }
 
 
-export function updateCovarianceTooltip(view){
+export function updateCovarianceTooltip(view, event){
 
 	const mouse = new THREE.Vector2();
 	mouse.set(	(((event.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
