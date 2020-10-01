@@ -536,7 +536,7 @@ function main(views,plotSetup) {
 						}
 					}
 					if (view.options.plotType == "Correlation" && typeof view.covariancePlot != "undefined"){
-						updateCovarianceTooltip(view);
+						updateCovarianceTooltip(view, mouseEvent);
 					}
 				} else if (view.viewType == "3DView") {
 					if (view.systemMoleculeDataBoolean && view.options.interactiveMolecule ) {

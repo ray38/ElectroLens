@@ -288,11 +288,11 @@ export function hoverHeatmap(view, mouseEvent){
 				highlightHeatmapPoints(view.INTERSECTED, view);
 			}
 			
-			updateHeatmapTooltip(view)
+			updateHeatmapTooltip(view, mouseEvent)
 			return true;
 		} else {
 			//same intersection as before, nothing to do;
-			updateHeatmapTooltip(view)
+			updateHeatmapTooltip(view, mouseEvent)
 			return false;
 		}
 		
@@ -319,10 +319,10 @@ export function hoverHeatmap(view, mouseEvent){
 				
 			}
 			view.INTERSECTED = null;
-			updateHeatmapTooltip(view);
+			updateHeatmapTooltip(view, mouseEvent);
 			return true;
 		} else {
-			updateHeatmapTooltip(view);
+			updateHeatmapTooltip(view, mouseEvent);
 			return false;
 		}
 		
