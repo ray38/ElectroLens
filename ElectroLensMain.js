@@ -528,6 +528,7 @@ function main(views,plotSetup) {
 								updateAllPlotsSpatiallyResolved(views);
 							}
 						} else if (view.options.plotData == "moleculeData") {
+							console.log("process hover molecular");
 							const needsUpdate = hoverHeatmap(view,mouseEvent);
 							if (needsUpdate) {
 								console.log('updating plots');

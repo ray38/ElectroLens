@@ -253,6 +253,7 @@ export function hoverHeatmap(view, mouseEvent){
 	view.raycaster.params.Points.threshold = view.options.pointCloudSize / 4;
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
 	const intersects = view.raycaster.intersectObject( view.heatmapPlot );
+	console.log(intersects);
 	if ( intersects.length > 0 ) {
 		// has intersection
 		if ( view.INTERSECTED != intersects[ 0 ].index ) {
