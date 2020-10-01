@@ -520,18 +520,18 @@ function main(views,plotSetup) {
 					if ((view.options.plotType == "Heatmap" || view.options.plotType == "Comparison"
 						|| view.options.plotType == "PCA" || view.options.plotType == "Umap") 
 						&& typeof view.heatmapPlot != "undefined"){
-						console.log("process hover");
+						// console.log("process hover");
 						if (view.options.plotData == "spatiallyResolvedData") {
 							const needsUpdate = hoverHeatmap(view,mouseEvent);
 							if (needsUpdate) {
-								console.log('updating plots');
+								// console.log('updating plots');
 								updateAllPlotsSpatiallyResolved(views);
 							}
 						} else if (view.options.plotData == "moleculeData") {
 							console.log("process hover molecular");
 							const needsUpdate = hoverHeatmap(view,mouseEvent);
 							if (needsUpdate) {
-								console.log('updating plots');
+								// console.log('updating plots');
 								updateAllPlotsMolecule(views);
 							}
 						}
@@ -581,6 +581,7 @@ function main(views,plotSetup) {
 						|| view.options.plotType == "PCA" || view.options.plotType == "Umap")  && 
 						typeof view.heatmapPlot != "undefined" &&
 						!(view.options.planeSelection || view.options.brushSelection)){
+							console.log("process click");
 							if (view.options.plotData == "spatiallyResolvedData") {
 								const needsUpdate = clickHeatmap(view, views);
 								if (needsUpdate) {
