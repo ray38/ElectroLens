@@ -2,7 +2,6 @@ const assert = require('assert');
 const path = require('path');
 const Application = require('spectron').Application;
 const electronPath = require('electron');
-
 const titleString = 'ElectroLens';
 
 const app = new Application({
@@ -10,7 +9,8 @@ const app = new Application({
     args: [path.join(__dirname, '..')]
 });
 
-describe('ElectroLens Tests', async() => {
+describe('ElectroLens Tests', function() {
+    this.timeout(10000);
 
     beforeEach(() => {
         return app.start();
@@ -33,17 +33,22 @@ describe('ElectroLens Tests', async() => {
         return assert.strictEqual(title, titleString);
     });
 
-    // it('has a disabled submit button', async () => {
+    it('has a disabled submit button', async() => {
+        await app.client.waitUntilWindowLoaded();
+        const submitDisabled = await (await app.client.$('#formSubmitButton')).getProperty('disabled');
+        return assert.strictEqual(submitDisabled, true);
+    });
+    
+    //The client API is WebdriverIO's browser object.
+
+
+    // it('processing time', async() => {
     //     await app.client.waitUntilWindowLoaded();
-    //     // const buttonDisabled = await app.client.$('#formSubmitButton');
-    //     const buttonDisabled = await app.client.getElementProperty('formSubmitButton', 'disabled');
-    //     const buttonLabel = await app.client.$('#formSubmitButton');
-    //     console.log(buttonLabel);
-    //     return assert.strictEqual(buttonDisabled.disabled, true);
-    //   });
-      
+
+    // })
 
     // snippet for logging memory utilization during test
     //app.rendererProcess.getProcessMemoryInfo().then((info)=> console.log(info))
+
 
 });
