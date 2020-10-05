@@ -10,7 +10,7 @@ const app = new Application({
 });
 
 describe('ElectroLens Tests', function() {
-    this.timeout(10000);
+    this.timeout(100000);
 
     beforeEach(() => {
         return app.start();
@@ -37,6 +37,26 @@ describe('ElectroLens Tests', function() {
         await app.client.waitUntilWindowLoaded();
         const submitDisabled = await (await app.client.$('#formSubmitButton')).getProperty('disabled');
         return assert.strictEqual(submitDisabled, true);
+    });
+
+    it('load benzene', async() => {
+        await app.client.waitUntilWindowLoaded();
+
+        await (await app.client.$('#boolSpatiallyResolvedData')).click();
+        var sampleData = path.join(__dirname, 'C6H6_B3LYP_0_0_0_all_descriptors.csv');
+        const remoteFilePath = await app.client.uploadFile(sampleData);
+        await (await app.client.$('#view1SpatiallyResolvedDataFilename')).setValue(remoteFilePath);
+        await (await app.client.$('#formSubmitButton')).click();
+
+        // const elem = app.client.$('#container');
+        // app.client.$('#container').waitUntil(async () => {
+        await app.client.waitUntil(async () => {
+            return await (await app.client.$('#container')).getAttribute('loadstatus') === '1'
+        }, {
+            timeout: 60000,
+            timeoutMsg: 'expected text to be different after 1 min'
+        });
+        // return assert.strictEqual(1,1);
     });
     
     //The client API is WebdriverIO's browser object.
