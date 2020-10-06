@@ -41,16 +41,19 @@ describe('ElectroLens Tests', function() {
 
     it('load benzene', async() => {
         await app.client.waitUntilWindowLoaded();
-
         await (await app.client.$('#boolSpatiallyResolvedData')).click();
         var sampleData = path.join(__dirname, 'C6H6_B3LYP_0_0_0_all_descriptors.csv');
         const remoteFilePath = await app.client.uploadFile(sampleData);
         await (await app.client.$('#view1SpatiallyResolvedDataFilename')).setValue(remoteFilePath);
+        const beforeClick = Date.now();
         await (await app.client.$('#formSubmitButton')).click();
 
         // const elem = app.client.$('#container');
         // app.client.$('#container').waitUntil(async () => {
         await app.client.waitUntil(async () => {
+            if (await (await app.client.$('#container')).getAttribute('loadstatus') === '1') {
+                console.log(Date.now()-beforeClick);
+            }
             return await (await app.client.$('#container')).getAttribute('loadstatus') === '1'
         }, {
             timeout: 60000,
