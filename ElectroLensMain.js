@@ -5,9 +5,9 @@ import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.
 import {getPointCloudGeometry} from "./3DViews/PointCloud.js";
 import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
-import {initialize3DViewTooltip,update3DViewTooltip,/*hover3DViewSpatiallyResolved, hover3DViewMolecule*/} from "./3DViews/tooltip.js";
+import {initialize3DViewTooltip,update3DViewTooltip,} from "./3DViews/tooltip.js";
 import {hover3DViewSpatiallyResolved, hover3DViewMoleculeBall, hover3DViewMoleculeSprite, click3DViewMolecule, click3DViewSpatiallyResolved,gpuPickMolecule} from "./3DViews/selection.js";
-import {combineData/*,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse*/,readCSVSpatiallyResolvedDataFastCSV,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {combineData,readCSVSpatiallyResolvedDataFastCSV,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData} from "./Utilities/readDataFile.js";
 
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
@@ -168,8 +168,7 @@ function main(views,plotSetup) {
 				queue.defer(processSpatiallyResolvedData,view,plotSetup);
 			}
 			else{
-				// queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
-				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,plotSetup);
+				console.log("going to read fast csv");
 				queue.defer(readCSVSpatiallyResolvedDataFastCSV,view,plotSetup);
 				
 			}
@@ -179,6 +178,7 @@ function main(views,plotSetup) {
 			}
 			else{
 				queue.defer(readCSVMoleculeData,view,plotSetup);
+				// TODO DSK check this out
 			}	
 		}			
 	}
