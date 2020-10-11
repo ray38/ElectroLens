@@ -7,7 +7,7 @@ import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
 import {initialize3DViewTooltip,update3DViewTooltip,} from "./3DViews/tooltip.js";
 import {hover3DViewSpatiallyResolved, hover3DViewMoleculeBall, hover3DViewMoleculeSprite, click3DViewMolecule, click3DViewSpatiallyResolved,gpuPickMolecule} from "./3DViews/selection.js";
-import {combineData,readCSVSpatiallyResolvedDataFastCSV,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData} from "./Utilities/readDataFile.js";
+import {combineData,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData} from "./Utilities/readDataFile.js";
 
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
@@ -168,8 +168,7 @@ function main(views,plotSetup) {
 				queue.defer(processSpatiallyResolvedData,view,plotSetup);
 			}
 			else{
-				console.log("going to read fast csv");
-				queue.defer(readCSVSpatiallyResolvedDataFastCSV,view,plotSetup);
+				queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
 				
 			}
 
