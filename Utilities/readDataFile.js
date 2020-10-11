@@ -1,12 +1,6 @@
-// var Papa = require('papaparse');
-// const fs = require('fs');
 const fs = window.require('fs');
-// const remote = require('electron').remote;
-// const electronFs = remote.require('fs');
-// const path = require('path');
-const csv = require('fast-csv');
-
-
+const csvparse = require("csv-parse");
+const transform = require("stream-transform");
 
 
 export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
@@ -83,7 +77,7 @@ export function processMoleculeData(view,plotSetup,callback){
 
 		for (let i = 0; i < propertyList.length; i++) {
 				if (propertyList[i] != "atom"){
-			    	temp[propertyList[i]] = +d[propertyList[i]];
+					temp[propertyList[i]] = +d[propertyList[i]];
 				}
 			}
 		
@@ -125,194 +119,54 @@ export function readCSVSpatiallyResolvedData(view,plotSetup,callback){
 		const densityCutoffUp = plotSetup.densityCutoffUp;
 		const systemName = view.moleculeName;
 
+		let count = 0;
+		const t0 = Date.now();
 
-		d3.csv(filename, function (error,d) {
-			if (error && error.target.status === 404) {
-				console.log(error);
-				console.log("File not found");
-			}
-			if(d.length === 0){
-				console.log("File empty")
-			}
-			console.log('end loading', d.length)
-			d.forEach(function (d,i) {
-				const n = +d[density];
-				if (n > densityCutoffLow && n < densityCutoffUp){
-					const temp = {
-							x:+d.x,
-							y:+d.y,
-							z:+d.z,
-							selected: true,
-							highlighted: false,
-							name: systemName
-						}
-					for (let i = 0; i < propertyList.length; i++) {
-					    temp[propertyList[i]] = +d[propertyList[i]];
-					}
-
-					let currentFrame;
-					if (view.frameBool){
-						currentFrame = (+d[plotSetup.frameProperty]).toString();
-					}
-					else{
-						temp["__frame__"] = 1;
-						currentFrame = (1).toString();
-					}
-
-					!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
-
-					view.systemSpatiallyResolvedData.push(temp);
-					view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
-
+		const parser = csvparse({
+			delimiter: ',',
+			columns: true 
+		});
+		
+		const transformer = transform(function(record, callback){ 
+			const n = +record[density];
+			//console.log(record);
+			if (n > densityCutoffLow && n < densityCutoffUp) {
+				record.x = +record.x;
+				record.y = +record.y;
+				record.z = +record.z;
+				record.selected = true;
+				record.name = systemName;
+				record.highlighted = false;
+				for (let i = propertyList.length; i--;) { 
+					record[propertyList[i]] = +record[propertyList[i]];
+				} 
+				let currentFrame;
+				if (view.frameBool){ 
+					currentFrame = (+record[plotSetup.frameProperty]).toString();
 				}
-			})
-			console.log('end parsing')
+				else{
+					record["__frame__"] = 1;
+					currentFrame = (1).toString();
+				}
+				// console.log(record);
+				!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
+				view.systemSpatiallyResolvedData.push(record);
+				view.systemSpatiallyResolvedDataFramed[currentFrame].push(record);
+			}
+			callback(null);
+
+		});
+		
+		fs.createReadStream(filename, { highWaterMark :  2048 * 1024})
+		.pipe(parser).pipe(transformer)
+		.on('finish', function() {
+			console.log(" End of file import, read: ",count);
+			console.log(" took: ",Date.now() - t0);
 			callback(null);
 		});
+	
 	}
 }
-
-// export function readCSVSpatiallyResolvedDataPapaparse(view,plotSetup,callback){
-// 	view.systemSpatiallyResolvedData = [];
-// 	view.systemSpatiallyResolvedDataFramed = {};
-
-// 	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
-// 		console.log('no spatially resolved data loaded')
-// 		callback(null);
-// 	} else{
-// 		if (view.frameBool && !(plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty))){
-// 			alert("The frame property Not in spatiallyResolvedPropertyList");
-// 		}
-// 		console.log('started loading')
-// 		var filename = view.spatiallyResolvedData.dataFilename;
-// 		var propertyList = plotSetup.spatiallyResolvedPropertyList;
-// 		var density = plotSetup.pointcloudDensity;
-// 		var densityCutoffLow = plotSetup.densityCutoffLow;
-// 		var densityCutoffUp = plotSetup.densityCutoffUp;
-// 		var systemName = view.moleculeName;
-
-// 		var count = 0;
-// 		var d, n, currentFrame;
-// 		Papa.parse(filename, {
-// 			header: true,
-// 			download: true,
-// 			/*step: function(results){
-// 				count = count + 1;
-// 				console.log('finished count: ', count, results.data);
-// 			},*/
-// 			chunk: function(chunk) {
-// 				console.log('loading chunk');
-// 				/*for (var ii = 0; ii < chunk.length; ii++) {
-// 					d = chunck.data[ii];
-// 					n = +d[density];
-// 					if (n > densityCutoffLow && n < densityCutoffUp){
-// 						var temp = {
-// 								x:+d.x,
-// 								y:+d.y,
-// 								z:+d.z,
-// 								selected: true,
-// 								highlighted: false,
-// 								name: systemName
-// 							}
-// 						for (var i = 0; i < propertyList.length; i++) {
-// 							temp[propertyList[i]] = +d[propertyList[i]];
-// 						}
-
-// 						if (view.frameBool){
-// 							currentFrame = (+d[plotSetup.frameProperty]).toString();
-// 						}
-// 						else{
-// 							temp["__frame__"] = 1;
-// 							currentFrame = (1).toString();
-// 						}
-
-// 						!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
-
-// 						view.systemSpatiallyResolvedData.push(temp);
-// 						view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
-
-// 					}
-// 				}*/
-// 				console.log('end parsing', view.systemSpatiallyResolvedData.length)
-// 			},
-// 			complete: function(results) {
-// 				// console.log('finished', results.data);
-// 				console.log('papa load complete', view.systemSpatiallyResolvedData.length, results);
-// 				callback(null);
-// 			}
-// 		});
-
-// 	}
-// }
-
-export function readCSVSpatiallyResolvedDataFastCSV(view,plotSetup,callback){
-	view.systemSpatiallyResolvedData = [];
-	view.systemSpatiallyResolvedDataFramed = {};
-
-	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
-		console.log('no spatially resolved data loaded')
-		callback(null);
-	} else{
-		if (view.frameBool && !(plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty))){
-			alert("The frame property Not in spatiallyResolvedPropertyList");
-		}
-		console.log('started loading')
-		const filename = view.spatiallyResolvedData.dataFilename;
-		const propertyList = plotSetup.spatiallyResolvedPropertyList;
-		const density = plotSetup.pointcloudDensity;
-		const densityCutoffLow = plotSetup.densityCutoffLow;
-		const densityCutoffUp = plotSetup.densityCutoffUp;
-		const systemName = view.moleculeName;
-
-		let count = 0;
-		//let currentFrame;
-		const stream = fs.createReadStream(filename, {highWaterMark : 5096 * 1024});
-
-		const t0 = performance.now();
-
-		csv.parseStream(stream, { headers: true, quote:null})
-			.on("data", function(d) {
-				count = count +1;
-				const n = +d[density];
-				if (n > densityCutoffLow && n < densityCutoffUp){
-					const temp = {
-							x:+d.x,
-							y:+d.y,
-							z:+d.z,
-							selected: true,
-							highlighted: false,
-							name: systemName
-						}
-					for (let i = propertyList.length; i--;) {
-						temp[propertyList[i]] = +d[propertyList[i]];
-					}
-
-					let currentFrame;
-					if (view.frameBool){
-						currentFrame = (+d[plotSetup.frameProperty]).toString();
-					}
-					else{
-						temp["__frame__"] = 1;
-						currentFrame = (1).toString();
-					}
-
-					!(currentFrame in view.systemSpatiallyResolvedDataFramed) && (view.systemSpatiallyResolvedDataFramed[currentFrame] = []);
-
-					view.systemSpatiallyResolvedData.push(temp);
-					view.systemSpatiallyResolvedDataFramed[currentFrame].push(temp);
-
-				}
-			})
-			.on("end", function() {
-				console.log(" End of file import, read: ",count);
-				console.log(" took: ",performance.now() - t0);
-				callback(null);
-			});
-
-	}
-}
-
-
 
 export function readCSVMoleculeData(view,plotSetup,callback){
 
