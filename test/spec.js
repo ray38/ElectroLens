@@ -53,8 +53,8 @@ describe('ElectroLens Tests', function() {
         await app.client.waitUntil(async () => {
             if (await (await app.client.$('#container')).getAttribute('loadstatus') === '1') {
                 console.log(Date.now()-beforeClick);
+                return true;
             }
-            return await (await app.client.$('#container')).getAttribute('loadstatus') === '1'
         }, {
             timeout: 60000,
             timeoutMsg: 'expected text to be different after 1 min'
