@@ -2,6 +2,8 @@ const fs = window.require('fs');
 const csvparse = require("csv-parse");
 const transform = require("stream-transform");
 
+import {clearProgressMessage, queueUpdateProgressBar, streamUpdateProgressBar} from "./bootstrapProgressBar.js";
+
 
 export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
@@ -48,7 +50,8 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 
 		}
 	})
-	console.log('end processing data')
+	console.log('end processing data');
+	queueUpdateProgressBar();
 	callback(null);
 }
 
@@ -97,6 +100,7 @@ export function processMoleculeData(view,plotSetup,callback){
 
 	})
 	console.log('end processing molecule data');
+	queueUpdateProgressBar();
 	callback(null);
 }
 
@@ -156,12 +160,16 @@ export function readCSVSpatiallyResolvedData(view,plotSetup,callback){
 			callback(null);
 
 		});
+		let fileSizeInBytes = fs.statSync(filename)["size"];
 		
 		fs.createReadStream(filename, { highWaterMark :  2048 * 1024})
+		.on('data', function(chunk) {
+			streamUpdateProgressBar(chunk.length, fileSizeInBytes, filename);
+		})
 		.pipe(parser).pipe(transformer)
 		.on('finish', function() {
-			console.log(" End of file import, read: ",count);
-			console.log(" took: ",Date.now() - t0);
+			console.log("import took: ",Date.now() - t0);
+			clearProgressMessage();
 			callback(null);
 		});
 	
@@ -227,7 +235,8 @@ export function readCSVMoleculeData(view,plotSetup,callback){
 				view.systemMoleculeData.push(temp);
 				view.systemMoleculeDataFramed[currentFrame].push(temp);
 			})
-			console.log('end parsing')
+			console.log('end parsing');
+			queueUpdateProgressBar();
 			callback(null);
 		});
 
