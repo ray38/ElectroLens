@@ -66,10 +66,6 @@ else{
 			configForm.parentNode.removeChild(configForm);
 			divider.parentNode.removeChild(divider);
 
-			// initializes loading bar
-			document.getElementById("UI").innerHTML = "<div id='loading_progress' class='inner card border-success'><h3>ElectroLoading</h3><div class='progress'><div class='progress-bar progress-bar-striped progress-bar-animated active' id='loading-progress' role='progressbar' style='width: 5%;'></div></div><div id='loading-message'></div></div>";
-			// to update see Utilities bootstrapProgressBar.js
-
 			handleViewSetup(CONFIG);
 		});
 
@@ -92,7 +88,6 @@ function handleFiles() {
 		cache: false,
 		success: function(data) {
 			console.log("read pre defined config");
-			
 			handleViewSetup(data);
 		},
 		error: function(requestObject, error, errorThrown) {
@@ -104,6 +99,8 @@ function handleFiles() {
 
 
 function handleViewSetup(data){
+	// initializes loading bar
+	document.getElementById("UI").innerHTML = "<div id='loading_progress' class='inner card border-success'><h3>ElectroLoading</h3><div class='progress'><div class='progress-bar progress-bar-striped progress-bar-animated active' id='loading-progress' role='progressbar' style='width: 5%;'></div></div><div id='loading-message'></div></div>";
 	const views = data.views;
 	const plotSetup = data.plotSetup;
 	initializeViewSetups(views,plotSetup);
@@ -186,7 +183,6 @@ function main(views,plotSetup) {
 		if (error) throw error;
 
 		combineData(views, overallSpatiallyResolvedData,overallMoleculeData);
-		// document.body.style.backgroundColor = "blue";
 		init();
 		
 		const htmlUI = document.getElementById("UI");
