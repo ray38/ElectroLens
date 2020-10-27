@@ -30,7 +30,7 @@ export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,p
 					name: systemName
 				}
 			for (let i = 0; i < propertyList.length; i++) {
-			    temp[propertyList[i]] = +d[propertyList[i]];
+				temp[propertyList[i]] = +d[propertyList[i]];
 			}
 
 			let currentFrame;
@@ -108,10 +108,10 @@ export function readCSVSpatiallyResolvedData(view,plotSetup,callback){
 	view.systemSpatiallyResolvedData = [];
 	view.systemSpatiallyResolvedDataFramed = {};
 
-	if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
-		console.log('no spatially resolved data loaded')
-		callback(null);
-	} else{
+	// if (view.spatiallyResolvedData == null || view.spatiallyResolvedData.dataFilename == null){
+	// 	console.log('no spatially resolved data loaded')
+	// 	callback(null);
+	// } else{
 		if (view.frameBool && !(plotSetup.spatiallyResolvedPropertyList.includes(plotSetup.frameProperty))){
 			alert("The frame property Not in spatiallyResolvedPropertyList");
 		}
@@ -173,7 +173,7 @@ export function readCSVSpatiallyResolvedData(view,plotSetup,callback){
 			callback(null);
 		});
 	
-	}
+	// }
 }
 
 export function readCSVMoleculeData(view,plotSetup,callback){
@@ -181,10 +181,10 @@ export function readCSVMoleculeData(view,plotSetup,callback){
 	view.systemMoleculeData = [];
 	view.systemMoleculeDataFramed = {};
 
-	if (view.moleculeData == null || view.moleculeData.dataFilename == null){
-		console.log('no molecule data loaded')
-		callback(null);
-	} else{
+	// if (view.moleculeData == null || view.moleculeData.dataFilename == null){
+	// 	console.log('no molecule data loaded')
+	// 	callback(null);
+	// } else{
 		if (view.frameBool && !(plotSetup.moleculePropertyList.includes(plotSetup.frameProperty))){
 			alert("The frame property Not in moleculePropertyList");
 		}
@@ -240,7 +240,7 @@ export function readCSVMoleculeData(view,plotSetup,callback){
 			callback(null);
 		});
 
-	}
+	// }
 
 }
 

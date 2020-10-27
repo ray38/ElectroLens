@@ -51,7 +51,7 @@ else{
 
 		$(".save-config").click(function(e){
 			const CONFIG = readInputForm();
-			download(CONFIG, 'config.json', 'text/plain');
+			download(CONFIG, 'config.json', 'application/json');
 		})
 
 		$( "form" ).submit(function( event ) {
@@ -156,21 +156,31 @@ function main(views,plotSetup) {
 
 			if(view.spatiallyResolvedData != null && view.spatiallyResolvedData.data != null){
 				queue.defer(processSpatiallyResolvedData,view,plotSetup);
+				console.log('added processSpatiallyResolvedData');
 				queueLength++;
 			}
-			else{
+			else if (view.spatiallyResolvedData != null && view.spatiallyResolvedData.dataFilename != null){
 				queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
+				console.log('added readCSVSpatiallyResolvedData');
 				queueLength++;
+			}
+			else {
+				console.log('no spatially resolved data loaded');
 			}
 
 			if(view.moleculeData != null && view.moleculeData.data != null){
 				queue.defer(processMoleculeData,view,plotSetup);
+				console.log('added processMoleculeData');
 				queueLength++;
 			}
-			else{
+			else if (view.moleculeData != null && view.moleculeData.dataFilename != null){
 				queue.defer(readCSVMoleculeData,view,plotSetup);
+				console.log('added readCSVMoleculeData');
 				queueLength++;
 			}	
+			else {
+				console.log('no molecule data loaded');
+			}
 		}			
 	}
 	console.log("count for queue length: " + queueLength.toString());
