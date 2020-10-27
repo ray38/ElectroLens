@@ -6,6 +6,7 @@ export function queueUpdateProgressBar() {
     if (newWidth && newWidth <= 100.0 && document.getElementById("loading-progress")) {
         document.getElementById("loading-progress").style["width"] = newWidth+"%";
     }
+    clearProgressMessage();
 }
 
 export function streamUpdateProgressBar(chunkSize, totalSize, filename) {
@@ -18,6 +19,21 @@ export function streamUpdateProgressBar(chunkSize, totalSize, filename) {
         document.getElementById("loading-progress").style["width"] = newWidth+"%";
     }
     setProgressMessage("Loading " + filename);
+}
+
+export function d3csvUpdateProgressBar(currentRow, totalRows, filename) {
+    let totalChunks = 10;
+    let oneTenth = Math.round(totalRows / totalChunks);
+    if( currentRow % oneTenth == 0 ) {
+        let barQueueLength = parseInt(document.getElementById("loading-progress").getAttribute("queueLength"));
+        let forThisQueueItem = ( barQueueLength * ( 1.0 / totalChunks ) );
+        let currentWidth = parseInt(document.getElementById("loading-progress").style["width"]);
+        let newWidth = (currentWidth + forThisQueueItem).toString();
+        if (newWidth && newWidth <= 100.0 && document.getElementById("loading-progress")) {
+            document.getElementById("loading-progress").style["width"] = newWidth+"%";
+        }
+        setProgressMessage("Loading " + filename);
+    } 
 }
 
 export function clearProgressMessage() {

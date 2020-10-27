@@ -2,7 +2,7 @@ const fs = window.require('fs');
 const csvparse = require("csv-parse");
 const transform = require("stream-transform");
 
-import {clearProgressMessage, queueUpdateProgressBar, streamUpdateProgressBar} from "./bootstrapProgressBar.js";
+import {clearProgressMessage, queueUpdateProgressBar, streamUpdateProgressBar, d3csvUpdateProgressBar, setProgressMessage} from "./bootstrapProgressBar.js";
 
 
 export function processSpatiallyResolvedData(view,overallSpatiallyResolvedData,plotSetup,callback){
@@ -183,38 +183,39 @@ export function readCSVMoleculeData(view,plotSetup,callback){
 	const filename = view.moleculeData.dataFilename;
 	const propertyList = plotSetup.moleculePropertyList;
 	const systemName = view.moleculeName;
+	setProgressMessage("Loading " + filename);
 
-
-	d3.csv(filename, function (error,d) {
+	d3.csv(filename, function (error,dataRows) {
 		if (error && error.target.status === 404) {
 			console.log(error);
 			console.log("File not found");
 		}
-		if(d.length === 0){
+		if(dataRows.length === 0){
 			console.log("File empty")
 		}
-		console.log('end loading')
-		d.forEach(function (d,i) {
-
+		let currentRow = 0;
+		dataRows.forEach(function (thisRow) {
+			currentRow++;
+			d3csvUpdateProgressBar(currentRow, dataRows.length, filename);
 			const temp = {
-						atom:d.atom.trim(),
-						x:+d.x,
-						y:+d.y,
-						z:+d.z,
-						selected: true,
-						highlighted: false,
-						name: systemName
-					};
+				atom:thisRow.atom.trim(),
+				x:+thisRow.x,
+				y:+thisRow.y,
+				z:+thisRow.z,
+				selected: true,
+				highlighted: false,
+				name: systemName
+			};
 
 			for (let i = 0; i < propertyList.length; i++) {
 					if (propertyList[i] != "atom"){
-						temp[propertyList[i]] = +d[propertyList[i]];
+						temp[propertyList[i]] = +thisRow[propertyList[i]];
 					}
 				}
 
 			let currentFrame;
 			if (view.frameBool){
-				currentFrame = (+d[plotSetup.frameProperty]).toString();
+				currentFrame = (+thisRow[plotSetup.frameProperty]).toString();
 			}
 			else{
 				temp["__frame__"] = 1;
@@ -226,8 +227,6 @@ export function readCSVMoleculeData(view,plotSetup,callback){
 			view.systemMoleculeData.push(temp);
 			view.systemMoleculeDataFramed[currentFrame].push(temp);
 		})
-		console.log('end parsing');
-		queueUpdateProgressBar();
 		callback(null);
 	});
 
