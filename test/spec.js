@@ -48,8 +48,6 @@ describe('ElectroLens Tests', function() {
         const beforeClick = Date.now();
         await (await app.client.$('#formSubmitButton')).click();
 
-        // const elem = app.client.$('#container');
-        // app.client.$('#container').waitUntil(async () => {
         await app.client.waitUntil(async () => {
             if (await (await app.client.$('#container')).getAttribute('loadstatus') === '1') {
                 console.log(Date.now()-beforeClick);
@@ -59,18 +57,28 @@ describe('ElectroLens Tests', function() {
             timeout: 60000,
             timeoutMsg: 'expected text to be different after 1 min'
         });
-        // return assert.strictEqual(1,1);
     });
+
+    it('load nanoparticle', async() => {
+        await app.client.waitUntilWindowLoaded();
+        await (await app.client.$('#boolMolecularData')).click();
+        var sampleData = path.join(__dirname, 'nanoparticle_with_water.csv');
+        const remoteFilePath = await app.client.uploadFile(sampleData);
+        await (await app.client.$('#view1MolecularDataFilename')).setValue(remoteFilePath);
+        const beforeClick = Date.now();
+        await (await app.client.$('#formSubmitButton')).click();
+
+        await app.client.waitUntil(async () => {
+            if (await (await app.client.$('#container')).getAttribute('loadstatus') === '1') {
+                console.log(Date.now()-beforeClick);
+                return true;
+            }
+        }, {
+            timeout: 60000,
+            timeoutMsg: 'expected text to be different after 1 min'
+        });
+    })
     
-    //The client API is WebdriverIO's browser object.
-
-
-    // it('processing time', async() => {
-    //     await app.client.waitUntilWindowLoaded();
-
-    // })
-
-    // snippet for logging memory utilization during test
     //app.rendererProcess.getProcessMemoryInfo().then((info)=> console.log(info))
 
 
