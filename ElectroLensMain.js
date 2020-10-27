@@ -151,17 +151,12 @@ function main(views,plotSetup) {
 		}
 		
 		if (view.viewType == '3DView'){
-
-			//queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
-
 			if(view.spatiallyResolvedData != null && view.spatiallyResolvedData.data != null){
 				queue.defer(processSpatiallyResolvedData,view,plotSetup);
-				console.log('added processSpatiallyResolvedData');
 				queueLength++;
 			}
 			else if (view.spatiallyResolvedData != null && view.spatiallyResolvedData.dataFilename != null){
 				queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
-				console.log('added readCSVSpatiallyResolvedData');
 				queueLength++;
 			}
 			else {
@@ -170,12 +165,10 @@ function main(views,plotSetup) {
 
 			if(view.moleculeData != null && view.moleculeData.data != null){
 				queue.defer(processMoleculeData,view,plotSetup);
-				console.log('added processMoleculeData');
 				queueLength++;
 			}
 			else if (view.moleculeData != null && view.moleculeData.dataFilename != null){
 				queue.defer(readCSVMoleculeData,view,plotSetup);
-				console.log('added readCSVMoleculeData');
 				queueLength++;
 			}	
 			else {
@@ -187,7 +180,6 @@ function main(views,plotSetup) {
 	queueLength = 90.0 / queueLength;
 	// queueLength attribute is the percentage progress assigned to each queue item
 	document.getElementById("loading-progress").setAttribute("queueLength",queueLength);
-	console.log("percentage for queue length: " + queueLength.toString());
 
 	queue.awaitAll(function(error) {
 		if (error) throw error;
