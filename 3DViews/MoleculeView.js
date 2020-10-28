@@ -30,11 +30,12 @@ function addAtoms(view, moleculeData){
 	const sizeCode = options.moleculeSizeCodeBasis;
 	const colorCode = options.moleculeColorCodeBasis;
 
+	let lut;
 	if (colorCode != "atom") {
 		const colorMap = options.colorMap;
 		const numberOfColors = 512;
 
-		const lut = new THREE.Lut( colorMap, numberOfColors );
+		lut = new THREE.Lut( colorMap, numberOfColors );
 		lut.setMax( options.moleculeColorSettingMax );
 		lut.setMin( options.moleculeColorSettingMin );
 		//view.lut = lut;
@@ -398,11 +399,13 @@ function updateMoleculeGeometrySpriteAtom(view) {
 	const moleculeData = view.systemMoleculeDataFramed[currentFrame];
 	const atoms = view.molecule.atoms;
 	const geometry = atoms.geometry;
+
+	let lut;
 	if (colorCode != "atom" ) {
 		const colorMap = options.colorMap;
 		const numberOfColors = 512;
 
-		const lut = new THREE.Lut( colorMap, numberOfColors );
+		lut = new THREE.Lut( colorMap, numberOfColors );
 		lut.setMax( options.moleculeColorSettingMax );
 		lut.setMin( options.moleculeColorSettingMin );
 		//view.lut = lut;
@@ -482,11 +485,13 @@ function updateMoleculeGeometryBallAtom(view) {
 	const currentFrame = options.currentFrame.toString();
 	const moleculeData = view.systemMoleculeDataFramed[currentFrame];
 
+	let lut;
 	if (colorCode != "atom" ) {
+		console.log("color code not atom");
 		const colorMap = options.colorMap;
 		const numberOfColors = 512;
 
-		const lut = new THREE.Lut( colorMap, numberOfColors );
+		lut = new THREE.Lut( colorMap, numberOfColors );
 		lut.setMax( options.moleculeColorSettingMax );
 		lut.setMin( options.moleculeColorSettingMin );
 		//view.lut = lut;
