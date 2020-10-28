@@ -13,7 +13,8 @@ export function addSystemEdge(view){
 	const wireframe = new THREE.LineSegments( geo, mat );
 	view.systemEdge = wireframe; 
 	scene.add( wireframe );
-	console.log("added edge")
+	console.log("added edge");
+	document.getElementById("container").setAttribute("loadstatus","1");
 }
 
 export function removeSystemEdge(view){

@@ -5,9 +5,9 @@ import {calculateViewportSizes} from "./MultiviewControl/calculateViewportSizes.
 import {getPointCloudGeometry} from "./3DViews/PointCloud.js";
 import {getMoleculeGeometry} from "./3DViews/MoleculeView.js";
 import {addSystemEdge} from "./3DViews/systemEdge.js";
-import {initialize3DViewTooltip,update3DViewTooltip,/*hover3DViewSpatiallyResolved, hover3DViewMolecule*/} from "./3DViews/tooltip.js";
+import {initialize3DViewTooltip,update3DViewTooltip,} from "./3DViews/tooltip.js";
 import {hover3DViewSpatiallyResolved, hover3DViewMoleculeBall, hover3DViewMoleculeSprite, click3DViewMolecule, click3DViewSpatiallyResolved,gpuPickMolecule} from "./3DViews/selection.js";
-import {combineData/*,readCSVSpatiallyResolvedData,readCSVSpatiallyResolvedDataPapaparse*/,readCSVSpatiallyResolvedDataFastCSV,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData/*,readCSVPapaparse, readViewsSetup*/} from "./Utilities/readDataFile.js";
+import {combineData,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData} from "./Utilities/readDataFile.js";
 
 
 import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
@@ -34,18 +34,6 @@ import {insertLegend/*, removeLegend, changeLegend, insertLegendMolecule, remove
 
 import {calcDefaultScalesSpatiallyResolvedData, adjustColorScaleAccordingToDefaultSpatiallyResolvedData, calcDefaultScalesMoleculeData, adjustScaleAccordingToDefaultMoleculeData} from "./Utilities/scale.js";
 
-
-//import {addingProgressBar, updateProgressBar} from "./Utilities/progressBar.js";
-//var progressBar = new ldBar("#progressbar");
-/*
-var loadingStatus = new function(){
-	this.progress = 0;
-	this.message=  "init";
-}*/
-
-//var progressBar = addingProgressBar(loadingStatus);
-
-
 if(typeof data !== 'undefined'){
 	console.log(data);
     handleViewSetup(data);
@@ -63,18 +51,21 @@ else{
 
 		$(".save-config").click(function(e){
 			const CONFIG = readInputForm();
-			download(CONFIG, 'config.json', 'text/plain');
+			download(CONFIG, 'config.json', 'application/json');
 		})
 
 		$( "form" ).submit(function( event ) {
 
 			const CONFIG = readInputForm();
 		    console.log("read input form");
-		    event.preventDefault();
+			event.preventDefault();
+			
+			//clears out the initial form layout
 		    uploader.parentNode.removeChild(uploader);
 			uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
 			configForm.parentNode.removeChild(configForm);
 			divider.parentNode.removeChild(divider);
+
 			handleViewSetup(CONFIG);
 		});
 
@@ -97,7 +88,6 @@ function handleFiles() {
 		cache: false,
 		success: function(data) {
 			console.log("read pre defined config");
-			
 			handleViewSetup(data);
 		},
 		error: function(requestObject, error, errorThrown) {
@@ -109,13 +99,12 @@ function handleFiles() {
 
 
 function handleViewSetup(data){
-	/*console.log(progressBar);
-	console.log("updating progress bar");
-	progressBar.set(30);*/
-	//updateProgressBar(progressBar, loadingStatus, 30, "finish reading config");
+	// initializes loading bar
+	document.getElementById("UI").innerHTML = "<div id='loading_progress' class='inner card border-success'><h3>ElectroLoading</h3><div class='progress'><div class='progress-bar progress-bar-striped progress-bar-animated active' id='loading-progress' role='progressbar' style='width: 5%;'></div></div><div id='loading-message'></div></div>";
 	const views = data.views;
 	const plotSetup = data.plotSetup;
 	initializeViewSetups(views,plotSetup);
+	document.getElementById("loading-progress").style["width"] = "10%";
 	main(views,plotSetup);
 
 }
@@ -144,6 +133,7 @@ function main(views,plotSetup) {
 
 	
 	const queue=d3.queue();
+	let queueLength = 0;
 
 	for (let ii =  0; ii < views.length; ++ii ) {
 		let view = views[ii];
@@ -161,37 +151,42 @@ function main(views,plotSetup) {
 		}
 		
 		if (view.viewType == '3DView'){
-
-			//queue.defer(readCSVSpatiallyResolvedData,view,overallSpatiallyResolvedData,plotSetup);
-
 			if(view.spatiallyResolvedData != null && view.spatiallyResolvedData.data != null){
 				queue.defer(processSpatiallyResolvedData,view,plotSetup);
+				queueLength++;
 			}
-			else{
-				// queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
-				// queue.defer(readCSVSpatiallyResolvedDataPapaparse,view,plotSetup);
-				queue.defer(readCSVSpatiallyResolvedDataFastCSV,view,plotSetup);
-				
+			else if (view.spatiallyResolvedData != null && view.spatiallyResolvedData.dataFilename != null){
+				queue.defer(readCSVSpatiallyResolvedData,view,plotSetup);
+				queueLength++;
+			}
+			else {
+				console.log('no spatially resolved data loaded');
 			}
 
 			if(view.moleculeData != null && view.moleculeData.data != null){
 				queue.defer(processMoleculeData,view,plotSetup);
+				queueLength++;
 			}
-			else{
+			else if (view.moleculeData != null && view.moleculeData.dataFilename != null){
 				queue.defer(readCSVMoleculeData,view,plotSetup);
+				queueLength++;
 			}	
+			else {
+				console.log('no molecule data loaded');
+			}
 		}			
 	}
+	console.log("count for queue length: " + queueLength.toString());
+	queueLength = 90.0 / queueLength;
+	// queueLength attribute is the percentage progress assigned to each queue item
+	document.getElementById("loading-progress").setAttribute("queueLength",queueLength);
 
 	queue.awaitAll(function(error) {
 		if (error) throw error;
-		/*console.log("updating progress bar");
-		progressBar.animate(80);*/
+
 		combineData(views, overallSpatiallyResolvedData,overallMoleculeData);
-		document.body.style.backgroundColor = "black";
 		init();
-		/*console.log("updating progress bar");
-		progressBar.animate(100);)*/
+		
 		const htmlUI = document.getElementById("UI");
 		htmlUI.parentNode.removeChild(htmlUI);
 		render(views, plotSetup);
@@ -216,15 +211,6 @@ function main(views,plotSetup) {
 		renderer.shadowMapEnabled = true;
 		renderer.shadowMapSoft = true;
 
-		/*renderer.shadowCameraNear = 1;
-		renderer.shadowCameraFar = 60000;
-		renderer.shadowCameraFov = 100;
-
-		renderer.shadowMapBias = 0.0039;
-		renderer.shadowMapDarkness = 0.5;
-		renderer.shadowMapWidth = 1024;
-		renderer.shadowMapHeight = 1024;*/
-
 		plotSetup.renderer = renderer;
 
 		container.appendChild( renderer.domElement );
@@ -234,11 +220,11 @@ function main(views,plotSetup) {
 
 		let defaultScalesSpatiallyResolvedData, defaultScalesMoleculeData;
 
-		if (overallSpatiallyResolvedData.length > 0){
+		if (overallSpatiallyResolvedData.length > 0) {
 			defaultScalesSpatiallyResolvedData = calcDefaultScalesSpatiallyResolvedData(plotSetup,overallSpatiallyResolvedData);
 		}
 
-		if (overallMoleculeData.length > 0){
+		if (overallMoleculeData.length > 0) {
 			defaultScalesMoleculeData = calcDefaultScalesMoleculeData(plotSetup,overallMoleculeData);
 		}
 		

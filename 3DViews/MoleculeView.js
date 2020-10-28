@@ -1,4 +1,4 @@
-import {colorSetup, atomRadius} from "./AtomSetup.js";
+import {colorSetup, atomRadius} from "./atomSetup.js";
 import {hexToRgb, colorToRgb, rgbToHex} from "../Utilities/other.js";
 import {getOffsetArray, updateOffsetArray, getPeriodicReplicatesInstancesMolecule, updatePeriodicReplicatesInstancesMolecule, updatePeriodicReplicatesInstancesMoleculeScale} from "./Utilities.js";
 import { getMoleculeMaterialInstanced,getMoleculeAtomsMaterialInstanced, getMoleculeAtomSpriteMaterialInstanced, getMoleculeBondLineMaterialInstanced} from "./Materials.js";
