@@ -1,0 +1,61 @@
+{
+  "views": [
+    {
+      "viewType": "3DView",
+      "moleculeName": "System1",
+      "systemDimension": {
+        "x": 10,
+        "y": 10,
+        "z": 10
+      },
+      "systemLatticeVectors": {
+        "u11": 1,
+        "u12": 0,
+        "u13": 0,
+        "u21": 0,
+        "u22": 1,
+        "u23": 0,
+        "u31": 0,
+        "u32": 0,
+        "u33": 1
+      },
+      "spatiallyResolvedData": {
+        "dataFilename": "C:\\Users\\drewk\\Documents\\GATech\\MedfordGroup\\ElectroLens\\test\\C6H6_B3LYP_0_0_0_all_descriptors.csv",
+        "numGridPoints": {
+          "x": 100,
+          "y": 100,
+          "z": 100
+        },
+        "gridSpacing": {
+          "x": 0.1,
+          "y": 0.1,
+          "z": 0.1
+        }
+      },
+      "moleculeData": {
+        "dataFilename": "C:\\Users\\drewk\\Documents\\GATech\\MedfordGroup\\ElectroLens\\test\\nanoparticle_with_water.csv"
+      }
+    }
+  ],
+  "plotSetup": {
+    "spatiallyResolvedPropertyList": [
+      "x",
+      "y",
+      "z",
+      "rho",
+      "property_1",
+      "property_2"
+    ],
+    "pointcloudDensity": "rho",
+    "densityCutoffLow": 0.001,
+    "densityCutoffUp": 1000000,
+    "moleculePropertyList": [
+      "x",
+      "y",
+      "z",
+      "atom",
+      "property_1",
+      "property_2"
+    ]
+  }
+}
