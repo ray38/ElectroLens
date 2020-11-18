@@ -1,287 +1,312 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>ElectroLens</title>
-  <style type="text/css">
-    * {
-        .border-radius(0) !important;
-      }
-    html, body {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    .text-divider{margin: 1.2em 0; line-height: 0; text-align: center;}
-    .text-divider span{background-color: #ffffff; padding: 0.5em;}
-    .text-divider:before{ content: " "; display: block; border-top: 1px solid #e3e3e3; border-bottom: 1px solid #f7f7f7;}
-    .load-window{overflow: scroll;height: 15%; width: 80%;left: 10%;align-items: center;}
-    .config-window{overflow: scroll;height: 75%; width: 80%;left: 10%;align-items: center;}
-    select {
-      height:15px;
-      border-radius:0px;
-      background:#ffffff;
-    }
-  </style>
-  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 
-  <script src="js/jquery.js"></script>
-
-  <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet"> 
+  <link href="node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
   <link href="css/main.css" rel="stylesheet" />
+  
+  <script>
+    if (typeof module === 'object') { window.module = module; module = undefined; }
+    if (window.module) module = window.module;
+  </script>
+
+  <script>window.$ = window.jQuery = require('jquery');</script>
 
   <script src="js/kdtree.js"></script>
   <script src="js/progressbar.js"></script>
-  <script src="js/three.js"></script>
-  
+  <script src="js\three.js"></script>
+
   <script src="js/jeezy.js"></script>
   <script src="js/data2grid.js"></script>
   <script src="js/effects/AnaglyphEffect.js"></script>
-  <link rel="stylesheet" type="text/css" href="js/loading-bar.css"/>
-  <script src="js/loading-bar.js"></script>
-
   <script src="js/Detector.js"></script>
   <script src="js/libs/stats.min.js"></script>
   <script src="./MultiviewControl/customizeLut.js"></script>
   <script src="js/controls/OrbitControls.js"></script>
   <script src="js/controls/TrackballControls.js"></script>
   <script src="js/libs/dat.gui.js"></script>
+  
   <script src="D3js/d3.min.js"></script>
   <script src="D3js/d3-queue.v3.min.js"></script>
 
-  <link href="css/modify_datgui.css" rel="stylesheet">
-  
 
-  <script>if (window.module) module = window.module;</script>
+
 </head>
+
 <body>
 
-    <div class="outer" id="UI">
-      <div id="uploader_wrapper" class="inner card border-success">
-        <div class="card-header">Upload Configuration File</div>
-        <div class="card-body"><input id="uploader" name="uploader" type="file" /></div>
+  <div class="container" id="UI">
+    <div class="row">
+      <div class="col"><h3>ElectroLens</h3></div>
+     </div>
+    <div class="row">
+      <div class="col-4">
+        <div id="intro_wrapper" class="card border-dark" style="margin-bottom:25px;">
+          <div class="card-header">Intro</div>
+          <div class="card-body">Upload a prior configuration file or setup a new configuration.</div>
+        </div>
+        <div id="uploader_wrapper" class="card border-success">
+          <div class="card-header">Upload Configuration File</div>
+          <div class="card-body"><input id="uploader" name="uploader" type="file" /></div>
+        </div>
       </div>
 
+      <div class="col-8">
+        <div id="form_wrapper" class="card border-primary" style="height: 90vh;">
+          <div class="card-header">Setup Configuration</div>
+          <div class="card-body" style="overflow-y:scroll;">
+            <form id="configForm">
 
-      <h5 id="divider" class="text-divider"><span>OR</span></h5>
-
-      <div id="form_wrapper"class="inner card border-primary"style="height: 50rem;">
-        <div class="card-header">Setup Configuration</div>
-        <div class="card-body" style="overflow-y:scroll;">
-          <form id="configForm" >
-
-            <div class="form-row">
-              <div class="col">
-                <input class="form-check-input" type="checkbox" value="yes" name="boolSpatiallyResolvedData" id="boolSpatiallyResolvedData">
-                <label for="boolSpatiallyResolvedData">Spatially Resolved Data? </label>
-              </div>
-              <div class="col">
-                <input class="form-check-input" type="checkbox" value="yes" name="boolMolecularData" id="boolMolecularData">
-                <label for="boolMolecularData">Molecular Data? </label>
-              </div>
-              <div class="col">
-                <input class="form-check-input" type="checkbox" value="yes" name="boolFramedData" id="boolFramedData">
-                <label for="boolFramedData">Framed Data? </label>
-              </div>
-              
-            </div>
-
-            <div class="form-group" id="propertyListSpatiallyResolvedForm" style="display:none;">
-              <label for="propertyListSpatiallyResolved">List of Properties for Spatially Resolved Data</label>
-              <textarea class="form-control" id="propertyListSpatiallyResolved" name="propertyListSpatiallyResolved" rows="1" disabled>x, y, z, rho, property_1, property_2</textarea>
-              <small id="propertyListSpatiallyResolvedHelp" class="form-text text-muted">  *The list of properties for spatially resolved data, leave blank if not visualizing spatially resolved data</small>
-            </div>
-
-            <div class="form-row">
-              <div class="col">
-                <div class="form-group" id="densityPropertyForm" style="display:none;">
-                  <label for="densityProperty">Density Property: </label>
-                  <input autocomplete="off" class="input" id="densityProperty" name="densityProperty" type="text" data-items="8" value="rho" disabled>
-                  <small id="densityPropertyHelp" class="form-text text-muted">  *The property denotes the density of electron.</small>
+              <div class="form-row">
+                <div class="col">
+                  <input class="form-check-input" type="checkbox" value="yes" name="boolSpatiallyResolvedData"
+                    id="boolSpatiallyResolvedData">
+                  <label for="boolSpatiallyResolvedData">Spatially Resolved Data? </label>
                 </div>
-              </div>
-              <div class="col">
-                <div class="form-group" id="densityCutoffLowForm" style="display:none;">
-                  <label for="densityCutoffLow">Density Lower Limit: </label>
-                  <input autocomplete="off" class="input" id="densityCutoffLow" name="densityCutoffLow" type="number" step=any data-items="8" value=1e-3 disabled>
+                <div class="col">
+                  <input class="form-check-input" type="checkbox" value="yes" name="boolMolecularData"
+                    id="boolMolecularData">
+                  <label for="boolMolecularData">Molecular Data? </label>
                 </div>
-              </div>
-              <div class="col">
-                <div class="form-group" id="densityCutoffUpForm" style="display:none;">
-                  <label for="densityCutoffUp">Density Upper Limit: </label>
-                  <input autocomplete="off" class="input" id="densityCutoffUp" name="densityCutoffUp" type="number" step=any data-items="8" value=1e6 disabled>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group" id="propertyListMolecularForm" style="display:none;">
-              <label for="propertyListMolecular">List of Properties for Molecular Data</label>
-              <textarea class="form-control" id="propertyListMolecular" name="propertyListMolecular" rows="1" disabled>x, y, z, atom, property_1, property_2</textarea>
-              <small id="propertyListMolecularHelp" class="form-text text-muted">  *The list of properties for molecular data, leave blank if not visualizing molecular data</small>
-            </div>
-
-            <div class="form-group" id="framePropertyForm" style="display:none;">
-              <label for="propertyListMolecular">Property Labeling frame</label>
-              <input autocomplete="off" class="input" id="frameProperty" name="frameProperty" type="text" data-items="8" value="frame" disabled>
-              <small id="framePropertyrHelp" class="form-text text-muted">  *The property labeling frame, leave blank if the data is not framed</small>
-            </div>
-
-            
-            <div class="form-group" id="view1Form">
-              <h6 class="text-divider"><span>View 1</span></h6>
-              <div class="form-group" id="view1NameForm">
-                <label for="view1Name">System Name: </label>
-                <input autocomplete="off" class="input" id="view1Name" name="view1Name" type="text" value="System1" data-items="8"/>
-              </div>
-
-              <div class="form-group" id="view1DimensionForm">
-                <label>System Dimensions: </label>
-                <div class="form-row">
-                  <div class="col">
-                    <input class="form-check-input" type="checkbox" value="yes" name="boolView1CubicCell" id="boolView1CubicCell" checked>
-                    <label for="boolView1CubicCell">Cubic Cell? </label>
-                  </div>
-                </div>
-
-
-                <div class="form-row">
-                  <div class="col">
-                    <label for="view1XDim">x dimension: </label>
-                    <input type="number" step=any class="input" id="view1XDim" name="view1XDim" value="10">
-                  </div>
-                  <div class="col">
-                    <label for="view1YDim">y dimension: </label>
-                    <input type="number" step=any class="input" id="view1YDim" name="view1YDim" value="10" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1ZDim">z dimension: </label>
-                    <input type="number" step=any class="input" id="view1ZDim" name="view1ZDim" value="10" disabled>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="col">
-                    <input class="form-check-input" type="checkbox" value="yes" name="boolView1OrthogonalLattice" id="boolView1OrthogonalLattice" checked>
-                    <label for="boolView1OrthogonalLattice">Orthogonal Lattice? </label>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <label>Lattice Vector: </label>
-                </div>
-                <div class="form-row">
-                  <div class="col">
-                    <label for="view1LatVec11">u11: </label>
-                    <input type="number" step=any class="input" id="view1LatVec11" name="view1LatVec11" value="1" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1LatVec12">u12: </label>
-                    <input type="number" step=any class="input" id="view1LatVec12" name="view1LatVec12" value="0" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1LatVec13">u13: </label>
-                    <input type="number" step=any class="input" id="view1LatVec13" name="view1LatVec13" value="0" disabled>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="col">
-                    <label for="view1LatVec21">u21: </label>
-                    <input type="number" step=any class="input" id="view1LatVec21" name="view1LatVec21" value="0" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1LatVec22">u22: </label>
-                    <input type="number" step=any class="input" id="view1LatVec22" name="view1LatVec22" value="1" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1LatVec23">u23: </label>
-                    <input type="number" step=any class="input" id="view1LatVec23" name="view1LatVec23" value="0" disabled>
-                  </div>
-                </div><div class="form-row">
-                  <div class="col">
-                    <label for="view1LatVec31">u31: </label>
-                    <input type="number" step=any class="input" id="view1LatVec31" name="view1LatVec31" value="0" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1LatVec32">u32: </label>
-                    <input type="number" step=any class="input" id="view1LatVec32" name="view1LatVec32" value="0" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1LatVec33">u33: </label>
-                    <input type="number" step=any class="input" id="view1LatVec33" name="view1LatVec33" value="1" disabled>
-                  </div>
+                <div class="col">
+                  <input class="form-check-input" type="checkbox" value="yes" name="boolFramedData" id="boolFramedData">
+                  <label for="boolFramedData">Framed Data? </label>
                 </div>
 
               </div>
 
-              <div class="form-group" id="view1SpatiallyResolvedForm" style="display:none;">
-                <div>
-                  <label for="view1SpatiallyResolvedDataFilename">Data File for Spatially Resolved Data: </label>
-                  <input id="view1SpatiallyResolvedDataFilename" name="view1SpatiallyResolvedDataFilename" type="file" />
-                </div>
+              <div class="form-group" id="propertyListSpatiallyResolvedForm" style="display:none;">
+                <label for="propertyListSpatiallyResolved">List of Properties for Spatially Resolved Data</label>
+                <textarea class="form-control" id="propertyListSpatiallyResolved" name="propertyListSpatiallyResolved"
+                  rows="1" disabled>x, y, z, rho, property_1, property_2</textarea>
+                <small id="propertyListSpatiallyResolvedHelp" class="form-text text-muted"> *The list of properties for
+                  spatially resolved data, leave blank if not visualizing spatially resolved data</small>
+              </div>
 
-                <label>Number grid point: </label>
-                <div class="form-row">
-                  <div class="col">
-                    <label for="view1XNumPoints">x: </label>
-                    <input type="number" step=1 class="input" id="view1XNumPoints" name="view1XNumPoints" value="100">
-                  </div>
-                  <div class="col">
-                    <label for="view1YNumPoints">y: </label>
-                    <input type="number" step=1 class="input" id="view1YNumPoints" name="view1YNumPoints" value="100" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1ZNumPoints">z: </label>
-                    <input type="number" step=1 class="input" id="view1ZNumPoints" name="view1ZNumPoints" value="100" disabled>
+              <div class="form-row">
+                <div class="col">
+                  <div class="form-group" id="densityPropertyForm" style="display:none;">
+                    <label for="densityProperty">Density Property: </label>
+                    <input autocomplete="off" class="input" id="densityProperty" name="densityProperty" type="text"
+                      data-items="8" value="rho" disabled>
+                    <small id="densityPropertyHelp" class="form-text text-muted"> *The property denotes the density of
+                      electron.</small>
                   </div>
                 </div>
-
-                <label>Grid spacing: </label>
-                <div class="form-row">
-                  <div class="col">
-                    <label for="view1XSpacing">x: </label>
-                    <input type="number" step=any class="input" id="view1XSpacing" name="view1XSpacing" value="0.1">
+                <div class="col">
+                  <div class="form-group" id="densityCutoffLowForm" style="display:none;">
+                    <label for="densityCutoffLow">Density Lower Limit: </label>
+                    <input autocomplete="off" class="input" id="densityCutoffLow" name="densityCutoffLow" type="number"
+                      step=any data-items="8" value=1e-3 disabled>
                   </div>
-                  <div class="col">
-                    <label for="view1YSpacing">y: </label>
-                    <input type="number" step=any class="input" id="view1YSpacing" name="view1YSpacing" value="0.1" disabled>
-                  </div>
-                  <div class="col">
-                    <label for="view1ZSpacing">z: </label>
-                    <input type="number" step=any class="input" id="view1ZSpacing" name="view1ZSpacing" value="0.1" disabled>
+                </div>
+                <div class="col">
+                  <div class="form-group" id="densityCutoffUpForm" style="display:none;">
+                    <label for="densityCutoffUp">Density Upper Limit: </label>
+                    <input autocomplete="off" class="input" id="densityCutoffUp" name="densityCutoffUp" type="number"
+                      step=any data-items="8" value=1e6 disabled>
                   </div>
                 </div>
               </div>
 
-              <div class="form-group" id="view1MolecularForm" style="display:none;">
-                <div>
-                  <label for="view1MolecularDataFilename">Data File for Molecular Data: </label>
-                  <input id="view1MolecularDataFilename" name="view1MolecularDataFilename" type="file" />
-                </div>
+              <div class="form-group" id="propertyListMolecularForm" style="display:none;">
+                <label for="propertyListMolecular">List of Properties for Molecular Data</label>
+                <textarea class="form-control" id="propertyListMolecular" name="propertyListMolecular" rows="1"
+                  disabled>x, y, z, atom, property_1, property_2</textarea>
+                <small id="propertyListMolecularHelp" class="form-text text-muted"> *The list of properties for
+                  molecular data, leave blank if not visualizing molecular data</small>
               </div>
 
-            </div>
+              <div class="form-group" id="framePropertyForm" style="display:none;">
+                <label for="propertyListMolecular">Property Labeling frame</label>
+                <input autocomplete="off" class="input" id="frameProperty" name="frameProperty" type="text"
+                  data-items="8" value="frame" disabled>
+                <small id="framePropertyrHelp" class="form-text text-muted"> *The property labeling frame, leave blank
+                  if the data is not framed</small>
+              </div>
 
-            <div id="addButton">
-              <button id="b1" class="btn add-more" type="button">+ Add view</button>
-            </div>
-            
 
-            <button type="submit" class="btn btn-primary" id="formSubmitButton" disabled>Submit</button>
-            <button type="button" class="btn save-config btn-primary" id="saveConfigButton" disabled>Save Config</button>
-          </form>
+              <div class="form-group" id="view1Form">
+                <h6 class="text-divider"><span>View 1</span></h6>
+                <div class="form-group" id="view1NameForm">
+                  <label for="view1Name">System Name: </label>
+                  <input autocomplete="off" class="input" id="view1Name" name="view1Name" type="text" value="System1"
+                    data-items="8" />
+                </div>
+
+                <div class="form-group" id="view1DimensionForm">
+                  <label>System Dimensions: </label>
+                  <div class="form-row">
+                    <div class="col">
+                      <input class="form-check-input" type="checkbox" value="yes" name="boolView1CubicCell"
+                        id="boolView1CubicCell" checked>
+                      <label for="boolView1CubicCell">Cubic Cell? </label>
+                    </div>
+                  </div>
+
+
+                  <div class="form-row">
+                    <div class="col">
+                      <label for="view1XDim">x dimension: </label>
+                      <input type="number" step=any class="input" id="view1XDim" name="view1XDim" value="10">
+                    </div>
+                    <div class="col">
+                      <label for="view1YDim">y dimension: </label>
+                      <input type="number" step=any class="input" id="view1YDim" name="view1YDim" value="10" disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1ZDim">z dimension: </label>
+                      <input type="number" step=any class="input" id="view1ZDim" name="view1ZDim" value="10" disabled>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col">
+                      <input class="form-check-input" type="checkbox" value="yes" name="boolView1OrthogonalLattice"
+                        id="boolView1OrthogonalLattice" checked>
+                      <label for="boolView1OrthogonalLattice">Orthogonal Lattice? </label>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <label>Lattice Vector: </label>
+                  </div>
+                  <div class="form-row">
+                    <div class="col">
+                      <label for="view1LatVec11">u11: </label>
+                      <input type="number" step=any class="input" id="view1LatVec11" name="view1LatVec11" value="1"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1LatVec12">u12: </label>
+                      <input type="number" step=any class="input" id="view1LatVec12" name="view1LatVec12" value="0"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1LatVec13">u13: </label>
+                      <input type="number" step=any class="input" id="view1LatVec13" name="view1LatVec13" value="0"
+                        disabled>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col">
+                      <label for="view1LatVec21">u21: </label>
+                      <input type="number" step=any class="input" id="view1LatVec21" name="view1LatVec21" value="0"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1LatVec22">u22: </label>
+                      <input type="number" step=any class="input" id="view1LatVec22" name="view1LatVec22" value="1"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1LatVec23">u23: </label>
+                      <input type="number" step=any class="input" id="view1LatVec23" name="view1LatVec23" value="0"
+                        disabled>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col">
+                      <label for="view1LatVec31">u31: </label>
+                      <input type="number" step=any class="input" id="view1LatVec31" name="view1LatVec31" value="0"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1LatVec32">u32: </label>
+                      <input type="number" step=any class="input" id="view1LatVec32" name="view1LatVec32" value="0"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1LatVec33">u33: </label>
+                      <input type="number" step=any class="input" id="view1LatVec33" name="view1LatVec33" value="1"
+                        disabled>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="form-group" id="view1SpatiallyResolvedForm" style="display:none;">
+                  <div>
+                    <label for="view1SpatiallyResolvedDataFilename">Data File for Spatially Resolved Data: </label>
+                    <input id="view1SpatiallyResolvedDataFilename" name="view1SpatiallyResolvedDataFilename"
+                      type="file" />
+                  </div>
+
+                  <label>Number grid point: </label>
+                  <div class="form-row">
+                    <div class="col">
+                      <label for="view1XNumPoints">x: </label>
+                      <input type="number" step=1 class="input" id="view1XNumPoints" name="view1XNumPoints" value="100">
+                    </div>
+                    <div class="col">
+                      <label for="view1YNumPoints">y: </label>
+                      <input type="number" step=1 class="input" id="view1YNumPoints" name="view1YNumPoints" value="100"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1ZNumPoints">z: </label>
+                      <input type="number" step=1 class="input" id="view1ZNumPoints" name="view1ZNumPoints" value="100"
+                        disabled>
+                    </div>
+                  </div>
+
+                  <label>Grid spacing: </label>
+                  <div class="form-row">
+                    <div class="col">
+                      <label for="view1XSpacing">x: </label>
+                      <input type="number" step=any class="input" id="view1XSpacing" name="view1XSpacing" value="0.1">
+                    </div>
+                    <div class="col">
+                      <label for="view1YSpacing">y: </label>
+                      <input type="number" step=any class="input" id="view1YSpacing" name="view1YSpacing" value="0.1"
+                        disabled>
+                    </div>
+                    <div class="col">
+                      <label for="view1ZSpacing">z: </label>
+                      <input type="number" step=any class="input" id="view1ZSpacing" name="view1ZSpacing" value="0.1"
+                        disabled>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group" id="view1MolecularForm" style="display:none;">
+                  <div>
+                    <label for="view1MolecularDataFilename">Data File for Molecular Data: </label>
+                    <input id="view1MolecularDataFilename" name="view1MolecularDataFilename" type="file" />
+                  </div>
+                </div>
+
+              </div>
+
+              <div id="addButton">
+                <button id="b1" class="btn add-more" type="button">+ Add view</button>
+              </div>
+
+
+              <button type="submit" class="btn btn-primary" id="formSubmitButton" disabled>Submit</button>
+              <button type="button" class="btn save-config btn-primary" id="saveConfigButton" disabled>Save
+                Config</button>
+            </form>
+          </div>
+
         </div>
       </div>
     </div>
+  </div>
 
 
-    <div id="container" loadstatus="0"></div>
+  <div id="container" loadstatus="0"></div>
 
-    <section id='spinner'></section>
-    
-    <script>
-      NUMBER3DVIEWS = 1;
-    </script>
-    <script  type="module" src="ElectroLensMain.js"></script>
-    
+  <section id='spinner'></section>
+
+  <script>
+    NUMBER3DVIEWS = 1;
+  </script>
+  <script type="module" src="ElectroLensMain.js"></script>
+
 </body>
+
 </html>
