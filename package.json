@@ -51,6 +51,7 @@
     "babelify": "^8.0.0",
     "bootstrap": "^4.5.3",
     "csv": "^5.3.2",
+    "dat.gui": "^0.7.7",
     "es6": "0.0.7",
     "fs": "0.0.1-security",
     "grunt-cli": "1.2.0",
