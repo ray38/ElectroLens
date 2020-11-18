@@ -44,6 +44,6 @@ export function clearProgressMessage() {
 
 export function setProgressMessage(newMessage) {
     if (document.getElementById("loading-message")) {
-        document.getElementById("loading-message").innerHTML = "<h5>"+newMessage+"</h5>";
+        document.getElementById("loading-message").innerHTML = "<h6>"+newMessage+"</h6>";
     }
 }
