@@ -1,3 +1,7 @@
+/**
+ *  function unused Nov 17 2020
+ *  @deprecated
+ */
 export function arrangeMoleculeDataToFrame(view){
 	const moleculeDataFramed = view.systemMoleculeDataFramed;
 	view.systemMoleculeDataFramedBondsDict = {};

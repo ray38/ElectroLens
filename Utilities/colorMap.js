@@ -1,3 +1,6 @@
+/**
+ * dictionary of values for 2D and 3D graph setting selection
+ */
 export const colorMapDict = {
     'rainbow':'rainbow', 
     'cooltowarm':'cooltowarm', 
