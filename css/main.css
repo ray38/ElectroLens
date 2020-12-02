@@ -1,7 +1,58 @@
+* {
+  .border-radius(0) !important;
+}
+
+html,
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-divider {
+  margin: 1.2em 0;
+  line-height: 0;
+  text-align: center;
+}
+
+.text-divider span {
+  background-color: #ffffff;
+  padding: 0.5em;
+}
+
+.text-divider:before {
+  content: " ";
+  display: block;
+  border-top: 1px solid #e3e3e3;
+  border-bottom: 1px solid #f7f7f7;
+}
+
+.load-window {
+  overflow: scroll;
+  height: 15%;
+  width: 80%;
+  left: 10%;
+  align-items: center;
+}
+
+.config-window {
+  overflow: scroll;
+  height: 75%;
+  width: 80%;
+  left: 10%;
+  align-items: center;
+}
+
+select {
+  height: 15px;
+  border-radius: 0px;
+  background: #ffffff;
+}
+
 body {
 	color: #000;
 	font-family:Monospace;
-	font-size:13px;
+	font-size:14px;
 	text-align:center;
 	background-color: #fff;
 	margin: 0px;
@@ -22,18 +73,13 @@ a {
 
 
 .dg {
-    text-align: left;
+  text-align: left;
 }
 
 .dg {
-       font: 400 5px Verdana, Arial, sans-serif;
+  font: 400 5px Verdana, Arial, sans-serif;
 } 
-/*
-div.dg li:not(.folder){
-	height:20px;
-	line-height: 20px;
-}
-*/
+
 .outer {
   display: table;
   position: absolute;
@@ -55,15 +101,24 @@ div.dg li:not(.folder){
   width: 70%;
   overflow-x:hidden;
   overflow-y:auto;
-  /*whatever width you want*/
 }
 
-.inner2 {
-  margin-left: auto;
-  margin-right: auto;
-  height: 70%;
-  width: 70%;
-  overflow-x:hidden;
-  overflow-y:auto;
-  /*whatever width you want*/
+.dg .property-name {
+  font-size: 9px;
+}
+
+input {
+  line-height: normal;
+}
+
+.dg .cr.function, .dg .cr.function .property-name, .dg .cr.function *, .dg .cr.boolean, .dg .cr.boolean *, .dg .cr.number, .dg .cr.number *, .dg .cr.string, .dg .cr.string * {
+  /* height: 12px; */
+}
+
+.dg .c select {
+  margin-top: 0px;
+}
+
+.card-header {
+  font-weight: 800;
 }

@@ -6,6 +6,8 @@ import {insertLegend, removeLegend, changeLegend} from "../MultiviewControl/colo
 import {arrayToIdenticalObject} from "../Utilities/other.js";
 import {colorMapDict} from "../Utilities/colorMap.js";
 
+const dat = require('dat.gui');
+
 dat.GUI.prototype.removeFolder = function(name) {
 	const folder = this.__folders[name];
   if (!folder) {

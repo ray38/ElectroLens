@@ -1,3 +1,5 @@
+const dat = require('dat.gui');
+
 export function addOptionBox(view){
 	const tempGuiContainer = document.createElement('div');
 		

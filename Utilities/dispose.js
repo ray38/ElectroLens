@@ -1,3 +1,8 @@
+/**
+ * removes object from 2D heatmap or 3D atomic view
+ * @param  {} objectToDispose
+ * view.molecule.atoms, view.molecule.bonds, view.heatmap, view.comparison, view.System in heatmap
+ */
 export function disposeMeshOrGroup(objectToDispose) {
     if (objectToDispose) {
         if (objectToDispose instanceof THREE.Group) {
@@ -12,7 +17,7 @@ export function disposeMeshOrGroup(objectToDispose) {
     }
 }
 
-export function disposeGroup(group) {
+function disposeGroup(group) {
     if (group) {
         while (group.children.length > 0) {
             const meshToRemove = group.children[0];
@@ -30,7 +35,7 @@ export function disposeGroup(group) {
     }
 }
 
-export function disposeMesh(mesh) {
+function disposeMesh(mesh) {
     if (mesh) {
         mesh.geometry.dispose();
         if (Array.isArray(mesh.material)) {
