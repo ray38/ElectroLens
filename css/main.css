@@ -52,7 +52,7 @@ select {
 body {
 	color: #000;
 	font-family:Monospace;
-	font-size:13px;
+	font-size:14px;
 	text-align:center;
 	background-color: #fff;
 	margin: 0px;
@@ -117,4 +117,8 @@ input {
 
 .dg .c select {
   margin-top: 0px;
+}
+
+.card-header {
+  font-weight: 800;
 }
