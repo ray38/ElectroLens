@@ -6,5 +6,3 @@ At present, the application is available by running from source code.  Clone the
 
 For more information, please see our [Documentation](https://medford-group.github.io/ElectroLens/).
 
-## Contributing
-We welcome pull requests against the `main` branch.  
