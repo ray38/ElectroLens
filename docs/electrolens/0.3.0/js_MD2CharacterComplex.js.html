@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>js/MD2CharacterComplex.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PCA.html">PCA</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#.load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getCumulativeVariance">getCumulativeVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvalues">getEigenvalues</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvectors">getEigenvectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getExplainedVariance">getExplainedVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getLoadings">getLoadings</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getStandardDeviations">getStandardDeviations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#invert">invert</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#predict">predict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#toJSON">toJSON</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.MTLLoader.MaterialCreator.html">MaterialCreator</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html">OBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#load">OBJLoader2#load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parse">OBJLoader2#parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parseText">OBJLoader2#parseText</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setDebug">OBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setMaterials">OBJLoader2#setMaterials</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setPath">OBJLoader2#setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setSceneGraphBaseNode">OBJLoader2#setSceneGraphBaseNode</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html">WWOBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#clearAllCallbacks">WWOBJLoader2#clearAllCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#prepareRun">WWOBJLoader2#prepareRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackCompletedLoading">WWOBJLoader2#registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackErrorWhileLoading">WWOBJLoader2#registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMaterialsLoaded">WWOBJLoader2#registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMeshLoaded">WWOBJLoader2#registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackProgress">WWOBJLoader2#registerCallbackProgress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#run">WWOBJLoader2#run</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setCrossOrigin">WWOBJLoader2#setCrossOrigin</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setDebug">WWOBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setRequestTerminate">WWOBJLoader2#setRequestTerminate</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html">WWOBJLoader2Director</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#deregister">WWOBJLoader2Director#deregister</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#enqueueForRun">WWOBJLoader2Director#enqueueForRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxQueueSize">WWOBJLoader2Director#getMaxQueueSize</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxWebWorkers">WWOBJLoader2Director#getMaxWebWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#prepareWorkers">WWOBJLoader2Director#prepareWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#processQueue">WWOBJLoader2Director#processQueue</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#setCrossOrigin">WWOBJLoader2Director#setCrossOrigin</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride.html">LoadedMeshUserOverride</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html">PrepDataArrayBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html">PrepDataCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackCompletedLoading">registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackErrorWhileLoading">registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMaterialsLoaded">registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMeshLoaded">registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackProgress">registerCallbackProgress</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html">PrepDataFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.VolumeSlice.html">VolumeSlice</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Tweenable.html">Tweenable</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrangeMoleculeDataToFrame">arrangeMoleculeDataToFrame</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#axis">axis</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvas">canvas</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvasBuffer">canvasBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#clearProgressMessage">clearProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#colorMapDict">colorMapDict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#css">css</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctx">ctx</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctxBuffer">ctxBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#d3csvUpdateProgressBar">d3csvUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#debugMessage">debugMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#detectCreateImageBitmap">detectCreateImageBitmap</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Detector">Detector</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#dispose">dispose</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#disposeMeshOrGroup">disposeMeshOrGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#drawLines">drawLines</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endChunk">endChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endOfContent">endOfContent</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#flattenToBuffers">flattenToBuffers</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#geometryNeedsUpdate">geometryNeedsUpdate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getColor">getColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getFocalLength">getFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleFiles">handleFiles</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleViewSetup">handleViewSetup</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#index">index</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html">interpolate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isPlaying">isPlaying</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#mesh">mesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#nextChunk">nextChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeLatticeVectors">normalizeLatticeVectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeShadow">normalizeShadow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parse">parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parseNode">parseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#pause">pause</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#queueUpdateProgressBar">queueUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readByte">readByte</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readChunk">readChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readColor">readColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readDWord">readDWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFaceArray">readFaceArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFile">readFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFloat">readFloat</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInputForm">readInputForm</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInt">readInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMap">readMap</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialEntry">readMaterialEntry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialGroup">readMaterialGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMesh">readMesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMeshData">readMeshData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readNamedObject">readNamedObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readShort">readShort</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readString">readString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readWord">readWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resetPosition">resetPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#.onchange">.onchange</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#GPUComputationRenderer">GPUComputationRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert2D">hilbert2D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert3D">hilbert3D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resume">resume</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#RollerCoasterGeometry">RollerCoasterGeometry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#sanitizeNodeName">sanitizeNodeName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#seek">seek</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#set">set</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setBezierFunction">setBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setConfig">setConfig</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setFocalLength">setFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setPath">setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setProgressMessage">setProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setScheduleFunction">setScheduleFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setViewOffset">setViewOffset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#SimplexNoise">SimplexNoise</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#stop">stop</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#streamUpdateProgressBar">streamUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#tween">tween</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#unsetBezierFunction">unsetBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#volume">volume</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#WEBVR">WEBVR</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">js/MD2CharacterComplex.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @author alteredq / http://alteredqualia.com/
+ */
+
+THREE.MD2CharacterComplex = function () {
+
+	var scope = this;
+
+	this.scale = 1;
+
+	// animation parameters
+
+	this.animationFPS = 6;
+	this.transitionFrames = 15;
+
+	// movement model parameters
+
+	this.maxSpeed = 275;
+	this.maxReverseSpeed = - 275;
+
+	this.frontAcceleration = 600;
+	this.backAcceleration = 600;
+
+	this.frontDecceleration = 600;
+
+	this.angularSpeed = 2.5;
+
+	// rig
+
+	this.root = new THREE.Object3D();
+
+	this.meshBody = null;
+	this.meshWeapon = null;
+
+	this.controls = null;
+
+	// skins
+
+	this.skinsBody = [];
+	this.skinsWeapon = [];
+
+	this.weapons = [];
+
+	this.currentSkin = undefined;
+
+	//
+
+	this.onLoadComplete = function () {};
+
+	// internals
+
+	this.meshes = [];
+	this.animations = {};
+
+	this.loadCounter = 0;
+
+	// internal movement control variables
+
+	this.speed = 0;
+	this.bodyOrientation = 0;
+
+	this.walkSpeed = this.maxSpeed;
+	this.crouchSpeed = this.maxSpeed * 0.5;
+
+	// internal animation parameters
+
+	this.activeAnimation = null;
+	this.oldAnimation = null;
+
+	// API
+
+	this.enableShadows = function ( enable ) {
+
+		for ( var i = 0; i &lt; this.meshes.length; i ++ ) {
+
+			this.meshes[ i ].castShadow = enable;
+			this.meshes[ i ].receiveShadow = enable;
+
+		}
+
+	};
+
+	this.setVisible = function ( enable ) {
+
+		for ( var i = 0; i &lt; this.meshes.length; i ++ ) {
+
+			this.meshes[ i ].visible = enable;
+			this.meshes[ i ].visible = enable;
+
+		}
+
+	};
+
+
+	this.shareParts = function ( original ) {
+
+		this.animations = original.animations;
+		this.walkSpeed = original.walkSpeed;
+		this.crouchSpeed = original.crouchSpeed;
+
+		this.skinsBody = original.skinsBody;
+		this.skinsWeapon = original.skinsWeapon;
+
+		// BODY
+
+		var mesh = createPart( original.meshBody.geometry, this.skinsBody[ 0 ] );
+		mesh.scale.set( this.scale, this.scale, this.scale );
+
+		this.root.position.y = original.root.position.y;
+		this.root.add( mesh );
+
+		this.meshBody = mesh;
+
+		this.meshes.push( mesh );
+
+		// WEAPONS
+
+		for ( var i = 0; i &lt; original.weapons.length; i ++ ) {
+
+			var meshWeapon = createPart( original.weapons[ i ].geometry, this.skinsWeapon[ i ] );
+			meshWeapon.scale.set( this.scale, this.scale, this.scale );
+			meshWeapon.visible = false;
+
+			meshWeapon.name = original.weapons[ i ].name;
+
+			this.root.add( meshWeapon );
+
+			this.weapons[ i ] = meshWeapon;
+			this.meshWeapon = meshWeapon;
+
+			this.meshes.push( meshWeapon );
+
+		}
+
+	};
+
+	this.loadParts = function ( config ) {
+
+		this.animations = config.animations;
+		this.walkSpeed = config.walkSpeed;
+		this.crouchSpeed = config.crouchSpeed;
+
+		this.loadCounter = config.weapons.length * 2 + config.skins.length + 1;
+
+		var weaponsTextures = [];
+		for ( var i = 0; i &lt; config.weapons.length; i ++ ) weaponsTextures[ i ] = config.weapons[ i ][ 1 ];
+
+		// SKINS
+
+		this.skinsBody = loadTextures( config.baseUrl + "skins/", config.skins );
+		this.skinsWeapon = loadTextures( config.baseUrl + "skins/", weaponsTextures );
+
+		// BODY
+
+		var loader = new THREE.MD2Loader();
+
+		loader.load( config.baseUrl + config.body, function( geo ) {
+
+			geo.computeBoundingBox();
+			scope.root.position.y = - scope.scale * geo.boundingBox.min.y;
+
+			var mesh = createPart( geo, scope.skinsBody[ 0 ] );
+			mesh.scale.set( scope.scale, scope.scale, scope.scale );
+
+			scope.root.add( mesh );
+
+			scope.meshBody = mesh;
+			scope.meshes.push( mesh );
+
+			checkLoadingComplete();
+
+		} );
+
+		// WEAPONS
+
+		var generateCallback = function ( index, name ) {
+
+			return function( geo ) {
+
+				var mesh = createPart( geo, scope.skinsWeapon[ index ] );
+				mesh.scale.set( scope.scale, scope.scale, scope.scale );
+				mesh.visible = false;
+
+				mesh.name = name;
+
+				scope.root.add( mesh );
+
+				scope.weapons[ index ] = mesh;
+				scope.meshWeapon = mesh;
+				scope.meshes.push( mesh );
+
+				checkLoadingComplete();
+
+			}
+
+		};
+
+		for ( var i = 0; i &lt; config.weapons.length; i ++ ) {
+
+			loader.load( config.baseUrl + config.weapons[ i ][ 0 ], generateCallback( i, config.weapons[ i ][ 0 ] ) );
+
+		}
+
+	};
+
+	this.setPlaybackRate = function ( rate ) {
+
+		if ( this.meshBody ) this.meshBody.duration = this.meshBody.baseDuration / rate;
+		if ( this.meshWeapon ) this.meshWeapon.duration = this.meshWeapon.baseDuration / rate;
+
+	};
+
+	this.setWireframe = function ( wireframeEnabled ) {
+
+		if ( wireframeEnabled ) {
+
+			if ( this.meshBody ) this.meshBody.material = this.meshBody.materialWireframe;
+			if ( this.meshWeapon ) this.meshWeapon.material = this.meshWeapon.materialWireframe;
+
+		} else {
+
+			if ( this.meshBody ) this.meshBody.material = this.meshBody.materialTexture;
+			if ( this.meshWeapon ) this.meshWeapon.material = this.meshWeapon.materialTexture;
+
+		}
+
+	};
+
+	this.setSkin = function( index ) {
+
+		if ( this.meshBody &amp;&amp; this.meshBody.material.wireframe === false ) {
+
+			this.meshBody.material.map = this.skinsBody[ index ];
+			this.currentSkin = index;
+
+		}
+
+	};
+
+	this.setWeapon = function ( index ) {
+
+		for ( var i = 0; i &lt; this.weapons.length; i ++ ) this.weapons[ i ].visible = false;
+
+		var activeWeapon = this.weapons[ index ];
+
+		if ( activeWeapon ) {
+
+			activeWeapon.visible = true;
+			this.meshWeapon = activeWeapon;
+
+			if ( this.activeAnimation ) {
+
+				activeWeapon.playAnimation( this.activeAnimation );
+				this.meshWeapon.setAnimationTime( this.activeAnimation, this.meshBody.getAnimationTime( this.activeAnimation ) );
+
+			}
+
+		}
+
+	};
+
+	this.setAnimation = function ( animationName ) {
+
+		if ( animationName === this.activeAnimation || ! animationName ) return;
+
+		if ( this.meshBody ) {
+
+			this.meshBody.setAnimationWeight( animationName, 0 );
+			this.meshBody.playAnimation( animationName );
+
+			this.oldAnimation = this.activeAnimation;
+			this.activeAnimation = animationName;
+
+			this.blendCounter = this.transitionFrames;
+
+		}
+
+		if ( this.meshWeapon ) {
+
+			this.meshWeapon.setAnimationWeight( animationName, 0 );
+			this.meshWeapon.playAnimation( animationName );
+
+		}
+
+
+	};
+
+	this.update = function ( delta ) {
+
+		if ( this.controls ) this.updateMovementModel( delta );
+
+		if ( this.animations ) {
+
+			this.updateBehaviors( delta );
+			this.updateAnimations( delta );
+
+		}
+
+	};
+
+	this.updateAnimations = function ( delta ) {
+
+		var mix = 1;
+
+		if ( this.blendCounter > 0 ) {
+
+			mix = ( this.transitionFrames - this.blendCounter ) / this.transitionFrames;
+			this.blendCounter -= 1;
+
+		}
+
+		if ( this.meshBody ) {
+
+			this.meshBody.update( delta );
+
+			this.meshBody.setAnimationWeight( this.activeAnimation, mix );
+			this.meshBody.setAnimationWeight( this.oldAnimation,  1 - mix );
+
+		}
+
+		if ( this.meshWeapon ) {
+
+			this.meshWeapon.update( delta );
+
+			this.meshWeapon.setAnimationWeight( this.activeAnimation, mix );
+			this.meshWeapon.setAnimationWeight( this.oldAnimation,  1 - mix );
+
+		}
+
+	};
+
+	this.updateBehaviors = function ( delta ) {
+
+		var controls = this.controls;
+		var animations = this.animations;
+
+		var moveAnimation, idleAnimation;
+
+		// crouch vs stand
+
+		if ( controls.crouch ) {
+
+			moveAnimation = animations[ "crouchMove" ];
+			idleAnimation = animations[ "crouchIdle" ];
+
+		} else {
+
+			moveAnimation = animations[ "move" ];
+			idleAnimation = animations[ "idle" ];
+
+		}
+
+		// actions
+
+		if ( controls.jump ) {
+
+			moveAnimation = animations[ "jump" ];
+			idleAnimation = animations[ "jump" ];
+
+		}
+
+		if ( controls.attack ) {
+
+			if ( controls.crouch ) {
+
+				moveAnimation = animations[ "crouchAttack" ];
+				idleAnimation = animations[ "crouchAttack" ];
+
+			} else {
+
+				moveAnimation = animations[ "attack" ];
+				idleAnimation = animations[ "attack" ];
+
+			}
+
+		}
+
+		// set animations
+
+		if ( controls.moveForward || controls.moveBackward || controls.moveLeft || controls.moveRight ) {
+
+			if ( this.activeAnimation !== moveAnimation ) {
+
+				this.setAnimation( moveAnimation );
+
+			}
+
+		}
+
+
+		if ( Math.abs( this.speed ) &lt; 0.2 * this.maxSpeed &amp;&amp; ! ( controls.moveLeft || controls.moveRight || controls.moveForward || controls.moveBackward ) ) {
+
+			if ( this.activeAnimation !== idleAnimation ) {
+
+				this.setAnimation( idleAnimation );
+
+			}
+
+		}
+
+		// set animation direction
+
+		if ( controls.moveForward ) {
+
+			if ( this.meshBody ) {
+
+				this.meshBody.setAnimationDirectionForward( this.activeAnimation );
+				this.meshBody.setAnimationDirectionForward( this.oldAnimation );
+
+			}
+
+			if ( this.meshWeapon ) {
+
+				this.meshWeapon.setAnimationDirectionForward( this.activeAnimation );
+				this.meshWeapon.setAnimationDirectionForward( this.oldAnimation );
+
+			}
+
+		}
+
+		if ( controls.moveBackward ) {
+
+			if ( this.meshBody ) {
+
+				this.meshBody.setAnimationDirectionBackward( this.activeAnimation );
+				this.meshBody.setAnimationDirectionBackward( this.oldAnimation );
+
+			}
+
+			if ( this.meshWeapon ) {
+
+				this.meshWeapon.setAnimationDirectionBackward( this.activeAnimation );
+				this.meshWeapon.setAnimationDirectionBackward( this.oldAnimation );
+
+			}
+
+		}
+
+	};
+
+	this.updateMovementModel = function ( delta ) {
+
+		var controls = this.controls;
+
+		// speed based on controls
+
+		if ( controls.crouch ) 	this.maxSpeed = this.crouchSpeed;
+		else this.maxSpeed = this.walkSpeed;
+
+		this.maxReverseSpeed = - this.maxSpeed;
+
+		if ( controls.moveForward )  this.speed = THREE.Math.clamp( this.speed + delta * this.frontAcceleration, this.maxReverseSpeed, this.maxSpeed );
+		if ( controls.moveBackward ) this.speed = THREE.Math.clamp( this.speed - delta * this.backAcceleration, this.maxReverseSpeed, this.maxSpeed );
+
+		// orientation based on controls
+		// (don't just stand while turning)
+
+		var dir = 1;
+
+		if ( controls.moveLeft ) {
+
+			this.bodyOrientation += delta * this.angularSpeed;
+			this.speed = THREE.Math.clamp( this.speed + dir * delta * this.frontAcceleration, this.maxReverseSpeed, this.maxSpeed );
+
+		}
+
+		if ( controls.moveRight ) {
+
+			this.bodyOrientation -= delta * this.angularSpeed;
+			this.speed = THREE.Math.clamp( this.speed + dir * delta * this.frontAcceleration, this.maxReverseSpeed, this.maxSpeed );
+
+		}
+
+		// speed decay
+
+		if ( ! ( controls.moveForward || controls.moveBackward ) ) {
+
+			if ( this.speed > 0 ) {
+
+				var k = exponentialEaseOut( this.speed / this.maxSpeed );
+				this.speed = THREE.Math.clamp( this.speed - k * delta * this.frontDecceleration, 0, this.maxSpeed );
+
+			} else {
+
+				var k = exponentialEaseOut( this.speed / this.maxReverseSpeed );
+				this.speed = THREE.Math.clamp( this.speed + k * delta * this.backAcceleration, this.maxReverseSpeed, 0 );
+
+			}
+
+		}
+
+		// displacement
+
+		var forwardDelta = this.speed * delta;
+
+		this.root.position.x += Math.sin( this.bodyOrientation ) * forwardDelta;
+		this.root.position.z += Math.cos( this.bodyOrientation ) * forwardDelta;
+
+		// steering
+
+		this.root.rotation.y = this.bodyOrientation;
+
+	};
+
+	// internal helpers
+
+	function loadTextures( baseUrl, textureUrls ) {
+
+		var textureLoader = new THREE.TextureLoader();
+		var textures = [];
+
+		for ( var i = 0; i &lt; textureUrls.length; i ++ ) {
+
+			textures[ i ] = textureLoader.load( baseUrl + textureUrls[ i ], checkLoadingComplete );
+			textures[ i ].mapping = THREE.UVMapping;
+			textures[ i ].name = textureUrls[ i ];
+
+		}
+
+		return textures;
+
+	}
+
+	function createPart( geometry, skinMap ) {
+
+		var materialWireframe = new THREE.MeshLambertMaterial( { color: 0xffaa00, wireframe: true, morphTargets: true, morphNormals: true } );
+		var materialTexture = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false, map: skinMap, morphTargets: true, morphNormals: true } );
+
+		//
+
+		var mesh = new THREE.MorphBlendMesh( geometry, materialTexture );
+		mesh.rotation.y = - Math.PI / 2;
+
+		//
+
+		mesh.materialTexture = materialTexture;
+		mesh.materialWireframe = materialWireframe;
+
+		//
+
+		mesh.autoCreateAnimations( scope.animationFPS );
+
+		return mesh;
+
+	}
+
+	function checkLoadingComplete() {
+
+		scope.loadCounter -= 1;
+		if ( scope.loadCounter === 0 ) 	scope.onLoadComplete();
+
+	}
+
+	function exponentialEaseOut( k ) {
+
+		return k === 1 ? 1 : - Math.pow( 2, - 10 * k ) + 1;
+
+	}
+
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Dec 01 2020 20:27:59 GMT-0800 (Pacific Standard Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

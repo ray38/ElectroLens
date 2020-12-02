@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>js/loaders/VRMLLoader.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PCA.html">PCA</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#.load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getCumulativeVariance">getCumulativeVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvalues">getEigenvalues</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvectors">getEigenvectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getExplainedVariance">getExplainedVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getLoadings">getLoadings</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getStandardDeviations">getStandardDeviations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#invert">invert</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#predict">predict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#toJSON">toJSON</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.MTLLoader.MaterialCreator.html">MaterialCreator</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html">OBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#load">OBJLoader2#load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parse">OBJLoader2#parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parseText">OBJLoader2#parseText</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setDebug">OBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setMaterials">OBJLoader2#setMaterials</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setPath">OBJLoader2#setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setSceneGraphBaseNode">OBJLoader2#setSceneGraphBaseNode</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html">WWOBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#clearAllCallbacks">WWOBJLoader2#clearAllCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#prepareRun">WWOBJLoader2#prepareRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackCompletedLoading">WWOBJLoader2#registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackErrorWhileLoading">WWOBJLoader2#registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMaterialsLoaded">WWOBJLoader2#registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMeshLoaded">WWOBJLoader2#registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackProgress">WWOBJLoader2#registerCallbackProgress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#run">WWOBJLoader2#run</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setCrossOrigin">WWOBJLoader2#setCrossOrigin</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setDebug">WWOBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setRequestTerminate">WWOBJLoader2#setRequestTerminate</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html">WWOBJLoader2Director</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#deregister">WWOBJLoader2Director#deregister</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#enqueueForRun">WWOBJLoader2Director#enqueueForRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxQueueSize">WWOBJLoader2Director#getMaxQueueSize</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxWebWorkers">WWOBJLoader2Director#getMaxWebWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#prepareWorkers">WWOBJLoader2Director#prepareWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#processQueue">WWOBJLoader2Director#processQueue</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#setCrossOrigin">WWOBJLoader2Director#setCrossOrigin</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride.html">LoadedMeshUserOverride</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html">PrepDataArrayBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html">PrepDataCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackCompletedLoading">registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackErrorWhileLoading">registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMaterialsLoaded">registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMeshLoaded">registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackProgress">registerCallbackProgress</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html">PrepDataFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.VolumeSlice.html">VolumeSlice</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Tweenable.html">Tweenable</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrangeMoleculeDataToFrame">arrangeMoleculeDataToFrame</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#axis">axis</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvas">canvas</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvasBuffer">canvasBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#clearProgressMessage">clearProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#colorMapDict">colorMapDict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#css">css</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctx">ctx</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctxBuffer">ctxBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#d3csvUpdateProgressBar">d3csvUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#debugMessage">debugMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#detectCreateImageBitmap">detectCreateImageBitmap</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Detector">Detector</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#dispose">dispose</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#disposeMeshOrGroup">disposeMeshOrGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#drawLines">drawLines</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endChunk">endChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endOfContent">endOfContent</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#flattenToBuffers">flattenToBuffers</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#geometryNeedsUpdate">geometryNeedsUpdate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getColor">getColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getFocalLength">getFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleFiles">handleFiles</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleViewSetup">handleViewSetup</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#index">index</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html">interpolate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isPlaying">isPlaying</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#mesh">mesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#nextChunk">nextChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeLatticeVectors">normalizeLatticeVectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeShadow">normalizeShadow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parse">parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parseNode">parseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#pause">pause</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#queueUpdateProgressBar">queueUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readByte">readByte</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readChunk">readChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readColor">readColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readDWord">readDWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFaceArray">readFaceArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFile">readFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFloat">readFloat</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInputForm">readInputForm</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInt">readInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMap">readMap</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialEntry">readMaterialEntry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialGroup">readMaterialGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMesh">readMesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMeshData">readMeshData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readNamedObject">readNamedObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readShort">readShort</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readString">readString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readWord">readWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resetPosition">resetPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#.onchange">.onchange</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#GPUComputationRenderer">GPUComputationRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert2D">hilbert2D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert3D">hilbert3D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resume">resume</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#RollerCoasterGeometry">RollerCoasterGeometry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#sanitizeNodeName">sanitizeNodeName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#seek">seek</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#set">set</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setBezierFunction">setBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setConfig">setConfig</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setFocalLength">setFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setPath">setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setProgressMessage">setProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setScheduleFunction">setScheduleFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setViewOffset">setViewOffset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#SimplexNoise">SimplexNoise</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#stop">stop</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#streamUpdateProgressBar">streamUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#tween">tween</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#unsetBezierFunction">unsetBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#volume">volume</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#WEBVR">WEBVR</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">js/loaders/VRMLLoader.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+THREE.VRMLLoader = function ( manager ) {
+
+	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+
+};
+
+THREE.VRMLLoader.prototype = {
+
+	constructor: THREE.VRMLLoader,
+
+	// for IndexedFaceSet support
+	isRecordingPoints: false,
+	isRecordingFaces: false,
+	points: [],
+	indexes : [],
+
+	// for Background support
+	isRecordingAngles: false,
+	isRecordingColors: false,
+	angles: [],
+	colors: [],
+
+	recordingFieldname: null,
+
+	crossOrigin: 'Anonymous',
+
+	load: function ( url, onLoad, onProgress, onError ) {
+
+		var scope = this;
+
+		var loader = new THREE.FileLoader( this.manager );
+		loader.load( url, function ( text ) {
+
+			onLoad( scope.parse( text ) );
+
+		}, onProgress, onError );
+
+	},
+
+	setCrossOrigin: function ( value ) {
+
+		this.crossOrigin = value;
+
+	},
+
+	parse: function ( data ) {
+
+		var texturePath = this.texturePath || '';
+
+		var textureLoader = new THREE.TextureLoader( this.manager );
+		textureLoader.setCrossOrigin( this.crossOrigin );
+
+		var parseV1 = function ( lines, scene ) {
+
+			console.warn( 'VRML V1.0 not supported yet' );
+
+		};
+
+		var parseV2 = function ( lines, scene ) {
+
+			var defines = {};
+			var float_pattern = /(\b|\-|\+)([\d\.e]+)/;
+			var float2_pattern = /([\d\.\+\-e]+)\s+([\d\.\+\-e]+)/g;
+			var float3_pattern = /([\d\.\+\-e]+)\s+([\d\.\+\-e]+)\s+([\d\.\+\-e]+)/g;
+
+			/**
+			* Interpolates colors a and b following their relative distance
+			* expressed by t.
+			*
+			* @param float a
+			* @param float b
+			* @param float t
+			* @returns {Color}
+			*/
+			var interpolateColors = function( a, b, t ) {
+
+				var deltaR = a.r - b.r;
+				var deltaG = a.g - b.g;
+				var deltaB = a.b - b.b;
+
+				var c = new THREE.Color();
+
+				c.r = a.r - t * deltaR;
+				c.g = a.g - t * deltaG;
+				c.b = a.b - t * deltaB;
+
+				return c;
+
+			};
+
+			/**
+			 * Vertically paints the faces interpolating between the
+			 * specified colors at the specified angels. This is used for the Background
+			 * node, but could be applied to other nodes with multiple faces as well.
+			 *
+			 * When used with the Background node, default is directionIsDown is true if
+			 * interpolating the skyColor down from the Zenith. When interpolationg up from
+			 * the Nadir i.e. interpolating the groundColor, the directionIsDown is false.
+			 *
+			 * The first angle is never specified, it is the Zenith (0 rad). Angles are specified
+			 * in radians. The geometry is thought a sphere, but could be anything. The color interpolation
+			 * is linear along the Y axis in any case.
+			 *
+			 * You must specify one more color than you have angles at the beginning of the colors array.
+			 * This is the color of the Zenith (the top of the shape).
+			 *
+			 * @param geometry
+			 * @param radius
+			 * @param angles
+			 * @param colors
+			 * @param boolean directionIsDown Whether to work bottom up or top down.
+			 */
+			var paintFaces = function ( geometry, radius, angles, colors, directionIsDown ) {
+
+				var direction = directionIsDown ? 1 : - 1;
+
+				var faceIndices = [ 'a', 'b', 'c', 'd' ];
+
+				var coord = [], A = {}, B = {}, applyColor = false;
+
+				for ( var k = 0; k &lt; angles.length; k ++ ) {
+
+					// push the vector at which the color changes
+
+					var vec = {
+						x: direction * ( Math.cos( angles[ k ] ) * radius ),
+						y: direction * ( Math.sin( angles[ k ] ) * radius )
+					};
+
+					coord.push( vec );
+
+				}
+
+				// painting the colors on the faces
+				for ( var i = 0; i &lt; geometry.faces.length ; i ++ ) {
+
+					var f = geometry.faces[ i ];
+
+					var n = ( f instanceof THREE.Face3 ) ? 3 : 4;
+
+					for ( var j = 0; j &lt; n; j ++ ) {
+
+						var vertexIndex = f[ faceIndices[ j ] ];
+
+						var p = geometry.vertices[ vertexIndex ];
+
+						for ( var index = 0; index &lt; colors.length; index ++ ) {
+
+							// linear interpolation between aColor and bColor, calculate proportion
+							// A is previous point (angle)
+							if ( index === 0 ) {
+
+								A.x = 0;
+								A.y = directionIsDown ? radius : - 1 * radius;
+
+							} else {
+
+								A.x = coord[ index - 1 ].x;
+								A.y = coord[ index - 1 ].y;
+
+							}
+
+							// B is current point (angle)
+							B = coord[ index ];
+
+							if ( undefined !== B ) {
+
+								// p has to be between the points A and B which we interpolate
+								applyColor = directionIsDown ? p.y &lt;= A.y &amp;&amp; p.y > B.y : p.y >= A.y &amp;&amp; p.y &lt; B.y;
+
+								if ( applyColor ) {
+
+									var aColor = colors[ index ];
+									var bColor = colors[ index + 1 ];
+
+									// below is simple linear interpolation
+									var t = Math.abs( p.y - A.y ) / ( A.y - B.y );
+
+									// to make it faster, you can only calculate this if the y coord changes, the color is the same for points with the same y
+									var color = interpolateColors( aColor, bColor, t );
+
+									f.vertexColors[ j ] = color;
+
+								}
+
+							} else if ( undefined === f.vertexColors[ j ] ) {
+
+								var colorIndex = directionIsDown ? colors.length - 1 : 0;
+								f.vertexColors[ j ] = colors[ colorIndex ];
+
+							}
+
+						}
+
+					}
+
+				}
+
+			};
+
+			var index = [];
+
+			var parseProperty = function ( node, line ) {
+
+				var parts = [], part, property = {}, fieldName;
+
+				/**
+				 * Expression for matching relevant information, such as a name or value, but not the separators
+				 * @type {RegExp}
+				 */
+				var regex = /[^\s,\[\]]+/g;
+
+				var point, angles, colors;
+
+				while ( null != ( part = regex.exec( line ) ) ) {
+
+					parts.push( part[ 0 ] );
+
+				}
+
+				fieldName = parts[ 0 ];
+
+
+				// trigger several recorders
+				switch ( fieldName ) {
+					case 'skyAngle':
+					case 'groundAngle':
+						this.recordingFieldname = fieldName;
+						this.isRecordingAngles = true;
+						this.angles = [];
+						break;
+					case 'skyColor':
+					case 'groundColor':
+						this.recordingFieldname = fieldName;
+						this.isRecordingColors = true;
+						this.colors = [];
+						break;
+					case 'point':
+						this.recordingFieldname = fieldName;
+						this.isRecordingPoints = true;
+						this.points = [];
+						break;
+					case 'coordIndex':
+					case 'texCoordIndex':
+						this.recordingFieldname = fieldName;
+						this.isRecordingFaces = true;
+						this.indexes = [];
+				}
+
+				if ( this.isRecordingFaces ) {
+
+					// the parts hold the indexes as strings
+					if ( parts.length > 0 ) {
+
+						for ( var ind = 0; ind &lt; parts.length; ind ++ ) {
+
+							// the part should either be positive integer or -1
+							if ( ! /(-?\d+)/.test( parts[ ind ] ) ) {
+
+								continue;
+
+							}
+
+							// end of current face
+							if ( parts[ ind ] === "-1" ) {
+
+								if ( index.length > 0 ) {
+
+									this.indexes.push( index );
+
+								}
+
+								// start new one
+								index = [];
+
+							} else {
+
+								index.push( parseInt( parts[ ind ] ) );
+
+							}
+
+						}
+
+					}
+
+					// end
+					if ( /]/.exec( line ) ) {
+
+						if ( index.length > 0 ) {
+
+							this.indexes.push( index );
+
+						}
+
+						// start new one
+						index = [];
+
+						this.isRecordingFaces = false;
+						node[this.recordingFieldname] = this.indexes;
+
+					}
+
+				} else if ( this.isRecordingPoints ) {
+
+					if ( node.nodeType == 'Coordinate' )
+
+					while ( null !== ( parts = float3_pattern.exec( line ) ) ) {
+
+						point = {
+							x: parseFloat( parts[ 1 ] ),
+							y: parseFloat( parts[ 2 ] ),
+							z: parseFloat( parts[ 3 ] )
+						};
+
+						this.points.push( point );
+
+					}
+
+					if ( node.nodeType == 'TextureCoordinate' )
+
+					while ( null !== ( parts = float2_pattern.exec( line ) ) ) {
+
+						point = {
+							x: parseFloat( parts[ 1 ] ),
+							y: parseFloat( parts[ 2 ] )
+						};
+
+						this.points.push( point );
+
+					}
+
+					// end
+					if ( /]/.exec( line ) ) {
+
+						this.isRecordingPoints = false;
+						node.points = this.points;
+
+					}
+
+				} else if ( this.isRecordingAngles ) {
+
+					// the parts hold the angles as strings
+					if ( parts.length > 0 ) {
+
+						for ( var ind = 0; ind &lt; parts.length; ind ++ ) {
+
+							// the part should be a float
+							if ( ! float_pattern.test( parts[ ind ] ) ) {
+
+								continue;
+
+							}
+
+							this.angles.push( parseFloat( parts[ ind ] ) );
+
+						}
+
+					}
+
+					// end
+					if ( /]/.exec( line ) ) {
+
+						this.isRecordingAngles = false;
+						node[ this.recordingFieldname ] = this.angles;
+
+					}
+
+				} else if ( this.isRecordingColors ) {
+
+					while ( null !== ( parts = float3_pattern.exec( line ) ) ) {
+
+						var color = {
+							r: parseFloat( parts[ 1 ] ),
+							g: parseFloat( parts[ 2 ] ),
+							b: parseFloat( parts[ 3 ] )
+						};
+
+						this.colors.push( color );
+
+					}
+
+					// end
+					if ( /]/.exec( line ) ) {
+
+						this.isRecordingColors = false;
+						node[ this.recordingFieldname ] = this.colors;
+
+					}
+
+				} else if ( parts[ parts.length - 1 ] !== 'NULL' &amp;&amp; fieldName !== 'children' ) {
+
+					switch ( fieldName ) {
+
+						case 'diffuseColor':
+						case 'emissiveColor':
+						case 'specularColor':
+						case 'color':
+
+							if ( parts.length != 4 ) {
+
+								console.warn( 'Invalid color format detected for ' + fieldName );
+								break;
+
+							}
+
+							property = {
+								r: parseFloat( parts[ 1 ] ),
+								g: parseFloat( parts[ 2 ] ),
+								b: parseFloat( parts[ 3 ] )
+							};
+
+							break;
+
+						case 'location':
+						case 'direction':
+						case 'translation':
+						case 'scale':
+						case 'size':
+							if ( parts.length != 4 ) {
+
+								console.warn( 'Invalid vector format detected for ' + fieldName );
+								break;
+
+							}
+
+							property = {
+								x: parseFloat( parts[ 1 ] ),
+								y: parseFloat( parts[ 2 ] ),
+								z: parseFloat( parts[ 3 ] )
+							};
+
+							break;
+
+						case 'intensity':
+						case 'cutOffAngle':
+						case 'radius':
+						case 'topRadius':
+						case 'bottomRadius':
+						case 'height':
+						case 'transparency':
+						case 'shininess':
+						case 'ambientIntensity':
+							if ( parts.length != 2 ) {
+
+								console.warn( 'Invalid single float value specification detected for ' + fieldName );
+								break;
+
+							}
+
+							property = parseFloat( parts[ 1 ] );
+
+							break;
+
+						case 'rotation':
+							if ( parts.length != 5 ) {
+
+								console.warn( 'Invalid quaternion format detected for ' + fieldName );
+								break;
+
+							}
+
+							property = {
+								x: parseFloat( parts[ 1 ] ),
+								y: parseFloat( parts[ 2 ] ),
+								z: parseFloat( parts[ 3 ] ),
+								w: parseFloat( parts[ 4 ] )
+							};
+
+							break;
+
+						case 'on':
+						case 'ccw':
+						case 'solid':
+						case 'colorPerVertex':
+						case 'convex':
+							if ( parts.length != 2 ) {
+
+								console.warn( 'Invalid format detected for ' + fieldName );
+								break;
+
+							}
+
+							property = parts[ 1 ] === 'TRUE' ? true : false;
+
+							break;
+					}
+
+					node[ fieldName ] = property;
+
+				}
+
+				return property;
+
+			};
+
+			var getTree = function ( lines ) {
+
+				var tree = { 'string': 'Scene', children: [] };
+				var current = tree;
+				var matches;
+				var specification;
+
+				for ( var i = 0; i &lt; lines.length; i ++ ) {
+
+					var comment = '';
+
+					var line = lines[ i ];
+
+					// omit whitespace only lines
+					if ( null !== ( result = /^\s+?$/g.exec( line ) ) ) {
+
+						continue;
+
+					}
+
+					line = line.trim();
+
+					// skip empty lines
+					if ( line === '' ) {
+
+						continue;
+
+					}
+
+					if ( /#/.exec( line ) ) {
+
+						var parts = line.split( '#' );
+
+						// discard everything after the #, it is a comment
+						line = parts[ 0 ];
+
+						// well, let's also keep the comment
+						comment = parts[ 1 ];
+
+					}
+
+					if ( matches = /([^\s]*){1}(?:\s+)?{/.exec( line ) ) {
+
+						// first subpattern should match the Node name
+
+						var block = { 'nodeType' : matches[ 1 ], 'string': line, 'parent': current, 'children': [], 'comment' : comment };
+						current.children.push( block );
+						current = block;
+
+						if ( /}/.exec( line ) ) {
+
+							// example: geometry Box { size 1 1 1 } # all on the same line
+							specification = /{(.*)}/.exec( line )[ 1 ];
+
+							// todo: remove once new parsing is complete?
+							block.children.push( specification );
+
+							parseProperty( current, specification );
+
+							current = current.parent;
+
+						}
+
+					} else if ( /}/.exec( line ) ) {
+
+						current = current.parent;
+
+					} else if ( line !== '' ) {
+
+						parseProperty( current, line );
+						// todo: remove once new parsing is complete? we still do not parse geometry and appearance the new way
+						current.children.push( line );
+
+					}
+
+				}
+
+				return tree;
+
+			};
+
+			var parseNode = function ( data, parent ) {
+
+				// console.log( data );
+
+				if ( typeof data === 'string' ) {
+
+					if ( /USE/.exec( data ) ) {
+
+						var defineKey = /USE\s+?([^\s]+)/.exec( data )[ 1 ];
+
+						if ( undefined == defines[ defineKey ] ) {
+
+							console.warn( defineKey + ' is not defined.' );
+
+						} else {
+
+							if ( /appearance/.exec( data ) &amp;&amp; defineKey ) {
+
+								parent.material = defines[ defineKey ].clone();
+
+							} else if ( /geometry/.exec( data ) &amp;&amp; defineKey ) {
+
+								parent.geometry = defines[ defineKey ].clone();
+
+								// the solid property is not cloned with clone(), is only needed for VRML loading, so we need to transfer it
+								if ( undefined !== defines[ defineKey ].solid &amp;&amp; defines[ defineKey ].solid === false ) {
+
+									parent.geometry.solid = false;
+									parent.material.side = THREE.DoubleSide;
+
+								}
+
+							} else if ( defineKey ) {
+
+								var object = defines[ defineKey ].clone();
+								parent.add( object );
+
+							}
+
+						}
+
+					}
+
+					return;
+
+				}
+
+				var object = parent;
+
+				if(data.string.indexOf("AmbientLight")>-1 &amp;&amp; data.nodeType=='PointLight'){
+					//wenn im Namen "AmbientLight" vorkommt und es ein PointLight ist,
+					//diesen Typ in 'AmbientLight' ändern
+					data.nodeType='AmbientLight';
+				}
+
+				var l_visible = data.on !== undefined ? data.on : true;
+				var l_intensity = data.intensity !== undefined ? data.intensity : 1;
+				var l_color = new THREE.Color();
+				if ( data.color ) l_color.copy( data.color );
+
+				if('AmbientLight' === data.nodeType){
+					object=new THREE.AmbientLight(
+								l_color.getHex(),
+								l_intensity
+								);
+					object.visible=l_visible;
+
+					parent.add( object );
+
+				}
+				else
+				if('PointLight' === data.nodeType){
+						var l_distance =0;	//0="unendlich" ...1000
+
+						if(data.radius!=undefined &amp;&amp; data.radius&lt;1000){
+							//l_radius=data.radius;
+							l_distance=data.radius;
+						}
+						object=new THREE.PointLight(
+								l_color.getHex(),
+								l_intensity,
+								l_distance);
+						object.visible=l_visible;
+
+						parent.add( object );
+				}
+				else
+				if('SpotLight' === data.nodeType){
+						var l_intensity=1;
+						var l_distance =0;//0="unendlich"=1000
+						var l_angle=Math.PI/3;
+						var l_penumbra=0.0;//0..1
+						var l_visible=true;
+
+						if(data.radius!=undefined &amp;&amp; data.radius&lt;1000){
+							//l_radius=data.radius;
+							l_distance=data.radius;
+						}
+						if(data.cutOffAngle!=undefined)l_angle=data.cutOffAngle;
+
+						object = new THREE.SpotLight(
+									l_color.getHex(),
+									l_intensity,
+									l_distance,
+									l_angle,
+									l_penumbra
+									);
+						object.visible=l_visible;
+						parent.add( object );
+						/*
+						var lightHelper = new THREE.SpotLightHelper( object );
+						parent.parent.add( lightHelper );
+						lightHelper.update();
+						*/
+				}
+				else
+
+				if ( 'Transform' === data.nodeType || 'Group' === data.nodeType ) {
+
+					object = new THREE.Object3D();
+
+					if ( /DEF/.exec( data.string ) ) {
+
+						object.name = /DEF\s+([^\s]+)/.exec( data.string )[ 1 ];
+						defines[ object.name ] = object;
+
+					}
+
+					if ( undefined !== data[ 'translation' ] ) {
+
+						var t = data.translation;
+
+						object.position.set( t.x, t.y, t.z );
+
+					}
+
+					if ( undefined !== data.rotation ) {
+
+						var r = data.rotation;
+
+						object.quaternion.setFromAxisAngle( new THREE.Vector3( r.x, r.y, r.z ), r.w );
+
+					}
+
+					if ( undefined !== data.scale ) {
+
+						var s = data.scale;
+
+						object.scale.set( s.x, s.y, s.z );
+
+					}
+
+					parent.add( object );
+
+				} else if ( 'Shape' === data.nodeType ) {
+
+					object = new THREE.Mesh();
+
+					if ( /DEF/.exec( data.string ) ) {
+
+						object.name = /DEF\s+([^\s]+)/.exec( data.string )[ 1 ];
+
+						defines[ object.name ] = object;
+
+					}
+
+					parent.add( object );
+
+				} else if ( 'Background' === data.nodeType ) {
+
+					var segments = 20;
+
+					// sky (full sphere):
+
+					var radius = 2e4;
+
+					var skyGeometry = new THREE.SphereGeometry( radius, segments, segments );
+					var skyMaterial = new THREE.MeshBasicMaterial( { fog: false, side: THREE.BackSide } );
+
+					if ( data.skyColor.length > 1 ) {
+
+						paintFaces( skyGeometry, radius, data.skyAngle, data.skyColor, true );
+
+						skyMaterial.vertexColors = THREE.VertexColors
+
+					} else {
+
+						var color = data.skyColor[ 0 ];
+						skyMaterial.color.setRGB( color.r, color.b, color.g );
+
+					}
+
+					scene.add( new THREE.Mesh( skyGeometry, skyMaterial ) );
+
+					// ground (half sphere):
+
+					if ( data.groundColor !== undefined ) {
+
+						radius = 1.2e4;
+
+						var groundGeometry = new THREE.SphereGeometry( radius, segments, segments, 0, 2 * Math.PI, 0.5 * Math.PI, 1.5 * Math.PI );
+						var groundMaterial = new THREE.MeshBasicMaterial( { fog: false, side: THREE.BackSide, vertexColors: THREE.VertexColors } );
+
+						paintFaces( groundGeometry, radius, data.groundAngle, data.groundColor, false );
+
+						scene.add( new THREE.Mesh( groundGeometry, groundMaterial ) );
+
+					}
+
+				} else if ( /geometry/.exec( data.string ) ) {
+
+					if ( 'Box' === data.nodeType ) {
+
+						var s = data.size;
+
+						parent.geometry = new THREE.BoxGeometry( s.x, s.y, s.z );
+
+					} else if ( 'Cylinder' === data.nodeType ) {
+
+						parent.geometry = new THREE.CylinderGeometry( data.radius, data.radius, data.height );
+
+					} else if ( 'Cone' === data.nodeType ) {
+
+						parent.geometry = new THREE.CylinderGeometry( data.topRadius, data.bottomRadius, data.height );
+
+					} else if ( 'Sphere' === data.nodeType ) {
+
+						parent.geometry = new THREE.SphereGeometry( data.radius );
+
+					} else if ( 'IndexedFaceSet' === data.nodeType ) {
+
+						var geometry = new THREE.Geometry();
+
+						var indexes, uvIndexes, uvs;
+
+						for ( var i = 0, j = data.children.length; i &lt; j; i ++ ) {
+
+							var child = data.children[ i ];
+
+							var vec;
+
+							if ( 'TextureCoordinate' === child.nodeType ) {
+
+								uvs = child.points;
+
+							}
+
+
+							if ( 'Coordinate' === child.nodeType ) {
+
+								if ( child.points ) {
+
+									for ( var k = 0, l = child.points.length; k &lt; l; k ++ ) {
+
+										var point = child.points[ k ];
+
+										vec = new THREE.Vector3( point.x, point.y, point.z );
+
+										geometry.vertices.push( vec );
+
+									}
+
+								}
+
+								if ( child.string.indexOf ( 'DEF' ) > -1 ) {
+
+									var name = /DEF\s+([^\s]+)/.exec( child.string )[ 1 ];
+
+									defines[ name ] = geometry.vertices;
+
+								}
+
+								if ( child.string.indexOf ( 'USE' ) > -1 ) {
+
+									var defineKey = /USE\s+([^\s]+)/.exec( child.string )[ 1 ];
+
+									geometry.vertices = defines[ defineKey ];
+								}
+
+							}
+
+						}
+
+						var skip = 0;
+
+						// some shapes only have vertices for use in other shapes
+						if ( data.coordIndex ) {
+
+							// read this: http://math.hws.edu/eck/cs424/notes2013/16_Threejs_Advanced.html
+							for ( var i = 0, j = data.coordIndex.length; i &lt; j; i ++ ) {
+
+								indexes = data.coordIndex[ i ]; if ( data.texCoordIndex ) uvIndexes = data.texCoordIndex[ i ];
+
+								// vrml support multipoint indexed face sets (more then 3 vertices). You must calculate the composing triangles here
+								skip = 0;
+
+								// Face3 only works with triangles, but IndexedFaceSet allows shapes with more then three vertices, build them of triangles
+								while ( indexes.length >= 3 &amp;&amp; skip &lt; ( indexes.length - 2 ) ) {
+
+									var face = new THREE.Face3(
+										indexes[ 0 ],
+										indexes[ skip + (data.ccw ? 1 : 2) ],
+										indexes[ skip + (data.ccw ? 2 : 1) ],
+										null // normal, will be added later
+										// todo: pass in the color, if a color index is present
+									);
+
+									if ( uvs &amp;&amp; uvIndexes ) {
+										geometry.faceVertexUvs [0].push( [
+											new THREE.Vector2 (
+												uvs[ uvIndexes[ 0 ] ].x ,
+												uvs[ uvIndexes[ 0 ] ].y
+											) ,
+											new THREE.Vector2 (
+												uvs[ uvIndexes[ skip + (data.ccw ? 1 : 2) ] ].x ,
+												uvs[ uvIndexes[ skip + (data.ccw ? 1 : 2) ] ].y
+											) ,
+											new THREE.Vector2 (
+												uvs[ uvIndexes[ skip + (data.ccw ? 2 : 1) ] ].x ,
+												uvs[ uvIndexes[ skip + (data.ccw ? 2 : 1) ] ].y
+											)
+										] );
+									}
+
+									skip ++;
+
+									geometry.faces.push( face );
+
+								}
+
+
+							}
+
+						} else {
+
+							// do not add dummy mesh to the scene
+							parent.parent.remove( parent );
+
+						}
+
+						if ( false === data.solid ) {
+
+							parent.material.side = THREE.DoubleSide;
+
+						}
+
+						// we need to store it on the geometry for use with defines
+						geometry.solid = data.solid;
+
+						geometry.computeFaceNormals();
+						//geometry.computeVertexNormals(); // does not show
+						geometry.computeBoundingSphere();
+
+						// see if it's a define
+						if ( /DEF/.exec( data.string ) ) {
+
+							geometry.name = /DEF ([^\s]+)/.exec( data.string )[ 1 ];
+							defines[ geometry.name ] = geometry;
+
+						}
+
+						parent.geometry = geometry;
+
+					}
+
+					return;
+
+				} else if ( /appearance/.exec( data.string ) ) {
+
+					for ( var i = 0; i &lt; data.children.length; i ++ ) {
+
+						var child = data.children[ i ];
+
+						if ( 'Material' === child.nodeType ) {
+
+							var material = new THREE.MeshPhongMaterial();
+
+							if ( undefined !== child.diffuseColor ) {
+
+								var d = child.diffuseColor;
+
+								material.color.setRGB( d.r, d.g, d.b );
+
+							}
+
+							if ( undefined !== child.emissiveColor ) {
+
+								var e = child.emissiveColor;
+
+								material.emissive.setRGB( e.r, e.g, e.b );
+
+							}
+
+							if ( undefined !== child.specularColor ) {
+
+								var s = child.specularColor;
+
+								material.specular.setRGB( s.r, s.g, s.b );
+
+							}
+
+							if ( undefined !== child.transparency ) {
+
+								var t = child.transparency;
+
+								// transparency is opposite of opacity
+								material.opacity = Math.abs( 1 - t );
+
+								material.transparent = true;
+
+							}
+
+							if ( /DEF/.exec( data.string ) ) {
+
+								material.name = /DEF ([^\s]+)/.exec( data.string )[ 1 ];
+
+								defines[ material.name ] = material;
+
+							}
+
+							parent.material = material;
+
+						}
+
+						if ( 'ImageTexture' === child.nodeType ) {
+
+							var textureName = /"([^"]+)"/.exec(child.children[ 0 ]);
+
+							if (textureName) {
+
+								parent.material.name = textureName[ 1 ];
+
+								parent.material.map = textureLoader.load( texturePath + textureName[ 1 ] );
+
+							}
+
+						}
+
+					}
+
+					return;
+
+				}
+
+				for ( var i = 0, l = data.children.length; i &lt; l; i ++ ) {
+
+					parseNode( data.children[ i ], object );
+
+				}
+
+			};
+
+			parseNode( getTree( lines ), scene );
+
+		};
+
+		var scene = new THREE.Scene();
+
+		var lines = data.split( '\n' );
+
+		// some lines do not have breaks
+		for (var i = lines.length -1; i > -1; i--) {
+
+			// split lines with {..{ or {..[ - some have both
+			if (/{.*[{\[]/.test (lines[i])) {
+				var parts = lines[i].split ('{').join ('{\n').split ('\n');
+				parts.unshift(1);
+				parts.unshift(i);
+				lines.splice.apply(lines, parts);
+			} else
+
+			// split lines with ]..}
+			if (/\].*}/.test (lines[i])) {
+				var parts = lines[i].split (']').join (']\n').split ('\n');
+				parts.unshift(1);
+				parts.unshift(i);
+				lines.splice.apply(lines, parts);
+			}
+
+			// split lines with }..}
+			if (/}.*}/.test (lines[i])) {
+				var parts = lines[i].split ('}').join ('}\n').split ('\n');
+				parts.unshift(1);
+				parts.unshift(i);
+				lines.splice.apply(lines, parts);
+			}
+
+			// force the parser to create Coordinate node for empty coords
+			// coord USE something -> coord USE something Coordinate {}
+			if((lines[i].indexOf ('coord') > -1) &amp;&amp; (lines[i].indexOf ('[') &lt; 0) &amp;&amp; (lines[i].indexOf ('{') &lt; 0)) {
+				lines[i] += ' Coordinate {}';
+			}
+		}
+
+		var header = lines.shift();
+
+		if ( /V1.0/.exec( header ) ) {
+
+			parseV1( lines, scene );
+
+		} else if ( /V2.0/.exec( header ) ) {
+
+			parseV2( lines, scene );
+
+		}
+
+		return scene;
+
+	}
+
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Dec 01 2020 20:27:59 GMT-0800 (Pacific Standard Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
