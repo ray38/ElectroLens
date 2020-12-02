@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>js/loaders/sea3d/SEA3DLZMA.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PCA.html">PCA</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#.load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getCumulativeVariance">getCumulativeVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvalues">getEigenvalues</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvectors">getEigenvectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getExplainedVariance">getExplainedVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getLoadings">getLoadings</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getStandardDeviations">getStandardDeviations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#invert">invert</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#predict">predict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#toJSON">toJSON</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.MTLLoader.MaterialCreator.html">MaterialCreator</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html">OBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#load">OBJLoader2#load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parse">OBJLoader2#parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parseText">OBJLoader2#parseText</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setDebug">OBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setMaterials">OBJLoader2#setMaterials</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setPath">OBJLoader2#setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setSceneGraphBaseNode">OBJLoader2#setSceneGraphBaseNode</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html">WWOBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#clearAllCallbacks">WWOBJLoader2#clearAllCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#prepareRun">WWOBJLoader2#prepareRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackCompletedLoading">WWOBJLoader2#registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackErrorWhileLoading">WWOBJLoader2#registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMaterialsLoaded">WWOBJLoader2#registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMeshLoaded">WWOBJLoader2#registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackProgress">WWOBJLoader2#registerCallbackProgress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#run">WWOBJLoader2#run</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setCrossOrigin">WWOBJLoader2#setCrossOrigin</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setDebug">WWOBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setRequestTerminate">WWOBJLoader2#setRequestTerminate</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html">WWOBJLoader2Director</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#deregister">WWOBJLoader2Director#deregister</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#enqueueForRun">WWOBJLoader2Director#enqueueForRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxQueueSize">WWOBJLoader2Director#getMaxQueueSize</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxWebWorkers">WWOBJLoader2Director#getMaxWebWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#prepareWorkers">WWOBJLoader2Director#prepareWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#processQueue">WWOBJLoader2Director#processQueue</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#setCrossOrigin">WWOBJLoader2Director#setCrossOrigin</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride.html">LoadedMeshUserOverride</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html">PrepDataArrayBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html">PrepDataCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackCompletedLoading">registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackErrorWhileLoading">registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMaterialsLoaded">registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMeshLoaded">registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackProgress">registerCallbackProgress</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html">PrepDataFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.VolumeSlice.html">VolumeSlice</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Tweenable.html">Tweenable</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrangeMoleculeDataToFrame">arrangeMoleculeDataToFrame</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#axis">axis</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvas">canvas</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvasBuffer">canvasBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#clearProgressMessage">clearProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#colorMapDict">colorMapDict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#css">css</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctx">ctx</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctxBuffer">ctxBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#d3csvUpdateProgressBar">d3csvUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#debugMessage">debugMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#detectCreateImageBitmap">detectCreateImageBitmap</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Detector">Detector</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#dispose">dispose</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#disposeMeshOrGroup">disposeMeshOrGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#drawLines">drawLines</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endChunk">endChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endOfContent">endOfContent</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#flattenToBuffers">flattenToBuffers</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#geometryNeedsUpdate">geometryNeedsUpdate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getColor">getColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getFocalLength">getFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleFiles">handleFiles</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleViewSetup">handleViewSetup</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#index">index</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html">interpolate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isPlaying">isPlaying</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#mesh">mesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#nextChunk">nextChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeLatticeVectors">normalizeLatticeVectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeShadow">normalizeShadow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parse">parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parseNode">parseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#pause">pause</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#queueUpdateProgressBar">queueUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readByte">readByte</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readChunk">readChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readColor">readColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readDWord">readDWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFaceArray">readFaceArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFile">readFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFloat">readFloat</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInputForm">readInputForm</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInt">readInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMap">readMap</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialEntry">readMaterialEntry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialGroup">readMaterialGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMesh">readMesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMeshData">readMeshData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readNamedObject">readNamedObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readShort">readShort</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readString">readString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readWord">readWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resetPosition">resetPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#.onchange">.onchange</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#GPUComputationRenderer">GPUComputationRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert2D">hilbert2D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert3D">hilbert3D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resume">resume</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#RollerCoasterGeometry">RollerCoasterGeometry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#sanitizeNodeName">sanitizeNodeName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#seek">seek</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#set">set</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setBezierFunction">setBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setConfig">setConfig</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setFocalLength">setFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setPath">setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setProgressMessage">setProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setScheduleFunction">setScheduleFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setViewOffset">setViewOffset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#SimplexNoise">SimplexNoise</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#stop">stop</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#streamUpdateProgressBar">streamUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#tween">tween</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#unsetBezierFunction">unsetBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#volume">volume</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#WEBVR">WEBVR</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">js/loaders/sea3d/SEA3DLZMA.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+Copyright (c) 2011 Juan Mellado
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+/*
+References:
+- "LZMA SDK" by Igor Pavlov
+  http://www.7-zip.org/sdk.html
+*/
+
+'use strict';
+
+SEA3D.LZMA = function () {
+
+	var LZMA = LZMA || {};
+
+	LZMA.OutWindow = function () {
+
+		this._windowSize = 0;
+
+	};
+
+	LZMA.OutWindow.prototype.create = function ( windowSize ) {
+
+		if ( ( ! this._buffer ) || ( this._windowSize !== windowSize ) ) {
+
+			this._buffer = [];
+
+		}
+		this._windowSize = windowSize;
+		this._pos = 0;
+		this._streamPos = 0;
+
+	};
+
+	LZMA.OutWindow.prototype.flush = function () {
+
+		var size = this._pos - this._streamPos;
+		if ( size !== 0 ) {
+
+			while ( size -- ) {
+
+				this._stream.writeByte( this._buffer[ this._streamPos ++ ] );
+
+			}
+			if ( this._pos >= this._windowSize ) {
+
+				this._pos = 0;
+
+			}
+			this._streamPos = this._pos;
+
+		}
+
+	};
+
+	LZMA.OutWindow.prototype.releaseStream = function () {
+
+		this.flush();
+		this._stream = null;
+
+	};
+
+	LZMA.OutWindow.prototype.setStream = function ( stream ) {
+
+		this.releaseStream();
+		this._stream = stream;
+
+	};
+
+	LZMA.OutWindow.prototype.init = function ( solid ) {
+
+		if ( ! solid ) {
+
+			this._streamPos = 0;
+			this._pos = 0;
+
+		}
+
+	};
+
+	LZMA.OutWindow.prototype.copyBlock = function ( distance, len ) {
+
+		var pos = this._pos - distance - 1;
+		if ( pos &lt; 0 ) {
+
+			pos += this._windowSize;
+
+		}
+		while ( len -- ) {
+
+			if ( pos >= this._windowSize ) {
+
+				pos = 0;
+
+			}
+			this._buffer[ this._pos ++ ] = this._buffer[ pos ++ ];
+			if ( this._pos >= this._windowSize ) {
+
+				this.flush();
+
+			}
+
+		}
+
+	};
+
+	LZMA.OutWindow.prototype.putByte = function ( b ) {
+
+		this._buffer[ this._pos ++ ] = b;
+		if ( this._pos >= this._windowSize ) {
+
+			this.flush();
+
+		}
+
+	};
+
+	LZMA.OutWindow.prototype.getByte = function ( distance ) {
+
+		var pos = this._pos - distance - 1;
+		if ( pos &lt; 0 ) {
+
+			pos += this._windowSize;
+
+		}
+		return this._buffer[ pos ];
+
+	};
+
+	LZMA.RangeDecoder = function () {
+	};
+
+	LZMA.RangeDecoder.prototype.setStream = function ( stream ) {
+
+		this._stream = stream;
+
+	};
+
+	LZMA.RangeDecoder.prototype.releaseStream = function () {
+
+		this._stream = null;
+
+	};
+
+	LZMA.RangeDecoder.prototype.init = function () {
+
+		var i = 5;
+
+		this._code = 0;
+		this._range = - 1;
+
+		while ( i -- ) {
+
+			this._code = ( this._code &lt;&lt; 8 ) | this._stream.readByte();
+
+		}
+
+	};
+
+	LZMA.RangeDecoder.prototype.decodeDirectBits = function ( numTotalBits ) {
+
+		var result = 0, i = numTotalBits, t;
+
+		while ( i -- ) {
+
+			this._range >>>= 1;
+			t = ( this._code - this._range ) >>> 31;
+			this._code -= this._range &amp; ( t - 1 );
+			result = ( result &lt;&lt; 1 ) | ( 1 - t );
+
+			if ( ( this._range &amp; 0xff000000 ) === 0 ) {
+
+				this._code = ( this._code &lt;&lt; 8 ) | this._stream.readByte();
+				this._range &lt;&lt;= 8;
+
+			}
+
+		}
+
+		return result;
+
+	};
+
+	LZMA.RangeDecoder.prototype.decodeBit = function ( probs, index ) {
+
+		var prob = probs[ index ],
+			newBound = ( this._range >>> 11 ) * prob;
+
+		if ( ( this._code ^ 0x80000000 ) &lt; ( newBound ^ 0x80000000 ) ) {
+
+			this._range = newBound;
+			probs[ index ] += ( 2048 - prob ) >>> 5;
+			if ( ( this._range &amp; 0xff000000 ) === 0 ) {
+
+				this._code = ( this._code &lt;&lt; 8 ) | this._stream.readByte();
+				this._range &lt;&lt;= 8;
+
+			}
+			return 0;
+
+		}
+
+		this._range -= newBound;
+		this._code -= newBound;
+		probs[ index ] -= prob >>> 5;
+		if ( ( this._range &amp; 0xff000000 ) === 0 ) {
+
+			this._code = ( this._code &lt;&lt; 8 ) | this._stream.readByte();
+			this._range &lt;&lt;= 8;
+
+		}
+		return 1;
+
+	};
+
+	LZMA.initBitModels = function ( probs, len ) {
+
+		while ( len -- ) {
+
+			probs[ len ] = 1024;
+
+		}
+
+	};
+
+	LZMA.BitTreeDecoder = function ( numBitLevels ) {
+
+		this._models = [];
+		this._numBitLevels = numBitLevels;
+
+	};
+
+	LZMA.BitTreeDecoder.prototype.init = function () {
+
+		LZMA.initBitModels( this._models, 1 &lt;&lt; this._numBitLevels );
+
+	};
+
+	LZMA.BitTreeDecoder.prototype.decode = function ( rangeDecoder ) {
+
+		var m = 1, i = this._numBitLevels;
+
+		while ( i -- ) {
+
+			m = ( m &lt;&lt; 1 ) | rangeDecoder.decodeBit( this._models, m );
+
+		}
+		return m - ( 1 &lt;&lt; this._numBitLevels );
+
+	};
+
+	LZMA.BitTreeDecoder.prototype.reverseDecode = function ( rangeDecoder ) {
+
+		var m = 1, symbol = 0, i = 0, bit;
+
+		for ( ; i &lt; this._numBitLevels; ++ i ) {
+
+			bit = rangeDecoder.decodeBit( this._models, m );
+			m = ( m &lt;&lt; 1 ) | bit;
+			symbol |= bit &lt;&lt; i;
+
+		}
+		return symbol;
+
+	};
+
+	LZMA.reverseDecode2 = function ( models, startIndex, rangeDecoder, numBitLevels ) {
+
+		var m = 1, symbol = 0, i = 0, bit;
+
+		for ( ; i &lt; numBitLevels; ++ i ) {
+
+			bit = rangeDecoder.decodeBit( models, startIndex + m );
+			m = ( m &lt;&lt; 1 ) | bit;
+			symbol |= bit &lt;&lt; i;
+
+		}
+		return symbol;
+
+	};
+
+	LZMA.LenDecoder = function () {
+
+		this._choice = [];
+		this._lowCoder = [];
+		this._midCoder = [];
+		this._highCoder = new LZMA.BitTreeDecoder( 8 );
+		this._numPosStates = 0;
+
+	};
+
+	LZMA.LenDecoder.prototype.create = function ( numPosStates ) {
+
+		for ( ; this._numPosStates &lt; numPosStates; ++ this._numPosStates ) {
+
+			this._lowCoder[ this._numPosStates ] = new LZMA.BitTreeDecoder( 3 );
+			this._midCoder[ this._numPosStates ] = new LZMA.BitTreeDecoder( 3 );
+
+		}
+
+	};
+
+	LZMA.LenDecoder.prototype.init = function () {
+
+		var i = this._numPosStates;
+		LZMA.initBitModels( this._choice, 2 );
+		while ( i -- ) {
+
+			this._lowCoder[ i ].init();
+			this._midCoder[ i ].init();
+
+		}
+		this._highCoder.init();
+
+	};
+
+	LZMA.LenDecoder.prototype.decode = function ( rangeDecoder, posState ) {
+
+		if ( rangeDecoder.decodeBit( this._choice, 0 ) === 0 ) {
+
+			return this._lowCoder[ posState ].decode( rangeDecoder );
+
+		}
+		if ( rangeDecoder.decodeBit( this._choice, 1 ) === 0 ) {
+
+			return 8 + this._midCoder[ posState ].decode( rangeDecoder );
+
+		}
+		return 16 + this._highCoder.decode( rangeDecoder );
+
+	};
+
+	LZMA.Decoder2 = function () {
+
+		this._decoders = [];
+
+	};
+
+	LZMA.Decoder2.prototype.init = function () {
+
+		LZMA.initBitModels( this._decoders, 0x300 );
+
+	};
+
+	LZMA.Decoder2.prototype.decodeNormal = function ( rangeDecoder ) {
+
+		var symbol = 1;
+
+		do {
+
+			symbol = ( symbol &lt;&lt; 1 ) | rangeDecoder.decodeBit( this._decoders, symbol );
+
+		}while ( symbol &lt; 0x100 );
+
+		return symbol &amp; 0xff;
+
+	};
+
+	LZMA.Decoder2.prototype.decodeWithMatchByte = function ( rangeDecoder, matchByte ) {
+
+		var symbol = 1, matchBit, bit;
+
+		do {
+
+			matchBit = ( matchByte >> 7 ) &amp; 1;
+			matchByte &lt;&lt;= 1;
+			bit = rangeDecoder.decodeBit( this._decoders, ( ( 1 + matchBit ) &lt;&lt; 8 ) + symbol );
+			symbol = ( symbol &lt;&lt; 1 ) | bit;
+			if ( matchBit !== bit ) {
+
+				while ( symbol &lt; 0x100 ) {
+
+					symbol = ( symbol &lt;&lt; 1 ) | rangeDecoder.decodeBit( this._decoders, symbol );
+
+				}
+				break;
+
+			}
+
+		}while ( symbol &lt; 0x100 );
+
+		return symbol &amp; 0xff;
+
+	};
+
+	LZMA.LiteralDecoder = function () {
+	};
+
+	LZMA.LiteralDecoder.prototype.create = function ( numPosBits, numPrevBits ) {
+
+		var i;
+
+		if ( this._coders
+			&amp;&amp; ( this._numPrevBits === numPrevBits )
+			&amp;&amp; ( this._numPosBits === numPosBits ) ) {
+
+			return;
+
+		}
+		this._numPosBits = numPosBits;
+		this._posMask = ( 1 &lt;&lt; numPosBits ) - 1;
+		this._numPrevBits = numPrevBits;
+
+		this._coders = [];
+
+		i = 1 &lt;&lt; ( this._numPrevBits + this._numPosBits );
+		while ( i -- ) {
+
+			this._coders[ i ] = new LZMA.Decoder2();
+
+		}
+
+	};
+
+	LZMA.LiteralDecoder.prototype.init = function () {
+
+		var i = 1 &lt;&lt; ( this._numPrevBits + this._numPosBits );
+		while ( i -- ) {
+
+			this._coders[ i ].init();
+
+		}
+
+	};
+
+	LZMA.LiteralDecoder.prototype.getDecoder = function ( pos, prevByte ) {
+
+		return this._coders[ ( ( pos &amp; this._posMask ) &lt;&lt; this._numPrevBits )
+			+ ( ( prevByte &amp; 0xff ) >>> ( 8 - this._numPrevBits ) ) ];
+
+	};
+
+	LZMA.Decoder = function () {
+
+		this._outWindow = new LZMA.OutWindow();
+		this._rangeDecoder = new LZMA.RangeDecoder();
+		this._isMatchDecoders = [];
+		this._isRepDecoders = [];
+		this._isRepG0Decoders = [];
+		this._isRepG1Decoders = [];
+		this._isRepG2Decoders = [];
+		this._isRep0LongDecoders = [];
+		this._posSlotDecoder = [];
+		this._posDecoders = [];
+		this._posAlignDecoder = new LZMA.BitTreeDecoder( 4 );
+		this._lenDecoder = new LZMA.LenDecoder();
+		this._repLenDecoder = new LZMA.LenDecoder();
+		this._literalDecoder = new LZMA.LiteralDecoder();
+		this._dictionarySize = - 1;
+		this._dictionarySizeCheck = - 1;
+
+		this._posSlotDecoder[ 0 ] = new LZMA.BitTreeDecoder( 6 );
+		this._posSlotDecoder[ 1 ] = new LZMA.BitTreeDecoder( 6 );
+		this._posSlotDecoder[ 2 ] = new LZMA.BitTreeDecoder( 6 );
+		this._posSlotDecoder[ 3 ] = new LZMA.BitTreeDecoder( 6 );
+
+	};
+
+	LZMA.Decoder.prototype.setDictionarySize = function ( dictionarySize ) {
+
+		if ( dictionarySize &lt; 0 ) {
+
+			return false;
+
+		}
+		if ( this._dictionarySize !== dictionarySize ) {
+
+			this._dictionarySize = dictionarySize;
+			this._dictionarySizeCheck = Math.max( this._dictionarySize, 1 );
+			this._outWindow.create( Math.max( this._dictionarySizeCheck, 4096 ) );
+
+		}
+		return true;
+
+	};
+
+	LZMA.Decoder.prototype.setLcLpPb = function ( lc, lp, pb ) {
+
+		var numPosStates = 1 &lt;&lt; pb;
+
+		if ( lc > 8 || lp > 4 || pb > 4 ) {
+
+			return false;
+
+		}
+
+		this._literalDecoder.create( lp, lc );
+
+		this._lenDecoder.create( numPosStates );
+		this._repLenDecoder.create( numPosStates );
+		this._posStateMask = numPosStates - 1;
+
+		return true;
+
+	};
+
+	LZMA.Decoder.prototype.init = function () {
+
+		var i = 4;
+
+		this._outWindow.init( false );
+
+		LZMA.initBitModels( this._isMatchDecoders, 192 );
+		LZMA.initBitModels( this._isRep0LongDecoders, 192 );
+		LZMA.initBitModels( this._isRepDecoders, 12 );
+		LZMA.initBitModels( this._isRepG0Decoders, 12 );
+		LZMA.initBitModels( this._isRepG1Decoders, 12 );
+		LZMA.initBitModels( this._isRepG2Decoders, 12 );
+		LZMA.initBitModels( this._posDecoders, 114 );
+
+		this._literalDecoder.init();
+
+		while ( i -- ) {
+
+			this._posSlotDecoder[ i ].init();
+
+		}
+
+		this._lenDecoder.init();
+		this._repLenDecoder.init();
+		this._posAlignDecoder.init();
+		this._rangeDecoder.init();
+
+	};
+
+	LZMA.Decoder.prototype.decode = function ( inStream, outStream, outSize ) {
+
+		var state = 0, rep0 = 0, rep1 = 0, rep2 = 0, rep3 = 0, nowPos64 = 0, prevByte = 0,
+			posState, decoder2, len, distance, posSlot, numDirectBits;
+
+		this._rangeDecoder.setStream( inStream );
+		this._outWindow.setStream( outStream );
+
+		this.init();
+
+		while ( outSize &lt; 0 || nowPos64 &lt; outSize ) {
+
+			posState = nowPos64 &amp; this._posStateMask;
+
+			if ( this._rangeDecoder.decodeBit( this._isMatchDecoders, ( state &lt;&lt; 4 ) + posState ) === 0 ) {
+
+				decoder2 = this._literalDecoder.getDecoder( nowPos64 ++, prevByte );
+
+				if ( state >= 7 ) {
+
+					prevByte = decoder2.decodeWithMatchByte( this._rangeDecoder, this._outWindow.getByte( rep0 ) );
+
+				} else {
+
+					prevByte = decoder2.decodeNormal( this._rangeDecoder );
+
+				}
+				this._outWindow.putByte( prevByte );
+
+				state = state &lt; 4 ? 0 : state - ( state &lt; 10 ? 3 : 6 );
+
+			} else {
+
+				if ( this._rangeDecoder.decodeBit( this._isRepDecoders, state ) === 1 ) {
+
+					len = 0;
+					if ( this._rangeDecoder.decodeBit( this._isRepG0Decoders, state ) === 0 ) {
+
+						if ( this._rangeDecoder.decodeBit( this._isRep0LongDecoders, ( state &lt;&lt; 4 ) + posState ) === 0 ) {
+
+							state = state &lt; 7 ? 9 : 11;
+							len = 1;
+
+						}
+
+					} else {
+
+						if ( this._rangeDecoder.decodeBit( this._isRepG1Decoders, state ) === 0 ) {
+
+							distance = rep1;
+
+						} else {
+
+							if ( this._rangeDecoder.decodeBit( this._isRepG2Decoders, state ) === 0 ) {
+
+								distance = rep2;
+
+							} else {
+
+								distance = rep3;
+								rep3 = rep2;
+
+							}
+							rep2 = rep1;
+
+						}
+						rep1 = rep0;
+						rep0 = distance;
+
+					}
+					if ( len === 0 ) {
+
+						len = 2 + this._repLenDecoder.decode( this._rangeDecoder, posState );
+						state = state &lt; 7 ? 8 : 11;
+
+					}
+
+				} else {
+
+					rep3 = rep2;
+					rep2 = rep1;
+					rep1 = rep0;
+
+					len = 2 + this._lenDecoder.decode( this._rangeDecoder, posState );
+					state = state &lt; 7 ? 7 : 10;
+
+					posSlot = this._posSlotDecoder[ len &lt;= 5 ? len - 2 : 3 ].decode( this._rangeDecoder );
+					if ( posSlot >= 4 ) {
+
+						numDirectBits = ( posSlot >> 1 ) - 1;
+						rep0 = ( 2 | ( posSlot &amp; 1 ) ) &lt;&lt; numDirectBits;
+
+						if ( posSlot &lt; 14 ) {
+
+							rep0 += LZMA.reverseDecode2( this._posDecoders,
+								rep0 - posSlot - 1, this._rangeDecoder, numDirectBits );
+
+						} else {
+
+							rep0 += this._rangeDecoder.decodeDirectBits( numDirectBits - 4 ) &lt;&lt; 4;
+							rep0 += this._posAlignDecoder.reverseDecode( this._rangeDecoder );
+							if ( rep0 &lt; 0 ) {
+
+								if ( rep0 === - 1 ) {
+
+									break;
+
+								}
+								return false;
+
+							}
+
+						}
+
+					} else {
+
+						rep0 = posSlot;
+
+					}
+
+				}
+
+				if ( rep0 >= nowPos64 || rep0 >= this._dictionarySizeCheck ) {
+
+					return false;
+
+				}
+
+				this._outWindow.copyBlock( rep0, len );
+				nowPos64 += len;
+				prevByte = this._outWindow.getByte( 0 );
+
+			}
+
+		}
+
+		this._outWindow.flush();
+		this._outWindow.releaseStream();
+		this._rangeDecoder.releaseStream();
+
+		return true;
+
+	};
+
+	LZMA.Decoder.prototype.setDecoderProperties = function ( properties ) {
+
+		var value, lc, lp, pb, dictionarySize;
+
+		if ( properties.size &lt; 5 ) {
+
+			return false;
+
+		}
+
+		value = properties.readByte();
+		lc = value % 9;
+		value = ~~ ( value / 9 );
+		lp = value % 5;
+		pb = ~~ ( value / 5 );
+
+		if ( ! this.setLcLpPb( lc, lp, pb ) ) {
+
+			return false;
+
+		}
+
+		dictionarySize = properties.readByte();
+		dictionarySize |= properties.readByte() &lt;&lt; 8;
+		dictionarySize |= properties.readByte() &lt;&lt; 16;
+		dictionarySize += properties.readByte() * 16777216;
+
+		return this.setDictionarySize( dictionarySize );
+
+	};
+
+	LZMA.decompress = function ( properties, inStream, outStream, outSize ) {
+
+		var decoder = new LZMA.Decoder();
+
+		if ( ! decoder.setDecoderProperties( properties ) ) {
+
+			throw "Incorrect stream properties";
+
+		}
+
+		if ( ! decoder.decode( inStream, outStream, outSize ) ) {
+
+			throw "Error in data stream";
+
+		}
+
+		return true;
+
+	};
+
+	LZMA.decompressFile = function ( inStream, outStream ) {
+
+		var decoder = new LZMA.Decoder(), outSize;
+
+		if ( ! decoder.setDecoderProperties( inStream ) ) {
+
+			throw "Incorrect stream properties";
+
+		}
+
+		outSize = inStream.readByte();
+		outSize |= inStream.readByte() &lt;&lt; 8;
+		outSize |= inStream.readByte() &lt;&lt; 16;
+		outSize += inStream.readByte() * 16777216;
+
+		inStream.readByte();
+		inStream.readByte();
+		inStream.readByte();
+		inStream.readByte();
+
+		if ( ! decoder.decode( inStream, outStream, outSize ) ) {
+
+			throw "Error in data stream";
+
+		}
+
+		return true;
+
+	};
+
+	return LZMA;
+
+}();
+
+
+/**
+ * 	SEA3D LZMA
+ * 	@author Sunag / http://www.sunag.com.br/
+ */
+
+SEA3D.File.LZMAUncompress = function ( data ) {
+
+	data = new Uint8Array( data );
+
+	var inStream = {
+		data: data,
+		position: 0,
+		readByte: function () {
+
+			return this.data[ this.position ++ ];
+
+		}
+	};
+
+	var outStream = {
+		data: [],
+		position: 0,
+		writeByte: function ( value ) {
+
+			this.data[ this.position ++ ] = value;
+
+		}
+	};
+
+	SEA3D.LZMA.decompressFile( inStream, outStream );
+
+	return new Uint8Array( outStream.data ).buffer;
+
+};
+
+SEA3D.File.setDecompressionEngine( 2, "lzma", SEA3D.File.LZMAUncompress );
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Dec 01 2020 20:27:59 GMT-0800 (Pacific Standard Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

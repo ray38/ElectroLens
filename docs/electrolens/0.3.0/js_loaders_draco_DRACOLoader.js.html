@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>js/loaders/draco/DRACOLoader.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PCA.html">PCA</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#.load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getCumulativeVariance">getCumulativeVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvalues">getEigenvalues</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvectors">getEigenvectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getExplainedVariance">getExplainedVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getLoadings">getLoadings</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getStandardDeviations">getStandardDeviations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#invert">invert</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#predict">predict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#toJSON">toJSON</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.MTLLoader.MaterialCreator.html">MaterialCreator</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html">OBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#load">OBJLoader2#load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parse">OBJLoader2#parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parseText">OBJLoader2#parseText</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setDebug">OBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setMaterials">OBJLoader2#setMaterials</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setPath">OBJLoader2#setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setSceneGraphBaseNode">OBJLoader2#setSceneGraphBaseNode</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html">WWOBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#clearAllCallbacks">WWOBJLoader2#clearAllCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#prepareRun">WWOBJLoader2#prepareRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackCompletedLoading">WWOBJLoader2#registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackErrorWhileLoading">WWOBJLoader2#registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMaterialsLoaded">WWOBJLoader2#registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMeshLoaded">WWOBJLoader2#registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackProgress">WWOBJLoader2#registerCallbackProgress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#run">WWOBJLoader2#run</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setCrossOrigin">WWOBJLoader2#setCrossOrigin</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setDebug">WWOBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setRequestTerminate">WWOBJLoader2#setRequestTerminate</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html">WWOBJLoader2Director</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#deregister">WWOBJLoader2Director#deregister</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#enqueueForRun">WWOBJLoader2Director#enqueueForRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxQueueSize">WWOBJLoader2Director#getMaxQueueSize</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxWebWorkers">WWOBJLoader2Director#getMaxWebWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#prepareWorkers">WWOBJLoader2Director#prepareWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#processQueue">WWOBJLoader2Director#processQueue</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#setCrossOrigin">WWOBJLoader2Director#setCrossOrigin</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride.html">LoadedMeshUserOverride</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html">PrepDataArrayBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html">PrepDataCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackCompletedLoading">registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackErrorWhileLoading">registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMaterialsLoaded">registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMeshLoaded">registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackProgress">registerCallbackProgress</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html">PrepDataFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.VolumeSlice.html">VolumeSlice</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Tweenable.html">Tweenable</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrangeMoleculeDataToFrame">arrangeMoleculeDataToFrame</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#axis">axis</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvas">canvas</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvasBuffer">canvasBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#clearProgressMessage">clearProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#colorMapDict">colorMapDict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#css">css</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctx">ctx</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctxBuffer">ctxBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#d3csvUpdateProgressBar">d3csvUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#debugMessage">debugMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#detectCreateImageBitmap">detectCreateImageBitmap</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Detector">Detector</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#dispose">dispose</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#disposeMeshOrGroup">disposeMeshOrGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#drawLines">drawLines</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endChunk">endChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endOfContent">endOfContent</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#flattenToBuffers">flattenToBuffers</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#geometryNeedsUpdate">geometryNeedsUpdate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getColor">getColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getFocalLength">getFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleFiles">handleFiles</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleViewSetup">handleViewSetup</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#index">index</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html">interpolate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isPlaying">isPlaying</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#mesh">mesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#nextChunk">nextChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeLatticeVectors">normalizeLatticeVectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeShadow">normalizeShadow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parse">parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parseNode">parseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#pause">pause</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#queueUpdateProgressBar">queueUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readByte">readByte</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readChunk">readChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readColor">readColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readDWord">readDWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFaceArray">readFaceArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFile">readFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFloat">readFloat</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInputForm">readInputForm</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInt">readInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMap">readMap</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialEntry">readMaterialEntry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialGroup">readMaterialGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMesh">readMesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMeshData">readMeshData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readNamedObject">readNamedObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readShort">readShort</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readString">readString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readWord">readWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resetPosition">resetPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#.onchange">.onchange</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#GPUComputationRenderer">GPUComputationRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert2D">hilbert2D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert3D">hilbert3D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resume">resume</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#RollerCoasterGeometry">RollerCoasterGeometry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#sanitizeNodeName">sanitizeNodeName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#seek">seek</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#set">set</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setBezierFunction">setBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setConfig">setConfig</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setFocalLength">setFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setPath">setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setProgressMessage">setProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setScheduleFunction">setScheduleFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setViewOffset">setViewOffset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#SimplexNoise">SimplexNoise</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#stop">stop</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#streamUpdateProgressBar">streamUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#tween">tween</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#unsetBezierFunction">unsetBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#volume">volume</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#WEBVR">WEBVR</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">js/loaders/draco/DRACOLoader.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Copyright 2016 The Draco Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+'use strict';
+
+THREE.DRACOLoader = function(manager) {
+    this.manager = (manager !== undefined) ? manager :
+        THREE.DefaultLoadingManager;
+    this.materials = null;
+    this.verbosity = 0;
+    this.dracoDecoderType = {};
+};
+
+
+THREE.DRACOLoader.prototype = {
+
+    constructor: THREE.DRACOLoader,
+
+    load: function(url, onLoad, onProgress, onError) {
+        const scope = this;
+        const loader = new THREE.FileLoader(scope.manager);
+        loader.setPath(this.path);
+        loader.setResponseType('arraybuffer');
+        loader.load(url, function(blob) {
+            scope.decodeDracoFile(blob, onLoad);
+        }, onProgress, onError);
+    },
+
+    setPath: function(value) {
+        this.path = value;
+    },
+
+    setVerbosity: function(level) {
+        this.verbosity = level;
+    },
+
+    setDracoDecoderType: function(dracoDecoderType) {
+        this.dracoDecoderType = dracoDecoderType;
+    },
+
+    decodeDracoFile: function(rawBuffer, callback) {
+      const scope = this;
+      THREE.DRACOLoader.getDecoder(this.dracoDecoderType,
+          function(dracoDecoder) {
+            scope.decodeDracoFileInternal(rawBuffer, dracoDecoder, callback);
+      });
+    },
+
+    decodeDracoFileInternal : function(rawBuffer, dracoDecoder, callback) {
+      /*
+       * Here is how to use Draco Javascript decoder and get the geometry.
+       */
+      const buffer = new dracoDecoder.DecoderBuffer();
+      buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength);
+      const wrapper = new dracoDecoder.WebIDLWrapper();
+
+      /*
+       * Determine what type is this file: mesh or point cloud.
+       */
+      const geometryType = wrapper.GetEncodedGeometryType(buffer);
+      if (geometryType == dracoDecoder.TRIANGULAR_MESH) {
+        if (this.verbosity > 0) {
+          console.log('Loaded a mesh.');
+        }
+      } else if (geometryType == dracoDecoder.POINT_CLOUD) {
+        if (this.verbosity > 0) {
+          console.log('Loaded a point cloud.');
+        }
+      } else {
+        const errorMsg = 'THREE.DRACOLoader: Unknown geometry type.'
+        console.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      callback(this.convertDracoGeometryTo3JS(dracoDecoder, wrapper,
+          geometryType, buffer));
+    },
+
+    convertDracoGeometryTo3JS: function(dracoDecoder, wrapper, geometryType,
+                                        buffer) {
+        let dracoGeometry;
+        const start_time = performance.now();
+        if (geometryType == dracoDecoder.TRIANGULAR_MESH) {
+          dracoGeometry = wrapper.DecodeMeshFromBuffer(buffer);
+        } else {
+          dracoGeometry = wrapper.DecodePointCloudFromBuffer(buffer);
+        }
+        const decode_end = performance.now();
+        dracoDecoder.destroy(buffer);
+        /*
+         * Example on how to retrieve mesh and attributes.
+         */
+        let numFaces, numPoints;
+        let numVertexCoordinates, numTextureCoordinates, numAttributes;
+        // For output basic geometry information.
+        let geometryInfoStr;
+        if (geometryType == dracoDecoder.TRIANGULAR_MESH) {
+          numFaces = dracoGeometry.num_faces();
+          if (this.verbosity > 0) {
+            console.log('Number of faces loaded: ' + numFaces.toString());
+          }
+        } else {
+          numFaces = 0;
+        }
+        numPoints = dracoGeometry.num_points();
+        numVertexCoordinates = numPoints * 3;
+        numTextureCoordinates = numPoints * 2;
+        numAttributes = dracoGeometry.num_attributes();
+        if (this.verbosity > 0) {
+          console.log('Number of points loaded: ' + numPoints.toString());
+          console.log('Number of attributes loaded: ' +
+              numAttributes.toString());
+        }
+
+        // Get position attribute. Must exists.
+        const posAttId = wrapper.GetAttributeId(dracoGeometry,
+                                                dracoDecoder.POSITION);
+        if (posAttId == -1) {
+          const errorMsg = 'THREE.DRACOLoader: No position attribute found.';
+          console.error(errorMsg);
+          dracoDecoder.destroy(wrapper);
+          dracoDecoder.destroy(dracoGeometry);
+          throw new Error(errorMsg);
+        }
+        const posAttribute = wrapper.GetAttribute(dracoGeometry, posAttId);
+        const posAttributeData = new dracoDecoder.DracoFloat32Array();
+        wrapper.GetAttributeFloatForAllPoints(
+            dracoGeometry, posAttribute, posAttributeData);
+        // Get color attributes if exists.
+        const colorAttId = wrapper.GetAttributeId(dracoGeometry,
+                                                  dracoDecoder.COLOR);
+        let colAttributeData;
+        if (colorAttId != -1) {
+          if (this.verbosity > 0) {
+            console.log('Loaded color attribute.');
+          }
+          const colAttribute = wrapper.GetAttribute(dracoGeometry, colorAttId);
+          colAttributeData = new dracoDecoder.DracoFloat32Array();
+          wrapper.GetAttributeFloatForAllPoints(dracoGeometry, colAttribute,
+                                                colAttributeData);
+        }
+
+        // Get normal attributes if exists.
+        const normalAttId =
+            wrapper.GetAttributeId(dracoGeometry, dracoDecoder.NORMAL);
+        let norAttributeData;
+        if (normalAttId != -1) {
+          if (this.verbosity > 0) {
+            console.log('Loaded normal attribute.');
+          }
+          const norAttribute = wrapper.GetAttribute(dracoGeometry, normalAttId);
+          norAttributeData = new dracoDecoder.DracoFloat32Array();
+          wrapper.GetAttributeFloatForAllPoints(dracoGeometry, norAttribute,
+                                                norAttributeData);
+        }
+
+        // Get texture coord attributes if exists.
+        const texCoordAttId =
+            wrapper.GetAttributeId(dracoGeometry, dracoDecoder.TEX_COORD);
+        let textCoordAttributeData;
+        if (texCoordAttId != -1) {
+          if (this.verbosity > 0) {
+            console.log('Loaded texture coordinate attribute.');
+          }
+          const texCoordAttribute = wrapper.GetAttribute(dracoGeometry,
+                                                         texCoordAttId);
+          textCoordAttributeData = new dracoDecoder.DracoFloat32Array();
+          wrapper.GetAttributeFloatForAllPoints(dracoGeometry,
+                                                texCoordAttribute,
+                                                textCoordAttributeData);
+        }
+
+        // Structure for converting to THREEJS geometry later.
+        const numIndices = numFaces * 3;
+        const geometryBuffer = {
+            indices: new Uint32Array(numIndices),
+            vertices: new Float32Array(numVertexCoordinates),
+            normals: new Float32Array(numVertexCoordinates),
+            uvs: new Float32Array(numTextureCoordinates),
+            colors: new Float32Array(numVertexCoordinates)
+        };
+
+        for (let i = 0; i &lt; numVertexCoordinates; i += 3) {
+            geometryBuffer.vertices[i] = posAttributeData.GetValue(i);
+            geometryBuffer.vertices[i + 1] = posAttributeData.GetValue(i + 1);
+            geometryBuffer.vertices[i + 2] = posAttributeData.GetValue(i + 2);
+            // Add color.
+            // ThreeJS vertex colors need to be normalized to properly display
+            if (colorAttId != -1) {
+              geometryBuffer.colors[i] = colAttributeData.GetValue(i) / 255;
+              geometryBuffer.colors[i + 1] =
+                  colAttributeData.GetValue(i + 1) / 255;
+              geometryBuffer.colors[i + 2] =
+                  colAttributeData.GetValue(i + 2) / 255;
+            } else {
+              // Default is white. This is faster than TypedArray.fill().
+              geometryBuffer.colors[i] = 1.0;
+              geometryBuffer.colors[i + 1] = 1.0;
+              geometryBuffer.colors[i + 2] = 1.0;
+            }
+            // Add normal.
+            if (normalAttId != -1) {
+              geometryBuffer.normals[i] = norAttributeData.GetValue(i);
+              geometryBuffer.normals[i + 1] = norAttributeData.GetValue(i + 1);
+              geometryBuffer.normals[i + 2] = norAttributeData.GetValue(i + 2);
+            }
+        }
+
+        // Add texture coordinates.
+        if (texCoordAttId != -1) {
+          for (let i = 0; i &lt; numTextureCoordinates; i += 2) {
+            geometryBuffer.uvs[i] = textCoordAttributeData.GetValue(i);
+            geometryBuffer.uvs[i + 1] = textCoordAttributeData.GetValue(i + 1);
+          }
+        }
+
+        dracoDecoder.destroy(posAttributeData);
+        if (colorAttId != -1)
+          dracoDecoder.destroy(colAttributeData);
+        if (normalAttId != -1)
+          dracoDecoder.destroy(norAttributeData);
+        if (texCoordAttId != -1)
+          dracoDecoder.destroy(textCoordAttributeData);
+
+        // For mesh, we need to generate the faces.
+        if (geometryType == dracoDecoder.TRIANGULAR_MESH) {
+          const ia = new dracoDecoder.DracoInt32Array();
+          for (let i = 0; i &lt; numFaces; ++i) {
+            wrapper.GetFaceFromMesh(dracoGeometry, i, ia);
+            const index = i * 3;
+            geometryBuffer.indices[index] = ia.GetValue(0);
+            geometryBuffer.indices[index + 1] = ia.GetValue(1);
+            geometryBuffer.indices[index + 2] = ia.GetValue(2);
+          }
+          dracoDecoder.destroy(ia);
+        }
+        dracoDecoder.destroy(wrapper);
+        dracoDecoder.destroy(dracoGeometry);
+
+        // Import data to Three JS geometry.
+        const geometry = new THREE.BufferGeometry();
+        if (geometryType == dracoDecoder.TRIANGULAR_MESH) {
+          geometry.setIndex(new(geometryBuffer.indices.length > 65535 ?
+                THREE.Uint32BufferAttribute : THREE.Uint16BufferAttribute)
+              (geometryBuffer.indices, 1));
+        }
+        geometry.addAttribute('position',
+            new THREE.Float32BufferAttribute(geometryBuffer.vertices, 3));
+        geometry.addAttribute('color',
+            new THREE.Float32BufferAttribute(geometryBuffer.colors, 3));
+        if (normalAttId != -1) {
+          geometry.addAttribute('normal',
+              new THREE.Float32BufferAttribute(geometryBuffer.normals, 3));
+        }
+        if (texCoordAttId != -1) {
+          geometry.addAttribute('uv',
+              new THREE.Float32BufferAttribute(geometryBuffer.uvs, 2));
+        }
+        this.decode_time = decode_end - start_time;
+        this.import_time = performance.now() - decode_end;
+
+        if (this.verbosity > 0) {
+          console.log('Decode time: ' + this.decode_time);
+          console.log('Import time: ' + this.import_time);
+        }
+        return geometry;
+    },
+
+    isVersionSupported: function(version, callback) {
+        return THREE.DRACOLoader.getDecoder(this.dracoDecoderType,
+            function(decoder) { return decoder.isVersionSupported(version); });
+    }
+};
+
+/**
+ * Creates and returns a singleton instance of the DracoModule decoder.
+ * The module loading is done asynchronously for WebAssembly. Initialized module
+ * can be accessed through the callback function |onDracoModuleLoadedCallback|.
+ */
+THREE.DRACOLoader.getDecoder = (function() {
+    let decoder;
+
+    return function(dracoDecoderType, onDracoModuleLoadedCallback) {
+        if (typeof DracoModule === 'undefined') {
+          throw new Error('THREE.DRACOLoader: DracoModule not found.');
+        }
+        if (typeof decoder !== 'undefined') {
+          // Module already initialized.
+          if (typeof onDracoModuleLoadedCallback !== 'undefined') {
+            onDracoModuleLoadedCallback(decoder);
+          }
+        } else {
+          dracoDecoderType['onModuleLoaded'] = function(module) {
+            if (typeof onDracoModuleLoadedCallback === 'function') {
+              decoder = module;
+              onDracoModuleLoadedCallback(module);
+            }
+          };
+          DracoModule(dracoDecoderType);
+        }
+    };
+
+})();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Dec 01 2020 20:27:59 GMT-0800 (Pacific Standard Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

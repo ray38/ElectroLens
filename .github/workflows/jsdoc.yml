@@ -1,0 +1,18 @@
+name: Upload Dev Docs to Azure Blog Storage
+on:
+  push:
+    branches: [ tests-integration, master, main ]
+jobs:
+  docandupload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate Docs
+        run: npm run generate-docs
+      - name: Upload Docs
+        uses: bacongobbler/azure-blob-storage-upload@v1.1.1
+        with:
+          source_dir: docs\electrolens\0.3.0
+          container_name: $web
+          connection_string: ${{ secrets.BLOB_CONNECTION_STRING }}
+          sync: false

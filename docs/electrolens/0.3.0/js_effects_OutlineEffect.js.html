@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>js/effects/OutlineEffect.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PCA.html">PCA</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#.load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getCumulativeVariance">getCumulativeVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvalues">getEigenvalues</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getEigenvectors">getEigenvectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getExplainedVariance">getExplainedVariance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getLoadings">getLoadings</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#getStandardDeviations">getStandardDeviations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#invert">invert</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#predict">predict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PCA.html#toJSON">toJSON</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.MTLLoader.MaterialCreator.html">MaterialCreator</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html">OBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#load">OBJLoader2#load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parse">OBJLoader2#parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#parseText">OBJLoader2#parseText</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setDebug">OBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setMaterials">OBJLoader2#setMaterials</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setPath">OBJLoader2#setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.html#.OBJLoader2#setSceneGraphBaseNode">OBJLoader2#setSceneGraphBaseNode</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html">WWOBJLoader2</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#clearAllCallbacks">WWOBJLoader2#clearAllCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#prepareRun">WWOBJLoader2#prepareRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackCompletedLoading">WWOBJLoader2#registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackErrorWhileLoading">WWOBJLoader2#registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMaterialsLoaded">WWOBJLoader2#registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackMeshLoaded">WWOBJLoader2#registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#registerCallbackProgress">WWOBJLoader2#registerCallbackProgress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#run">WWOBJLoader2#run</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setCrossOrigin">WWOBJLoader2#setCrossOrigin</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setDebug">WWOBJLoader2#setDebug</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.html#.WWOBJLoader2#setRequestTerminate">WWOBJLoader2#setRequestTerminate</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html">WWOBJLoader2Director</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#deregister">WWOBJLoader2Director#deregister</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#enqueueForRun">WWOBJLoader2Director#enqueueForRun</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxQueueSize">WWOBJLoader2Director#getMaxQueueSize</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#getMaxWebWorkers">WWOBJLoader2Director#getMaxWebWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#prepareWorkers">WWOBJLoader2Director#prepareWorkers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#processQueue">WWOBJLoader2Director#processQueue</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2Director.html#.WWOBJLoader2Director#setCrossOrigin">WWOBJLoader2Director#setCrossOrigin</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride.html">LoadedMeshUserOverride</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html">PrepDataArrayBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html">PrepDataCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackCompletedLoading">registerCallbackCompletedLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackErrorWhileLoading">registerCallbackErrorWhileLoading</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMaterialsLoaded">registerCallbackMaterialsLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackMeshLoaded">registerCallbackMeshLoaded</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataCallbacks.html#.registerCallbackProgress">registerCallbackProgress</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html">PrepDataFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.getCallbacks">getCallbacks</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setRequestTerminate">setRequestTerminate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setSceneGraphBaseNode">setSceneGraphBaseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="THREE.OBJLoader2.WWOBJLoader2.PrepDataFile.html#.setStreamMeshes">setStreamMeshes</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="THREE.VolumeSlice.html">VolumeSlice</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Tweenable.html">Tweenable</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrangeMoleculeDataToFrame">arrangeMoleculeDataToFrame</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#axis">axis</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvas">canvas</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#canvasBuffer">canvasBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#clearProgressMessage">clearProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#colorMapDict">colorMapDict</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#css">css</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctx">ctx</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#ctxBuffer">ctxBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#d3csvUpdateProgressBar">d3csvUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#debugMessage">debugMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#detectCreateImageBitmap">detectCreateImageBitmap</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Detector">Detector</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#dispose">dispose</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#disposeMeshOrGroup">disposeMeshOrGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#drawLines">drawLines</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endChunk">endChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#endOfContent">endOfContent</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#flattenToBuffers">flattenToBuffers</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#geometryNeedsUpdate">geometryNeedsUpdate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getColor">getColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getFocalLength">getFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleFiles">handleFiles</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#handleViewSetup">handleViewSetup</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#index">index</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html">interpolate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isPlaying">isPlaying</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#mesh">mesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#nextChunk">nextChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeLatticeVectors">normalizeLatticeVectors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#normalizeShadow">normalizeShadow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parse">parse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parseNode">parseNode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#pause">pause</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#queueUpdateProgressBar">queueUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readByte">readByte</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readChunk">readChunk</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readColor">readColor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readDWord">readDWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFaceArray">readFaceArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFile">readFile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readFloat">readFloat</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInputForm">readInputForm</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readInt">readInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMap">readMap</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialEntry">readMaterialEntry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMaterialGroup">readMaterialGroup</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMesh">readMesh</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readMeshData">readMeshData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readNamedObject">readNamedObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readShort">readShort</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readString">readString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#readWord">readWord</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resetPosition">resetPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#.onchange">.onchange</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#GPUComputationRenderer">GPUComputationRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert2D">hilbert2D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#hilbert3D">hilbert3D</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#resume">resume</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#RollerCoasterGeometry">RollerCoasterGeometry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#sanitizeNodeName">sanitizeNodeName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#seek">seek</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#set">set</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setBezierFunction">setBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setConfig">setConfig</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setFocalLength">setFocalLength</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setPath">setPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setProgressMessage">setProgressMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setScheduleFunction">setScheduleFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#setViewOffset">setViewOffset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#SimplexNoise">SimplexNoise</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#stop">stop</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#streamUpdateProgressBar">streamUpdateProgressBar</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#tween">tween</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#unsetBezierFunction">unsetBezierFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#volume">volume</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#WEBVR">WEBVR</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">js/effects/OutlineEffect.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @author takahirox / http://github.com/takahirox/
+ *
+ * Reference: https://en.wikipedia.org/wiki/Cel_shading
+ *
+ * // How to set default outline parameters
+ * new THREE.OutlineEffect( renderer, {
+ * 	defaultThickNess: 0.01,
+ * 	defaultColor: new THREE.Color( 0x888888 ),
+ * 	defaultAlpha: 0.8,
+ * 	defaultKeepAlive: true // keeps outline material in cache even if material is removed from scene
+ * } );
+ *
+ * // How to set outline parameters for each material
+ * material.outlineParameters = {
+ * 	thickNess: 0.01,
+ * 	color: new THREE.Color( 0x888888 ),
+ * 	alpha: 0.8,
+ * 	visible: true,
+ * 	keepAlive: true
+ * };
+ *
+ * TODO
+ *  - support shader material without objectNormal in its vertexShader
+ */
+
+THREE.OutlineEffect = function ( renderer, parameters ) {
+
+	parameters = parameters || {};
+
+	this.enabled = true;
+
+	var defaultThickness = parameters.defaultThickness !== undefined ? parameters.defaultThickness : 0.003;
+	var defaultColor = parameters.defaultColor !== undefined ? parameters.defaultColor : new THREE.Color( 0x000000 );
+	var defaultAlpha = parameters.defaultAlpha !== undefined ? parameters.defaultAlpha : 1.0;
+	var defaultKeepAlive = parameters.defaultKeepAlive !== undefined ? parameters.defaultKeepAlive : false;
+
+	// object.material.uuid -> outlineMaterial or
+	// object.material[ n ].uuid -> outlineMaterial
+	// save at the outline material creation and release
+	// if it's unused removeThresholdCount frames
+	// unless keepAlive is true.
+	var cache = {};
+
+	var removeThresholdCount = 60;
+
+	// outlineMaterial.uuid -> object.material or
+	// outlineMaterial.uuid -> object.material[ n ]
+	// save before render and release after render.
+	var originalMaterials = {};
+
+	// object.uuid -> originalOnBeforeRender
+	// save before render and release after render.
+	var originalOnBeforeRenders = {};
+
+	//this.cache = cache;  // for debug
+
+	// copied from WebGLPrograms and removed some materials
+	var shaderIDs = {
+		MeshBasicMaterial: 'basic',
+		MeshLambertMaterial: 'lambert',
+		MeshPhongMaterial: 'phong',
+		MeshToonMaterial: 'phong',
+		MeshStandardMaterial: 'physical',
+		MeshPhysicalMaterial: 'physical'
+	};
+
+	var uniformsChunk = {
+		outlineThickness: { type: "f", value: defaultThickness },
+		outlineColor: { type: "c", value: defaultColor },
+		outlineAlpha: { type: "f", value: defaultAlpha }
+	};
+
+	var vertexShaderChunk = [
+
+		"#include &lt;fog_pars_vertex>",
+
+		"uniform float outlineThickness;",
+
+		"vec4 calculateOutline( vec4 pos, vec3 objectNormal, vec4 skinned ) {",
+
+		"	float thickness = outlineThickness;",
+		"	const float ratio = 1.0;", // TODO: support outline thickness ratio for each vertex
+		"	vec4 pos2 = projectionMatrix * modelViewMatrix * vec4( skinned.xyz + objectNormal, 1.0 );",
+		// NOTE: subtract pos2 from pos because BackSide objectNormal is negative
+		"	vec4 norm = normalize( pos - pos2 );",
+		"	return pos + norm * thickness * pos.w * ratio;",
+
+		"}"
+
+	].join( "\n" );
+
+	var vertexShaderChunk2 = [
+
+		"#if ! defined( LAMBERT ) &amp;&amp; ! defined( PHONG ) &amp;&amp; ! defined( TOON ) &amp;&amp; ! defined( PHYSICAL )",
+		"	#ifndef USE_ENVMAP",
+		"		vec3 objectNormal = normalize( normal );",
+		"	#endif",
+		"#endif",
+
+		"#ifdef FLIP_SIDED",
+		"	objectNormal = -objectNormal;",
+		"#endif",
+
+		"#ifdef DECLARE_TRANSFORMED",
+		"	vec3 transformed = vec3( position );",
+		"#endif",
+
+		"gl_Position = calculateOutline( gl_Position, objectNormal, vec4( transformed, 1.0 ) );",
+
+		"#include &lt;fog_vertex>"
+
+	].join( "\n" );
+
+	var fragmentShader = [
+
+		"#include &lt;common>",
+		"#include &lt;fog_pars_fragment>",
+
+		"uniform vec3 outlineColor;",
+		"uniform float outlineAlpha;",
+
+		"void main() {",
+
+		"	gl_FragColor = vec4( outlineColor, outlineAlpha );",
+
+		"	#include &lt;fog_fragment>",
+
+		"}"
+
+	].join( "\n" );
+
+	function createInvisibleMaterial() {
+
+		return new THREE.ShaderMaterial( { name: 'invisible', visible: false } );
+
+	}
+
+	function createMaterial( originalMaterial ) {
+
+		var shaderID = shaderIDs[ originalMaterial.type ];
+		var originalUniforms, originalVertexShader;
+		var outlineParameters = originalMaterial.outlineParameters;
+
+		if ( shaderID !== undefined ) {
+
+			var shader = THREE.ShaderLib[ shaderID ];
+			originalUniforms = shader.uniforms;
+			originalVertexShader = shader.vertexShader;
+
+		} else if ( originalMaterial.isRawShaderMaterial === true ) {
+
+			originalUniforms = originalMaterial.uniforms;
+			originalVertexShader = originalMaterial.vertexShader;
+
+			if ( ! /attribute\s+vec3\s+position\s*;/.test( originalVertexShader ) ||
+			     ! /attribute\s+vec3\s+normal\s*;/.test( originalVertexShader ) ) {
+
+				console.warn( 'THREE.OutlineEffect requires both vec3 position and normal attributes in vertex shader, ' +
+				              'does not draw outline for ' + originalMaterial.name + '(uuid:' + originalMaterial.uuid + ') material.' );
+
+				return createInvisibleMaterial();
+
+			}
+
+		} else if ( originalMaterial.isShaderMaterial === true ) {
+
+			originalUniforms = originalMaterial.uniforms;
+			originalVertexShader = originalMaterial.vertexShader;
+
+		} else {
+
+			return createInvisibleMaterial();
+
+		}
+
+		var uniforms = Object.assign( {}, originalUniforms, uniformsChunk );
+
+		var vertexShader = originalVertexShader
+					// put vertexShaderChunk right before "void main() {...}"
+					.replace( /void\s+main\s*\(\s*\)/, vertexShaderChunk + '\nvoid main()' )
+					// put vertexShaderChunk2 the end of "void main() {...}"
+					// Note: here assums originalVertexShader ends with "}" of "void main() {...}"
+					.replace( /\}\s*$/, vertexShaderChunk2 + '\n}' )
+					// remove any light related lines
+					// Note: here is very sensitive to originalVertexShader
+					// TODO: consider safer way
+					.replace( /#include\s+&lt;[\w_]*light[\w_]*>/g, '' );
+
+		var defines = {};
+
+		if ( ! /vec3\s+transformed\s*=/.test( originalVertexShader ) &amp;&amp;
+		     ! /#include\s+&lt;begin_vertex>/.test( originalVertexShader ) ) defines.DECLARE_TRANSFORMED = true;
+
+		return new THREE.ShaderMaterial( {
+			defines: defines,
+			uniforms: uniforms,
+			vertexShader: vertexShader,
+			fragmentShader: fragmentShader,
+			side: THREE.BackSide,
+			//wireframe: true,
+			skinning: false,
+			morphTargets: false,
+			morphNormals: false,
+			fog: false
+		} );
+
+	}
+
+	function getOutlineMaterialFromCache( originalMaterial ) {
+
+		var data = cache[ originalMaterial.uuid ];
+
+		if ( data === undefined ) {
+
+			data = {
+				material: createMaterial( originalMaterial ),
+				used: true,
+				keepAlive: defaultKeepAlive,
+				count: 0
+			};
+
+			cache[ originalMaterial.uuid ] = data;
+
+		}
+
+		data.used = true;
+
+		return data.material;
+
+	}
+
+	function getOutlineMaterial( originalMaterial ) {
+
+		var outlineMaterial = getOutlineMaterialFromCache( originalMaterial );
+
+		originalMaterials[ outlineMaterial.uuid ] = originalMaterial;
+
+		updateOutlineMaterial( outlineMaterial, originalMaterial );
+
+		return outlineMaterial;
+
+	}
+
+	function setOutlineMaterial( object ) {
+
+		if ( object.material === undefined ) return;
+
+		if ( Array.isArray( object.material ) ) {
+
+			for ( var i = 0, il = object.material.length; i &lt; il; i ++ ) {
+
+				object.material[ i ] = getOutlineMaterial( object.material[ i ] );
+
+			}
+
+		} else {
+
+			object.material = getOutlineMaterial( object.material );
+
+		}
+
+		originalOnBeforeRenders[ object.uuid ] = object.onBeforeRender;
+		object.onBeforeRender = onBeforeRender;
+
+	}
+
+	function restoreOriginalMaterial( object ) {
+
+		if ( object.material === undefined ) return;
+
+		if ( Array.isArray( object.material ) ) {
+
+			for ( var i = 0, il = object.material.length; i &lt; il; i ++ ) {
+
+				object.material[ i ] = originalMaterials[ object.material[ i ].uuid ];
+
+			}
+
+		} else {
+
+			object.material = originalMaterials[ object.material.uuid ];
+
+		}
+
+		object.onBeforeRender = originalOnBeforeRenders[ object.uuid ];
+
+	}
+
+	function onBeforeRender( renderer, scene, camera, geometry, material, group ) {
+
+		var originalMaterial = originalMaterials[ material.uuid ];
+
+		// just in case
+		if ( originalMaterial === undefined ) return;
+
+		updateUniforms( material, originalMaterial );
+
+	}
+
+	function updateUniforms( material, originalMaterial ) {
+
+		var outlineParameters = originalMaterial.outlineParameters;
+
+		material.uniforms.outlineAlpha.value = originalMaterial.opacity;
+
+		if ( outlineParameters !== undefined ) {
+
+			if ( outlineParameters.thickness !== undefined ) material.uniforms.outlineThickness.value = outlineParameters.thickness;
+			if ( outlineParameters.color !== undefined ) material.uniforms.outlineColor.value.copy( outlineParameters.color );
+			if ( outlineParameters.alpha !== undefined ) material.uniforms.outlineAlpha.value = outlineParameters.alpha;
+
+		}
+
+	}
+
+	function updateOutlineMaterial( material, originalMaterial ) {
+
+		if ( material.name === 'invisible' ) return;
+
+		var outlineParameters = originalMaterial.outlineParameters;
+
+		material.skinning = originalMaterial.skinning;
+		material.morphTargets = originalMaterial.morphTargets;
+		material.morphNormals = originalMaterial.morphNormals;
+		material.fog = originalMaterial.fog;
+
+		if ( outlineParameters !== undefined ) {
+
+			if ( originalMaterial.visible === false ) {
+
+				material.visible = false;
+
+			} else {
+
+				material.visible = ( outlineParameters.visible !== undefined ) ? outlineParameters.visible : true;
+
+			}
+
+			material.transparent = ( outlineParameters.alpha !== undefined &amp;&amp; outlineParameters.alpha &lt; 1.0 ) ? true : originalMaterial.transparent;
+
+			if ( outlineParameters.keepAlive !== undefined ) cache[ originalMaterial.uuid ].keepAlive = outlineParameters.keepAlive;
+
+		} else {
+
+			material.transparent = originalMaterial.transparent;
+			material.visible = originalMaterial.visible;
+
+		}
+
+		if ( originalMaterial.wireframe === true || originalMaterial.depthTest === false ) material.visible = false;
+
+	}
+
+	function cleanupCache() {
+
+		var keys;
+
+		// clear originialMaterials
+		keys = Object.keys( originalMaterials );
+
+		for ( var i = 0, il = keys.length; i &lt; il; i ++ ) {
+
+			originalMaterials[ keys[ i ] ] = undefined;
+
+		}
+
+		// clear originalOnBeforeRenders
+		keys = Object.keys( originalOnBeforeRenders );
+
+		for ( var i = 0, il = keys.length; i &lt; il; i ++ ) {
+
+			originalOnBeforeRenders[ keys[ i ] ] = undefined;
+
+		}
+
+		// remove unused outlineMaterial from cache
+		keys = Object.keys( cache );
+
+		for ( var i = 0, il = keys.length; i &lt; il; i ++ ) {
+
+			var key = keys[ i ];
+
+			if ( cache[ key ].used === false ) {
+
+				cache[ key ].count++;
+
+				if ( cache[ key ].keepAlive === false &amp;&amp; cache[ key ].count > removeThresholdCount ) {
+
+					delete cache[ key ];
+
+				}
+
+			} else {
+
+				cache[ key ].used = false;
+				cache[ key ].count = 0;
+
+			}
+
+		}
+
+	}
+
+	this.render = function ( scene, camera, renderTarget, forceClear ) {
+
+		if ( this.enabled === false ) {
+
+			renderer.render( scene, camera, renderTarget, forceClear );
+			return;
+
+		}
+
+		var currentAutoClear = renderer.autoClear;
+		renderer.autoClear = this.autoClear;
+
+		// 1. render normally
+		renderer.render( scene, camera, renderTarget, forceClear );
+
+		// 2. render outline
+		var currentSceneAutoUpdate = scene.autoUpdate;
+		var currentSceneBackground = scene.background;
+		var currentShadowMapEnabled = renderer.shadowMap.enabled;
+
+		scene.autoUpdate = false;
+		scene.background = null;
+		renderer.autoClear = false;
+		renderer.shadowMap.enabled = false;
+
+		scene.traverse( setOutlineMaterial );
+
+		renderer.render( scene, camera, renderTarget );
+
+		scene.traverse( restoreOriginalMaterial );
+
+		cleanupCache();
+
+		scene.autoUpdate = currentSceneAutoUpdate;
+		scene.background = currentSceneBackground;
+		renderer.autoClear = currentAutoClear;
+		renderer.shadowMap.enabled = currentShadowMapEnabled;
+
+	};
+
+	/*
+	 * See #9918
+	 *
+	 * The following property copies and wrapper methods enable
+	 * THREE.OutlineEffect to be called from other *Effect, like
+	 *
+	 * effect = new THREE.VREffect( new THREE.OutlineEffect( renderer ) );
+	 *
+	 * function render () {
+	 *
+ 	 * 	effect.render( scene, camera );
+	 *
+	 * }
+	 */
+	this.autoClear = renderer.autoClear;
+	this.domElement = renderer.domElement;
+	this.shadowMap = renderer.shadowMap;
+
+	this.clear = function ( color, depth, stencil ) {
+
+		renderer.clear( color, depth, stencil );
+
+	};
+
+	this.getPixelRatio = function () {
+
+		return renderer.getPixelRatio();
+
+	};
+
+	this.setPixelRatio = function ( value ) {
+
+		renderer.setPixelRatio( value );
+
+	};
+
+	this.getSize = function () {
+
+		return renderer.getSize();
+
+	};
+
+	this.setSize = function ( width, height, updateStyle ) {
+
+		renderer.setSize( width, height, updateStyle );
+
+	};
+
+	this.setViewport = function ( x, y, width, height ) {
+
+		renderer.setViewport( x, y, width, height );
+
+	};
+
+	this.setScissor = function ( x, y, width, height ) {
+
+		renderer.setScissor( x, y, width, height );
+
+	};
+
+	this.setScissorTest = function ( boolean ) {
+
+		renderer.setScissorTest( boolean );
+
+	};
+
+	this.setRenderTarget = function ( renderTarget ) {
+
+		renderer.setRenderTarget( renderTarget );
+
+	};
+
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Dec 01 2020 20:27:59 GMT-0800 (Pacific Standard Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
