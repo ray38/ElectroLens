@@ -20,7 +20,7 @@ jobs:
       - name: Upload Docs
         uses: bacongobbler/azure-blob-storage-upload@v1.1.1
         with:
-          source_dir: docs\electrolens\0.3.0
+          source_dir: docs
           container_name: $web
           connection_string: ${{ secrets.BLOB_CONNECTION_STRING }}
           sync: false
