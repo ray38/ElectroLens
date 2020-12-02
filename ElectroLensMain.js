@@ -12,7 +12,7 @@ import {hover3DViewSpatiallyResolved, hover3DViewMoleculeBall, hover3DViewMolecu
 import {combineData,readCSVSpatiallyResolvedData,readCSVMoleculeData, processSpatiallyResolvedData,processMoleculeData} from "./Utilities/readDataFile.js";
 
 
-import {arrangeMoleculeDataToFrame,arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
+import {arrangeMoleculeDataToFrame2} from "./Utilities/arrangeData.js";
 
 import {readInputForm} from "./Utilities/readForm.js";
 import {download} from "./Utilities/saveData.js";
@@ -449,9 +449,6 @@ else{
 	}
 	
 	
-
-
-
 	// END INDEX JS
 
 
@@ -476,10 +473,10 @@ else{
 			event.preventDefault();
 			
 			//clears out the initial form layout
-		    uploader.parentNode.removeChild(uploader);
-			uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
-			configForm.parentNode.removeChild(configForm);
-			divider.parentNode.removeChild(divider);
+		    // uploader.parentNode.removeChild(uploader);
+			// uploader_wrapper.parentNode.removeChild(uploader_wrapper);	
+			// configForm.parentNode.removeChild(configForm);
+			// divider.parentNode.removeChild(divider);
 
 			handleViewSetup(CONFIG);
 		});
@@ -512,10 +509,15 @@ function handleFiles() {
 	})
 }
 
-
 function handleViewSetup(data){
 	// initializes loading bar
-	document.getElementById("UI").innerHTML = "<div id='loading_progress' class='inner card border-success'><h3>ElectroLoading</h3><div class='progress'><div class='progress-bar progress-bar-striped progress-bar-animated active' id='loading-progress' role='progressbar' style='width: 5%;'></div></div><div id='loading-message'></div></div>";
+	document.getElementById("UI").innerHTML = `<div id='loading_progress' class='card border-dark'  style='height: 50vh;'>
+		<div class='card-header'><h3>ElectroLens</h3></div>
+		<div class='card-body'>
+		<div class='progress'>
+			<div class='progress-bar progress-bar-striped progress-bar-animated active' id='loading-progress' role='progressbar' style='width: 5%;'></div>
+		</div></div>
+		<div id='loading-message'></div></div>`;
 	const views = data.views;
 	const plotSetup = data.plotSetup;
 	initializeViewSetups(views,plotSetup);
@@ -768,7 +770,7 @@ function main(views,plotSetup) {
 
 
 
-
+	//TODO add button interface 
 	function onKeyDown(e){
 		if (e.keyCode == 72) {showHideAllOptionBoxes(views,showOptionBoxesBool); showOptionBoxesBool = !showOptionBoxesBool;}
 		if (e.keyCode == 70) {
