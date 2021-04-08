@@ -1,6 +1,6 @@
 //  jmol color scheme: http://jmol.sourceforge.net/jscolors/
-export var colorSetup = {
-						"H":   0xFFFFFF, 
+export const colorSetup = {
+						"H":   0xFFFFFF,//0xFFFFFF, 0x3050F8,
 						"He":  0xD9FFFF,
 						"Li":  0xCC80FF,
 						"Be":  0xC2FF00,
@@ -112,7 +112,7 @@ export var colorSetup = {
 					}
 
 // radious, http://periodictable.com/Properties/A/AtomicRadius.an.html
-export var atomRadius = {
+export const atomRadius = {
 						//"H":  0.53,
 						"H":  0.2,
 						"He": 0.31,

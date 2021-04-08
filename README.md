@@ -1,13 +1,10 @@
-# Visaulization tool for high dimensional electronic environment data
+# ElectroLens: a new visualization tool for high-dimensional spatially-resolved features
+![Tests](https://github.com/dzsquared/ElectroLens/workflows/Tests/badge.svg)
 
-written in Threejs and wrapped to desktop  with electron.js 
+## Using
+At present, the application is available by running from source code.  Clone the repo and run `npm install` from the root.
 
-to install, please clone the repo, delete "node_modules" directory, and run "npm install" (please install nodejs/npm if you havent)
+For more information, please see our [Documentation](https://medford-group.github.io/ElectroLens/).
 
-To start, simply type "npm start"
-
-Please refer to the github wiki for information
-
-currently the most updated version is branch devel-0.2
-
-if you would like to test the package (with examples in the ElectroLens-example repo), please use the latest version 
+## Contributing
+We welcome pull requests against the `main` branch.  

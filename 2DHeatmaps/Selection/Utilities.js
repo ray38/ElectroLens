@@ -1,8 +1,11 @@
 import {updateHeatmap} from "../HeatmapView.js";
+import {updatePCAHeatmap} from "../PCAView.js";
+import {updateUmapHeatmap} from "../UmapView.js";
+import {updateComparison} from "../comparisonView.js"
 //import {updatePointCloudGeometry} from "../../3DViews/PointCloud_selection.js";
 
-import {getPointCloudGeometry, updatePointCloudGeometry, removePointCloudGeometry, changePointCloudGeometry, addPointCloudPeriodicReplicates, removePointCloudPeriodicReplicates, updatePointCloudPeriodicReplicates, changePointCloudPeriodicReplicates} from "../../3DViews/PointCloud_selection.js";
-import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, addMoleculePeriodicReplicates, removeMoleculePeriodicReplicates, changeMoleculePeriodicReplicates} from "../../3DViews/MoleculeView.js";
+import {updatePointCloudGeometry,updatePointCloudGeometrySelection} from "../../3DViews/PointCloud.js";
+import {updateMoleculeGeometry,updateMoleculeGeometryScale} from "../../3DViews/MoleculeView.js";
 
 
 /*export function heatmapsResetSelection(views){
@@ -11,73 +14,144 @@ import {getMoleculeGeometry, changeMoleculeGeometry, removeMoleculeGeometry, add
 }*/
 
 export function deselectAllSpatiallyResolvedData(views,spatiallyResolvedData){
-	for (var i=0; i<spatiallyResolvedData.length; i++){
+	for (let i=0; i<spatiallyResolvedData.length; i++){
 			spatiallyResolvedData[i].selected = false;
+			spatiallyResolvedData[i].highlighted = false;
 		}
-
-	/*for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
-		if (view.viewType == '2DHeatmap'){
-			var data = view.data;
-			for (var x in data){
-				for (var y in data[x]){
-					data[x][y].selected = false;
-				}
-			}
-		}
-	}*/
 }
 
 export function selectAllSpatiallyResolvedData(views,spatiallyResolvedData){
-	for (var i=0; i<spatiallyResolvedData.length; i++){
+	for (let i=0; i<spatiallyResolvedData.length; i++){
 			spatiallyResolvedData[i].selected = true;
+			spatiallyResolvedData[i].highlighted = false;
 		}
-
-	/*for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
-		if (view.viewType == '2DHeatmap'){
-			var data = view.data;
-			for (var x in data){
-				for (var y in data[x]){
-					data[x][y].selected = true;
-				}
-			}
-		}
-	}*/
 }
 
 export function deselectAllMoleculeData(views,overallMoleculeData){
-	for (var i=0; i<overallMoleculeData.length; i++){
+	for (let i=0; i<overallMoleculeData.length; i++){
 			overallMoleculeData[i].selected = false;
+			overallMoleculeData[i].highlighted = false;
 		}
-
 }
 
 export function selectAllMoleculeData(views,overallMoleculeData){
-	for (var i=0; i<overallMoleculeData.length; i++){
+	for (let i=0; i<overallMoleculeData.length; i++){
 			overallMoleculeData[i].selected = true;
+			overallMoleculeData[i].highlighted = false;
 		}
 }
 
+
+
 export function updateAllPlots(views){
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
-		if (view.viewType == '2DHeatmap'){
+	const t0 = performance.now();
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
 			updateHeatmap(view);
 		}
-	}
-	
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
+			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
+		}
+
 		if (view.viewType == '3DView'){
-			//if (view.System != null){updatePointCloudGeometry(view);}
 			if (view.systemSpatiallyResolvedDataBoolean) {
-				updatePointCloudGeometry(view);
-				if (view.options.PBCBoolean) {updatePointCloudPeriodicReplicates(view);}
+				// updatePointCloudGeometry(view);
+				updatePointCloudGeometrySelection(view);
 			}
 			if (view.systemMoleculeDataBoolean) {
-				changeMoleculeGeometry(view);
-				if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+				updateMoleculeGeometry(view)
+				// changeMoleculeGeometry(view);
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+			}
+		}
+	}
+	console.log("update all plots took: ", performance.now() - t0)
+}
+
+export function updateAllPlotsSpatiallyResolved(views){
+	const t0 = performance.now();
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
+			updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
+			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
+		}
+
+		if (view.viewType == '3DView'){
+			if (view.systemSpatiallyResolvedDataBoolean) {
+				// updatePointCloudGeometry(view);
+				updatePointCloudGeometrySelection(view);
+			}
+		}
+	}
+	console.log("update all plots spatially resolved took: ", performance.now() - t0)
+}
+
+export function updateAllPlotsMolecule(views){
+	const t0 = performance.now();
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
+			updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
+			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
+		}
+
+		if (view.viewType == '3DView'){
+			if (view.systemMoleculeDataBoolean) {
+				// updateMoleculeGeometryScale(view)
+				updateMoleculeGeometry(view)
+				// changeMoleculeGeometry(view);
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
+			}
+		}
+	}
+	console.log("update all plots molecule took: ", performance.now() - t0)
+}
+
+export function updateAllPlotsMoleculeScale(views){
+	for (let ii =  0; ii < views.length; ii++ ) {
+		const view = views[ii];
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Heatmap"){
+			updateHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == "Comparison"){
+			updateComparison(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'PCA'){
+			updatePCAHeatmap(view);
+		}
+		if (view.viewType == '2DHeatmap' && view.options.plotType == 'Umap'){
+			updateUmapHeatmap(view);
+		}
+
+		if (view.viewType == '3DView'){
+			if (view.systemMoleculeDataBoolean) {
+				updateMoleculeGeometryScale(view)
+				// changeMoleculeGeometry(view);
+				// if (view.options.PBCBoolean) {changeMoleculePeriodicReplicates(view);}
 			}
 		}
 	}
@@ -85,19 +159,35 @@ export function updateAllPlots(views){
 
 
 export function updateSelectionFromHeatmap(view){
-	var data = view.data;
-	for (var x in data){
-		for (var y in data[x]){
-			if (data[x][y].selected) {
-				for (var i = 0; i < data[x][y]['list'].length; i++) {
-					data[x][y]['list'][i].selected = true;
+	console.log('called update heatmap');
+	const data = view.data;
+	for (const x in data){
+		for (const y in data[x]){
+			if (data[x][y].highlighted) {
+				for (let i = 0; i < data[x][y]['list'].length; i++) {
+					data[x][y]['list'][i].highlighted = true;
 				}
 			}
-			/*else {
-				for (var i = 0; i < data[x][y]['list'].length; i++) {
-					data[x][y]['list'][i].selected = false;
-				}
-			}*/
 		}
 	}
+}
+
+export function updateSelectionFromComparison(view){
+	console.log('called update comparison');
+	const overallData = view.data;
+
+	console.log(Object.keys(overallData))
+	Object.keys(overallData).forEach((systemName, index) => { 
+		const data = overallData[systemName].data;
+		for (const x in data){
+			for (const y in data[x]){
+				if (data[x][y].selected) {
+					for (let i = 0; i < data[x][y]['list'].length; i++) {
+						data[x][y]['list'][i].selected = true;
+					}
+				}
+			}
+		}
+	})
+	
 }

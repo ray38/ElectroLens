@@ -1,12 +1,12 @@
 import { updateOptionBoxLocation } from "./optionBoxControl.js";
 import { update2DHeatmapTitlesLocation } from "../2DHeatmaps/Utilities.js";
 export function calculateViewportSizes(views){
-	var twoDViewCount = 0.0, threeDViewCount = 0.0;
+	let twoDViewCount = 0.0, threeDViewCount = 0.0;
 
-	var threeDViewHeight, threeDViewWidth;
-	var twoDViewHeight, twoDViewWidth;
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	let threeDViewHeight, threeDViewWidth;
+	let twoDViewHeight, twoDViewWidth;
+	for (let ii =  0; ii < views.length; ++ii ) {
+		const view = views[ii];
 		if (view.viewType == '2DHeatmap'){ twoDViewCount += 1.0; }
 		if (view.viewType == '3DView'){ threeDViewCount += 1.0; }
 	}
@@ -17,10 +17,10 @@ export function calculateViewportSizes(views){
 	if (twoDViewCount != 0) {twoDViewHeight = 1.0/twoDViewCount;}
 	if (threeDViewCount != 0) {threeDViewHeight = 1.0/threeDViewCount;}
 
-	var twoDViewTopCounter = 0.0, threeDViewTopCounter = 0.0;
+	let twoDViewTopCounter = 0.0, threeDViewTopCounter = 0.0;
 
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ++ii ) {
+		const view = views[ii];
 		if (view.viewType == '2DHeatmap'){ 
 			view.left = threeDViewWidth;
 			view.top = twoDViewTopCounter;
@@ -42,8 +42,8 @@ export function calculateViewportSizes(views){
 }
 
 export function fullscreenOneView(views, view){
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var tempView = views[ii];
+	for (let ii =  0; ii < views.length; ++ii ) {
+		const tempView = views[ii];
 		
 		tempView.left = 0.0;
 		tempView.top = 0.0;
@@ -52,9 +52,9 @@ export function fullscreenOneView(views, view){
 
 		//tempView.guiContainer.style.display = "none";
 		tempView.guiContainer.style.visibility = "hidden";
-		if (tempView.viewType == '2DHeatmap') {
+		/*if (tempView.viewType == '2DHeatmap') {
 			tempView.title.style.visibility = "hidden";
-		}
+		}*/
 	}
 
 	view.left = 0.0;
@@ -63,9 +63,9 @@ export function fullscreenOneView(views, view){
 	view.width = 1.0;
 
 	view.guiContainer.style.visibility = "visible";
-	if (view.viewType == '2DHeatmap') {
+	/*if (view.viewType == '2DHeatmap') {
 		view.title.style.visibility = "visible";
-	}
+	}*/
 
 	updateOptionBoxLocation(views);
 	update2DHeatmapTitlesLocation(views);
@@ -73,12 +73,12 @@ export function fullscreenOneView(views, view){
 }
 
 export function deFullscreen(views){
-	var twoDViewCount = 0.0, threeDViewCount = 0.0;
+	let twoDViewCount = 0.0, threeDViewCount = 0.0;
 
-	var threeDViewHeight, threeDViewWidth;
-	var twoDViewHeight, twoDViewWidth;
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	let threeDViewHeight, threeDViewWidth;
+	let twoDViewHeight, twoDViewWidth;
+	for (let ii =  0; ii < views.length; ++ii ) {
+		const view = views[ii];
 		if (view.viewType == '2DHeatmap'){ twoDViewCount += 1.0; }
 		if (view.viewType == '3DView'){ threeDViewCount += 1.0; }
 	}
@@ -89,10 +89,10 @@ export function deFullscreen(views){
 	if (twoDViewCount != 0) {twoDViewHeight = 1.0/twoDViewCount;}
 	if (threeDViewCount != 0) {threeDViewHeight = 1.0/threeDViewCount;}
 
-	var twoDViewTopCounter = 0.0, threeDViewTopCounter = 0.0;
+	let twoDViewTopCounter = 0.0, threeDViewTopCounter = 0.0;
 
-	for (var ii =  0; ii < views.length; ++ii ) {
-		var view = views[ii];
+	for (let ii =  0; ii < views.length; ++ii ) {
+		const view = views[ii];
 		view.guiContainer.style.visibility = "visible";
 		if (view.viewType == '2DHeatmap'){ 
 			view.left = threeDViewWidth;

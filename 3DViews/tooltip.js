@@ -1,9 +1,9 @@
 export function initialize3DViewTooltip(view){
-	var tempRaycaster = new THREE.Raycaster();
+	const tempRaycaster = new THREE.Raycaster();
 	view.raycaster = tempRaycaster;
 	view.INTERSECTED = null;
 
-	var tempTooltip = document.createElement('div');
+	/*var tempTooltip = document.createElement('div');
 	tempTooltip.setAttribute('style', 'cursor: pointer; text-align: left; display:block;');
 	tempTooltip.style.position = 'absolute';
 	tempTooltip.innerHTML = "";
@@ -15,20 +15,20 @@ export function initialize3DViewTooltip(view){
 	tempTooltip.style.top = 0 + 'px';
 	tempTooltip.style.left = 0 + 'px';
 	view.tooltip = tempTooltip;
-	document.body.appendChild(tempTooltip);
+	document.body.appendChild(tempTooltip);*/
 
 }
 
 
 export function update3DViewTooltip(view){
 
-	var mouse = new THREE.Vector2();
+	const mouse = new THREE.Vector2();
 	mouse.set(	(((event.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
 				(-((event.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
 
 
 	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObjects( view.molecule.atoms );
+	const intersects = view.raycaster.intersectObjects( view.molecule.atoms );
 	//console.log(intersects);
 	if ( intersects.length > 0 ) {
 		//console.log("found intersect")
@@ -36,12 +36,12 @@ export function update3DViewTooltip(view){
 		view.tooltip.style.top = event.clientY + 5  + 'px';
 		view.tooltip.style.left = event.clientX + 5  + 'px';
 
-		var data = view.systemMoleculeData[ intersects[ 0 ].object.dataIndex ];
+		const data = view.systemMoleculeData[ intersects[ 0 ].object.dataIndex ];
 
-		var tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
+		let tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
 									"y: " + data.y + "<br>" +
 									"z: " + data.z + "<br>";
-		for (var property in data ) {
+		for (const property in data ) {
 			if (data.hasOwnProperty(property)) {
 				if (property != "xPlot" && property != "yPlot" && property != "zPlot" && property != "x" && property != "y" && property != "z" && property != "selected"){
 					tempDisplayedInfo += property + ": " + data[property] + "<br>";
@@ -67,53 +67,3 @@ export function update3DViewTooltip(view){
 			view.INTERSECTED = null;
 	}
 }
-
-/*
-export function update3DViewTooltip(view){
-
-	var mouse = new THREE.Vector2();
-	mouse.set(	(((event.clientX-view.windowLeft)/(view.windowWidth)) * 2 - 1),
-				(-((event.clientY-view.windowTop)/(view.windowHeight)) * 2 + 1));
-
-
-	view.raycaster.setFromCamera( mouse.clone(), view.camera );
-	var intersects = view.raycaster.intersectObject( view.System );
-	if ( intersects.length > 0 ) {
-		//console.log("found intersect")
-		
-		view.tooltip.style.top = event.clientY + 5  + 'px';
-		view.tooltip.style.left = event.clientX + 5  + 'px';
-
-		var interesctIndex = intersects[ 0 ].index;
-		var tempDisplayedInfo = 	"x: " + data.x + "<br>" + 
-									"y: " + data.y + "<br>" +
-									"z: " + data.z + "<br>";
-		for (var property in data ) {
-			if (data.hasOwnProperty(property)) {
-				if (property != "xPlot" && property != "yPlot" && property != "zPlot" && property != "x" && property != "y" && property != "z" && property != "selected"){
-					tempDisplayedInfo += property + ": " + data[property] + "<br>";
-				}
-			}
-		}
-
-		view.tooltip.innerHTML = 	tempDisplayedInfo;
-
-		if ( view.INTERSECTED != intersects[ 0 ].index ) {
-			if (view.INTERSECTED != null){
-				view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-				view.System.geometry.attributes.size.needsUpdate = true;
-			}
-			view.INTERSECTED = intersects[ 0 ].index;
-			view.System.geometry.attributes.size.array[ view.INTERSECTED ] = 2 * view.options.pointCloudSize;
-			view.System.geometry.attributes.size.needsUpdate = true;
-		}
-
-	}
-	else {	view.tooltip.innerHTML = '';
-			if (view.INTERSECTED != null){
-				view.System.geometry.attributes.size.array[ view.INTERSECTED ] = view.options.pointCloudSize;
-				view.System.geometry.attributes.size.needsUpdate = true;
-			}
-			view.INTERSECTED = null;
-	}
-}*/

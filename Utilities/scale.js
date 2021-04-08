@@ -1,31 +1,39 @@
 export function calcDefaultScalesSpatiallyResolvedData(plotSetup,spatiallyResolvedData){
-	var result = {};
-	var propertyList = plotSetup.spatiallyResolvedPropertyList;
-	for (var i = 0; i < propertyList.length; i++) {
-	    var property = propertyList[i];
-	    var xValue = function(d) {return d[property];}
-	    var xMin = d3.min(spatiallyResolvedData,xValue);
-		var xMax = d3.max(spatiallyResolvedData,xValue);
+	const result = {};
+	const propertyList = plotSetup.spatiallyResolvedPropertyList;
+	for (let i = 0; i < propertyList.length; i++) {
+	    const property = propertyList[i];
+	    const xValue = function(d) {return d[property];}
+	    const xMin = d3.min(spatiallyResolvedData,xValue);
+		const xMax = d3.max(spatiallyResolvedData,xValue);
 		result[property] = {'min':xMin, 'max':xMax};
 	}
 	return result;
 }
 
 export function adjustColorScaleAccordingToDefaultSpatiallyResolvedData(view){
-	view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
-	view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
+	if (view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'] != 
+		view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max']) {
+		view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'];
+		view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'];
+	}
+	else {
+		view.options.pointCloudColorSettingMin = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['min'] - 0.5;
+		view.options.pointCloudColorSettingMax = view.defaultScalesSpatiallyResolvedData[view.options.propertyOfInterest]['max'] + 0.5;
+	}
+	
 }
 
 
 export function calcDefaultScalesMoleculeData(plotSetup,moleculeData){
-	var result = {};
-	var propertyList = plotSetup.moleculePropertyList;
-	for (var i = 0; i < propertyList.length; i++) {
-	    var property = propertyList[i];
+	const result = {};
+	const propertyList = plotSetup.moleculePropertyList;
+	for (let i = 0; i < propertyList.length; i++) {
+	    const property = propertyList[i];
 	    if (property != "atom") {
-		    var xValue = function(d) {return d[property];}
-		    var xMin = d3.min(moleculeData,xValue);
-			var xMax = d3.max(moleculeData,xValue);
+		    const xValue = function(d) {return d[property];}
+		    const xMin = d3.min(moleculeData,xValue);
+			const xMax = d3.max(moleculeData,xValue);
 			result[property] = {'min':xMin, 'max':xMax};
 		}
 	}

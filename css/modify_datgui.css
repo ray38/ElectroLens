@@ -1,0 +1,16 @@
+.dg .property-name {
+    font-size: 9px;
+}
+
+input {
+    line-height: normal;
+    /* height: 12px; */
+}
+
+.dg .cr.function, .dg .cr.function .property-name, .dg .cr.function *, .dg .cr.boolean, .dg .cr.boolean *, .dg .cr.number, .dg .cr.number *, .dg .cr.string, .dg .cr.string * {
+    /* height: 12px; */
+}
+
+.dg .c select {
+    margin-top: 0px;
+}

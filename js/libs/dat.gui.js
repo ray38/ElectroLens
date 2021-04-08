@@ -3235,6 +3235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // Pass down the loaded data
 	      newGuiParams.load = this.load.folders[name];
 	    }
+
 	
 	    var gui = new GUI(newGuiParams);
 	    this.__folders[name] = gui;
@@ -3243,7 +3244,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _dom2.default.addClass(li, 'folder');
 	    return gui;
 	  },
-	
+
+			
 	  open: function open() {
 	    this.closed = false;
 	  },

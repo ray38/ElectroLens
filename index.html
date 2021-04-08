@@ -15,11 +15,65 @@
     .text-divider{margin: 1.2em 0; line-height: 0; text-align: center;}
     .text-divider span{background-color: #ffffff; padding: 0.5em;}
     .text-divider:before{ content: " "; display: block; border-top: 1px solid #e3e3e3; border-bottom: 1px solid #f7f7f7;}
+    .load-window{overflow: scroll;height: 15%; width: 80%;left: 10%;align-items: center;}
+    .config-window{overflow: scroll;height: 75%; width: 80%;left: 10%;align-items: center;}
+    select {
+      height:15px;
+      border-radius:0px;
+      background:#ffffff;
+    }
   </style>
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
   <script src="vendor/jquery/jquery-3.4.1.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.js"></script>
   <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
   <link href="css/main.css" rel="stylesheet" />
+
+  <script src="node_modules/es6/ES6.js"></script>
+    
+  <script src="js/kdtree.js"></script>
+  <script src="js/progressbar.js"></script>
+  <script src="js/three.js"></script>
+<!--
+  <script src="js/three.texttexture.js"></script>
+  <script src="js/three.textsprite.js"></script>
+  <script src="js/jQuery.js"></script>
+  <script src="js/three-spritetext.js"></script>
+  
+  <script src="js/papaparse.js"></script>
+  <script src="3DViews/Utilities.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src='js/LineSegmentsGeometry.js'></script>
+  <script src='js/LineGeometry.js'></script>
+  <script src='js/WireframeGeometry2.js'></script>
+  <script src='js/LineMaterial.js'></script>
+  <script src='js/LineSegments2.js'></script>
+  <script src='js/Line2.js'></script>
+  <script src='js/Wireframe.js'></script>
+-->
+  
+  <script src="js/jeezy.js"></script>
+  <script src="js/data2grid.js"></script>
+  <script src="js/effects/AnaglyphEffect.js"></script>
+  <link rel="stylesheet" type="text/css" href="js/loading-bar.css"/>
+  <script src="js/loading-bar.js"></script>
+
+  
+  
+
+  <script src="js/Detector.js"></script>
+  <script src="js/libs/stats.min.js"></script>
+  <script src="./MultiviewControl/customizeLut.js"></script>
+  <script src="js/controls/OrbitControls.js"></script>
+  <script src="js/controls/TrackballControls.js"></script>
+  <script src="js/libs/dat.gui.js"></script>
+  <script src="D3js/d3.min.js"></script>
+  <script src="D3js/d3-queue.v3.min.js"></script>
+
+  <link href="css/modify_datgui.css" rel="stylesheet">
+  
+
+  <script>if (window.module) module = window.module;</script>
 </head>
 <body>
 
@@ -32,7 +86,7 @@
 
       <h5 id="divider" class="text-divider"><span>OR</span></h5>
 
-      <div id="form_wrapper"class="inner2 card border-primary">
+      <div id="form_wrapper"class="inner card border-primary"style="height: 50rem;">
         <div class="card-header">Setup Configuration</div>
         <div class="card-body" style="overflow-y:scroll;">
           <form id="configForm" >
@@ -68,9 +122,15 @@
                 </div>
               </div>
               <div class="col">
-                <div class="form-group" id="densityCutoffForm" style="display:none;">
-                  <label for="densityCutoff">Density Cutoff: </label>
-                  <input autocomplete="off" class="input" id="densityCutoff" name="densityCutoff" type="number" step=any data-items="8" value=1e-3 disabled>
+                <div class="form-group" id="densityCutoffLowForm" style="display:none;">
+                  <label for="densityCutoffLow">Density Lower Limit: </label>
+                  <input autocomplete="off" class="input" id="densityCutoffLow" name="densityCutoffLow" type="number" step=any data-items="8" value=1e-3 disabled>
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-group" id="densityCutoffUpForm" style="display:none;">
+                  <label for="densityCutoffUp">Density Upper Limit: </label>
+                  <input autocomplete="off" class="input" id="densityCutoffUp" name="densityCutoffUp" type="number" step=any data-items="8" value=1e6 disabled>
                 </div>
               </div>
             </div>
@@ -103,41 +163,97 @@
                     <label for="boolView1CubicCell">Cubic Cell? </label>
                   </div>
                 </div>
+
+
                 <div class="form-row">
                   <div class="col">
-                    <label for="view1XMin">x min: </label>
-                    <input type="number" step=any class="input" id="view1XMin" name="view1XMin" value="-5.0">
+                    <label for="view1XDim">x dimension: </label>
+                    <input type="number" step=any class="input" id="view1XDim" name="view1XDim" value="10">
                   </div>
                   <div class="col">
-                    <label for="view1YMin">y min: </label>
-                    <input type="number" step=any class="input" id="view1YMin" name="view1YMin" value="-5.0" disabled>
+                    <label for="view1YDim">y dimension: </label>
+                    <input type="number" step=any class="input" id="view1YDim" name="view1YDim" value="10" disabled>
                   </div>
                   <div class="col">
-                    <label for="view1ZMin">z min: </label>
-                    <input type="number" step=any class="input" id="view1ZMin" name="view1ZMin" value="-5.0" disabled>
+                    <label for="view1ZDim">z dimension: </label>
+                    <input type="number" step=any class="input" id="view1ZDim" name="view1ZDim" value="10" disabled>
                   </div>
-                  
+                </div>
+
+                <div class="form-row">
+                  <div class="col">
+                    <input class="form-check-input" type="checkbox" value="yes" name="boolView1OrthogonalLattice" id="boolView1OrthogonalLattice" checked>
+                    <label for="boolView1OrthogonalLattice">Orthogonal Lattice? </label>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <label>Lattice Vector: </label>
                 </div>
                 <div class="form-row">
                   <div class="col">
-                    <label for="view1XMax">x max: </label>
-                    <input type="number" step=any class="input" id="view1XMax" name="view1XMax" value="4.9">
+                    <label for="view1LatVec11">u11: </label>
+                    <input type="number" step=any class="input" id="view1LatVec11" name="view1LatVec11" value="1" disabled>
                   </div>
                   <div class="col">
-                    <label for="view1YMax">y max: </label>
-                    <input type="number" step=any class="input" id="view1YMax" name="view1YMax" value="4.9" disabled>
+                    <label for="view1LatVec12">u12: </label>
+                    <input type="number" step=any class="input" id="view1LatVec12" name="view1LatVec12" value="0" disabled>
                   </div>
                   <div class="col">
-                    <label for="view1ZMax">z max: </label>
-                    <input type="number" step=any class="input" id="view1ZMax" name="view1ZMax" value="4.9" disabled>
+                    <label for="view1LatVec13">u13: </label>
+                    <input type="number" step=any class="input" id="view1LatVec13" name="view1LatVec13" value="0" disabled>
                   </div>
                 </div>
+                <div class="form-row">
+                  <div class="col">
+                    <label for="view1LatVec21">u21: </label>
+                    <input type="number" step=any class="input" id="view1LatVec21" name="view1LatVec21" value="0" disabled>
+                  </div>
+                  <div class="col">
+                    <label for="view1LatVec22">u22: </label>
+                    <input type="number" step=any class="input" id="view1LatVec22" name="view1LatVec22" value="1" disabled>
+                  </div>
+                  <div class="col">
+                    <label for="view1LatVec23">u23: </label>
+                    <input type="number" step=any class="input" id="view1LatVec23" name="view1LatVec23" value="0" disabled>
+                  </div>
+                </div><div class="form-row">
+                  <div class="col">
+                    <label for="view1LatVec31">u31: </label>
+                    <input type="number" step=any class="input" id="view1LatVec31" name="view1LatVec31" value="0" disabled>
+                  </div>
+                  <div class="col">
+                    <label for="view1LatVec32">u32: </label>
+                    <input type="number" step=any class="input" id="view1LatVec32" name="view1LatVec32" value="0" disabled>
+                  </div>
+                  <div class="col">
+                    <label for="view1LatVec33">u33: </label>
+                    <input type="number" step=any class="input" id="view1LatVec33" name="view1LatVec33" value="1" disabled>
+                  </div>
+                </div>
+
               </div>
 
               <div class="form-group" id="view1SpatiallyResolvedForm" style="display:none;">
                 <div>
                   <label for="view1SpatiallyResolvedDataFilename">Data File for Spatially Resolved Data: </label>
                   <input id="view1SpatiallyResolvedDataFilename" name="view1SpatiallyResolvedDataFilename" type="file" />
+                </div>
+
+                <label>Number grid point: </label>
+                <div class="form-row">
+                  <div class="col">
+                    <label for="view1XNumPoints">x: </label>
+                    <input type="number" step=1 class="input" id="view1XNumPoints" name="view1XNumPoints" value="100">
+                  </div>
+                  <div class="col">
+                    <label for="view1YNumPoints">y: </label>
+                    <input type="number" step=1 class="input" id="view1YNumPoints" name="view1YNumPoints" value="100" disabled>
+                  </div>
+                  <div class="col">
+                    <label for="view1ZNumPoints">z: </label>
+                    <input type="number" step=1 class="input" id="view1ZNumPoints" name="view1ZNumPoints" value="100" disabled>
+                  </div>
                 </div>
 
                 <label>Grid spacing: </label>
@@ -148,11 +264,11 @@
                   </div>
                   <div class="col">
                     <label for="view1YSpacing">y: </label>
-                    <input type="number" step=any class="input" id="view1YSpacing" name="view1YSpacing" value="0.1">
+                    <input type="number" step=any class="input" id="view1YSpacing" name="view1YSpacing" value="0.1" disabled>
                   </div>
                   <div class="col">
                     <label for="view1ZSpacing">z: </label>
-                    <input type="number" step=any class="input" id="view1ZSpacing" name="view1ZSpacing" value="0.1">
+                    <input type="number" step=any class="input" id="view1ZSpacing" name="view1ZSpacing" value="0.1" disabled>
                   </div>
                 </div>
               </div>
@@ -172,6 +288,7 @@
             
 
             <button type="submit" class="btn btn-primary" id="formSubmitButton" disabled>Submit</button>
+            <button type="button" class="btn save-config btn-primary" id="saveConfigButton" disabled>Save Config</button>
           </form>
         </div>
       </div>
@@ -207,30 +324,67 @@
                         </div>\
                         <div class="form-row">\
                           <div class="col">\
-                            <label for="view' + next + 'XMin">x min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'XMin" name="view' + next + 'XMin" value="-5.0">\
+                            <label for="view' + next + 'XDim">x dimension: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'XDim" name="view' + next + 'XDim" value="10">\
                           </div>\
                           <div class="col">\
-                            <label for="view' + next + 'YMin">y min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YMin" name="view' + next + 'YMin" value="-5.0" disabled>\
+                            <label for="view' + next + 'YDim">y dimension: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'YDim" name="view' + next + 'YDim" value="10" disabled>\
                           </div>\
                           <div class="col">\
-                            <label for="view' + next + 'ZMin">z min: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZMin" name="view' + next + 'ZMin" value="-5.0" disabled>\
+                            <label for="view' + next + 'ZDim">z dimension: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'ZDim" name="view' + next + 'ZDim" value="10" disabled>\
                           </div>\
                         </div>\
                         <div class="form-row">\
                           <div class="col">\
-                            <label for="view' + next + 'XMax">x max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'XMax" name="view' + next + 'XMax" value="4.9">\
+                            <input class="form-check-input" type="checkbox" value="yes" name="boolView' + next + 'OrthogonalLattice" id="boolView' + next + 'OrthogonalLattice" checked>\
+                            <label for="boolView' + next + 'OrthogonalLattice">Orthogonal Lattice? </label>\
+                          </div>\
+                        </div>\
+                        <div class="form-row">\
+                          <label>Lattice Vector: </label>\
+                        </div>\
+                        <div class="form-row">\
+                          <div class="col">\
+                            <label for="view' + next + 'LatVec11">u11: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec11" name="view' + next + 'LatVec11" value="1" disabled>\
                           </div>\
                           <div class="col">\
-                            <label for="view' + next + 'YMax">y max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YMax" name="view' + next + 'YMax" value="4.9" disabled>\
+                            <label for="view' + next + 'LatVec12">u12: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec12" name="view' + next + 'LatVec12" value="0" disabled>\
                           </div>\
                           <div class="col">\
-                            <label for="view' + next + 'ZMax">z max: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZMax" name="view' + next + 'ZMax" value="4.9" disabled>\
+                            <label for="view' + next + 'LatVec13">u13: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec13" name="view' + next + 'LatVec13" value="0" disabled>\
+                          </div>\
+                        </div>\
+                        <div class="form-row">\
+                          <div class="col">\
+                            <label for="view' + next + 'LatVec21">u21: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec21" name="view' + next + 'LatVec21" value="0" disabled>\
+                          </div>\
+                          <div class="col">\
+                            <label for="view' + next + 'LatVec22">u22: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec22" name="view' + next + 'LatVec22" value="1" disabled>\
+                          </div>\
+                          <div class="col">\
+                            <label for="view' + next + 'LatVec23">u23: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec23" name="view' + next + 'LatVec23" value="0" disabled>\
+                          </div>\
+                        </div>\
+                        <div class="form-row">\
+                          <div class="col">\
+                            <label for="view' + next + 'LatVec31">u31: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec31" name="view' + next + 'LatVec31" value="0" disabled>\
+                          </div>\
+                          <div class="col">\
+                            <label for="view' + next + 'LatVec32">u32: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec32" name="view' + next + 'LatVec32" value="0" disabled>\
+                          </div>\
+                          <div class="col">\
+                            <label for="view' + next + 'LatVec33">u33: </label>\
+                            <input type="number" step=any class="input" id="view' + next + 'LatVec33" name="view' + next + 'LatVec33" value="1" disabled>\
                           </div>\
                         </div>\
                       </div>\
@@ -238,6 +392,21 @@
                         <div>\
                           <label for="view' + next + 'SpatiallyResolvedDataFilename">Data File for Spatially Resolved Data: </label>\
                           <input id="view' + next + 'SpatiallyResolvedDataFilename" name="view' + next + 'SpatiallyResolvedDataFilename" type="file" />\
+                        </div>\
+                        <label>Number grid point: </label>\
+                        <div class="form-row">\
+                          <div class="col">\
+                            <label for="view' + next + 'XNumPoints">x: </label>\
+                            <input type="number" step=1 class="input" id="view' + next + 'XNumPoints" name="view' + next + 'XNumPoints" value="100">\
+                          </div>\
+                          <div class="col">\
+                            <label for="view' + next + 'YNumPoints">y: </label>\
+                            <input type="number" step=1 class="input" id="view' + next + 'YNumPoints" name="view' + next + 'YNumPoints" value="100" disabled>\
+                          </div>\
+                          <div class="col">\
+                            <label for="view' + next + 'ZNumPoints">z: </label>\
+                            <input type="number" step=1 class="input" id="view' + next + 'ZNumPoints" name="view' + next + 'ZNumPoints" value="100" disabled>\
+                          </div>\
                         </div>\
                         <label>Grid spacing: </label>\
                         <div class="form-row">\
@@ -247,11 +416,11 @@
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'YSpacing">y: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'YSpacing" name="view' + next + 'YSpacing" value="0.1">\
+                            <input type="number" step=any class="input" id="view' + next + 'YSpacing" name="view' + next + 'YSpacing" value="0.1" disabled>\
                           </div>\
                           <div class="col">\
                             <label for="view' + next + 'ZSpacing">z: </label>\
-                            <input type="number" step=any class="input" id="view' + next + 'ZSpacing" name="view' + next + 'ZSpacing" value="0.1">\
+                            <input type="number" step=any class="input" id="view' + next + 'ZSpacing" name="view' + next + 'ZSpacing" value="0.1" disabled>\
                           </div>\
                         </div>\
                       </div>\
@@ -272,24 +441,75 @@
             $("#count").val(next);  
 
             document.getElementById('boolView' + next + 'CubicCell').onchange = function() {
-              document.getElementById('view' + next + 'YMax').disabled = this.checked;
-              document.getElementById('view' + next + 'ZMax').disabled = this.checked;
-              document.getElementById('view' + next + 'YMin').disabled = this.checked;
-              document.getElementById('view' + next + 'ZMin').disabled = this.checked;
-            };
+              document.getElementById('view' + next + 'YDim').disabled = this.checked;
+              document.getElementById('view' + next + 'ZDim').disabled = this.checked;
+              document.getElementById('view' + next + 'YSpacing').disabled = this.checked;
+              document.getElementById('view' + next + 'ZSpacing').disabled = this.checked;
+              document.getElementById('view' + next + 'YNumPoints').disabled = this.checked;
+              document.getElementById('view' + next + 'ZNumPoints').disabled = this.checked;
+            }; 
 
-            document.getElementById('view' + next + 'XMin').onchange = function(){
+            document.getElementById('boolView' + next + 'OrthogonalLattice').onchange = function() {
+            document.getElementById('view' + next + 'LatVec11').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec12').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec13').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec21').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec22').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec23').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec31').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec32').disabled = this.checked;
+            document.getElementById('view' + next + 'LatVec33').disabled = this.checked;
+          };
+
+
+            document.getElementById('view' + next + 'XDim').onchange = function(){
               if (document.getElementById('boolView' + next + 'CubicCell').checked){
-                document.getElementById('view' + next + 'YMin').value = document.getElementById('view' + next + 'XMin').value;
-                document.getElementById('view' + next + 'ZMin').value = document.getElementById('view' + next + 'XMin').value;
+                document.getElementById('view' + next + 'YDim').value = document.getElementById('view' + next + 'XDim').value;
+                document.getElementById('view' + next + 'ZDim').value = document.getElementById('view' + next + 'XDim').value;
+                document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+                document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
               }
+              document.getElementById('view' + next + 'XSpacing').value = document.getElementById('view' + next + 'XDim').value / document.getElementById('view' + next + 'XNumPoints').value;
             }
-            document.getElementById('view' + next + 'XMax').onchange = function(){
+            
+            document.getElementById('view' + next + 'XSpacing').onchange = function(){
               if (document.getElementById('boolView' + next + 'CubicCell').checked){
-                document.getElementById('view' + next + 'YMax').value = document.getElementById('view' + next + 'XMax').value;
-                document.getElementById('view' + next + 'ZMax').value = document.getElementById('view' + next + 'XMax').value;
+                document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'XSpacing').value;
+                document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'XSpacing').value;
+                document.getElementById('view' + next + 'YNumPoints').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YSpacing').value;
+                document.getElementById('view' + next + 'ZNumPoints').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZSpacing').value;
               }
+              document.getElementById('view' + next + 'XNumPoints').value = document.getElementById('view' + next + 'XDim').value / document.getElementById('view' + next + 'XSpacing').value;
             }
+            document.getElementById('view' + next + 'XNumPoints').onchange = function(){
+              if (document.getElementById('boolView' + next + 'CubicCell').checked){
+                document.getElementById('view' + next + 'YNumPoints').value = document.getElementById('view' + next + 'XNumPoints').value;
+                document.getElementById('view' + next + 'ZNumPoints').value = document.getElementById('view' + next + 'XNumPoints').value;
+                document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+                document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
+              }
+              document.getElementById('view' + next + 'XSpacing').value = document.getElementById('view' + next + 'XDim').value / document.getElementById('view' + next + 'XNumPoints').value;
+            }
+
+            document.getElementById('view' + next + 'YDim').onchange = function(){
+              document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+            }
+            document.getElementById('view' + next + 'ZDim').onchange = function(){
+              document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
+            }
+            document.getElementById('view' + next + 'YSpacing').onchange = function(){
+              document.getElementById('view' + next + 'YNumPoints').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YSpacing').value;
+            }
+            document.getElementById('view' + next + 'ZSpacing').onchange = function(){
+              document.getElementById('view' + next + 'ZNumPoints').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZSpacing').value;
+            }
+            document.getElementById('view' + next + 'YNumPoints').onchange = function(){
+              document.getElementById('view' + next + 'YSpacing').value = document.getElementById('view' + next + 'YDim').value / document.getElementById('view' + next + 'YNumPoints').value;
+            }
+            document.getElementById('view' + next + 'ZNumPoints').onchange = function(){
+              document.getElementById('view' + next + 'ZSpacing').value = document.getElementById('view' + next + 'ZDim').value / document.getElementById('view' + next + 'ZNumPoints').value;
+            }
+
 
             
 
@@ -331,16 +551,19 @@
       document.getElementById('boolSpatiallyResolvedData').onchange = function() {
         document.getElementById('propertyListSpatiallyResolved').disabled = !this.checked;
         document.getElementById('densityProperty').disabled = !this.checked;
-        document.getElementById('densityCutoff').disabled = !this.checked;
+        document.getElementById('densityCutoffLow').disabled = !this.checked;
+        document.getElementById('densityCutoffUp').disabled = !this.checked;
         if (this.checked){
           document.getElementById('propertyListSpatiallyResolvedForm').style.display = "block";
           document.getElementById('densityPropertyForm').style.display = "block";
-          document.getElementById('densityCutoffForm').style.display = "block";
+          document.getElementById('densityCutoffLowForm').style.display = "block";
+          document.getElementById('densityCutoffUpForm').style.display = "block";
         }
         else{
           document.getElementById('propertyListSpatiallyResolvedForm').style.display = "none";
           document.getElementById('densityPropertyForm').style.display = "none";
-          document.getElementById('densityCutoffForm').style.display = "none";
+          document.getElementById('densityCutoffLowForm').style.display = "none";
+          document.getElementById('densityCutoffUpForm').style.display = "none";
         }
 
         for (var i = 0; i < NUMBER3DVIEWS; i++) { 
@@ -355,9 +578,12 @@
 
         if (document.getElementById('boolSpatiallyResolvedData').checked  || document.getElementById('boolMolecularData').checked ){
           document.getElementById('formSubmitButton').disabled = false;
+          document.getElementById('saveConfigButton').disabled = false;
+          
         }
         else{
           document.getElementById('formSubmitButton').disabled = true;
+          document.getElementById('saveConfigButton').disabled = true;
         }
         
       };
@@ -383,9 +609,11 @@
 
         if (document.getElementById('boolSpatiallyResolvedData').checked  || document.getElementById('boolMolecularData').checked ){
           document.getElementById('formSubmitButton').disabled = false;
+          document.getElementById('saveConfigButton').disabled = false;
         }
         else{
           document.getElementById('formSubmitButton').disabled = true;
+          document.getElementById('saveConfigButton').disabled = true;
         }
         
       };
@@ -400,136 +628,85 @@
         }
       };
 
+
       document.getElementById('boolView1CubicCell').onchange = function() {
-        document.getElementById('view1YMax').disabled = this.checked;
-        document.getElementById('view1ZMax').disabled = this.checked;
-        document.getElementById('view1YMin').disabled = this.checked;
-        document.getElementById('view1ZMin').disabled = this.checked;
+        document.getElementById('view1YDim').disabled = this.checked;
+        document.getElementById('view1ZDim').disabled = this.checked;
+        document.getElementById('view1YSpacing').disabled = this.checked;
+        document.getElementById('view1ZSpacing').disabled = this.checked;
+        document.getElementById('view1YNumPoints').disabled = this.checked;
+        document.getElementById('view1ZNumPoints').disabled = this.checked;
+      }; 
+
+      document.getElementById('boolView1OrthogonalLattice').onchange = function() {
+        document.getElementById('view1LatVec11').disabled = this.checked;
+        document.getElementById('view1LatVec12').disabled = this.checked;
+        document.getElementById('view1LatVec13').disabled = this.checked;
+        document.getElementById('view1LatVec21').disabled = this.checked;
+        document.getElementById('view1LatVec22').disabled = this.checked;
+        document.getElementById('view1LatVec23').disabled = this.checked;
+        document.getElementById('view1LatVec31').disabled = this.checked;
+        document.getElementById('view1LatVec32').disabled = this.checked;
+        document.getElementById('view1LatVec33').disabled = this.checked;
       };
 
-      document.getElementById('view1XMin').onchange = function(){
+      document.getElementById('view1XDim').onchange = function(){
         if (document.getElementById('boolView1CubicCell').checked){
-          document.getElementById('view1YMin').value = document.getElementById('view1XMin').value;
-          document.getElementById('view1ZMin').value = document.getElementById('view1XMin').value;
+          document.getElementById('view1YDim').value = document.getElementById('view1XDim').value;
+          document.getElementById('view1ZDim').value = document.getElementById('view1XDim').value;
+          document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+          document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
         }
+        document.getElementById('view1XSpacing').value = document.getElementById('view1XDim').value / document.getElementById('view1XNumPoints').value;
       }
-      document.getElementById('view1XMax').onchange = function(){
+      document.getElementById('view1XSpacing').onchange = function(){
         if (document.getElementById('boolView1CubicCell').checked){
-          document.getElementById('view1YMax').value = document.getElementById('view1XMax').value;
-          document.getElementById('view1ZMax').value = document.getElementById('view1XMax').value;
+          document.getElementById('view1YSpacing').value = document.getElementById('view1XSpacing').value;
+          document.getElementById('view1ZSpacing').value = document.getElementById('view1XSpacing').value;
+          document.getElementById('view1YNumPoints').value = document.getElementById('view1YDim').value / document.getElementById('view1YSpacing').value;
+          document.getElementById('view1ZNumPoints').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZSpacing').value;
         }
+        document.getElementById('view1XNumPoints').value = document.getElementById('view1XDim').value / document.getElementById('view1XSpacing').value;
       }
-/*
+      document.getElementById('view1XNumPoints').onchange = function(){
+        if (document.getElementById('boolView1CubicCell').checked){
+          document.getElementById('view1YNumPoints').value = document.getElementById('view1XNumPoints').value;
+          document.getElementById('view1ZNumPoints').value = document.getElementById('view1XNumPoints').value;
+          document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+          document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
+        }
+        document.getElementById('view1XSpacing').value = document.getElementById('view1XDim').value / document.getElementById('view1XNumPoints').value;
+      }
 
-      $("#textBoxA").keyup(function(){
-   $("#textBoxB").val($("#textBoxA").val());
-});
+      document.getElementById('view1YDim').onchange = function(){
+        document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+      }
+      document.getElementById('view1ZDim').onchange = function(){
+        document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
+      }
+      document.getElementById('view1YSpacing').onchange = function(){
+        document.getElementById('view1YNumPoints').value = document.getElementById('view1YDim').value / document.getElementById('view1YSpacing').value;
+      }
+      document.getElementById('view1ZSpacing').onchange = function(){
+        document.getElementById('view1ZNumPoints').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZSpacing').value;
+      }
+      document.getElementById('view1YNumPoints').onchange = function(){
+        document.getElementById('view1YSpacing').value = document.getElementById('view1YDim').value / document.getElementById('view1YNumPoints').value;
+      }
+      document.getElementById('view1ZNumPoints').onchange = function(){
+        document.getElementById('view1ZSpacing').value = document.getElementById('view1ZDim').value / document.getElementById('view1ZNumPoints').value;
+      }
 
-$("#textBoxB").keyup(function(){
-   $("#textBoxA").val($("#textBoxB").val());
-});*/
+
     </script>
 
-    <div id="container"></div>
-
+    <div id="container" loadstatus="0"></div>
 
     <section id='spinner'></section>
     
-    <script src="node_modules/es6/ES6.js"></script>
+
+    <script  type="module" src="ElectroLensMain.js"></script>
     
-    <script src="js/kdtree.js"></script>
-    <script src="js/progressbar.js"></script>
-    <script src="js/three.js"></script>
-    <script src="js/effects/AnaglyphEffect.js"></script>
-    <link rel="stylesheet" type="text/css" href="js/loading-bar.css"/>
-    <script src="js/loading-bar.js"></script>
-
-    <script src='js/LineSegmentsGeometry.js'></script>
-    <script src='js/LineGeometry.js'></script>
-    <script src='js/WireframeGeometry2.js'></script>
-    <script src='js/LineMaterial.js'></script>
-    <script src='js/LineSegments2.js'></script>
-    <script src='js/Line2.js'></script>
-    <script src='js/Wireframe.js'></script>
-
-    <script src="js/jQuery.js"></script>
-    <script src="./node_modules/papaparse/papaparse.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-
-    <script src="js/Detector.js"></script>
-    <script src="js/libs/stats.min.js"></script>
-    <script src="./MultiviewControl/customizeLut.js"></script>
-    <script src="js/controls/OrbitControls.js"></script>
-    <script src="js/controls/TrackballControls.js"></script>
-    <script src="js/libs/dat.gui.js"></script>
-    <script src="D3js/d3.min.js"></script>
-    <script src="D3js/d3-queue.v3.min.js"></script>
-    
-    <script src="3DViews/Utilities.js"></script>
-
-
-    <script type="x-shader/x-vertex" id="vertexshader">
-      attribute float size;
-      attribute vec3 customColor;
-      attribute float alpha;
-
-        varying float vAlpha;
-      varying vec3 vColor;
-
-      void main() {
-        vColor = customColor;
-        vAlpha = alpha;
-        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-        gl_PointSize = size * ( 300.0 / -mvPosition.z );
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    </script>
-
-    <script type="x-shader/x-fragment" id="fragmentshader">
-      uniform vec3 color;
-      uniform sampler2D texture;
-
-      varying vec3 vColor;
-      varying float vAlpha;
-
-      void main() {
-        gl_FragColor = vec4( color * vColor, vAlpha );
-        gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-      }
-    </script>
-    <script type="x-shader/x-vertex" id="vertexshader_molecule">
-      attribute float size;
-      attribute vec3 customColor;
-
-      varying vec3 vColor;
-
-      void main() {
-        vColor = customColor;
-        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-        gl_PointSize = size * ( 300.0 / -mvPosition.z );
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    </script>
-
-    <script type="x-shader/x-fragment" id="fragmentshader_molecule">
-      uniform vec3 color;
-      uniform sampler2D texture;
-
-      varying vec3 vColor;
-
-      void main() {
-        gl_FragColor = vec4( color * vColor, 1.0 );
-        gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-        if ( gl_FragColor.a < ALPHATEST ) discard;
-      }
-    </script>
-
-
-
-    <script src="2D3D_connection_heatmap_test.js"></script>
-    <script>
-      electroLensMain();
-    </script>
  
 </body>
 </html>

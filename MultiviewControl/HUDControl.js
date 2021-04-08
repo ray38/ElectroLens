@@ -1,10 +1,10 @@
 export function setupHUD(view) {
-	var tempSceneHUD = new THREE.Scene();
-	var tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
+	const tempSceneHUD = new THREE.Scene();
+	const tempCameraHUD = new THREE.OrthographicCamera(-10, 10, 10, -10, -10, 10);
 	view.sceneHUD = tempSceneHUD;
 	view.cameraHUD = tempCameraHUD;
 
-	var lineGeometry = new THREE.Geometry();
+	const lineGeometry = new THREE.Geometry();
 	/*lineGeometry.vertices.push(	new THREE.Vector3(-10, -10, 0),
 								new THREE.Vector3(10, -10, 0),
 								new THREE.Vector3(10, 10, 0),
@@ -15,7 +15,7 @@ export function setupHUD(view) {
 								new THREE.Vector3(9.999, 9.999, 0),
 								new THREE.Vector3(-9.999, 9.999, 0),
 								new THREE.Vector3(-9.999, -9.999, 0));
-	var border = new THREE.Line(lineGeometry,
+	const border = new THREE.Line(lineGeometry,
 	new THREE.LineBasicMaterial({
 		color: 0x000000,
 	}));

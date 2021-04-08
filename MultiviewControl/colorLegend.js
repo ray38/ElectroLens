@@ -1,14 +1,14 @@
 export function insertLegend(view){
-	var lut = view.lut;
-	var options = view.options;
-	var legend = lut.setLegendOn( {  'position': { 'x': options.legendX, 'y': options.legendY, 'z': 0 }, 'dimensions': { 'width': options.legendWidth, 'height': options.legendHeight } } );
+	const lut = view.lut;
+	const options = view.options;
+	const legend = lut.setLegendOn( {  'position': { 'x': options.legendX, 'y': options.legendY, 'z': 0 }, 'dimensions': { 'width': options.legendWidth, 'height': options.legendHeight } } );
 	view.sceneHUD.add( legend );
 	view.legend = legend;
-	var labels = lut.setLegendLabels( { /*'title': title,*/ 'ticks': options.legendTick ,'fontsize': options.legendFontsize} );
+	const labels = lut.setLegendLabels( { /*'title': title,*/ 'ticks': options.legendTick ,'fontsize': options.legendFontsize} );
 
 	//view.sceneHUD.add ( labels['title'] );
 
-	for ( var i = 0; i < options.legendTick; i++ ) {
+	for ( let i = 0; i < options.legendTick; i++ ) {
 		view.sceneHUD.add ( labels[ 'ticks' ][ i ] );
 		view.sceneHUD.add ( labels[ 'lines' ][ i ] );
 	}
@@ -16,10 +16,10 @@ export function insertLegend(view){
 
 
 export function removeLegend(view) {
-	var sceneHUD = view.sceneHUD;
-	var elementsInTheScene = sceneHUD.children.length;
+	const sceneHUD = view.sceneHUD;
+	const elementsInTheScene = sceneHUD.children.length;
 
-	for ( var i = elementsInTheScene-1; i > 0; i-- ) {
+	for ( let i = elementsInTheScene-1; i > 0; i-- ) {
 
 		if ( sceneHUD.children [ i ].name != 'camera' &&
 			 sceneHUD.children [ i ].name != 'ambientLight' &&
@@ -41,16 +41,16 @@ export function changeLegend(view) {
 }
 
 export function insertLegendMolecule(view){
-	var lut = view.moleculeLut;
-	var options = view.options;
-	var legend = lut.setLegendOn( {  'position': { 'x': options.legendXMolecule, 'y': options.legendYMolecule, 'z': 0 }, 'dimensions': { 'width': options.legendWidthMolecule, 'height': options.legendHeightMolecule } } );
+	const lut = view.moleculeLut;
+	const options = view.options;
+	const legend = lut.setLegendOn( {  'position': { 'x': options.legendXMolecule, 'y': options.legendYMolecule, 'z': 0 }, 'dimensions': { 'width': options.legendWidthMolecule, 'height': options.legendHeightMolecule } } );
 	view.sceneHUD.add( legend );
 	view.legendMolecule = legend;
-	var labels = lut.setLegendLabels( { /*'title': title,*/ 'ticks': options.legendTickMolecule ,'fontsize': options.legendFontsizeMolecule} );
+	const labels = lut.setLegendLabels( { /*'title': title,*/ 'ticks': options.legendTickMolecule ,'fontsize': options.legendFontsizeMolecule} );
 
 	//view.sceneHUD.add ( labels['title'] );
 
-	for ( var i = 0; i < options.legendTickMolecule; i++ ) {
+	for ( let i = 0; i < options.legendTickMolecule; i++ ) {
 		view.sceneHUD.add ( labels[ 'ticks' ][ i ] );
 		view.sceneHUD.add ( labels[ 'lines' ][ i ] );
 	}
@@ -58,10 +58,10 @@ export function insertLegendMolecule(view){
 
 
 export function removeLegendMolecule(view) {
-	var sceneHUD = view.sceneHUD;
-	var elementsInTheScene = sceneHUD.children.length;
+	const sceneHUD = view.sceneHUD;
+	const elementsInTheScene = sceneHUD.children.length;
 
-	for ( var i = elementsInTheScene-1; i > 0; i-- ) {
+	for ( let i = elementsInTheScene-1; i > 0; i-- ) {
 
 		if ( sceneHUD.children [ i ].name != 'camera' &&
 			 sceneHUD.children [ i ].name != 'ambientLight' &&

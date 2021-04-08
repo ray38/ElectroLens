@@ -14,7 +14,7 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
   //mainWindow = new BrowserWindow({width: 1920, height: 1080})
-  mainWindow = new BrowserWindow({width: 1920, height: 1080, title: "ElectroLens", show:false, icon: path.join(__dirname, 'assets/icons/png/64x64.png')})
+  mainWindow = new BrowserWindow({width: 1920, height: 1080, webPreferences: { nodeIntegration: true }, title: "ElectroLens", show:false, icon: path.join(__dirname, 'assets/icons/png/64x64.png')})
   mainWindow.maximize()
   mainWindow.show()
 
@@ -27,7 +27,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
