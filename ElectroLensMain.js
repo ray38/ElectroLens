@@ -372,14 +372,14 @@ function main(views,plotSetup) {
 			}
 			render(views, plotSetup);
 		}
-		if (e.keyCode == 49) {
+		if (e.keyCode == 81) {
 			//planeSelection = !planeSelection;
 			//pointSelection = false;
 			activeView.options.planeSelection = !activeView.options.planeSelection;
 			activeView.options.brushSelection = false;
 			activeView.gui.updateDisplay();
 		}
-		if (e.keyCode == 50) {
+		if (e.keyCode == 87) {
 			//pointSelection = !pointSelection;
 			//planeSelection = false;
 			activeView.options.brushSelection = !activeView.options.brushSelection;
